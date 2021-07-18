@@ -14,14 +14,20 @@ configure_file(Arundos.h.in Arundos.h)
 # Add source to this project's executable.
 add_executable (Arundos Arundos.cpp)
 
-#target_sources(Arundos PRIVATE Arundos.cpp)
-
 # Add Vulkan and dependant libraries to the project
-#find_package(Vulkan REQUIRED)
-#target_link_libraries(Arundos PRIVATE Vulkan::Vulkan)
+find_package(Vulkan REQUIRED)
 
-#add_subdirectory(glfw)
-#target_link_libraries(Arundos PUBLIC glfw)
+# Add additional libraries for Vulkan
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+
+add_subdirectory(Libraries/glfw3)
+
+add_subdirectory(Libraries/glm)
+
+
+target_link_libraries(Arundos PUBLIC ${EXTRA_LIBS} PRIVATE Vulkan::Vulkan glfw glm)
 
 # add the binary tree to the search path for include files
 # so that we will find TutorialConfig.h

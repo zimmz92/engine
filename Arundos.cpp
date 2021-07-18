@@ -1,7 +1,7 @@
 ﻿// Arundos.cpp : Defines the entry point for the application.
 //
 
-/*#define GLFW_INCLUDE_VULKAN
+#define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
 #define GLM_FORCE_RADIANS
@@ -10,7 +10,7 @@
 #include <glm/mat4x4.hpp>
 
 #include "vulkan/vulkan.h"
-*/
+
 
 #include <cmath>
 #include <iostream>
@@ -18,17 +18,14 @@
 
 #include "Arundos.h"
 
-int main(int argc, char* argv[])
+int main()
 {
 	// Print the version
-	if (argc < 2) {
-		// report version
-		std::cout << argv[0] << " Version " << Arundos_VERSION_MAJOR << "." << Arundos_VERSION_MINOR << std::endl;
-		return 0;
-	}
+    //std::cout << argv[0] << " Version " << Arundos_VERSION_MAJOR << "." << Arundos_VERSION_MINOR << std::endl;
+	//return 0;
 
 
-	/*glfwInit();
+	glfwInit();
 
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	GLFWwindow* window = glfwCreateWindow(800, 600, "Vulkan window", nullptr, nullptr);
@@ -48,7 +45,6 @@ int main(int argc, char* argv[])
 	glfwDestroyWindow(window);
 	
 	glfwTerminate();
-	*/
 	
 	return 0;
 	
