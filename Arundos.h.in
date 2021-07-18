@@ -1,0 +1,3 @@
+// the configured options and settings for Arundos
+#define Arundos_VERSION_MAJOR @Arundos_VERSION_MAJOR@
+#define Arundos_VERSION_MINOR @Arundos_VERSION_MINOR@
