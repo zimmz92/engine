@@ -1,6 +1,7 @@
 ﻿// Arundos.cpp : Defines the entry point for the application.
 //
 
+// Replaces #include "vulkan/vulkan.h"
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
@@ -9,14 +10,57 @@
 #include <glm/vec4.hpp>
 #include <glm/mat4x4.hpp>
 
-#include "vulkan/vulkan.h"
-
-
-#include <cmath>
 #include <iostream>
-#include <string>
+#include <stdexcept>
+#include <cstdlib>
+//#include <cmath>
+//#include <string>
 
 #include "Arundos.h"
+
+// Constants
+const uint32_t WIDTH = 800;
+const uint32_t HEIGHT = 600;
+
+// Class Definition
+class ArundosApplication {
+public:
+	void run() {
+		initWindow();
+		initVulkan();
+		mainLoop();
+		cleanup();
+	}
+
+private:
+
+	GLFWwindow* window;
+
+	void initWindow() {
+		glfwInit();
+
+		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+
+		window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
+	}
+	void initVulkan() {
+
+	}
+
+	void mainLoop() {
+		while (!glfwWindowShouldClose(window)) {
+			glfwPollEvents();
+		}
+	}
+
+	void cleanup() {
+		glfwDestroyWindow(window);
+
+		glfwTerminate();
+	}
+
+};
 
 int main()
 {
@@ -24,28 +68,16 @@ int main()
     //std::cout << argv[0] << " Version " << Arundos_VERSION_MAJOR << "." << Arundos_VERSION_MINOR << std::endl;
 	//return 0;
 
+	ArundosApplication app;
 
-	glfwInit();
-
-	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-	GLFWwindow* window = glfwCreateWindow(800, 600, "Vulkan window", nullptr, nullptr);
-
-	uint32_t extensionCount = 0;
-	vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
-
-	std::cout << extensionCount << " extensions supported\n";
-	glm::mat4 matrix;
-	glm::vec4 vec;
-	auto test = matrix * vec;
-	
-	while (!glfwWindowShouldClose(window)) {
-		glfwPollEvents();
+	try {
+		app.run();
+	} catch (const std::exception& e) {
+		std::cerr << e.what() << std::endl;
+		return EXIT_FAILURE;
 	}
 	
-	glfwDestroyWindow(window);
-	
-	glfwTerminate();
-	
-	return 0;
+	return EXIT_SUCCESS;
 	
 }
+
