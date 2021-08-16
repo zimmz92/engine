@@ -15,6 +15,7 @@
 #include <cstdlib>
 #include <vector>
 #include <string>
+#include <cstring>
 //#include <cmath>
 
 #include "Arundos.h"
@@ -47,6 +48,20 @@ public:
 private:
 	VkInstance instance;
 	GLFWwindow* window;
+
+	std::vector<const char*> getRequiredExtentions() {
+		uint32_t glfwExtensionCount = 0;
+		const char** glfwExtensions;
+		glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+
+		std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
+
+		if (enableValidationLayers) {
+			extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+		}
+
+		return extensions;
+	}
 
 	bool checkValidationLayerSupport() {
 		uint32_t layerCount;
@@ -118,12 +133,9 @@ private:
 		createInfo.pApplicationInfo = &appInfo;
 
 		// Extensions required by glfw to build the window
-		uint32_t glfwExtensionCount = 0;
-		const char** glfwExtensions;
-		glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-
-		createInfo.enabledExtensionCount = glfwExtensionCount;
-		createInfo.ppEnabledExtensionNames = glfwExtensions;
+		auto requiredExtensions = getRequiredExtentions();
+		createInfo.enabledExtensionCount = static_cast<uint32_t>(requiredExtensions.size());
+		createInfo.ppEnabledExtensionNames = requiredExtensions.data();
 
 		// Include validation layers if enabled
 		if (enableValidationLayers) {
@@ -135,22 +147,22 @@ private:
 		}
 
 		// Check if required extensions are supported by the hardware
-		uint32_t extensionCount = 0;
-		vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
-		std::vector<VkExtensionProperties> extensions(extensionCount);
-		vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
+		uint32_t availableExtensionCount = 0;
+		vkEnumerateInstanceExtensionProperties(nullptr, &availableExtensionCount, nullptr);
+		std::vector<VkExtensionProperties> availableExtensions(availableExtensionCount);
+		vkEnumerateInstanceExtensionProperties(nullptr, &availableExtensionCount, availableExtensions.data());
 
 		bool extsUnavail = false;
 
-		for (int i = 0; i < glfwExtensionCount; i++) {
+		for (const auto& requiredExtension : requiredExtensions) {
 			bool extUnavail = true;
-			for (const auto& extention : extensions) {
-				if (strcmp( glfwExtensions[i], extention.extensionName) == 0) {
+			for (const auto& availableExtention : availableExtensions) {
+				if (strcmp(requiredExtension, availableExtention.extensionName) == 0) {
 					extUnavail = false;
 				}
 			}
 			if (extUnavail) {
-				std::cout << "REQUIRED EXTENTION " << glfwExtensions[i] << " UNAVAILABLE!" << '\n';
+				std::cout << "REQUIRED EXTENTION " << requiredExtension << " UNAVAILABLE!" << '\n';
 				extsUnavail = true;
 			}
 		}
