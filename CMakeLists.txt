@@ -26,8 +26,12 @@ add_subdirectory(Libraries/glfw3)
 
 add_subdirectory(Libraries/glm)
 
+include_directories(shaders)
 
 target_link_libraries(Arundos PUBLIC ${EXTRA_LIBS} PRIVATE Vulkan::Vulkan glfw glm)
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/shaders/vert.spv ${CMAKE_CURRENT_BINARY_DIR}/shaders/vert.spv COPYONLY)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/shaders/frag.spv ${CMAKE_CURRENT_BINARY_DIR}/shaders/frag.spv COPYONLY)
 
 # add the binary tree to the search path for include files
 # so that we will find TutorialConfig.h
