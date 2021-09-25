@@ -26,7 +26,9 @@ add_subdirectory(Libraries/glfw3)
 
 add_subdirectory(Libraries/glm)
 
-include_directories(shaders)
+include_directories(engines)
+include_directories(engines/graphics)
+include_directories(engines/graphics/shaders)
 
 target_link_libraries(Arundos PUBLIC ${EXTRA_LIBS} PRIVATE Vulkan::Vulkan glfw glm)
 
@@ -36,9 +38,17 @@ target_include_directories(Arundos PUBLIC
                           "${PROJECT_BINARY_DIR}"
                           )
 
+# Compile shaders for post build reference
+#if(WIN32)
+#  add_custom_command(TARGET <Your target>
+#                       POST_BUILD
+#                       COMMAND cmd /c C:\Users\halo9\Source\Repos\arundos\Engines\Graphics\shaders\compile.bat )
+#
+#endif()
+
 # Add required files required for post build reference
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/shaders/vert.spv ${CMAKE_CURRENT_BINARY_DIR}/shaders/vert.spv COPYONLY)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/shaders/frag.spv ${CMAKE_CURRENT_BINARY_DIR}/shaders/frag.spv COPYONLY)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/engines/graphics/shaders/vert.spv ${CMAKE_CURRENT_BINARY_DIR}/engines/graphics/shaders/vert.spv COPYONLY)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/engines/graphics/shaders/frag.spv ${CMAKE_CURRENT_BINARY_DIR}/engines/graphics/shaders/frag.spv COPYONLY)
 
 
 # TODO: Add tests and install targets if needed.
