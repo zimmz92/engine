@@ -76,7 +76,6 @@ void DestroyDebugUtilsMessenerEXT(
 class ArundosApplication {
 public:
 	void run() {
-		initWindow();
 		initVulkan();
 		mainLoop();
 		cleanup();
@@ -157,18 +156,9 @@ private:
 		return true;
 	}
 
-	void initWindow() {
-		glfwInit();
-
-		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-
-		window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
-	}
 	void initVulkan() {
 		createInstance();
 		setupDebugMessenger();
-		createSurface();
 		pickPhysicalDevice();
 		createLogicalDevice();
 		createSwapChain();
@@ -561,12 +551,6 @@ private:
 		swapChainExtent = extent;
 	}
 
-	void createSurface() {
-		if (glfwCreateWindowSurface(instance, window, nullptr, &surface) != VK_SUCCESS) {
-			throw std::runtime_error("Failed to create window surface!");
-		}
-	}
-
 	void createLogicalDevice() {
 		QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
 
@@ -896,9 +880,6 @@ private:
 		vkDestroySurfaceKHR(instance, surface, nullptr);
 		vkDestroyInstance(instance, nullptr);
 
-		glfwDestroyWindow(window);
-
-		glfwTerminate();
 	}
 
 	void createInstance() {
