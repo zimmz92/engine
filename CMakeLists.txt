@@ -12,7 +12,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 configure_file(Arundos.h.in Arundos.h)
 
 # Add source to this project's executable.
-add_executable (Arundos Arundos.cpp "engines/graphics/ae_window.cpp" "engines/graphics/ae_window.hpp" "engines/graphics/ae_device.hpp" "engines/graphics/shaders/ae_device.cpp")
+add_executable (Arundos Arundos.cpp "engines/graphics/ae_window.cpp" "engines/graphics/ae_window.hpp" "engines/graphics/ae_device.hpp" "engines/graphics/ae_device.cpp" "engines/graphics/ae_pipeline.cpp" "engines/graphics/ae_pipeline.hpp" "first_app.cpp" "first_app.hpp")
 
 # Add Vulkan and dependant libraries to the project
 find_package(Vulkan REQUIRED)
