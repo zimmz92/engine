@@ -1,0 +1,2 @@
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vert.spv ${CMAKE_CURRENT_BINARY_DIR}/vert.spv COPYONLY)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/frag.spv ${CMAKE_CURRENT_BINARY_DIR}/frag.spv COPYONLY)
