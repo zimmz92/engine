@@ -5,6 +5,7 @@
 #include <cstring>
 #include <set>
 #include <unordered_set>
+#include <map>
 
 namespace ae {
 
@@ -107,7 +108,7 @@ namespace ae {
 		}
 
 		// Check if extentions required by GFLW are supported
-		hasGflwRequiredInstanceExtensions();
+		hasGflwRequiredInstanceExtensions(&requiredExtensions);
 
 		// Create Vulkan Instance
 		if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) {
@@ -185,12 +186,12 @@ namespace ae {
 			createInfo.enabledLayerCount = 0;
 		}
 
-		if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) != VK_SUCCESS) {
+		if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device_) != VK_SUCCESS) {
 			throw std::runtime_error("Failed to create logicial device");
 		}
 
-		vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);
-		vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);
+		vkGetDeviceQueue(device_, indices.graphicsFamily.value(), 0, &graphicsQueue_);
+		vkGetDeviceQueue(device_, indices.presentFamily.value(), 0, &presentQueue_);
 	}
 
 	void AeDevice::createCommandPool() {
@@ -203,7 +204,7 @@ namespace ae {
 		// TODO: LittleVulkanEngine tutorial flags defined as below.... why?
 		//poolInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 
-		if (vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS) {
+		if (vkCreateCommandPool(device_, &poolInfo, nullptr, &commandPool) != VK_SUCCESS) {
 			throw std::runtime_error("Failed to create command pool!");
 		}
 	}
@@ -255,20 +256,6 @@ namespace ae {
 		return true;
 	}
 
-	std::vector<const char*> AeDevice::getRequiredExtentions() {
-		uint32_t glfwExtensionCount = 0;
-		const char** glfwExtensions;
-		glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-
-		std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
-
-		if (enableValidationLayers) {
-			extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-		}
-
-		return extensions;
-	}
-
 	int AeDevice::rateDeviceSuitability(VkPhysicalDevice device) {
 		VkPhysicalDeviceProperties deviceProperties;
 		vkGetPhysicalDeviceProperties(device, &deviceProperties);
@@ -303,7 +290,21 @@ namespace ae {
 		return score;
 	}
 
-	void AeDevice::hasGflwRequiredInstanceExtensions() {
+	std::vector<const char*> AeDevice::getRequiredExtentions() {
+		uint32_t glfwExtensionCount = 0;
+		const char** glfwExtensions;
+		glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+
+		std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
+
+		if (enableValidationLayers) {
+			extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+		}
+
+		return extensions;
+	}
+
+	void AeDevice::hasGflwRequiredInstanceExtensions(std::vector<const char*> *requiredExtensions) {
 		// Check if required extensions are supported by the hardware
 		uint32_t availableExtensionCount = 0;
 		vkEnumerateInstanceExtensionProperties(nullptr, &availableExtensionCount, nullptr);
@@ -312,7 +313,7 @@ namespace ae {
 
 		bool extsUnavail = false;
 
-		for (const auto& requiredExtension : requiredExtensions) {
+		for (const auto& requiredExtension : *requiredExtensions) {
 			bool extUnavail = true;
 			for (const auto& availableExtention : availableExtensions) {
 				if (strcmp(requiredExtension, availableExtention.extensionName) == 0) {

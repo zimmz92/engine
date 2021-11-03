@@ -5,6 +5,7 @@
 // Libraries
 #include <string>
 #include <vector>
+#include <optional>
 
 namespace ae {
 
@@ -90,15 +91,20 @@ namespace ae {
 		bool checkValidationLayerSupport();
 		QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
 		void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
-		void hasGflwRequiredInstanceExtensions();
+		void hasGflwRequiredInstanceExtensions(std::vector<const char*>* requiredExtensions);
 		bool checkDeviceExtensionSupport(VkPhysicalDevice device);
 		SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
 
 		VkInstance instance;
 		VkDebugUtilsMessengerEXT debugMessenger;
 		VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-		LveWindow& window;
+		AeWindow& window;
 		VkCommandPool commandPool;
+
+		VkDevice device_;
+		VkSurfaceKHR surface_;
+		VkQueue graphicsQueue_;
+		VkQueue presentQueue_;
 
 		// Validation Layers
 		const std::vector<const char*> validationLayers = {

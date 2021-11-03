@@ -47,7 +47,7 @@ namespace ae {
             const PipelineConfigInfo& configInfo);
         void createShaderModule(const std::vector<char>& code, VkShaderModule* shaderModule);
 
-        AeDevice& AeDevice;
+        AeDevice& aeDevice;
         VkPipeline graphicsPipeline;
         VkShaderModule vertShaderModule;
         VkShaderModule fragShaderModule;
