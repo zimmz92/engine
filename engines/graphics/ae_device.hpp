@@ -45,10 +45,10 @@ namespace ae {
 
 		
 		VkCommandPool getCommandPool() { return commandPool; }
-		VkDevice device() { return device_; }
-		VkSurfaceKHR surface() { return surface_; }
-		VkQueue graphicsQueue() { return graphicsQueue_; }
-		VkQueue presentQueue() { return presentQueue_; }
+		VkDevice device() { return device; }
+		VkSurfaceKHR surface() { return surface; }
+		VkQueue graphicsQueue() { return graphicsQueue; }
+		VkQueue presentQueue() { return presentQueue; }
 
 		SwapChainSupportDetails getSwapChainSupport() { return querySwapChainSupport(physicalDevice); }
 		uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
@@ -101,10 +101,10 @@ namespace ae {
 		AeWindow& window;
 		VkCommandPool commandPool;
 
-		VkDevice device_;
-		VkSurfaceKHR surface_;
-		VkQueue graphicsQueue_;
-		VkQueue presentQueue_;
+		VkDevice device;
+		VkSurfaceKHR surface;
+		VkQueue graphicsQueue;
+		VkQueue presentQueue;
 
 		// Validation Layers
 		const std::vector<const char*> validationLayers = {
