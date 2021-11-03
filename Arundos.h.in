@@ -1,3 +1,28 @@
 // the configured options and settings for Arundos
 #define Arundos_VERSION_MAJOR @Arundos_VERSION_MAJOR@
 #define Arundos_VERSION_MINOR @Arundos_VERSION_MINOR@
+
+#pragma once
+
+#include "ae_pipeline.hpp"
+#include "ae_window.hpp"
+
+namespace ae {
+    class Arundos {
+    public:
+        static constexpr int WIDTH = 800;
+        static constexpr int HEIGHT = 600;
+
+        void run();
+
+    private:
+        AeWindow aeWindow{ WIDTH, HEIGHT, "Hello Vulkan!" };
+        AeDevice aeDevice{ aeWindow };
+        VkPipelineLayout pipelineLayout;
+        AePipeline aePipeline{
+            aeDevice,
+            "engines/graphics/shaders/vert.spv",
+            "engines/graphics/shaders/frag.spv",
+            AePipeline::defaultPipelineConfigInfo(WIDTH, HEIGHT) };
+    };
+}  // namespace ae
