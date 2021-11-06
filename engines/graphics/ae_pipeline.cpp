@@ -9,12 +9,12 @@
 namespace ae {
 
     AePipeline::AePipeline(
-        AeDevice& device,
-        const std::string& vertFilepath,
-        const std::string& fragFilepath,
-        const PipelineConfigInfo& configInfo)
-        : m_aeDevice{ device } {
-        createGraphicsPipeline(vertFilepath, fragFilepath, configInfo);
+        AeDevice& t_device,
+        const std::string& t_vertFilepath,
+        const std::string& t_fragFilepath,
+        const PipelineConfigInfo& t_configInfo)
+        : m_aeDevice{ t_device } {
+        createGraphicsPipeline(t_vertFilepath, t_fragFilepath, t_configInfo);
     }
 
     AePipeline::~AePipeline() {
@@ -23,11 +23,11 @@ namespace ae {
         vkDestroyPipeline(m_aeDevice.device(), m_graphicsPipeline, nullptr);
     }
 
-    std::vector<char> AePipeline::readFile(const std::string& filepath) {
-        std::ifstream file{ filepath, std::ios::ate | std::ios::binary };
+    std::vector<char> AePipeline::readFile(const std::string& t_filepath) {
+        std::ifstream file{ t_filepath, std::ios::ate | std::ios::binary };
 
         if (!file.is_open()) {
-            throw std::runtime_error("Failed to open file: " + filepath);
+            throw std::runtime_error("Failed to open file: " + t_filepath);
         }
 
         size_t fileSize = static_cast<size_t>(file.tellg());
@@ -41,18 +41,18 @@ namespace ae {
     }
 
     void AePipeline::createGraphicsPipeline(
-        const std::string& vertFilepath,
-        const std::string& fragFilepath,
-        const PipelineConfigInfo& configInfo) {
+        const std::string& t_vertFilepath,
+        const std::string& t_fragFilepath,
+        const PipelineConfigInfo& t_configInfo) {
         assert(
-            configInfo.pipelineLayout != nullptr &&
+            t_configInfo.pipelineLayout != nullptr &&
             "Cannot create graphics pipeline: no pipelineLayout provided in config info");
         assert(
-            configInfo.renderPass != nullptr &&
+            t_configInfo.renderPass != nullptr &&
             "Cannot create graphics pipeline: no renderPass provided in config info");
 
-        auto vertCode = readFile(vertFilepath);
-        auto fragCode = readFile(fragFilepath);
+        auto vertCode = readFile(t_vertFilepath);
+        auto fragCode = readFile(t_fragFilepath);
 
         createShaderModule(vertCode, &m_vertShaderModule);
         createShaderModule(fragCode, &m_fragShaderModule);
@@ -85,17 +85,17 @@ namespace ae {
         pipelineInfo.stageCount = 2;
         pipelineInfo.pStages = shaderStages;
         pipelineInfo.pVertexInputState = &vertexInputInfo;
-        pipelineInfo.pInputAssemblyState = &configInfo.inputAssemblyInfo;
-        pipelineInfo.pViewportState = &configInfo.viewportInfo;
-        pipelineInfo.pRasterizationState = &configInfo.rasterizationInfo;
-        pipelineInfo.pMultisampleState = &configInfo.multisampleInfo;
-        pipelineInfo.pColorBlendState = &configInfo.colorBlendInfo;
+        pipelineInfo.pInputAssemblyState = &t_configInfo.inputAssemblyInfo;
+        pipelineInfo.pViewportState = &t_configInfo.viewportInfo;
+        pipelineInfo.pRasterizationState = &t_configInfo.rasterizationInfo;
+        pipelineInfo.pMultisampleState = &t_configInfo.multisampleInfo;
+        pipelineInfo.pColorBlendState = &t_configInfo.colorBlendInfo;
         pipelineInfo.pDynamicState = nullptr;  // Optional
-        pipelineInfo.pDepthStencilState = &configInfo.depthStencilInfo;
+        pipelineInfo.pDepthStencilState = &t_configInfo.depthStencilInfo;
 
-        pipelineInfo.layout = configInfo.pipelineLayout;
-        pipelineInfo.renderPass = configInfo.renderPass;
-        pipelineInfo.subpass = configInfo.subpass;
+        pipelineInfo.layout = t_configInfo.pipelineLayout;
+        pipelineInfo.renderPass = t_configInfo.renderPass;
+        pipelineInfo.subpass = t_configInfo.subpass;
 
         pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;  // Optional
         pipelineInfo.basePipelineIndex = -1;               // Optional
@@ -116,18 +116,18 @@ namespace ae {
         m_vertShaderModule = VK_NULL_HANDLE;
     }
 
-    void AePipeline::createShaderModule(const std::vector<char>& code, VkShaderModule* shaderModule) {
+    void AePipeline::createShaderModule(const std::vector<char>& t_code, VkShaderModule* t_shaderModule) {
         VkShaderModuleCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-        createInfo.codeSize = code.size();
-        createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
+        createInfo.codeSize = t_code.size();
+        createInfo.pCode = reinterpret_cast<const uint32_t*>(t_code.data());
 
-        if (vkCreateShaderModule(m_aeDevice.device(), &createInfo, nullptr, shaderModule) != VK_SUCCESS) {
+        if (vkCreateShaderModule(m_aeDevice.device(), &createInfo, nullptr, t_shaderModule) != VK_SUCCESS) {
             throw std::runtime_error("Failed to create shader module");
         }
     }
 
-    PipelineConfigInfo AePipeline::defaultPipelineConfigInfo(uint32_t width, uint32_t height) {
+    PipelineConfigInfo AePipeline::defaultPipelineConfigInfo(uint32_t t_width, uint32_t t_height) {
         PipelineConfigInfo configInfo{};
 
         configInfo.inputAssemblyInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -136,13 +136,13 @@ namespace ae {
 
         configInfo.viewport.x = 0.0f;
         configInfo.viewport.y = 0.0f;
-        configInfo.viewport.width = static_cast<float>(width);
-        configInfo.viewport.height = static_cast<float>(height);
+        configInfo.viewport.width = static_cast<float>(t_width);
+        configInfo.viewport.height = static_cast<float>(t_height);
         configInfo.viewport.minDepth = 0.0f;
         configInfo.viewport.maxDepth = 1.0f;
 
         configInfo.scissor.offset = { 0, 0 };
-        configInfo.scissor.extent = { width, height };
+        configInfo.scissor.extent = { t_width, t_height };
 
         // Known issue: this creates a self-referencing structure. Fixed in tutorial 05
         configInfo.viewportInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;

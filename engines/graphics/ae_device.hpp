@@ -32,7 +32,7 @@ namespace ae {
 		const bool m_enableValidationLayers = true;
 #endif
 	
-		AeDevice(AeWindow& window);
+		AeDevice(AeWindow& t_window);
 		~AeDevice();
 
 		// Do not allow this class to be copied (2 lines below)
@@ -51,28 +51,28 @@ namespace ae {
 		VkQueue presentQueue() { return m_presentQueue; }
 
 		SwapChainSupportDetails getSwapChainSupport() { return querySwapChainSupport(m_physicalDevice); }
-		uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+		uint32_t findMemoryType(uint32_t t_typeFilter, VkMemoryPropertyFlags t_properties);
 
 		QueueFamilyIndices findPhysicalQueueFamilies() { return findQueueFamilies(m_physicalDevice); }
-		VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+		VkFormat findSupportedFormat(const std::vector<VkFormat>& t_candidates, VkImageTiling t_tiling, VkFormatFeatureFlags t_features);
 
 		// Buffer Helper Functions
 		void createBuffer(
-			VkDeviceSize size,
-			VkBufferUsageFlags usage,
-			VkMemoryPropertyFlags properties,
-			VkBuffer& buffer,
-			VkDeviceMemory& bufferMemory);
+			VkDeviceSize t_size,
+			VkBufferUsageFlags t_usage,
+			VkMemoryPropertyFlags t_properties,
+			VkBuffer& t_buffer,
+			VkDeviceMemory& t_bufferMemory);
 		VkCommandBuffer beginSingleTimeCommands();
-		void endSingleTimeCommands(VkCommandBuffer commandBuffer);
-		void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
-		void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, uint32_t layerCount);
+		void endSingleTimeCommands(VkCommandBuffer t_commandBuffer);
+		void copyBuffer(VkBuffer t_srcBuffer, VkBuffer t_dstBuffer, VkDeviceSize t_size);
+		void copyBufferToImage(VkBuffer t_buffer, VkImage t_image, uint32_t t_width, uint32_t t_height, uint32_t t_layerCount);
 
 		void createImageWithInfo(
-			const VkImageCreateInfo& imageInfo,
-			VkMemoryPropertyFlags properties,
-			VkImage& image,
-			VkDeviceMemory& imageMemory);
+			const VkImageCreateInfo& t_imageInfo,
+			VkMemoryPropertyFlags t_properties,
+			VkImage& t_image,
+			VkDeviceMemory& t_imageMemory);
 
 		VkPhysicalDeviceProperties m_properties;
 
@@ -85,14 +85,14 @@ namespace ae {
 		void createCommandPool();
 
 		// helper functions
-		int rateDeviceSuitability(VkPhysicalDevice device);
+		int rateDeviceSuitability(VkPhysicalDevice t_device);
 		std::vector<const char*> getRequiredExtentions();
 		bool checkValidationLayerSupport();
-		QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
-		void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
-		void hasGflwRequiredInstanceExtensions(std::vector<const char*>* requiredExtensions);
-		bool checkDeviceExtensionSupport(VkPhysicalDevice device);
-		SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
+		QueueFamilyIndices findQueueFamilies(VkPhysicalDevice t_device);
+		void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& t_createInfo);
+		void hasGflwRequiredInstanceExtensions(std::vector<const char*>* t_requiredExtensions);
+		bool checkDeviceExtensionSupport(VkPhysicalDevice t_device);
+		SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice t_device);
 
 		VkInstance m_instance;
 		VkDebugUtilsMessengerEXT m_debugMessenger;

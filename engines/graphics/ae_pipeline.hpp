@@ -26,26 +26,27 @@ namespace ae {
     class AePipeline {
     public:
         AePipeline(
-            AeDevice& device,
-            const std::string& vertFilepath,
-            const std::string& fragFilepath,
-            const PipelineConfigInfo& configInfo);
+            AeDevice& t_device,
+            const std::string& t_vertFilepath,
+            const std::string& t_fragFilepath,
+            const PipelineConfigInfo& t_configInfo);
         ~AePipeline();
 
         // Do not allow this class to be copied (2 lines below)
         AePipeline(const AePipeline&) = delete;
         void operator=(const AePipeline&) = delete;
 
-        static PipelineConfigInfo defaultPipelineConfigInfo(uint32_t width, uint32_t height);
+        static PipelineConfigInfo defaultPipelineConfigInfo(uint32_t t_width, uint32_t t_height);
 
     private:
-        static std::vector<char> readFile(const std::string& filepath);
+        static std::vector<char> readFile(const std::string& t_filepath);
 
         void createGraphicsPipeline(
-            const std::string& vertFilepath,
-            const std::string& fragFilepath,
-            const PipelineConfigInfo& configInfo);
-        void createShaderModule(const std::vector<char>& code, VkShaderModule* shaderModule);
+            const std::string& t_vertFilepath,
+            const std::string& t_fragFilepath,
+            const PipelineConfigInfo& t_configInfo);
+
+        void createShaderModule(const std::vector<char>& t_code, VkShaderModule* t_shaderModule);
 
         AeDevice& m_aeDevice;
         VkPipeline m_graphicsPipeline;

@@ -12,25 +12,25 @@ namespace ae {
 	// Local callback functions
 
 	static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
-		VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-		VkDebugUtilsMessageTypeFlagsEXT messageType,
-		const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-		void* pUserData) {
+		VkDebugUtilsMessageSeverityFlagBitsEXT t_messageSeverity,
+		VkDebugUtilsMessageTypeFlagsEXT t_messageType,
+		const VkDebugUtilsMessengerCallbackDataEXT* t_pCallbackData,
+		void* t_pUserData) {
 
-		std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
+		std::cerr << "validation layer: " << t_pCallbackData->pMessage << std::endl;
 
 		return VK_FALSE;
 	}
 
 	VkResult CreateDebugUtilsMessengerEXT(
-		VkInstance instance,
-		const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
-		const VkAllocationCallbacks* pAllocator,
-		VkDebugUtilsMessengerEXT* pDebugMessenger) {
+		VkInstance t_instance,
+		const VkDebugUtilsMessengerCreateInfoEXT* t_createInfo,
+		const VkAllocationCallbacks* t_allocator,
+		VkDebugUtilsMessengerEXT* t_debugMessenger) {
 
-		auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+		auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(t_instance, "vkCreateDebugUtilsMessengerEXT");
 		if (func != nullptr) {
-			return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
+			return func(t_instance, t_createInfo, t_allocator, t_debugMessenger);
 		}
 		else {
 			return VK_ERROR_EXTENSION_NOT_PRESENT;
@@ -38,18 +38,18 @@ namespace ae {
 	}
 
 	void DestroyDebugUtilsMessenerEXT(
-		VkInstance instance,
-		VkDebugUtilsMessengerEXT debugMessenger,
-		const VkAllocationCallbacks* pAllocator) {
+		VkInstance t_instance,
+		VkDebugUtilsMessengerEXT t_debugMessenger,
+		const VkAllocationCallbacks* t_allocator) {
 
-		auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
+		auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(t_instance, "vkDestroyDebugUtilsMessengerEXT");
 		if (func != nullptr) {
-			func(instance, debugMessenger, pAllocator);
+			func(t_instance, t_debugMessenger, t_allocator);
 		}
 	}
 	
 	// Class member functions
-	AeDevice::AeDevice(AeWindow& window) : m_window{ window } {
+	AeDevice::AeDevice(AeWindow& t_window) : m_window{ t_window } {
 		createInstance();
 		setupDebugMessenger();
 		createSurface();
@@ -211,13 +211,13 @@ namespace ae {
 
 	void AeDevice::createSurface() { m_window.createWindowSurface(m_instance, &m_surface); }
 
-	void AeDevice::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo) {
-		createInfo = {};
-		createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-		createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-		createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-		createInfo.pfnUserCallback = debugCallback;
-		createInfo.pUserData = nullptr; // Optional
+	void AeDevice::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& t_createInfo) {
+		t_createInfo = {};
+		t_createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+		t_createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+		t_createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+		t_createInfo.pfnUserCallback = debugCallback;
+		t_createInfo.pUserData = nullptr; // Optional
 	}
 
 	void AeDevice::setupDebugMessenger() {
@@ -256,14 +256,14 @@ namespace ae {
 		return true;
 	}
 
-	int AeDevice::rateDeviceSuitability(VkPhysicalDevice device) {
+	int AeDevice::rateDeviceSuitability(VkPhysicalDevice t_device) {
 		VkPhysicalDeviceProperties deviceProperties;
-		vkGetPhysicalDeviceProperties(device, &deviceProperties);
+		vkGetPhysicalDeviceProperties(t_device, &deviceProperties);
 
 		VkPhysicalDeviceFeatures deviceFeatures;
-		vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+		vkGetPhysicalDeviceFeatures(t_device, &deviceFeatures);
 
-		QueueFamilyIndices indices = findQueueFamilies(device);
+		QueueFamilyIndices indices = findQueueFamilies(t_device);
 
 		int score = 0;
 
@@ -276,12 +276,12 @@ namespace ae {
 		score += deviceProperties.limits.maxImageDimension2D;
 
 		// Ensure device has required geometry shaders, queue families, and device extentions
-		if (!deviceFeatures.geometryShader || !indices.isComplete() || !checkDeviceExtensionSupport(device)) {
+		if (!deviceFeatures.geometryShader || !indices.isComplete() || !checkDeviceExtensionSupport(t_device)) {
 			return 0;
 		}
 		else {
 			// Check if required swap chain support is available
-			SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device);
+			SwapChainSupportDetails swapChainSupport = querySwapChainSupport(t_device);
 			if (swapChainSupport.formats.empty() || swapChainSupport.presentModes.empty()) {
 				return 0;
 			}
@@ -304,7 +304,7 @@ namespace ae {
 		return extensions;
 	}
 
-	void AeDevice::hasGflwRequiredInstanceExtensions(std::vector<const char*> *requiredExtensions) {
+	void AeDevice::hasGflwRequiredInstanceExtensions(std::vector<const char*> *t_requiredExtensions) {
 		// Check if required extensions are supported by the hardware
 		uint32_t availableExtensionCount = 0;
 		vkEnumerateInstanceExtensionProperties(nullptr, &availableExtensionCount, nullptr);
@@ -313,7 +313,7 @@ namespace ae {
 
 		bool extsUnavail = false;
 
-		for (const auto& requiredExtension : *requiredExtensions) {
+		for (const auto& requiredExtension : *t_requiredExtensions) {
 			bool extUnavail = true;
 			for (const auto& availableExtention : availableExtensions) {
 				if (strcmp(requiredExtension, availableExtention.extensionName) == 0) {
@@ -331,12 +331,12 @@ namespace ae {
 		}
 	}
 
-	bool AeDevice::checkDeviceExtensionSupport(VkPhysicalDevice device) {
+	bool AeDevice::checkDeviceExtensionSupport(VkPhysicalDevice t_device) {
 		uint32_t extensionCount;
-		vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+		vkEnumerateDeviceExtensionProperties(t_device, nullptr, &extensionCount, nullptr);
 
 		std::vector<VkExtensionProperties> availableExtensions(extensionCount);
-		vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
+		vkEnumerateDeviceExtensionProperties(t_device, nullptr, &extensionCount, availableExtensions.data());
 
 		std::set<std::string> requiredExtensions(m_deviceExtensions.begin(), m_deviceExtensions.end());
 
@@ -347,14 +347,14 @@ namespace ae {
 		return requiredExtensions.empty();
 	}
 
-	QueueFamilyIndices AeDevice::findQueueFamilies(VkPhysicalDevice device) {
+	QueueFamilyIndices AeDevice::findQueueFamilies(VkPhysicalDevice t_device) {
 		QueueFamilyIndices indices;
 
 		uint32_t queueFamilyCount = 0;
-		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+		vkGetPhysicalDeviceQueueFamilyProperties(t_device, &queueFamilyCount, nullptr);
 
 		std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+		vkGetPhysicalDeviceQueueFamilyProperties(t_device, &queueFamilyCount, queueFamilies.data());
 
 
 		// TODO: Add logic that supports both drawing and presentation in same queue for improved performance
@@ -365,7 +365,7 @@ namespace ae {
 			  indices.graphicsFamilyHasValue = true;
 			}
 			VkBool32 presentSupport = false;
-			vkGetPhysicalDeviceSurfaceSupportKHR(device, i, m_surface, &presentSupport);
+			vkGetPhysicalDeviceSurfaceSupportKHR(t_device, i, m_surface, &presentSupport);
 			if (queueFamily.queueCount > 0 && presentSupport) {
 			  indices.presentFamily = i;
 			  indices.presentFamilyHasValue = true;
@@ -384,7 +384,7 @@ namespace ae {
 			}
 
 			VkBool32 presentSupport = false;
-			vkGetPhysicalDeviceSurfaceSupportKHR(device, i, m_surface, &presentSupport);
+			vkGetPhysicalDeviceSurfaceSupportKHR(t_device, i, m_surface, &presentSupport);
 
 			if (presentSupport) {
 				indices.presentFamily = i;
@@ -400,24 +400,24 @@ namespace ae {
 		return indices;
 	}
 
-	SwapChainSupportDetails AeDevice::querySwapChainSupport(VkPhysicalDevice device) {
+	SwapChainSupportDetails AeDevice::querySwapChainSupport(VkPhysicalDevice t_device) {
 		SwapChainSupportDetails details;
-		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, m_surface, &details.capabilities);
+		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(t_device, m_surface, &details.capabilities);
 
 		uint32_t formatCount;
-		vkGetPhysicalDeviceSurfaceFormatsKHR(device, m_surface, &formatCount, nullptr);
+		vkGetPhysicalDeviceSurfaceFormatsKHR(t_device, m_surface, &formatCount, nullptr);
 
 		if (formatCount != 0) {
 			details.formats.resize(formatCount);
-			vkGetPhysicalDeviceSurfaceFormatsKHR(device, m_surface, &formatCount, details.formats.data());
+			vkGetPhysicalDeviceSurfaceFormatsKHR(t_device, m_surface, &formatCount, details.formats.data());
 		}
 
 		uint32_t presentModeCount;
-		vkGetPhysicalDeviceSurfacePresentModesKHR(device, m_surface, &presentModeCount, nullptr);
+		vkGetPhysicalDeviceSurfacePresentModesKHR(t_device, m_surface, &presentModeCount, nullptr);
 
 		if (presentModeCount != 0) {
 			details.presentModes.resize(presentModeCount);
-			vkGetPhysicalDeviceSurfacePresentModesKHR(device, m_surface, &presentModeCount, details.presentModes.data());
+			vkGetPhysicalDeviceSurfacePresentModesKHR(t_device, m_surface, &presentModeCount, details.presentModes.data());
 		}
 
 		return details;
@@ -425,16 +425,16 @@ namespace ae {
 
 	// TODO Understand this function
 	VkFormat AeDevice::findSupportedFormat(
-		const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features) {
-		for (VkFormat format : candidates) {
+		const std::vector<VkFormat>& t_candidates, VkImageTiling t_tiling, VkFormatFeatureFlags t_features) {
+		for (VkFormat format : t_candidates) {
 			VkFormatProperties props;
 			vkGetPhysicalDeviceFormatProperties(m_physicalDevice, format, &props);
 
-			if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) {
+			if (t_tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & t_features) == t_features) {
 				return format;
 			}
 			else if (
-				tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) {
+				t_tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & t_features) == t_features) {
 				return format;
 			}
 		}
@@ -442,12 +442,12 @@ namespace ae {
 	}
 
 	// TODO Understand this function
-	uint32_t AeDevice::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
+	uint32_t AeDevice::findMemoryType(uint32_t t_typeFilter, VkMemoryPropertyFlags t_properties) {
 		VkPhysicalDeviceMemoryProperties memProperties;
 		vkGetPhysicalDeviceMemoryProperties(m_physicalDevice, &memProperties);
 		for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
-			if ((typeFilter & (1 << i)) &&
-				(memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
+			if ((t_typeFilter & (1 << i)) &&
+				(memProperties.memoryTypes[i].propertyFlags & t_properties) == t_properties) {
 				return i;
 			}
 		}
@@ -457,34 +457,34 @@ namespace ae {
 
 	// TODO Understand this function
 	void AeDevice::createBuffer(
-		VkDeviceSize size,
-		VkBufferUsageFlags usage,
-		VkMemoryPropertyFlags properties,
-		VkBuffer& buffer,
-		VkDeviceMemory& bufferMemory) {
+		VkDeviceSize t_size,
+		VkBufferUsageFlags t_usage,
+		VkMemoryPropertyFlags t_properties,
+		VkBuffer& t_buffer,
+		VkDeviceMemory& t_bufferMemory) {
 		VkBufferCreateInfo bufferInfo{};
 		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-		bufferInfo.size = size;
-		bufferInfo.usage = usage;
+		bufferInfo.size = t_size;
+		bufferInfo.usage = t_usage;
 		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-		if (vkCreateBuffer(m_device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS) {
+		if (vkCreateBuffer(m_device, &bufferInfo, nullptr, &t_buffer) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create vertex buffer!");
 		}
 
 		VkMemoryRequirements memRequirements;
-		vkGetBufferMemoryRequirements(m_device, buffer, &memRequirements);
+		vkGetBufferMemoryRequirements(m_device, t_buffer, &memRequirements);
 
 		VkMemoryAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 		allocInfo.allocationSize = memRequirements.size;
-		allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
+		allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, t_properties);
 
-		if (vkAllocateMemory(m_device, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
+		if (vkAllocateMemory(m_device, &allocInfo, nullptr, &t_bufferMemory) != VK_SUCCESS) {
 			throw std::runtime_error("failed to allocate vertex buffer memory!");
 		}
 
-		vkBindBufferMemory(m_device, buffer, bufferMemory, 0);
+		vkBindBufferMemory(m_device, t_buffer, t_bufferMemory, 0);
 	}
 
 	// TODO Understand this function
@@ -507,36 +507,36 @@ namespace ae {
 	}
 
 	// TODO Understand this function
-	void AeDevice::endSingleTimeCommands(VkCommandBuffer commandBuffer) {
-		vkEndCommandBuffer(commandBuffer);
+	void AeDevice::endSingleTimeCommands(VkCommandBuffer t_commandBuffer) {
+		vkEndCommandBuffer(t_commandBuffer);
 
 		VkSubmitInfo submitInfo{};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = &commandBuffer;
+		submitInfo.pCommandBuffers = &t_commandBuffer;
 
 		vkQueueSubmit(m_graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
 		vkQueueWaitIdle(m_graphicsQueue);
 
-		vkFreeCommandBuffers(m_device, m_commandPool, 1, &commandBuffer);
+		vkFreeCommandBuffers(m_device, m_commandPool, 1, &t_commandBuffer);
 	}
 
 	// TODO Understand this function
-	void AeDevice::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
+	void AeDevice::copyBuffer(VkBuffer t_srcBuffer, VkBuffer t_dstBuffer, VkDeviceSize t_size) {
 		VkCommandBuffer commandBuffer = beginSingleTimeCommands();
 
 		VkBufferCopy copyRegion{};
 		copyRegion.srcOffset = 0;  // Optional
 		copyRegion.dstOffset = 0;  // Optional
-		copyRegion.size = size;
-		vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+		copyRegion.size = t_size;
+		vkCmdCopyBuffer(commandBuffer, t_srcBuffer, t_dstBuffer, 1, &copyRegion);
 
 		endSingleTimeCommands(commandBuffer);
 	}
 
 	// TODO Understand this function
 	void AeDevice::copyBufferToImage(
-		VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, uint32_t layerCount) {
+		VkBuffer t_buffer, VkImage t_image, uint32_t t_width, uint32_t t_height, uint32_t t_layerCount) {
 		VkCommandBuffer commandBuffer = beginSingleTimeCommands();
 
 		VkBufferImageCopy region{};
@@ -547,15 +547,15 @@ namespace ae {
 		region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 		region.imageSubresource.mipLevel = 0;
 		region.imageSubresource.baseArrayLayer = 0;
-		region.imageSubresource.layerCount = layerCount;
+		region.imageSubresource.layerCount = t_layerCount;
 
 		region.imageOffset = { 0, 0, 0 };
-		region.imageExtent = { width, height, 1 };
+		region.imageExtent = { t_width, t_height, 1 };
 
 		vkCmdCopyBufferToImage(
 			commandBuffer,
-			buffer,
-			image,
+			t_buffer,
+			t_image,
 			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
 			1,
 			&region);
@@ -564,27 +564,27 @@ namespace ae {
 
 	// TODO Understand this function
 	void AeDevice::createImageWithInfo(
-		const VkImageCreateInfo& imageInfo,
-		VkMemoryPropertyFlags properties,
-		VkImage& image,
-		VkDeviceMemory& imageMemory) {
-		if (vkCreateImage(m_device, &imageInfo, nullptr, &image) != VK_SUCCESS) {
+		const VkImageCreateInfo& t_imageInfo,
+		VkMemoryPropertyFlags t_properties,
+		VkImage& t_image,
+		VkDeviceMemory& t_imageMemory) {
+		if (vkCreateImage(m_device, &t_imageInfo, nullptr, &t_image) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create image!");
 		}
 
 		VkMemoryRequirements memRequirements;
-		vkGetImageMemoryRequirements(m_device, image, &memRequirements);
+		vkGetImageMemoryRequirements(m_device, t_image, &memRequirements);
 
 		VkMemoryAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 		allocInfo.allocationSize = memRequirements.size;
-		allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
+		allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, t_properties);
 
-		if (vkAllocateMemory(m_device, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS) {
+		if (vkAllocateMemory(m_device, &allocInfo, nullptr, &t_imageMemory) != VK_SUCCESS) {
 			throw std::runtime_error("failed to allocate image memory!");
 		}
 
-		if (vkBindImageMemory(m_device, image, imageMemory, 0) != VK_SUCCESS) {
+		if (vkBindImageMemory(m_device, t_image, t_imageMemory, 0) != VK_SUCCESS) {
 			throw std::runtime_error("failed to bind image memory!");
 		}
 	}
