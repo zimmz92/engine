@@ -10,7 +10,7 @@ namespace ae {
 
 	class AeWindow {
 	public:
-		AeWindow(int w, int h, std::string name);
+		AeWindow(int t_w, int t_h, std::string t_name);
 		~AeWindow();
 
 		// Do not allow this class to be copied (2 lines below)
@@ -23,7 +23,7 @@ namespace ae {
 
 		bool shouldClose() { return glfwWindowShouldClose(m_window); }
 
-		void createWindowSurface(VkInstance instance, VkSurfaceKHR* surface);
+		void createWindowSurface(VkInstance t_instance, VkSurfaceKHR* t_surface);
 
 		int getWidth() { return m_width; }
 		int getHeight() { return m_height; }
