@@ -21,23 +21,23 @@ namespace ae {
 		AeWindow(AeWindow&&) = delete;
 		AeWindow& operator=(AeWindow&&) = delete;
 
-		bool shouldClose() { return glfwWindowShouldClose(window); }
+		bool shouldClose() { return glfwWindowShouldClose(m_window); }
 
 		void createWindowSurface(VkInstance instance, VkSurfaceKHR* surface);
 
-		int getWidth() { return width; }
-		int getHeight() { return height; }
+		int getWidth() { return m_width; }
+		int getHeight() { return m_height; }
 
-		std::string getWindowName() { return windowName; }
+		std::string getWindowName() { return m_windowName; }
 
 	private:
 		void initWindow();
 
-		const int width;
-		const int height;
+		const int m_width;
+		const int m_height;
 
-		std::string windowName;
-		GLFWwindow* window;
+		std::string m_windowName;
+		GLFWwindow* m_window;
 	}; // class AeWindow
 
 } // namespace ae

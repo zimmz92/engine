@@ -10,17 +10,18 @@
 namespace ae {
     class Arundos {
     public:
+        // TODO Get ride of these public variables....
         static constexpr int WIDTH = 800;
         static constexpr int HEIGHT = 600;
 
         void run();
 
     private:
-        AeWindow aeWindow{ WIDTH, HEIGHT, "Hello Vulkan!" };
-        AeDevice aeDevice{ aeWindow };
-        VkPipelineLayout pipelineLayout;
-        AePipeline aePipeline{
-            aeDevice,
+        AeWindow m_aeWindow{ WIDTH, HEIGHT, "Hello Vulkan!" };
+        AeDevice m_aeDevice{ m_aeWindow };
+        VkPipelineLayout m_pipelineLayout;
+        AePipeline m_aePipeline{
+            m_aeDevice,
             "engines/graphics/shaders/vert.spv",
             "engines/graphics/shaders/frag.spv",
             AePipeline::defaultPipelineConfigInfo(WIDTH, HEIGHT) };

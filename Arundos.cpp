@@ -3,7 +3,7 @@
 namespace ae {
 
     void Arundos::run() {
-        while (!aeWindow.shouldClose()) {
+        while (!m_aeWindow.shouldClose()) {
             glfwPollEvents();
         }
     }
