@@ -11,7 +11,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 #set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Libraries)
 
 # Configure files
-configure_file(Arundos.h.in Arundos.hpp)
+configure_file(Arundos.hpp.in Arundos.hpp)
 
 # Include the binary files so the configured .hpp can be found
 include_directories(${CMAKE_CURRENT_BINARY_DIR})

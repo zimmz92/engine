@@ -4,8 +4,13 @@
 
 #pragma once
 
+#include "ae_device.hpp"
 #include "ae_pipeline.hpp"
+#include "ae_swap_chain.hpp"
 #include "ae_window.hpp"
+
+#include <memory>
+#include <vector>
 
 namespace ae {
     class Arundos {
@@ -14,16 +19,26 @@ namespace ae {
         static constexpr int WIDTH = 800;
         static constexpr int HEIGHT = 600;
 
+        Arundos();
+        ~Arundos();
+
+        // Do not allow this class to be copied (2 lines below)
+        Arundos(const Arundos&) = delete;
+        void operator=(const Arundos&) = delete;
+
         void run();
 
     private:
+        void createPipelineLayout();
+        void createPipeline();
+        void createCommandBuffers();
+        void drawFrame();
+
         AeWindow m_aeWindow{ WIDTH, HEIGHT, "Hello Vulkan!" };
         AeDevice m_aeDevice{ m_aeWindow };
+        AeSwapChain m_aeSwapChain{ m_aeDevice, m_aeWindow.getExtent() };
+        std::unique_ptr<AePipeline> m_aePipeline;
         VkPipelineLayout m_pipelineLayout;
-        AePipeline m_aePipeline{
-            m_aeDevice,
-            "engines/graphics/shaders/vert.spv",
-            "engines/graphics/shaders/frag.spv",
-            AePipeline::defaultPipelineConfigInfo(WIDTH, HEIGHT) };
+        std::vector<VkCommandBuffer> m_commandBuffers;
     };
 }  // namespace ae

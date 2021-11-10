@@ -22,6 +22,7 @@ namespace ae {
 		AeWindow& operator=(AeWindow&&) = delete;
 
 		bool shouldClose() { return glfwWindowShouldClose(m_window); }
+		VkExtent2D getExtent() { return {static_cast<uint32_t>(m_width), static_cast<uint32_t>(m_height)}; }
 
 		void createWindowSurface(VkInstance t_instance, VkSurfaceKHR* t_surface);
 

@@ -6,6 +6,8 @@ target_sources(mySrcFiles
         ae_pipeline.hpp
         ae_window.cpp
         ae_window.hpp
+        ae_swap_chain.cpp
+        ae_swap_chain.hpp
     PUBLIC
 )
 

@@ -152,7 +152,7 @@ namespace ae {
 		QueueFamilyIndices indices = findQueueFamilies(m_physicalDevice);
 
 		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-		std::set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily.value(), indices.presentFamily.value() };
+		std::set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily, indices.presentFamily };
 
 		float queuePriority = 1.0f;
 		for (uint32_t queueFamily : uniqueQueueFamilies) {
@@ -190,8 +190,8 @@ namespace ae {
 			throw std::runtime_error("Failed to create logicial device");
 		}
 
-		vkGetDeviceQueue(m_device, indices.graphicsFamily.value(), 0, &m_graphicsQueue);
-		vkGetDeviceQueue(m_device, indices.presentFamily.value(), 0, &m_presentQueue);
+		vkGetDeviceQueue(m_device, indices.graphicsFamily, 0, &m_graphicsQueue);
+		vkGetDeviceQueue(m_device, indices.presentFamily, 0, &m_presentQueue);
 	}
 
 	void AeDevice::createCommandPool() {
@@ -199,7 +199,7 @@ namespace ae {
 
 		VkCommandPoolCreateInfo poolInfo{};
 		poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-		poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
+		poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily;
 		poolInfo.flags = 0;
 		// TODO: LittleVulkanEngine tutorial flags defined as below.... why?
 		//poolInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
@@ -358,43 +358,23 @@ namespace ae {
 
 
 		// TODO: Add logic that supports both drawing and presentation in same queue for improved performance
-		/* Below is what is used in LittleVulkanEngine, not sure why there is a difference
-		  for (const auto &queueFamily : queueFamilies) {
-			if (queueFamily.queueCount > 0 && queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-			  indices.graphicsFamily = i;
-			  indices.graphicsFamilyHasValue = true;
-			}
-			VkBool32 presentSupport = false;
-			vkGetPhysicalDeviceSurfaceSupportKHR(t_device, i, m_surface, &presentSupport);
-			if (queueFamily.queueCount > 0 && presentSupport) {
-			  indices.presentFamily = i;
-			  indices.presentFamilyHasValue = true;
-			}
-			if (indices.isComplete()) {
-			  break;
-			}
-
-			i++;
-		  }
-		*/
 		int i = 0;
-		for (const auto& queueFamily : queueFamilies) {
-			if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-				indices.graphicsFamily = i;
-			}
+		for (const auto &queueFamily : queueFamilies) {
+		if (queueFamily.queueCount > 0 && queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+			indices.graphicsFamily = i;
+			indices.graphicsFamilyHasValue = true;
+		}
+		VkBool32 presentSupport = false;
+		vkGetPhysicalDeviceSurfaceSupportKHR(t_device, i, m_surface, &presentSupport);
+		if (queueFamily.queueCount > 0 && presentSupport) {
+			indices.presentFamily = i;
+			indices.presentFamilyHasValue = true;
+		}
+		if (indices.isComplete()) {
+			break;
+		}
 
-			VkBool32 presentSupport = false;
-			vkGetPhysicalDeviceSurfaceSupportKHR(t_device, i, m_surface, &presentSupport);
-
-			if (presentSupport) {
-				indices.presentFamily = i;
-			}
-
-			if (indices.isComplete()) {
-				break;
-			}
-
-			i++;
+		i++;
 		}
 
 		return indices;

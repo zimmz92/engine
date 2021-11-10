@@ -80,13 +80,20 @@ namespace ae {
         vertexInputInfo.vertexAttributeDescriptionCount = 0;
         vertexInputInfo.pVertexAttributeDescriptions = nullptr;  // Optional
 
+        VkPipelineViewportStateCreateInfo viewportInfo{};
+        viewportInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+        viewportInfo.viewportCount = 1;
+        viewportInfo.pViewports = &t_configInfo.viewport;
+        viewportInfo.scissorCount = 1;
+        viewportInfo.pScissors = &t_configInfo.scissor;
+
         VkGraphicsPipelineCreateInfo pipelineInfo = {};
         pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
         pipelineInfo.stageCount = 2;
         pipelineInfo.pStages = shaderStages;
         pipelineInfo.pVertexInputState = &vertexInputInfo;
         pipelineInfo.pInputAssemblyState = &t_configInfo.inputAssemblyInfo;
-        pipelineInfo.pViewportState = &t_configInfo.viewportInfo;
+        pipelineInfo.pViewportState = &viewportInfo;
         pipelineInfo.pRasterizationState = &t_configInfo.rasterizationInfo;
         pipelineInfo.pMultisampleState = &t_configInfo.multisampleInfo;
         pipelineInfo.pColorBlendState = &t_configInfo.colorBlendInfo;
@@ -130,10 +137,12 @@ namespace ae {
     PipelineConfigInfo AePipeline::defaultPipelineConfigInfo(uint32_t t_width, uint32_t t_height) {
         PipelineConfigInfo configInfo{};
 
+        // Choose how to interpret indicies, currently list each trianlge individually
         configInfo.inputAssemblyInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
         configInfo.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
         configInfo.inputAssemblyInfo.primitiveRestartEnable = VK_FALSE;
 
+        // Transform the gl position values to the output image
         configInfo.viewport.x = 0.0f;
         configInfo.viewport.y = 0.0f;
         configInfo.viewport.width = static_cast<float>(t_width);
@@ -141,16 +150,11 @@ namespace ae {
         configInfo.viewport.minDepth = 0.0f;
         configInfo.viewport.maxDepth = 1.0f;
 
+        // How much of the image to cut off
         configInfo.scissor.offset = { 0, 0 };
         configInfo.scissor.extent = { t_width, t_height };
 
-        // Known issue: this creates a self-referencing structure. Fixed in tutorial 05
-        configInfo.viewportInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-        configInfo.viewportInfo.viewportCount = 1;
-        configInfo.viewportInfo.pViewports = &configInfo.viewport;
-        configInfo.viewportInfo.scissorCount = 1;
-        configInfo.viewportInfo.pScissors = &configInfo.scissor;
-
+        // Breaks up geometry into fragments for each pixel it overlaps
         configInfo.rasterizationInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
         configInfo.rasterizationInfo.depthClampEnable = VK_FALSE;
         configInfo.rasterizationInfo.rasterizerDiscardEnable = VK_FALSE;
@@ -163,6 +167,7 @@ namespace ae {
         configInfo.rasterizationInfo.depthBiasClamp = 0.0f;           // Optional
         configInfo.rasterizationInfo.depthBiasSlopeFactor = 0.0f;     // Optional
 
+        // Relates how the rasterizer handles edges of an object
         configInfo.multisampleInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
         configInfo.multisampleInfo.sampleShadingEnable = VK_FALSE;
         configInfo.multisampleInfo.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
@@ -171,6 +176,7 @@ namespace ae {
         configInfo.multisampleInfo.alphaToCoverageEnable = VK_FALSE;  // Optional
         configInfo.multisampleInfo.alphaToOneEnable = VK_FALSE;       // Optional
 
+        // How colors are combined in frame buffer
         configInfo.colorBlendAttachment.colorWriteMask =
             VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT |
             VK_COLOR_COMPONENT_A_BIT;
@@ -192,6 +198,7 @@ namespace ae {
         configInfo.colorBlendInfo.blendConstants[2] = 0.0f;  // Optional
         configInfo.colorBlendInfo.blendConstants[3] = 0.0f;  // Optional
 
+        // Stores value for every fragment in the buffer
         configInfo.depthStencilInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
         configInfo.depthStencilInfo.depthTestEnable = VK_TRUE;
         configInfo.depthStencilInfo.depthWriteEnable = VK_TRUE;

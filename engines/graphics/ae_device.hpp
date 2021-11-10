@@ -16,12 +16,11 @@ namespace ae {
 	};
 
 	struct QueueFamilyIndices {
-		std::optional<uint32_t> graphicsFamily;
-		std::optional<uint32_t> presentFamily;
-
-		bool isComplete() {
-			return graphicsFamily.has_value();
-		}
+		uint32_t graphicsFamily;
+		uint32_t presentFamily;
+		bool graphicsFamilyHasValue = false;
+		bool presentFamilyHasValue = false;
+		bool isComplete() { return graphicsFamilyHasValue && presentFamilyHasValue; }
 	};
 
 	class AeDevice {
