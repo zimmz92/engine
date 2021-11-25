@@ -8,6 +8,7 @@
 
 namespace ae {
 
+    // Information required to create the a Vulkan pipeline 
     struct PipelineConfigInfo {
         VkViewport viewport;
         VkRect2D scissor;
@@ -22,31 +23,41 @@ namespace ae {
         uint32_t subpass = 0;
     };
 
+    // Class is the Vulkan pipeline
     class AePipeline {
     public:
+        // Create the Vulkan pipeline
         AePipeline(
             AeDevice& t_device,
             const std::string& t_vertFilepath,
-            const std::string& t_fragFilepath,
+            const std::string& t_fragFilsepath,
             const PipelineConfigInfo& t_configInfo);
+
+        // Destroy the Vulkan pipeline
         ~AePipeline();
 
-        // Do not allow this class to be copied (2 lines below)
+        // Do not allow this class to be copied
         AePipeline(const AePipeline&) = delete;
         void operator=(const AePipeline&) = delete;
 
+        // Function to create a default pipeline
         static PipelineConfigInfo defaultPipelineConfigInfo(uint32_t t_width, uint32_t t_height);
 
     private:
+
+        // Function to read a text file into a variable
         static std::vector<char> readFile(const std::string& t_filepath);
 
+        // Function to create a Vulkan graphics pipeline
         void createGraphicsPipeline(
             const std::string& t_vertFilepath,
             const std::string& t_fragFilepath,
             const PipelineConfigInfo& t_configInfo);
 
+        // Function to create a Vulkan shader module
         void createShaderModule(const std::vector<char>& t_code, VkShaderModule* t_shaderModule);
 
+        // Class variables
         AeDevice& m_aeDevice;
         VkPipeline m_graphicsPipeline;
         VkShaderModule m_vertShaderModule;
