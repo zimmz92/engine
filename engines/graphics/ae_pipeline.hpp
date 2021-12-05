@@ -23,17 +23,17 @@ namespace ae {
         uint32_t subpass = 0;
     };
 
-    // Class is the Vulkan pipeline
+    // Class for a the Vulkan pipeline object
     class AePipeline {
     public:
-        // Create the Vulkan pipeline
+        // Create a Vulkan pipeline object
         AePipeline(
             AeDevice& t_device,
             const std::string& t_vertFilepath,
             const std::string& t_fragFilsepath,
             const PipelineConfigInfo& t_configInfo);
 
-        // Destroy the Vulkan pipeline
+        // Destroy a Vulkan pipeline object
         ~AePipeline();
 
         // Do not allow this class to be copied

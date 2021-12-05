@@ -8,21 +8,25 @@
 
 namespace ae {
 
+    // Create a Vulkan pipeline object
     AePipeline::AePipeline(
         AeDevice& t_device,
         const std::string& t_vertFilepath,
         const std::string& t_fragFilepath,
-        const PipelineConfigInfo& t_configInfo)
-        : m_aeDevice{ t_device } {
+        const PipelineConfigInfo& t_configInfo) : m_aeDevice{ t_device } {
+
         createGraphicsPipeline(t_vertFilepath, t_fragFilepath, t_configInfo);
+
     }
 
+    // Destroy a Vulkan pipeline object
     AePipeline::~AePipeline() {
         vkDestroyShaderModule(m_aeDevice.device(), m_fragShaderModule, nullptr);
         vkDestroyShaderModule(m_aeDevice.device(), m_vertShaderModule, nullptr);
         vkDestroyPipeline(m_aeDevice.device(), m_graphicsPipeline, nullptr);
     }
 
+    // Function to read a text file into a variable
     std::vector<char> AePipeline::readFile(const std::string& t_filepath) {
         std::ifstream file{ t_filepath, std::ios::ate | std::ios::binary };
 
@@ -40,6 +44,7 @@ namespace ae {
         return buffer;
     }
 
+    // Function to create a Vulkan graphics pipeline
     void AePipeline::createGraphicsPipeline(
         const std::string& t_vertFilepath,
         const std::string& t_fragFilepath,
@@ -51,6 +56,7 @@ namespace ae {
             t_configInfo.renderPass != nullptr &&
             "Cannot create graphics pipeline: no renderPass provided in config info");
 
+        // Read in the vertex and frament shader code
         auto vertCode = readFile(t_vertFilepath);
         auto fragCode = readFile(t_fragFilepath);
 
@@ -107,22 +113,18 @@ namespace ae {
         pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;  // Optional
         pipelineInfo.basePipelineIndex = -1;               // Optional
 
-        if (vkCreateGraphicsPipelines(
-            m_aeDevice.device(),
-            VK_NULL_HANDLE,
-            1,
-            &pipelineInfo,
-            nullptr,
-            &m_graphicsPipeline) != VK_SUCCESS) {
+        if (vkCreateGraphicsPipelines( m_aeDevice.device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_graphicsPipeline) != VK_SUCCESS) {
             throw std::runtime_error("failed to create graphics pipeline!");
         }
 
+        // Clean up the sharder modules now that they have been loaded into the pipeline
         vkDestroyShaderModule(m_aeDevice.device(), m_fragShaderModule, nullptr);
         vkDestroyShaderModule(m_aeDevice.device(), m_vertShaderModule, nullptr);
         m_fragShaderModule = VK_NULL_HANDLE;
         m_vertShaderModule = VK_NULL_HANDLE;
     }
 
+    // Function to create a Vulkan shader module
     void AePipeline::createShaderModule(const std::vector<char>& t_code, VkShaderModule* t_shaderModule) {
         VkShaderModuleCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
