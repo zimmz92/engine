@@ -11,8 +11,8 @@
 
 namespace ae {
 
-    AeSwapChain::AeSwapChain(AeDevice& deviceRef, VkExtent2D extent)
-        : m_device{ deviceRef }, m_windowExtent{ extent } {
+    AeSwapChain::AeSwapChain(AeDevice& t_deviceRef, VkExtent2D t_extent)
+        : m_device{ t_deviceRef }, m_windowExtent{ t_extent } {
         createSwapChain();
         createImageViews();
         createRenderPass();
@@ -52,7 +52,7 @@ namespace ae {
         }
     }
 
-    VkResult AeSwapChain::acquireNextImage(uint32_t* imageIndex) {
+    VkResult AeSwapChain::acquireNextImage(uint32_t* t_imageIndex) {
         vkWaitForFences(
             m_device.device(),
             1,
@@ -66,16 +66,16 @@ namespace ae {
             std::numeric_limits<uint64_t>::max(),
             m_imageAvailableSemaphores[m_currentFrame],  // must be a not signaled semaphore
             VK_NULL_HANDLE,
-            imageIndex);
+            t_imageIndex);
 
         return result;
     }
 
-    VkResult AeSwapChain::submitCommandBuffers(const VkCommandBuffer* buffers, uint32_t* imageIndex) {
-        if (m_imagesInFlight[*imageIndex] != VK_NULL_HANDLE) {
-            vkWaitForFences(m_device.device(), 1, &m_imagesInFlight[*imageIndex], VK_TRUE, UINT64_MAX);
+    VkResult AeSwapChain::submitCommandBuffers(const VkCommandBuffer* t_buffers, uint32_t* t_imageIndex) {
+        if (m_imagesInFlight[*t_imageIndex] != VK_NULL_HANDLE) {
+            vkWaitForFences(m_device.device(), 1, &m_imagesInFlight[*t_imageIndex], VK_TRUE, UINT64_MAX);
         }
-        m_imagesInFlight[*imageIndex] = m_inFlightFences[m_currentFrame];
+        m_imagesInFlight[*t_imageIndex] = m_inFlightFences[m_currentFrame];
 
         VkSubmitInfo submitInfo = {};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -87,7 +87,7 @@ namespace ae {
         submitInfo.pWaitDstStageMask = waitStages;
 
         submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = buffers;
+        submitInfo.pCommandBuffers = t_buffers;
 
         VkSemaphore signalSemaphores[] = { m_renderFinishedSemaphores[m_currentFrame] };
         submitInfo.signalSemaphoreCount = 1;
@@ -109,7 +109,7 @@ namespace ae {
         presentInfo.swapchainCount = 1;
         presentInfo.pSwapchains = swapChains;
 
-        presentInfo.pImageIndices = imageIndex;
+        presentInfo.pImageIndices = t_imageIndex;
 
         auto result = vkQueuePresentKHR(m_device.presentQueue(), &presentInfo);
 
@@ -358,22 +358,22 @@ namespace ae {
     }
 
     VkSurfaceFormatKHR AeSwapChain::chooseSwapSurfaceFormat(
-        const std::vector<VkSurfaceFormatKHR>& availableFormats) {
-        for (const auto& availableFormat : availableFormats) {
+        const std::vector<VkSurfaceFormatKHR>& t_availableFormats) {
+        for (const auto& availableFormat : t_availableFormats) {
             if (availableFormat.format == VK_FORMAT_B8G8R8A8_UNORM &&
                 availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
                 return availableFormat;
             }
         }
 
-        return availableFormats[0];
+        return t_availableFormats[0];
     }
 
     VkPresentModeKHR AeSwapChain::chooseSwapPresentMode(
-        const std::vector<VkPresentModeKHR>& availablePresentModes) {
+        const std::vector<VkPresentModeKHR>& t_availablePresentModes) {
 
         // Mailbox
-        for (const auto& availablePresentMode : availablePresentModes) {
+        for (const auto& availablePresentMode : t_availablePresentModes) {
             if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
                 std::cout << "Present mode: Mailbox" << std::endl;
                 return availablePresentMode;
@@ -381,7 +381,7 @@ namespace ae {
         }
 
         // Immediate - no sync
-        // for (const auto &availablePresentMode : availablePresentModes) {
+        // for (const auto &availablePresentMode : t_availablePresentModes) {
         //   if (availablePresentMode == VK_PRESENT_MODE_IMMEDIATE_KHR) {
         //     std::cout << "Present mode: Immediate" << std::endl;
         //     return availablePresentMode;
@@ -393,18 +393,18 @@ namespace ae {
         return VK_PRESENT_MODE_FIFO_KHR;
     }
 
-    VkExtent2D AeSwapChain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) {
-        if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
-            return capabilities.currentExtent;
+    VkExtent2D AeSwapChain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& t_capabilities) {
+        if (t_capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
+            return t_capabilities.currentExtent;
         }
         else {
             VkExtent2D actualExtent = m_windowExtent;
             actualExtent.width = std::max(
-                capabilities.minImageExtent.width,
-                std::min(capabilities.maxImageExtent.width, actualExtent.width));
+                t_capabilities.minImageExtent.width,
+                std::min(t_capabilities.maxImageExtent.width, actualExtent.width));
             actualExtent.height = std::max(
-                capabilities.minImageExtent.height,
-                std::min(capabilities.maxImageExtent.height, actualExtent.height));
+                t_capabilities.minImageExtent.height,
+                std::min(t_capabilities.maxImageExtent.height, actualExtent.height));
 
             return actualExtent;
         }

@@ -15,16 +15,16 @@ namespace ae {
     public:
         static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
-        AeSwapChain(AeDevice& deviceRef, VkExtent2D windowExtent);
+        AeSwapChain(AeDevice& t_deviceRef, VkExtent2D t_windowExtent);
         ~AeSwapChain();
 
         // Do not allow this class to be copied (2 lines below)
         AeSwapChain(const AeSwapChain&) = delete;
         void operator=(const AeSwapChain&) = delete;
 
-        VkFramebuffer getFrameBuffer(int index) { return m_swapChainFramebuffers[index]; }
+        VkFramebuffer getFrameBuffer(int t_index) { return m_swapChainFramebuffers[t_index]; }
         VkRenderPass getRenderPass() { return m_renderPass; }
-        VkImageView getImageView(int index) { return m_swapChainImageViews[index]; }
+        VkImageView getImageView(int t_index) { return m_swapChainImageViews[t_index]; }
         size_t imageCount() { return m_swapChainImages.size(); }
         VkFormat getSwapChainImageFormat() { return m_swapChainImageFormat; }
         VkExtent2D getSwapChainExtent() { return m_swapChainExtent; }
@@ -36,8 +36,8 @@ namespace ae {
         }
         VkFormat findDepthFormat();
 
-        VkResult acquireNextImage(uint32_t* imageIndex);
-        VkResult submitCommandBuffers(const VkCommandBuffer* buffers, uint32_t* imageIndex);
+        VkResult acquireNextImage(uint32_t* t_imageIndex);
+        VkResult submitCommandBuffers(const VkCommandBuffer* t_buffers, uint32_t* t_imageIndex);
 
     private:
         void createSwapChain();
@@ -49,10 +49,10 @@ namespace ae {
 
         // Helper functions
         VkSurfaceFormatKHR chooseSwapSurfaceFormat(
-            const std::vector<VkSurfaceFormatKHR>& availableFormats);
+            const std::vector<VkSurfaceFormatKHR>& t_availableFormats);
         VkPresentModeKHR chooseSwapPresentMode(
-            const std::vector<VkPresentModeKHR>& availablePresentModes);
-        VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
+            const std::vector<VkPresentModeKHR>& t_availablePresentModes);
+        VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& t_capabilities);
 
         VkFormat m_swapChainImageFormat;
         VkExtent2D m_swapChainExtent;
