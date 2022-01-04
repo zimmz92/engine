@@ -30,16 +30,20 @@ namespace ae {
     std::vector<char> AePipeline::readFile(const std::string& t_filepath) {
         std::ifstream file{ t_filepath, std::ios::ate | std::ios::binary };
 
+        // Fail out if file cannot be opened
         if (!file.is_open()) {
             throw std::runtime_error("Failed to open file: " + t_filepath);
         }
 
+        // Local variable to store file contents
         size_t fileSize = static_cast<size_t>(file.tellg());
         std::vector<char> buffer(fileSize);
 
+        // Read file contents into variable
         file.seekg(0);
         file.read(buffer.data(), fileSize);
 
+        // Close the file and return the file contents
         file.close();
         return buffer;
     }
@@ -60,9 +64,11 @@ namespace ae {
         auto vertCode = readFile(t_vertFilepath);
         auto fragCode = readFile(t_fragFilepath);
 
+        // Create the shader modules from the imported shader code
         createShaderModule(vertCode, &m_vertShaderModule);
         createShaderModule(fragCode, &m_fragShaderModule);
 
+        // Configure the fragment shader
         VkPipelineShaderStageCreateInfo shaderStages[2];
         shaderStages[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
         shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
@@ -79,6 +85,8 @@ namespace ae {
         shaderStages[1].pNext = nullptr;
         shaderStages[1].pSpecializationInfo = nullptr;
 
+
+        // Configure the vertex shader
         VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
         vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
         vertexInputInfo.vertexBindingDescriptionCount = 0;
@@ -86,6 +94,7 @@ namespace ae {
         vertexInputInfo.vertexAttributeDescriptionCount = 0;
         vertexInputInfo.pVertexAttributeDescriptions = nullptr;  // Optional
 
+        // Configure the viewport
         VkPipelineViewportStateCreateInfo viewportInfo{};
         viewportInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
         viewportInfo.viewportCount = 1;
@@ -93,6 +102,7 @@ namespace ae {
         viewportInfo.scissorCount = 1;
         viewportInfo.pScissors = &t_configInfo.scissor;
 
+        // Configure the graphics pipeline
         VkGraphicsPipelineCreateInfo pipelineInfo = {};
         pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
         pipelineInfo.stageCount = 2;
@@ -113,6 +123,7 @@ namespace ae {
         pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;  // Optional
         pipelineInfo.basePipelineIndex = -1;               // Optional
 
+        // Attempt to create the graphics pipeline, error out if not possible
         if (vkCreateGraphicsPipelines( m_aeDevice.device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_graphicsPipeline) != VK_SUCCESS) {
             throw std::runtime_error("failed to create graphics pipeline!");
         }

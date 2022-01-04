@@ -25,13 +25,17 @@ namespace ae {
 
 	class AeDevice {
 	public:
+		// Enable validation layers if debugging
 #ifdef NDEBUG
 		const bool m_enableValidationLayers = false;
 #else
 		const bool m_enableValidationLayers = true;
 #endif
 	
+		// Function to create graphics device
 		AeDevice(AeWindow& t_window);
+
+		// Function to destroy graphics device
 		~AeDevice();
 
 		// Do not allow this class to be copied (2 lines below)
@@ -42,17 +46,23 @@ namespace ae {
 		AeDevice(AeDevice&&) = delete;
 		AeDevice& operator=(AeDevice&&) = delete;
 
-		
+		// Functions to return member variable values
 		VkCommandPool getCommandPool() { return m_commandPool; }
 		VkDevice device() { return m_device; }
 		VkSurfaceKHR surface() { return m_surface; }
 		VkQueue graphicsQueue() { return m_graphicsQueue; }
 		VkQueue presentQueue() { return m_presentQueue; }
 
+		// Funciton to fetch the swap chain features supported by the device
 		SwapChainSupportDetails getSwapChainSupport() { return querySwapChainSupport(m_physicalDevice); }
+
+		// Function to check if the device has memory of a specific type with specific properties
 		uint32_t findMemoryType(uint32_t t_typeFilter, VkMemoryPropertyFlags t_properties);
 
+		// Function to retrun the queue families that meet the criteria for the program
 		QueueFamilyIndices findPhysicalQueueFamilies() { return findQueueFamilies(m_physicalDevice); }
+
+		// Function to return the candidate formats that meet the tiling and feature requirements
 		VkFormat findSupportedFormat(const std::vector<VkFormat>& t_candidates, VkImageTiling t_tiling, VkFormatFeatureFlags t_features);
 
 		// Buffer Helper Functions

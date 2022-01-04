@@ -48,7 +48,7 @@ namespace ae {
 		}
 	}
 	
-	// Class member functions
+	// Function to create graphics device
 	AeDevice::AeDevice(AeWindow& t_window) : m_window{ t_window } {
 		createInstance();
 		setupDebugMessenger();
@@ -58,6 +58,7 @@ namespace ae {
 		createCommandPool();
 	}
 
+	// Function to destroy graphics device
 	AeDevice::~AeDevice() {
 		vkDestroyCommandPool(m_device, m_commandPool, nullptr);
 		vkDestroyDevice(m_device, nullptr);
@@ -357,7 +358,7 @@ namespace ae {
 		vkGetPhysicalDeviceQueueFamilyProperties(t_device, &queueFamilyCount, queueFamilies.data());
 
 
-		// TODO: Add logic that supports both drawing and presentation in same queue for improved performance
+		// Pick a queue family that supports both drawing and presentation in same queue for improved performance
 		int i = 0;
 		for (const auto &queueFamily : queueFamilies) {
 		if (queueFamily.queueCount > 0 && queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
@@ -403,7 +404,7 @@ namespace ae {
 		return details;
 	}
 
-	// TODO Understand this function
+	// Function to return the candidate formats that meet the tiling and feature requirements
 	VkFormat AeDevice::findSupportedFormat(
 		const std::vector<VkFormat>& t_candidates, VkImageTiling t_tiling, VkFormatFeatureFlags t_features) {
 		for (VkFormat format : t_candidates) {
@@ -421,7 +422,7 @@ namespace ae {
 		throw std::runtime_error("failed to find supported format!");
 	}
 
-	// TODO Understand this function
+	// Function to check if the device has memory of a specific type with specific properties
 	uint32_t AeDevice::findMemoryType(uint32_t t_typeFilter, VkMemoryPropertyFlags t_properties) {
 		VkPhysicalDeviceMemoryProperties memProperties;
 		vkGetPhysicalDeviceMemoryProperties(m_physicalDevice, &memProperties);

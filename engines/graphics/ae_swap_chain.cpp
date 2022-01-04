@@ -11,6 +11,7 @@
 
 namespace ae {
 
+    // Function that creates a swap chain object
     AeSwapChain::AeSwapChain(AeDevice& t_deviceRef, VkExtent2D t_extent)
         : m_device{ t_deviceRef }, m_windowExtent{ t_extent } {
         createSwapChain();
@@ -21,6 +22,7 @@ namespace ae {
         createSyncObjects();
     }
 
+    // Function that destroys a swap chain object
     AeSwapChain::~AeSwapChain() {
         for (auto imageView : m_swapChainImageViews) {
             vkDestroyImageView(m_device.device(), imageView, nullptr);
@@ -52,6 +54,7 @@ namespace ae {
         }
     }
 
+    // Function to aquire the next image from the swap chain
     VkResult AeSwapChain::acquireNextImage(uint32_t* t_imageIndex) {
         vkWaitForFences(
             m_device.device(),
@@ -71,6 +74,7 @@ namespace ae {
         return result;
     }
 
+    // Function to submit command buffers to the swap chain
     VkResult AeSwapChain::submitCommandBuffers(const VkCommandBuffer* t_buffers, uint32_t* t_imageIndex) {
         if (m_imagesInFlight[*t_imageIndex] != VK_NULL_HANDLE) {
             vkWaitForFences(m_device.device(), 1, &m_imagesInFlight[*t_imageIndex], VK_TRUE, UINT64_MAX);
@@ -118,6 +122,7 @@ namespace ae {
         return result;
     }
 
+    // Function to create a swap chain object
     void AeSwapChain::createSwapChain() {
         SwapChainSupportDetails swapChainSupport = m_device.getSwapChainSupport();
 
@@ -180,6 +185,7 @@ namespace ae {
         m_swapChainExtent = extent;
     }
 
+    // Function to create image views for a swap chain
     void AeSwapChain::createImageViews() {
         m_swapChainImageViews.resize(m_swapChainImages.size());
         for (size_t i = 0; i < m_swapChainImages.size(); i++) {
@@ -201,6 +207,7 @@ namespace ae {
         }
     }
 
+    // Function to add render the pass tothe swap chain
     void AeSwapChain::createRenderPass() {
         VkAttachmentDescription depthAttachment{};
         depthAttachment.format = findDepthFormat();
@@ -260,6 +267,7 @@ namespace ae {
         }
     }
 
+    // Function to create the swap chain frame buffers
     void AeSwapChain::createFramebuffers() {
         m_swapChainFramebuffers.resize(imageCount());
         for (size_t i = 0; i < imageCount(); i++) {
@@ -285,6 +293,7 @@ namespace ae {
         }
     }
 
+    // Function to add depth resources to the swap chain
     void AeSwapChain::createDepthResources() {
         VkFormat depthFormat = findDepthFormat();
         VkExtent2D swapChainExtent = getSwapChainExtent();
@@ -333,6 +342,7 @@ namespace ae {
         }
     }
 
+    // Function to syncronize the swap chain image views with render finishes
     void AeSwapChain::createSyncObjects() {
         m_imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
         m_renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
@@ -357,6 +367,7 @@ namespace ae {
         }
     }
 
+    // Function to choose a swap surface format based on set criterias
     VkSurfaceFormatKHR AeSwapChain::chooseSwapSurfaceFormat(
         const std::vector<VkSurfaceFormatKHR>& t_availableFormats) {
         for (const auto& availableFormat : t_availableFormats) {
@@ -369,6 +380,7 @@ namespace ae {
         return t_availableFormats[0];
     }
 
+    // Function to select the image synchornization with scree refresh
     VkPresentModeKHR AeSwapChain::chooseSwapPresentMode(
         const std::vector<VkPresentModeKHR>& t_availablePresentModes) {
 
@@ -393,6 +405,7 @@ namespace ae {
         return VK_PRESENT_MODE_FIFO_KHR;
     }
 
+    // Function to set the image extend baesd on the size of the given surface capabilities
     VkExtent2D AeSwapChain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& t_capabilities) {
         if (t_capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
             return t_capabilities.currentExtent;
@@ -410,6 +423,7 @@ namespace ae {
         }
     }
 
+    // Function to return the depth format of the swap chain
     VkFormat AeSwapChain::findDepthFormat() {
         return m_device.findSupportedFormat(
             { VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
