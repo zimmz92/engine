@@ -71,6 +71,7 @@ namespace ae {
 		vkDestroyInstance(m_instance, nullptr);
 	}
 
+	// Function to create the Vulkan instance
 	void AeDevice::createInstance() {
 		if (m_enableValidationLayers && !checkValidationLayerSupport()) {
 			throw std::runtime_error("Validation layers requested but are not available!");
@@ -117,6 +118,7 @@ namespace ae {
 		}
 	}
 
+	// Function to choose between multiple physical devies based on available device features
 	void AeDevice::pickPhysicalDevice() {
 		uint32_t deviceCount = 0;
 		vkEnumeratePhysicalDevices(m_instance, &deviceCount, nullptr);
@@ -149,6 +151,7 @@ namespace ae {
 		std::cout << "physical device: " << m_properties.deviceName << std::endl;
 	}
 
+	// Function to create a virtual device based on required queues
 	void AeDevice::createLogicalDevice() {
 		QueueFamilyIndices indices = findQueueFamilies(m_physicalDevice);
 
@@ -195,6 +198,7 @@ namespace ae {
 		vkGetDeviceQueue(m_device, indices.presentFamily, 0, &m_presentQueue);
 	}
 
+	// Funciton to add required commands from the queue families to the device command pool
 	void AeDevice::createCommandPool() {
 		QueueFamilyIndices queueFamilyIndices = findQueueFamilies(m_physicalDevice);
 
@@ -210,8 +214,10 @@ namespace ae {
 		}
 	}
 
+	// Function to create a window surface for an instance
 	void AeDevice::createSurface() { m_window.createWindowSurface(m_instance, &m_surface); }
 
+	// Function to populate the debug messeger information
 	void AeDevice::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& t_createInfo) {
 		t_createInfo = {};
 		t_createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
@@ -221,6 +227,7 @@ namespace ae {
 		t_createInfo.pUserData = nullptr; // Optional
 	}
 
+	// Function to setup debugging messaging if validation layers are enabled
 	void AeDevice::setupDebugMessenger() {
 		if (!m_enableValidationLayers) return;
 
@@ -232,6 +239,7 @@ namespace ae {
 		}
 	}
 
+	// Function to check if the instance supports the required validation layers
 	bool AeDevice::checkValidationLayerSupport() {
 		uint32_t layerCount;
 		vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
@@ -257,6 +265,7 @@ namespace ae {
 		return true;
 	}
 
+	// Function to rate a device based on required applicaiton features
 	int AeDevice::rateDeviceSuitability(VkPhysicalDevice t_device) {
 		VkPhysicalDeviceProperties deviceProperties;
 		vkGetPhysicalDeviceProperties(t_device, &deviceProperties);
@@ -291,6 +300,7 @@ namespace ae {
 		return score;
 	}
 
+	// Function to return the required extentions for glfw
 	std::vector<const char*> AeDevice::getRequiredExtentions() {
 		uint32_t glfwExtensionCount = 0;
 		const char** glfwExtensions;
@@ -305,6 +315,7 @@ namespace ae {
 		return extensions;
 	}
 
+	// Function that returns the extentions required to create a glfw instance
 	void AeDevice::hasGflwRequiredInstanceExtensions(std::vector<const char*> *t_requiredExtensions) {
 		// Check if required extensions are supported by the hardware
 		uint32_t availableExtensionCount = 0;
@@ -332,6 +343,7 @@ namespace ae {
 		}
 	}
 
+	// Function to ensure device supports all required extentions
 	bool AeDevice::checkDeviceExtensionSupport(VkPhysicalDevice t_device) {
 		uint32_t extensionCount;
 		vkEnumerateDeviceExtensionProperties(t_device, nullptr, &extensionCount, nullptr);
@@ -348,6 +360,7 @@ namespace ae {
 		return requiredExtensions.empty();
 	}
 
+	// Find a queue family that supports all the desired features
 	QueueFamilyIndices AeDevice::findQueueFamilies(VkPhysicalDevice t_device) {
 		QueueFamilyIndices indices;
 
@@ -381,6 +394,7 @@ namespace ae {
 		return indices;
 	}
 
+	// Function to requrn the properties of the swap chain
 	SwapChainSupportDetails AeDevice::querySwapChainSupport(VkPhysicalDevice t_device) {
 		SwapChainSupportDetails details;
 		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(t_device, m_surface, &details.capabilities);
@@ -436,7 +450,7 @@ namespace ae {
 		throw std::runtime_error("failed to find suitable memory type!");
 	}
 
-	// TODO Understand this function
+	// Function to create a command buffer and allocate memory for it
 	void AeDevice::createBuffer(
 		VkDeviceSize t_size,
 		VkBufferUsageFlags t_usage,
@@ -468,7 +482,7 @@ namespace ae {
 		vkBindBufferMemory(m_device, t_buffer, t_bufferMemory, 0);
 	}
 
-	// TODO Understand this function
+	// Function to start running the command buffer once
 	VkCommandBuffer AeDevice::beginSingleTimeCommands() {
 		VkCommandBufferAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -487,7 +501,7 @@ namespace ae {
 		return commandBuffer;
 	}
 
-	// TODO Understand this function
+	// Function to end and clear the singular command buffer run
 	void AeDevice::endSingleTimeCommands(VkCommandBuffer t_commandBuffer) {
 		vkEndCommandBuffer(t_commandBuffer);
 
@@ -502,7 +516,7 @@ namespace ae {
 		vkFreeCommandBuffers(m_device, m_commandPool, 1, &t_commandBuffer);
 	}
 
-	// TODO Understand this function
+	// Function to copy a command buffer
 	void AeDevice::copyBuffer(VkBuffer t_srcBuffer, VkBuffer t_dstBuffer, VkDeviceSize t_size) {
 		VkCommandBuffer commandBuffer = beginSingleTimeCommands();
 
@@ -515,7 +529,7 @@ namespace ae {
 		endSingleTimeCommands(commandBuffer);
 	}
 
-	// TODO Understand this function
+	// Funciton to copy the command buffer results to an immage
 	void AeDevice::copyBufferToImage(
 		VkBuffer t_buffer, VkImage t_image, uint32_t t_width, uint32_t t_height, uint32_t t_layerCount) {
 		VkCommandBuffer commandBuffer = beginSingleTimeCommands();
@@ -543,7 +557,7 @@ namespace ae {
 		endSingleTimeCommands(commandBuffer);
 	}
 
-	// TODO Understand this function
+	// Funciton to create, and allocate memory for, an image
 	void AeDevice::createImageWithInfo(
 		const VkImageCreateInfo& t_imageInfo,
 		VkMemoryPropertyFlags t_properties,

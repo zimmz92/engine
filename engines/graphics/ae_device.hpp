@@ -65,18 +65,27 @@ namespace ae {
 		// Function to return the candidate formats that meet the tiling and feature requirements
 		VkFormat findSupportedFormat(const std::vector<VkFormat>& t_candidates, VkImageTiling t_tiling, VkFormatFeatureFlags t_features);
 
-		// Buffer Helper Functions
+		// Function to create a command buffer and allocate memory for it
 		void createBuffer(
 			VkDeviceSize t_size,
 			VkBufferUsageFlags t_usage,
 			VkMemoryPropertyFlags t_properties,
 			VkBuffer& t_buffer,
 			VkDeviceMemory& t_bufferMemory);
+
+		// Function to start running the command buffer once
 		VkCommandBuffer beginSingleTimeCommands();
+
+		// Function to end and clear the singular command buffer run
 		void endSingleTimeCommands(VkCommandBuffer t_commandBuffer);
+
+		// Function to copy a command buffer
 		void copyBuffer(VkBuffer t_srcBuffer, VkBuffer t_dstBuffer, VkDeviceSize t_size);
+
+		// Funciton to copy the command buffer results to an immage
 		void copyBufferToImage(VkBuffer t_buffer, VkImage t_image, uint32_t t_width, uint32_t t_height, uint32_t t_layerCount);
 
+		// Funciton to create, and allocate memory for, an image
 		void createImageWithInfo(
 			const VkImageCreateInfo& t_imageInfo,
 			VkMemoryPropertyFlags t_properties,
@@ -86,29 +95,54 @@ namespace ae {
 		VkPhysicalDeviceProperties m_properties;
 
 	private:
+		// Function to create the Vulkan instance
 		void createInstance();
+
+		// Function to setup debugging messaging if validation layers are enabled
 		void setupDebugMessenger();
+
+		// Function to create a window surface for an instance
 		void createSurface();
+
+		// Function to choose between multiple physical devies based on available device features
 		void pickPhysicalDevice();
+
+		// Function to create a virtual device based on required queues
 		void createLogicalDevice();
+
+		// Funciton to add required commands from the queue families to the device command pool
 		void createCommandPool();
 
-		// helper functions
+		// Function to rate a device based on required applicaiton features
 		int rateDeviceSuitability(VkPhysicalDevice t_device);
+
+		// Function to return the required extentions for glfw
 		std::vector<const char*> getRequiredExtentions();
+
+		// Function to check if the instance supports the required validation layers
 		bool checkValidationLayerSupport();
+
+		// Find a queue family that supports all the desired features
 		QueueFamilyIndices findQueueFamilies(VkPhysicalDevice t_device);
+
+		// Function to populate the debug messeger information
 		void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& t_createInfo);
+
+		// Function that returns the extentions required to create a glfw instance
 		void hasGflwRequiredInstanceExtensions(std::vector<const char*>* t_requiredExtensions);
+
+		// Function to ensure device supports all required extentions
 		bool checkDeviceExtensionSupport(VkPhysicalDevice t_device);
+
+		// Function to requrn the properties of the swap chain
 		SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice t_device);
 
+		// Member variables
 		VkInstance m_instance;
 		VkDebugUtilsMessengerEXT m_debugMessenger;
 		VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
 		AeWindow& m_window;
 		VkCommandPool m_commandPool;
-
 		VkDevice m_device;
 		VkSurfaceKHR m_surface;
 		VkQueue m_graphicsQueue;
