@@ -10,8 +10,12 @@ namespace ae {
 
     // Information required to create the a Vulkan pipeline 
     struct PipelineConfigInfo {
+        PipelineConfigInfo(const PipelineConfigInfo&) = delete;
+        PipelineConfigInfo& operator=(const PipelineConfigInfo&) = delete;
+
         VkViewport viewport;
         VkRect2D scissor;
+        VkPipelineViewportStateCreateInfo viewportInfo;
         VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo;
         VkPipelineRasterizationStateCreateInfo rasterizationInfo;
         VkPipelineMultisampleStateCreateInfo multisampleInfo;
@@ -40,8 +44,11 @@ namespace ae {
         AePipeline(const AePipeline&) = delete;
         void operator=(const AePipeline&) = delete;
 
+        //
+        void bind(VkCommandBuffer t_commandBuffer);
+
         // Function to create a default pipeline
-        static PipelineConfigInfo defaultPipelineConfigInfo(uint32_t t_width, uint32_t t_height);
+        static void defaultPipelineConfigInfo(PipelineConfigInfo& t_configInfo, uint32_t t_width, uint32_t t_height);
 
     private:
 

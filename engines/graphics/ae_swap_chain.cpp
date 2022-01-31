@@ -208,6 +208,7 @@ namespace ae {
     }
 
     // Function to add render the pass tothe swap chain
+    // Render pass is a template for a frame buffer
     void AeSwapChain::createRenderPass() {
         VkAttachmentDescription depthAttachment{};
         depthAttachment.format = findDepthFormat();
@@ -400,7 +401,7 @@ namespace ae {
         //   }
         // }
 
-        // Default to FIFO
+        // Default to FIFO VSYNC
         std::cout << "Present mode: V-Sync" << std::endl;
         return VK_PRESENT_MODE_FIFO_KHR;
     }
