@@ -6,6 +6,7 @@
 namespace ae {
 
     Arundos::Arundos() {
+        loadModels();
         createPipelineLayout();
         createPipeline();
         createCommandBuffers();
@@ -22,6 +23,11 @@ namespace ae {
         }
 
         vkDeviceWaitIdle(m_aeDevice.device());
+    }
+
+    void Arundos::loadModels() {
+        std::vector<AeModel::Vertex> vertices{{{0.0f, -0.5f}},{{0.5f, 0.5f}},{{-0.5f, 0.5f}}};
+        m_aeModel = std::make_unique<AeModel>(m_aeDevice, vertices);
     }
 
     void Arundos::createPipelineLayout() {
@@ -89,7 +95,8 @@ namespace ae {
             vkCmdBeginRenderPass(m_commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
             m_aePipeline->bind(m_commandBuffers[i]);
-            vkCmdDraw(m_commandBuffers[i], 3, 1, 0, 0);
+            m_aeModel->bind(m_commandBuffers[i]);
+            m_aeModel->draw(m_commandBuffers[i]);
 
             vkCmdEndRenderPass(m_commandBuffers[i]);
             if (vkEndCommandBuffer(m_commandBuffers[i]) != VK_SUCCESS) {

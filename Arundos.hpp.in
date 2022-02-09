@@ -5,9 +5,11 @@
 #pragma once
 
 #include "ae_device.hpp"
+#include "ae_model.hpp"
 #include "ae_pipeline.hpp"
 #include "ae_swap_chain.hpp"
 #include "ae_window.hpp"
+
 
 #include <memory>
 #include <vector>
@@ -29,6 +31,7 @@ namespace ae {
         void run();
 
     private:
+        void loadModels();
         void createPipelineLayout();
         void createPipeline();
         void createCommandBuffers();
@@ -40,5 +43,6 @@ namespace ae {
         std::unique_ptr<AePipeline> m_aePipeline; // TODO: Smart Pointer research, learn Cpp
         VkPipelineLayout m_pipelineLayout;
         std::vector<VkCommandBuffer> m_commandBuffers;
+        std::unique_ptr<AeModel> m_aeModel;
     };
 }  // namespace ae
