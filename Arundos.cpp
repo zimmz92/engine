@@ -26,7 +26,11 @@ namespace ae {
     }
 
     void Arundos::loadModels() {
-        std::vector<AeModel::Vertex> vertices{{{0.0f, -0.5f}},{{0.5f, 0.5f}},{{-0.5f, 0.5f}}};
+        std::vector<AeModel::Vertex> vertices{
+            {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+            {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+            {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+        };
         m_aeModel = std::make_unique<AeModel>(m_aeDevice, vertices);
     }
 

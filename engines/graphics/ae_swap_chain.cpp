@@ -372,7 +372,7 @@ namespace ae {
     VkSurfaceFormatKHR AeSwapChain::chooseSwapSurfaceFormat(
         const std::vector<VkSurfaceFormatKHR>& t_availableFormats) {
         for (const auto& availableFormat : t_availableFormats) {
-            if (availableFormat.format == VK_FORMAT_B8G8R8A8_UNORM &&
+            if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB &&
                 availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
                 return availableFormat;
             }
