@@ -51,7 +51,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 file (TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/engines/graphics/shaders/compile.bat" BATFILE)
 file (TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/engines/graphics/shaders" SHADERPATH)
 add_custom_target(GenerateShaders ALL
-                  COMMAND CMD /D /C "${BATFILE}"
+                  COMMAND CMD /D /C "${BATFILE}" "${CMAKE_CURRENT_SOURCE_DIR}"
                   DEPENDS ${SHADERPATH})
 
 ADD_DEPENDENCIES(mySrcFiles GenerateShaders)
