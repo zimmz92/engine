@@ -7,6 +7,14 @@ project (Arundos VERSION 1.0)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+# Specific File Paths
+file (TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/engines/graphics/shaders/compile.bat" BATFILE)
+file (TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/engines/graphics/shaders" SHADERPATH)
+
+if(WIN32)
+    file (TO_NATIVE_PATH "C:/VulkanSDK/1.2.182.0/Bin32" VULKANDIR)
+endif()
+
 add_executable (Arundos main.cpp)
 
 # add the binary tree to the search path for include files
@@ -48,10 +56,9 @@ configure_file(Arundos.hpp.in Arundos.hpp)
 # Include the binary files so the configured .hpp can be found
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-file (TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/engines/graphics/shaders/compile.bat" BATFILE)
-file (TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/engines/graphics/shaders" SHADERPATH)
+
 add_custom_target(GenerateShaders ALL
-                  COMMAND CMD /D /C "${BATFILE}" "${CMAKE_CURRENT_SOURCE_DIR}"
+                  COMMAND CMD /D /C "${BATFILE}" "${CMAKE_CURRENT_SOURCE_DIR}" "${VULKANDIR}"
                   DEPENDS ${SHADERPATH})
 
 ADD_DEPENDENCIES(mySrcFiles GenerateShaders)
