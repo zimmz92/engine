@@ -25,6 +25,10 @@ namespace ae {
 		AeWindow(AeWindow&&) = delete;
 		AeWindow& operator=(AeWindow&&) = delete;
 
+		// Function to check if the window has been resized
+		bool wasWindowResized() { return m_framebufferResized; }
+		void resetWindowResizedFlag() { m_framebufferResized = false; }
+
 		// Function to check if the window wants to close
 		bool shouldClose() { return glfwWindowShouldClose(m_window); }
 
@@ -42,12 +46,16 @@ namespace ae {
 		std::string getWindowName() { return m_windowName; }
 
 	private:
+		// Function that ensures if window is resized graphics framebuffers are updated accordingly
+		static void framebufferResizedCallback(GLFWwindow *t_window, int t_width, int t_height);
+
 		// Function to initilize the application window
 		void initWindow();
 
 		// Window size variables
-		const int m_width;
-		const int m_height;
+		int m_width;
+		int m_height;
+		bool m_framebufferResized = false;
 
 		// Window name
 		std::string m_windowName;

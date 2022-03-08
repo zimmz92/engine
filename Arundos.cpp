@@ -8,7 +8,7 @@ namespace ae {
     Arundos::Arundos() {
         loadModels();
         createPipelineLayout();
-        createPipeline();
+        recreateSwapChain();
         createCommandBuffers();
     }
 
@@ -50,9 +50,9 @@ namespace ae {
         PipelineConfigInfo pipelineConfig{};
         AePipeline::defaultPipelineConfigInfo(
             pipelineConfig,
-            m_aeSwapChain.width(),
-            m_aeSwapChain.height());
-        pipelineConfig.renderPass = m_aeSwapChain.getRenderPass();
+            m_aeSwapChain->width(),
+            m_aeSwapChain->height());
+        pipelineConfig.renderPass = m_aeSwapChain->getRenderPass();
         pipelineConfig.pipelineLayout = m_pipelineLayout;
         m_aePipeline = std::make_unique<AePipeline>(
             m_aeDevice,
@@ -61,8 +61,24 @@ namespace ae {
             pipelineConfig);
     };
 
+    void Arundos::recreateSwapChain() {
+        auto extent = m_aeWindow.getExtent();
+        while (extent.width == 0 || extent.height == 0) {
+            extent = m_aeWindow.getExtent();
+            glfwWaitEvents();
+        }
+
+        vkDeviceWaitIdle(m_aeDevice.device());
+
+        // TODO: Remove this line after the old swap chian is provided to the new one during creation 
+        m_aeSwapChain = nullptr;
+
+        m_aeSwapChain = std::make_unique<AeSwapChain>(m_aeDevice, extent);
+        createPipeline();
+    };
+
     void Arundos::createCommandBuffers() {
-        m_commandBuffers.resize(m_aeSwapChain.imageCount());
+        m_commandBuffers.resize(m_aeSwapChain->imageCount());
 
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -73,51 +89,62 @@ namespace ae {
         if (vkAllocateCommandBuffers(m_aeDevice.device(), &allocInfo, m_commandBuffers.data()) != VK_SUCCESS) {
             throw std::runtime_error("Failed to allocate command buffers!");
         }
+    };
 
-        for (int i = 0; i < m_commandBuffers.size(); i++) {
-            VkCommandBufferBeginInfo beginInfo{};
-            beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    void Arundos::recordCommandBuffer(int t_imageIndex) {
+        VkCommandBufferBeginInfo beginInfo{};
+        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
-            if (vkBeginCommandBuffer(m_commandBuffers[i], &beginInfo) != VK_SUCCESS) {
-                throw std::runtime_error("Failed to begin recording command buffer!");
-            }
+        if (vkBeginCommandBuffer(m_commandBuffers[t_imageIndex], &beginInfo) != VK_SUCCESS) {
+            throw std::runtime_error("Failed to begin recording command buffer!");
+        }
 
-            VkRenderPassBeginInfo renderPassInfo{};
-            renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-            renderPassInfo.renderPass = m_aeSwapChain.getRenderPass();
-            renderPassInfo.framebuffer = m_aeSwapChain.getFrameBuffer(i);
+        VkRenderPassBeginInfo renderPassInfo{};
+        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        renderPassInfo.renderPass = m_aeSwapChain->getRenderPass();
+        renderPassInfo.framebuffer = m_aeSwapChain->getFrameBuffer(t_imageIndex);
 
-            renderPassInfo.renderArea.offset = { 0, 0 };
-            renderPassInfo.renderArea.extent = m_aeSwapChain.getSwapChainExtent();
+        renderPassInfo.renderArea.offset = { 0, 0 };
+        renderPassInfo.renderArea.extent = m_aeSwapChain->getSwapChainExtent();
 
-            std::array<VkClearValue, 2> clearValues{};
-            clearValues[0].color = { 0.1f, 0.1f, 0.1f, 0.1f };
-            clearValues[1].depthStencil = { 1.0f, 0 };
-            renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-            renderPassInfo.pClearValues = clearValues.data();
+        std::array<VkClearValue, 2> clearValues{};
+        clearValues[0].color = { 0.1f, 0.1f, 0.1f, 0.1f };
+        clearValues[1].depthStencil = { 1.0f, 0 };
+        renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+        renderPassInfo.pClearValues = clearValues.data();
 
-            vkCmdBeginRenderPass(m_commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+        vkCmdBeginRenderPass(m_commandBuffers[t_imageIndex], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-            m_aePipeline->bind(m_commandBuffers[i]);
-            m_aeModel->bind(m_commandBuffers[i]);
-            m_aeModel->draw(m_commandBuffers[i]);
+        m_aePipeline->bind(m_commandBuffers[t_imageIndex]);
+        m_aeModel->bind(m_commandBuffers[t_imageIndex]);
+        m_aeModel->draw(m_commandBuffers[t_imageIndex]);
 
-            vkCmdEndRenderPass(m_commandBuffers[i]);
-            if (vkEndCommandBuffer(m_commandBuffers[i]) != VK_SUCCESS) {
-                throw std::runtime_error("Failed to record command buffer.");
-            }
+        vkCmdEndRenderPass(m_commandBuffers[t_imageIndex]);
+        if (vkEndCommandBuffer(m_commandBuffers[t_imageIndex]) != VK_SUCCESS) {
+            throw std::runtime_error("Failed to record command buffer.");
         }
     };
 
     void Arundos::drawFrame() {
         uint32_t imageIndex;
-        auto result = m_aeSwapChain.acquireNextImage(&imageIndex);
+        auto result = m_aeSwapChain->acquireNextImage(&imageIndex);
+
+        if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+            recreateSwapChain();
+            return;
+        }
 
         if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
             throw std::runtime_error("Failed to aquire swap chain image!");
         }
 
-        result = m_aeSwapChain.submitCommandBuffers(&m_commandBuffers[imageIndex], &imageIndex);
+        recordCommandBuffer(imageIndex);
+        result = m_aeSwapChain->submitCommandBuffers(&m_commandBuffers[imageIndex], &imageIndex);
+        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_aeWindow.wasWindowResized()) {
+            m_aeWindow.resetWindowResizedFlag();
+            recreateSwapChain();
+            return;
+        }
         if (result != VK_SUCCESS) {
             throw std::runtime_error("Failed to present swap chain image!");
         }
