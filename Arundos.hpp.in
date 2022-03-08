@@ -26,7 +26,7 @@ namespace ae {
 
         // Do not allow this class to be copied (2 lines below)
         Arundos(const Arundos&) = delete;
-        void operator=(const Arundos&) = delete;
+        Arundos& operator=(const Arundos&) = delete;
 
         void run();
 

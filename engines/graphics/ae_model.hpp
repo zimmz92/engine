@@ -25,7 +25,7 @@ namespace ae {
 
 		// Do not allow this class to be copied (2 lines below)
 		AeModel(const AeModel&) = delete;
-		void operator=(const AeModel&) = delete;
+		AeModel& operator=(const AeModel&) = delete;
 
 		void bind(VkCommandBuffer t_commandBuffer);
 		void draw(VkCommandBuffer t_commandBuffer);

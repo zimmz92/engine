@@ -23,7 +23,7 @@ namespace ae {
 
         // Do not allow this class to be copied (2 lines below)
         AeSwapChain(const AeSwapChain&) = delete;
-        void operator=(const AeSwapChain&) = delete;
+        AeSwapChain& operator=(const AeSwapChain&) = delete;
 
         // Function to return the specified frame bufffer
         VkFramebuffer getFrameBuffer(int t_index) { return m_swapChainFramebuffers[t_index]; }

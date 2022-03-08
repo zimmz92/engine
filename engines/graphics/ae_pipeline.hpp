@@ -42,7 +42,7 @@ namespace ae {
 
         // Do not allow this class to be copied
         AePipeline(const AePipeline&) = delete;
-        void operator=(const AePipeline&) = delete;
+        AePipeline& operator=(const AePipeline&) = delete;
 
         //
         void bind(VkCommandBuffer t_commandBuffer);
