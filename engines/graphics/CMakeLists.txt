@@ -10,6 +10,8 @@ target_sources(mySrcFiles
         ae_window.hpp
         ae_swap_chain.cpp
         ae_swap_chain.hpp
+        ae_renderer.cpp
+        ae_renderer.hpp
     PUBLIC
 )
 

@@ -7,8 +7,8 @@
 #include "ae_device.hpp"
 #include "ae_game_object.hpp"
 #include "ae_pipeline.hpp"
-#include "ae_swap_chain.hpp"
 #include "ae_window.hpp"
+#include "ae_renderer.hpp"
 
 
 #include <memory>
@@ -34,19 +34,13 @@ namespace ae {
         void loadGameObjects();
         void createPipelineLayout();
         void createPipeline();
-        void createCommandBuffers();
-        void freeCommandBuffers();
-        void drawFrame();
-        void recreateSwapChain();
-        void recordCommandBuffer(int t_imageIndex);
         void renderGameObjects(VkCommandBuffer t_commandBuffer);
 
         AeWindow m_aeWindow{ WIDTH, HEIGHT, "Hello Vulkan!" };
         AeDevice m_aeDevice{ m_aeWindow };
-        std::unique_ptr<AeSwapChain> m_aeSwapChain;
+        AeRenderer m_aeRenderer{m_aeWindow, m_aeDevice };
         std::unique_ptr<AePipeline> m_aePipeline; // TODO: Smart Pointer research, learn Cpp
         VkPipelineLayout m_pipelineLayout;
-        std::vector<VkCommandBuffer> m_commandBuffers;
         std::vector<AeGameObject> m_gameObjects;
     };
 }  // namespace ae
