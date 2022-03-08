@@ -12,6 +12,8 @@ target_sources(mySrcFiles
         ae_swap_chain.hpp
         ae_renderer.cpp
         ae_renderer.hpp
+        ae_camera.cpp
+        ae_camera.hpp
     PUBLIC
 )
 

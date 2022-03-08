@@ -20,6 +20,7 @@ namespace ae {
         AeRenderer& operator=(const AeRenderer&) = delete;
 
         VkRenderPass getSwapChainRenderPass() const { return m_aeSwapChain->getRenderPass(); }
+        float getAspectRatio() const { return m_aeSwapChain->extentAspectRatio(); }
         bool isFrameInProgress() const { return m_isFrameStarted; };
 
         VkCommandBuffer getCurrentCommandBuffer() const {

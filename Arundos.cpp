@@ -1,5 +1,6 @@
 ﻿#include "Arundos.hpp"
 #include "ae_rs_simple.hpp"
+#include "ae_camera.hpp"
 
 // libraries
 #define GLM_FORCE_RADIANS
@@ -9,6 +10,7 @@
 
 #include <stdexcept>
 #include <array>
+#include <cassert>
 
 namespace ae {
 
@@ -21,13 +23,18 @@ namespace ae {
 
     void Arundos::run() {
         AeRsSimple simpleRenderSystem(m_aeDevice, m_aeRenderer.getSwapChainRenderPass());
-
+        AeCamera camera{};
+        
         while (!m_aeWindow.shouldClose()) {
             glfwPollEvents();
-            
+
+            float aspect = m_aeRenderer.getAspectRatio();
+            //camera.setOrthographicProjection(-aspect, aspect, -1, 1, -1, 1);
+            camera.setPerspectiveProjection(glm::radians(50.0f), aspect, 0.1f, 10.0f);
+
             if (auto commandBuffer = m_aeRenderer.beginFrame()) {
                 m_aeRenderer.beginSwapChainRenderPass(commandBuffer);
-                simpleRenderSystem.renderGameObjects(commandBuffer, m_gameObjects);
+                simpleRenderSystem.renderGameObjects(commandBuffer, m_gameObjects, camera);
                 m_aeRenderer.endSwapChainRenderPass(commandBuffer);
                 m_aeRenderer.endFrame();
             }
@@ -36,21 +43,72 @@ namespace ae {
         vkDeviceWaitIdle(m_aeDevice.device());
     }
 
-    void Arundos::loadGameObjects() {
+    // temporary helper function, creates a 1x1x1 cube centered at offset
+    std::unique_ptr<AeModel> createCubeModel(AeDevice& t_device, glm::vec3 t_offset) {
         std::vector<AeModel::Vertex> vertices{
-            {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-            {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
-            {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+
+            // left face (white)
+            {{-.5f, -.5f, -.5f}, {.9f, .9f, .9f}},
+            {{-.5f, .5f, .5f}, {.9f, .9f, .9f}},
+            {{-.5f, -.5f, .5f}, {.9f, .9f, .9f}},
+            {{-.5f, -.5f, -.5f}, {.9f, .9f, .9f}},
+            {{-.5f, .5f, -.5f}, {.9f, .9f, .9f}},
+            {{-.5f, .5f, .5f}, {.9f, .9f, .9f}},
+
+            // right face (yellow)
+            {{.5f, -.5f, -.5f}, {.8f, .8f, .1f}},
+            {{.5f, .5f, .5f}, {.8f, .8f, .1f}},
+            {{.5f, -.5f, .5f}, {.8f, .8f, .1f}},
+            {{.5f, -.5f, -.5f}, {.8f, .8f, .1f}},
+            {{.5f, .5f, -.5f}, {.8f, .8f, .1f}},
+            {{.5f, .5f, .5f}, {.8f, .8f, .1f}},
+
+            // top face (orange, remember y axis points down)
+            {{-.5f, -.5f, -.5f}, {.9f, .6f, .1f}},
+            {{.5f, -.5f, .5f}, {.9f, .6f, .1f}},
+            {{-.5f, -.5f, .5f}, {.9f, .6f, .1f}},
+            {{-.5f, -.5f, -.5f}, {.9f, .6f, .1f}},
+            {{.5f, -.5f, -.5f}, {.9f, .6f, .1f}},
+            {{.5f, -.5f, .5f}, {.9f, .6f, .1f}},
+
+            // bottom face (red)
+            {{-.5f, .5f, -.5f}, {.8f, .1f, .1f}},
+            {{.5f, .5f, .5f}, {.8f, .1f, .1f}},
+            {{-.5f, .5f, .5f}, {.8f, .1f, .1f}},
+            {{-.5f, .5f, -.5f}, {.8f, .1f, .1f}},
+            {{.5f, .5f, -.5f}, {.8f, .1f, .1f}},
+            {{.5f, .5f, .5f}, {.8f, .1f, .1f}},
+
+            // nose face (blue)
+            {{-.5f, -.5f, 0.5f}, {.1f, .1f, .8f}},
+            {{.5f, .5f, 0.5f}, {.1f, .1f, .8f}},
+            {{-.5f, .5f, 0.5f}, {.1f, .1f, .8f}},
+            {{-.5f, -.5f, 0.5f}, {.1f, .1f, .8f}},
+            {{.5f, -.5f, 0.5f}, {.1f, .1f, .8f}},
+            {{.5f, .5f, 0.5f}, {.1f, .1f, .8f}},
+
+            // tail face (green)
+            {{-.5f, -.5f, -0.5f}, {.1f, .8f, .1f}},
+            {{.5f, .5f, -0.5f}, {.1f, .8f, .1f}},
+            {{-.5f, .5f, -0.5f}, {.1f, .8f, .1f}},
+            {{-.5f, -.5f, -0.5f}, {.1f, .8f, .1f}},
+            {{.5f, -.5f, -0.5f}, {.1f, .8f, .1f}},
+            {{.5f, .5f, -0.5f}, {.1f, .8f, .1f}},
+
         };
-        auto aeModel = std::make_shared<AeModel>(m_aeDevice, vertices);
+        for (auto& v : vertices) {
+            v.position += t_offset;
+        }
+        return std::make_unique<AeModel>(t_device, vertices);
+    }
 
-        auto triangle = AeGameObject::createGameObject();
-        triangle.m_model = aeModel;
-        triangle.m_color = { 0.1f, 0.8f, 0.1f };
-        triangle.m_transform2d.translation.x = 0.2f;
-        triangle.m_transform2d.scale = {2.0f, 0.5f};
-        triangle.m_transform2d.rotation = 0.25f * glm::two_pi<float>(); // vulkan has -x is left on screen -y is up on screen
+    void Arundos::loadGameObjects() {
+        std::shared_ptr<AeModel> aeModel = createCubeModel(m_aeDevice, { 0.0f, 0.0f, 0.0f });
 
-        m_gameObjects.push_back(std::move(triangle));
+        auto cube = AeGameObject::createGameObject();
+        cube.m_model = aeModel;
+        cube.m_transform.translation = { 0.0f, 0.0f, 2.5f };
+        cube.m_transform.scale = { 0.5f, 0.5f, 0.5f };
+        m_gameObjects.push_back(std::move(cube));
     }
 }  // namespace ae

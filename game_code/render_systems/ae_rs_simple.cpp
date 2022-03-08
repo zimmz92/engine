@@ -13,8 +13,7 @@
 namespace ae {
 
     struct SimplePushConstantData {
-        glm::mat2 transform{ 1.0f };
-        glm::vec2 offset;
+        glm::mat4 transform{ 1.0f };
         alignas(16) glm::vec3 color;
     };
 
@@ -60,14 +59,18 @@ namespace ae {
             pipelineConfig);
     };
 
-    void AeRsSimple::renderGameObjects(VkCommandBuffer t_commandBuffer, std::vector<AeGameObject> &t_gameObjects) {
+    void AeRsSimple::renderGameObjects(VkCommandBuffer t_commandBuffer, std::vector<AeGameObject>& t_gameObjects, const AeCamera& t_camera) {
         m_aePipeline->bind(t_commandBuffer);
 
         for (auto& obj : t_gameObjects) {
+            obj.m_transform.rotation.y = glm::mod(obj.m_transform.rotation.y + 0.001f, glm::two_pi<float>());
+            obj.m_transform.rotation.x = glm::mod(obj.m_transform.rotation.x + 0.0005f, glm::two_pi<float>());
+
             SimplePushConstantData push{};
-            push.offset = obj.m_transform2d.translation;
             push.color = obj.m_color;
-            push.transform = obj.m_transform2d.mat2();
+
+            // TODO: get this off the CPU and move it to the graphics card
+            push.transform = t_camera.getProjection() * obj.m_transform.mat4();
 
             vkCmdPushConstants(t_commandBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);
 
