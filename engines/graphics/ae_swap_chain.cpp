@@ -14,6 +14,20 @@ namespace ae {
     // Function that creates a swap chain object
     AeSwapChain::AeSwapChain(AeDevice& t_deviceRef, VkExtent2D t_extent)
         : m_device{ t_deviceRef }, m_windowExtent{ t_extent } {
+        init();
+    }
+
+    // Function that creates a swap chain object
+    AeSwapChain::AeSwapChain(AeDevice& t_deviceRef, VkExtent2D t_extent, std::shared_ptr<AeSwapChain> t_previous)
+        : m_device{ t_deviceRef }, m_windowExtent{ t_extent }, m_oldSwapChain{t_previous} {
+        init();
+
+        // clean up old swap chain
+        m_oldSwapChain = nullptr;
+    }
+
+    // Function that creates a swap chain object
+    void AeSwapChain::init() {
         createSwapChain();
         createImageViews();
         createRenderPass();
@@ -21,6 +35,8 @@ namespace ae {
         createFramebuffers();
         createSyncObjects();
     }
+
+
 
     // Function that destroys a swap chain object
     AeSwapChain::~AeSwapChain() {
@@ -167,7 +183,7 @@ namespace ae {
         createInfo.presentMode = presentMode;
         createInfo.clipped = VK_TRUE;
 
-        createInfo.oldSwapchain = VK_NULL_HANDLE;
+        createInfo.oldSwapchain = m_oldSwapChain == nullptr ? VK_NULL_HANDLE : m_oldSwapChain->m_swapChain;
 
         if (vkCreateSwapchainKHR(m_device.device(), &createInfo, nullptr, &m_swapChain) != VK_SUCCESS) {
             throw std::runtime_error("failed to create swap chain!");

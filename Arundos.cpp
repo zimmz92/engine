@@ -47,11 +47,11 @@ namespace ae {
 
     };
     void Arundos::createPipeline() {
+        assert(m_aeSwapChain != nullptr && "Cannot create pipeline before swap chain!");
+        assert(m_pipelineLayout != nullptr && "Cannot create pipeline before pipeline layout!");
+
         PipelineConfigInfo pipelineConfig{};
-        AePipeline::defaultPipelineConfigInfo(
-            pipelineConfig,
-            m_aeSwapChain->width(),
-            m_aeSwapChain->height());
+        AePipeline::defaultPipelineConfigInfo(pipelineConfig);
         pipelineConfig.renderPass = m_aeSwapChain->getRenderPass();
         pipelineConfig.pipelineLayout = m_pipelineLayout;
         m_aePipeline = std::make_unique<AePipeline>(
@@ -70,10 +70,18 @@ namespace ae {
 
         vkDeviceWaitIdle(m_aeDevice.device());
 
-        // TODO: Remove this line after the old swap chian is provided to the new one during creation 
-        m_aeSwapChain = nullptr;
+        if (m_aeSwapChain == nullptr) {
+            m_aeSwapChain = std::make_unique<AeSwapChain>(m_aeDevice, extent);
+        }
+        else {
+            m_aeSwapChain = std::make_unique<AeSwapChain>(m_aeDevice, extent, std::move(m_aeSwapChain));
+            if (m_aeSwapChain->imageCount() != m_commandBuffers.size()) {
+                freeCommandBuffers();
+                createCommandBuffers();
+            }
+        }
 
-        m_aeSwapChain = std::make_unique<AeSwapChain>(m_aeDevice, extent);
+        // TODO: If render pass compatible remove following line
         createPipeline();
     };
 
@@ -90,6 +98,11 @@ namespace ae {
             throw std::runtime_error("Failed to allocate command buffers!");
         }
     };
+
+    void Arundos::freeCommandBuffers() {
+        vkFreeCommandBuffers(m_aeDevice.device(), m_aeDevice.getCommandPool(), static_cast<uint32_t>(m_commandBuffers.size()), m_commandBuffers.data());
+        m_commandBuffers.clear();
+    }
 
     void Arundos::recordCommandBuffer(int t_imageIndex) {
         VkCommandBufferBeginInfo beginInfo{};
@@ -114,6 +127,17 @@ namespace ae {
         renderPassInfo.pClearValues = clearValues.data();
 
         vkCmdBeginRenderPass(m_commandBuffers[t_imageIndex], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+        VkViewport viewport{};
+        viewport.x = 0.0f;
+        viewport.y = 0.0f;
+        viewport.width = static_cast<float>(m_aeSwapChain->getSwapChainExtent().width);
+        viewport.height = static_cast<float>(m_aeSwapChain->getSwapChainExtent().height);
+        viewport.minDepth = 0.0f;
+        viewport.maxDepth = 1.0f;
+        VkRect2D scissor{{0, 0}, m_aeSwapChain->getSwapChainExtent()};
+        vkCmdSetViewport(m_commandBuffers[t_imageIndex], 0, 1, &viewport);
+        vkCmdSetScissor(m_commandBuffers[t_imageIndex], 0, 1, &scissor);
 
         m_aePipeline->bind(m_commandBuffers[t_imageIndex]);
         m_aeModel->bind(m_commandBuffers[t_imageIndex]);

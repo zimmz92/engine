@@ -108,7 +108,7 @@ namespace ae {
         pipelineInfo.pRasterizationState = &t_configInfo.rasterizationInfo;
         pipelineInfo.pMultisampleState = &t_configInfo.multisampleInfo;
         pipelineInfo.pColorBlendState = &t_configInfo.colorBlendInfo;
-        pipelineInfo.pDynamicState = nullptr;  // Optional
+        pipelineInfo.pDynamicState = &t_configInfo.dynamicStateInfo;
         pipelineInfo.pDepthStencilState = &t_configInfo.depthStencilInfo;
 
         pipelineInfo.layout = t_configInfo.pipelineLayout;
@@ -146,30 +146,19 @@ namespace ae {
         vkCmdBindPipeline(t_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline);
     }
 
-    void AePipeline::defaultPipelineConfigInfo(PipelineConfigInfo& t_configInfo, uint32_t t_width, uint32_t t_height) {
+    void AePipeline::defaultPipelineConfigInfo(PipelineConfigInfo& t_configInfo) {
+
         // Choose how to interpret indicies, currently list each trianlge individually
         t_configInfo.inputAssemblyInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
         t_configInfo.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
         t_configInfo.inputAssemblyInfo.primitiveRestartEnable = VK_FALSE;
 
-        // Transform the gl position values to the output image
-        t_configInfo.viewport.x = 0.0f;
-        t_configInfo.viewport.y = 0.0f;
-        t_configInfo.viewport.width = static_cast<float>(t_width);
-        t_configInfo.viewport.height = static_cast<float>(t_height);
-        t_configInfo.viewport.minDepth = 0.0f;
-        t_configInfo.viewport.maxDepth = 1.0f;
-
-        // How much of the image to cut off
-        t_configInfo.scissor.offset = { 0, 0 };
-        t_configInfo.scissor.extent = { t_width, t_height };
-
         // Configure the viewport
         t_configInfo.viewportInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
         t_configInfo.viewportInfo.viewportCount = 1;
-        t_configInfo.viewportInfo.pViewports = &t_configInfo.viewport;
+        t_configInfo.viewportInfo.pViewports = nullptr;
         t_configInfo.viewportInfo.scissorCount = 1;
-        t_configInfo.viewportInfo.pScissors = &t_configInfo.scissor;
+        t_configInfo.viewportInfo.pScissors = nullptr;
 
         // Breaks up geometry into fragments for each pixel it overlaps
         t_configInfo.rasterizationInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
@@ -226,6 +215,12 @@ namespace ae {
         t_configInfo.depthStencilInfo.stencilTestEnable = VK_FALSE;
         t_configInfo.depthStencilInfo.front = {};  // Optional
         t_configInfo.depthStencilInfo.back = {};   // Optional
+
+        t_configInfo.dynamicStateEnables = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
+        t_configInfo.dynamicStateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+        t_configInfo.dynamicStateInfo.pDynamicStates = t_configInfo.dynamicStateEnables.data();
+        t_configInfo.dynamicStateInfo.dynamicStateCount = static_cast<uint32_t>(t_configInfo.dynamicStateEnables.size());
+        t_configInfo.dynamicStateInfo.flags = 0;
     }
 
 }  // namespace ae

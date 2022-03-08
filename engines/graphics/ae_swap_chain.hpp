@@ -6,6 +6,7 @@
 #include <vulkan/vulkan.h>
 
 // std lib headers
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -17,6 +18,7 @@ namespace ae {
 
         // Function that creates a swap chain object
         AeSwapChain(AeDevice& t_deviceRef, VkExtent2D t_windowExtent);
+        AeSwapChain(AeDevice& t_deviceRef, VkExtent2D t_windowExtent, std::shared_ptr<AeSwapChain> t_previous);
 
         // Function that destroys a swap chain object
         ~AeSwapChain();
@@ -64,6 +66,8 @@ namespace ae {
         VkResult submitCommandBuffers(const VkCommandBuffer* t_buffers, uint32_t* t_imageIndex);
 
     private:
+        void init();
+
         // Function to create a swap chain object
         void createSwapChain();
 
@@ -109,6 +113,7 @@ namespace ae {
         VkExtent2D m_windowExtent;
 
         VkSwapchainKHR m_swapChain;
+        std::shared_ptr<AeSwapChain> m_oldSwapChain;
 
         std::vector<VkSemaphore> m_imageAvailableSemaphores;
         std::vector<VkSemaphore> m_renderFinishedSemaphores;

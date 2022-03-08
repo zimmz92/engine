@@ -13,8 +13,6 @@ namespace ae {
         PipelineConfigInfo(const PipelineConfigInfo&) = delete;
         PipelineConfigInfo& operator=(const PipelineConfigInfo&) = delete;
 
-        VkViewport viewport;
-        VkRect2D scissor;
         VkPipelineViewportStateCreateInfo viewportInfo;
         VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo;
         VkPipelineRasterizationStateCreateInfo rasterizationInfo;
@@ -22,6 +20,8 @@ namespace ae {
         VkPipelineColorBlendAttachmentState colorBlendAttachment;
         VkPipelineColorBlendStateCreateInfo colorBlendInfo;
         VkPipelineDepthStencilStateCreateInfo depthStencilInfo;
+        std::vector<VkDynamicState> dynamicStateEnables;
+        VkPipelineDynamicStateCreateInfo dynamicStateInfo;
         VkPipelineLayout pipelineLayout = nullptr;
         VkRenderPass renderPass = nullptr;
         uint32_t subpass = 0;
@@ -48,7 +48,7 @@ namespace ae {
         void bind(VkCommandBuffer t_commandBuffer);
 
         // Function to create a default pipeline
-        static void defaultPipelineConfigInfo(PipelineConfigInfo& t_configInfo, uint32_t t_width, uint32_t t_height);
+        static void defaultPipelineConfigInfo(PipelineConfigInfo& t_configInfo);
 
     private:
 
