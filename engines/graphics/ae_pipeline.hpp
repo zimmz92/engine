@@ -10,6 +10,7 @@ namespace ae {
 
     // Information required to create the a Vulkan pipeline 
     struct PipelineConfigInfo {
+        PipelineConfigInfo() = default;
         PipelineConfigInfo(const PipelineConfigInfo&) = delete;
         PipelineConfigInfo& operator=(const PipelineConfigInfo&) = delete;
 
