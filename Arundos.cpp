@@ -1,12 +1,24 @@
 ﻿#include "Arundos.hpp"
 
+// libraries
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#include <glm/glm.hpp>
+#include <glm/gtc/constants.hpp>
+
 #include <stdexcept>
 #include <array>
 
 namespace ae {
 
+    struct SimplePushConstantData {
+        glm::mat2 transform{ 1.0f };
+        glm::vec2 offset;
+        alignas(16) glm::vec3 color;
+    };
+
     Arundos::Arundos() {
-        loadModels();
+        loadGameObjects();
         createPipelineLayout();
         recreateSwapChain();
         createCommandBuffers();
@@ -25,22 +37,37 @@ namespace ae {
         vkDeviceWaitIdle(m_aeDevice.device());
     }
 
-    void Arundos::loadModels() {
+    void Arundos::loadGameObjects() {
         std::vector<AeModel::Vertex> vertices{
             {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
             {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
             {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
         };
-        m_aeModel = std::make_unique<AeModel>(m_aeDevice, vertices);
+        auto aeModel = std::make_shared<AeModel>(m_aeDevice, vertices);
+
+        auto triangle = AeGameObject::createGameObject();
+        triangle.m_model = aeModel;
+        triangle.m_color = { 0.1f, 0.8f, 0.1f };
+        triangle.m_transform2d.translation.x = 0.2f;
+        triangle.m_transform2d.scale = {2.0f, 0.5f};
+        triangle.m_transform2d.rotation = 0.25f * glm::two_pi<float>(); // vulkan has -x is left on screen -y is up on screen
+
+        m_gameObjects.push_back(std::move(triangle));
     }
 
     void Arundos::createPipelineLayout() {
+
+        VkPushConstantRange pushConstantRange{};
+        pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+        pushConstantRange.offset = 0;
+        pushConstantRange.size = sizeof(SimplePushConstantData);
+
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
         pipelineLayoutInfo.setLayoutCount = 0;
         pipelineLayoutInfo.pSetLayouts = nullptr;
-        pipelineLayoutInfo.pushConstantRangeCount = 0;
-        pipelineLayoutInfo.pPushConstantRanges = nullptr; // Send a small amount of data to shader program
+        pipelineLayoutInfo.pushConstantRangeCount = 1;
+        pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange; // Send a small amount of data to shader program
         if (vkCreatePipelineLayout(m_aeDevice.device(), &pipelineLayoutInfo, nullptr, &m_pipelineLayout) != VK_SUCCESS) {
             throw std::runtime_error("Failed to create pipeline layout!");
         }
@@ -105,6 +132,7 @@ namespace ae {
     }
 
     void Arundos::recordCommandBuffer(int t_imageIndex) {
+
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
@@ -121,7 +149,7 @@ namespace ae {
         renderPassInfo.renderArea.extent = m_aeSwapChain->getSwapChainExtent();
 
         std::array<VkClearValue, 2> clearValues{};
-        clearValues[0].color = { 0.1f, 0.1f, 0.1f, 0.1f };
+        clearValues[0].color = { 0.01f, 0.01f, 0.01f, 1.0f };
         clearValues[1].depthStencil = { 1.0f, 0 };
         renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
         renderPassInfo.pClearValues = clearValues.data();
@@ -139,15 +167,29 @@ namespace ae {
         vkCmdSetViewport(m_commandBuffers[t_imageIndex], 0, 1, &viewport);
         vkCmdSetScissor(m_commandBuffers[t_imageIndex], 0, 1, &scissor);
 
-        m_aePipeline->bind(m_commandBuffers[t_imageIndex]);
-        m_aeModel->bind(m_commandBuffers[t_imageIndex]);
-        m_aeModel->draw(m_commandBuffers[t_imageIndex]);
+        renderGameObjects(m_commandBuffers[t_imageIndex]);
 
         vkCmdEndRenderPass(m_commandBuffers[t_imageIndex]);
         if (vkEndCommandBuffer(m_commandBuffers[t_imageIndex]) != VK_SUCCESS) {
             throw std::runtime_error("Failed to record command buffer.");
         }
     };
+
+    void Arundos::renderGameObjects(VkCommandBuffer t_commandBuffer) {
+        m_aePipeline->bind(t_commandBuffer);
+
+        for (auto& obj : m_gameObjects) {
+            SimplePushConstantData push{};
+            push.offset = obj.m_transform2d.translation;
+            push.color = obj.m_color;
+            push.transform = obj.m_transform2d.mat2();
+
+            vkCmdPushConstants(t_commandBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);
+
+            obj.m_model->bind(t_commandBuffer);
+            obj.m_model->draw(t_commandBuffer);
+        }
+    }
 
     void Arundos::drawFrame() {
         uint32_t imageIndex;
