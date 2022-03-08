@@ -33,8 +33,6 @@ namespace ae {
                 // TODO: Create a callback function probably to setup a callback function that a new incompatible render pass has been created
             }
         }
-
-        // TODO: If render pass compatible remove following line
     };
 
     void AeRenderer::createCommandBuffers() {
@@ -96,8 +94,7 @@ namespace ae {
         if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_aeWindow.wasWindowResized()) {
             m_aeWindow.resetWindowResizedFlag();
             recreateSwapChain();
-        }
-        if (result != VK_SUCCESS) {
+        } else if (result != VK_SUCCESS) {
             throw std::runtime_error("Failed to present swap chain image!");
         }
 
