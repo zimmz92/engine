@@ -23,12 +23,12 @@ namespace ae {
         bool isFrameInProgress() const { return m_isFrameStarted; };
 
         VkCommandBuffer getCurrentCommandBuffer() const {
-            assert(isFrameInProgress() && "Cannot get command buffer when frame not in progress");
+            assert(m_isFrameStarted && "Cannot get command buffer when frame not in progress");
             return m_commandBuffers[m_currentFrameIndex];
         }
 
         int getFrameIndex() const {
-            assert(isFrameInProgress() && "Cannot get frame index when frame not in progress");
+            assert(m_isFrameStarted && "Cannot get frame index when frame not in progress");
             return m_currentFrameIndex;
         }
 
@@ -50,7 +50,7 @@ namespace ae {
         std::vector<VkCommandBuffer> m_commandBuffers;
 
         uint32_t m_currentImageIndex;
-        int m_currentFrameIndex = 0;
-        bool m_isFrameStarted = false;
+        int m_currentFrameIndex{ 0 };
+        bool m_isFrameStarted{ false };
     };
 }  // namespace ae
