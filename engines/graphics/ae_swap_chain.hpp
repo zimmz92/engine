@@ -65,6 +65,11 @@ namespace ae {
         // Function to submit command buffers to the swap chain
         VkResult submitCommandBuffers(const VkCommandBuffer* t_buffers, uint32_t* t_imageIndex);
 
+        bool compareSwapFormats(const AeSwapChain &t_swapchain) const {
+            return t_swapchain.m_swapChainDepthFormat == m_swapChainDepthFormat && 
+                   t_swapchain.m_swapChainImageFormat == m_swapChainImageFormat;
+        }
+
     private:
         void init();
 
@@ -98,6 +103,7 @@ namespace ae {
 
         // Member variables
         VkFormat m_swapChainImageFormat;
+        VkFormat m_swapChainDepthFormat;
         VkExtent2D m_swapChainExtent;
 
         std::vector<VkFramebuffer> m_swapChainFramebuffers;

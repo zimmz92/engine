@@ -25,10 +25,12 @@ namespace ae {
             m_aeSwapChain = std::make_unique<AeSwapChain>(m_aeDevice, extent);
         }
         else {
-            m_aeSwapChain = std::make_unique<AeSwapChain>(m_aeDevice, extent, std::move(m_aeSwapChain));
-            if (m_aeSwapChain->imageCount() != m_commandBuffers.size()) {
-                freeCommandBuffers();
-                createCommandBuffers();
+            std::shared_ptr<AeSwapChain> oldSwapChain = std::move(m_aeSwapChain);
+            m_aeSwapChain = std::make_unique<AeSwapChain>(m_aeDevice, extent, oldSwapChain);
+
+            if (!oldSwapChain->compareSwapFormats(*m_aeSwapChain.get())) {
+                throw std::runtime_error("Swap chain image (or depth) format has changed!");
+                // TODO: Create a callback function probably to setup a callback function that a new incompatible render pass has been created
             }
         }
 
@@ -36,7 +38,7 @@ namespace ae {
     };
 
     void AeRenderer::createCommandBuffers() {
-        m_commandBuffers.resize(m_aeSwapChain->imageCount());
+        m_commandBuffers.resize(AeSwapChain::MAX_FRAMES_IN_FLIGHT);
 
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -100,6 +102,7 @@ namespace ae {
         }
 
         m_isFrameStarted = false;
+        m_currentFrameIndex = (m_currentFrameIndex + 1) % AeSwapChain::MAX_FRAMES_IN_FLIGHT;
     }
 
 
