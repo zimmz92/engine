@@ -1,6 +1,7 @@
 ﻿#include "Arundos.hpp"
 #include "ae_rs_simple.hpp"
 #include "ae_camera.hpp"
+#include "keyboard_movement_controller.hpp"
 
 // libraries
 #define GLM_FORCE_RADIANS
@@ -9,6 +10,7 @@
 #include <glm/gtc/constants.hpp>
 
 #include <stdexcept>
+#include <chrono>
 #include <array>
 #include <cassert>
 
@@ -24,12 +26,27 @@ namespace ae {
     void Arundos::run() {
         AeRsSimple simpleRenderSystem(m_aeDevice, m_aeRenderer.getSwapChainRenderPass());
         AeCamera camera{};
+
+        auto viewerObject = AeGameObject::createGameObject();
+        KeyboardMovementController cameraController{};
+
+        auto currentTime = std::chrono::high_resolution_clock::now();
+        
         
         while (!m_aeWindow.shouldClose()) {
             glfwPollEvents();
 
+            auto newTime = std::chrono::high_resolution_clock::now();
+            float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
+            currentTime = newTime;
+
+            //frameTime = glm::min(frameTime, MAX_FRAME_TIME);
+
+            cameraController.moveInPlaneXZ(m_aeWindow.getGLFWwindow(), frameTime, viewerObject);
+            camera.setViewYXZ(viewerObject.m_transform.translation, viewerObject.m_transform.rotation);
+
             float aspect = m_aeRenderer.getAspectRatio();
-            //camera.setOrthographicProjection(-aspect, aspect, -1, 1, -1, 1);
+
             camera.setPerspectiveProjection(glm::radians(50.0f), aspect, 0.1f, 10.0f);
 
             if (auto commandBuffer = m_aeRenderer.beginFrame()) {

@@ -62,15 +62,15 @@ namespace ae {
     void AeRsSimple::renderGameObjects(VkCommandBuffer t_commandBuffer, std::vector<AeGameObject>& t_gameObjects, const AeCamera& t_camera) {
         m_aePipeline->bind(t_commandBuffer);
 
+        // TODO: get this off the CPU and move it to the graphics card
+        auto projectionView = t_camera.getProjection() * t_camera.getView();
+
         for (auto& obj : t_gameObjects) {
-            obj.m_transform.rotation.y = glm::mod(obj.m_transform.rotation.y + 0.001f, glm::two_pi<float>());
-            obj.m_transform.rotation.x = glm::mod(obj.m_transform.rotation.x + 0.0005f, glm::two_pi<float>());
 
             SimplePushConstantData push{};
             push.color = obj.m_color;
-
             // TODO: get this off the CPU and move it to the graphics card
-            push.transform = t_camera.getProjection() * obj.m_transform.mat4();
+            push.transform = projectionView * obj.m_transform.mat4();
 
             vkCmdPushConstants(t_commandBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);
 

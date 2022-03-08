@@ -28,6 +28,7 @@ namespace ae {
 		// Function to check if the window has been resized
 		bool wasWindowResized() { return m_framebufferResized; }
 		void resetWindowResizedFlag() { m_framebufferResized = false; }
+		GLFWwindow* getGLFWwindow() const { return m_window; }
 
 		// Function to check if the window wants to close
 		bool shouldClose() { return glfwWindowShouldClose(m_window); }

@@ -13,11 +13,16 @@ namespace ae {
 		void setOrthographicProjection(float t_left, float t_right, float t_top, float t_bottom, float t_near, float t_far);
 		void setPerspectiveProjection(float t_fovy, float t_aspect, float t_near, float t_far);
 
-		const glm::mat4 getProjection() const { return m_projectionMatrix; };
+		void setViewDirection(glm::vec3 t_position, glm::vec3 t_direction, glm::vec3 t_up = { 0.0f, -1.0f, 0.0f });
+		void setViewTarget(glm::vec3 t_position, glm::vec3 t_target, glm::vec3 t_up = { 0.0f, -1.0f, 0.0f });
+		void setViewYXZ(glm::vec3 t_position, glm::vec3 t_rotation);
+
+		const glm::mat4 getProjection() const { return m_projectionMatrix; }
+		const glm::mat4 getView() const { return m_viewMatrix; }
 
 	private:
 		glm::mat4 m_projectionMatrix{ 1.0f };
-
+		glm::mat4 m_viewMatrix{ 1.0f };
 
 	};
 }; // namespace ae
