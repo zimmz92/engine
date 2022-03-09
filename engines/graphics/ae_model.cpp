@@ -25,17 +25,32 @@ namespace ae {
 		m_vertexCount = static_cast<uint32_t>(t_vertices.size());
 		assert(m_vertexCount >= 3 && "Vertex count must be at least 3");
 		VkDeviceSize bufferSize = sizeof(t_vertices[0]) * m_vertexCount;
+
+		VkBuffer stagingBuffer;
+		VkDeviceMemory stagingBufferMemory;
 		m_aeDevice.createBuffer(
 			bufferSize,
-			VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+			stagingBuffer,
+			stagingBufferMemory);
+
+		void *data;
+		vkMapMemory(m_aeDevice.device(), stagingBufferMemory, 0, bufferSize, 0, &data);
+		memcpy(data, t_vertices.data(), static_cast<size_t>(bufferSize));
+		vkUnmapMemory(m_aeDevice.device(), stagingBufferMemory);
+
+		m_aeDevice.createBuffer(
+			bufferSize,
+			VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
 			m_vertexBuffer,
 			m_vertexBufferMemory);
 
-		void *data;
-		vkMapMemory(m_aeDevice.device(), m_vertexBufferMemory, 0, bufferSize, 0, &data);
-		memcpy(data, t_vertices.data(), static_cast<size_t>(bufferSize));
-		vkUnmapMemory(m_aeDevice.device(), m_vertexBufferMemory);
+		m_aeDevice.copyBuffer(stagingBuffer, m_vertexBuffer, bufferSize);
+
+		vkDestroyBuffer(m_aeDevice.device(), stagingBuffer, nullptr);
+		vkFreeMemory(m_aeDevice.device(), stagingBufferMemory, nullptr);
 	}
 
 	void AeModel::createIndexBuffers(const std::vector<uint32_t>& t_indicies) {
@@ -46,17 +61,32 @@ namespace ae {
 			return;
 		}
 		VkDeviceSize bufferSize = sizeof(t_indicies[0]) * m_indexCount;
+
+		VkBuffer stagingBuffer;
+		VkDeviceMemory stagingBufferMemory;
 		m_aeDevice.createBuffer(
 			bufferSize,
-			VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+			stagingBuffer,
+			stagingBufferMemory);
+
+		void* data;
+		vkMapMemory(m_aeDevice.device(), stagingBufferMemory, 0, bufferSize, 0, &data);
+		memcpy(data, t_indicies.data(), static_cast<size_t>(bufferSize));
+		vkUnmapMemory(m_aeDevice.device(), stagingBufferMemory);
+
+		m_aeDevice.createBuffer(
+			bufferSize,
+			VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
 			m_indexBuffer,
 			m_indexBufferMemory);
 
-		void* data;
-		vkMapMemory(m_aeDevice.device(), m_indexBufferMemory, 0, bufferSize, 0, &data);
-		memcpy(data, t_indicies.data(), static_cast<size_t>(bufferSize));
-		vkUnmapMemory(m_aeDevice.device(), m_indexBufferMemory);
+		m_aeDevice.copyBuffer(stagingBuffer, m_indexBuffer, bufferSize);
+
+		vkDestroyBuffer(m_aeDevice.device(), stagingBuffer, nullptr);
+		vkFreeMemory(m_aeDevice.device(), stagingBufferMemory, nullptr);
 	}
 
 	void  AeModel::bind(VkCommandBuffer t_commandBuffer) {
