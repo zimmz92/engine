@@ -61,12 +61,21 @@ namespace ae {
     }
 
     void Arundos::loadGameObjects() {
-        std::shared_ptr<AeModel> aeModel = AeModel::createModelFromFile(m_aeDevice, "models/smooth_vase.obj");
+        std::shared_ptr<AeModel> aeModel = AeModel::createModelFromFile(m_aeDevice, "models/flat_vase.obj");
 
-        auto gameObj = AeGameObject::createGameObject();
-        gameObj.m_model = aeModel;
-        gameObj.m_transform.translation = { 0.0f, 0.0f, 2.5f };
-        gameObj.m_transform.scale = glm::vec3(3.0f);
-        m_gameObjects.push_back(std::move(gameObj));
+        auto flatVase = AeGameObject::createGameObject();
+        flatVase.m_model = aeModel;
+        flatVase.m_transform.translation = { -0.5f, 0.5f, 2.5f };
+        flatVase.m_transform.scale = {3.0f, 1.5f, 3.0f };
+        m_gameObjects.push_back(std::move(flatVase));
+
+
+        aeModel = AeModel::createModelFromFile(m_aeDevice, "models/smooth_vase.obj");
+
+        auto smoothVase = AeGameObject::createGameObject();
+        smoothVase.m_model = aeModel;
+        smoothVase.m_transform.translation = { 0.5f, 0.5f, 2.5f };
+        smoothVase.m_transform.scale = { 3.0f, 1.5f, 3.0f };
+        m_gameObjects.push_back(std::move(smoothVase));
     }
 }  // namespace ae

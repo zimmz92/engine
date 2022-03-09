@@ -14,7 +14,7 @@ namespace ae {
 
     struct SimplePushConstantData {
         glm::mat4 transform{ 1.0f };
-        alignas(16) glm::vec3 color;
+        glm::mat4 normalMatrix{ 1.0f };
     };
 
     AeRsSimple::AeRsSimple(AeDevice& t_device, VkRenderPass t_renderPass) : m_aeDevice{ t_device } {
@@ -68,9 +68,10 @@ namespace ae {
         for (auto& obj : t_gameObjects) {
 
             SimplePushConstantData push{};
-            push.color = obj.m_color;
+            auto modelMatrix = obj.m_transform.mat4();
             // TODO: get this off the CPU and move it to the graphics card
             push.transform = projectionView * obj.m_transform.mat4();
+            push.normalMatrix = obj.m_transform.normalMatrix();
 
             vkCmdPushConstants(t_commandBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);
 
