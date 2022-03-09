@@ -5,13 +5,20 @@
 
 namespace ae {
 
-	AeModel::AeModel(AeDevice &t_device, const std::vector<Vertex> &t_vertices) : m_aeDevice{ t_device } {
-		createVertexBuffers(t_vertices);
+	AeModel::AeModel(AeDevice &t_device, const AeModel::Builder& t_builder) : m_aeDevice{ t_device } {
+		createVertexBuffers(t_builder.vertices);
+		createIndexBuffers(t_builder.indices);
 	}
 
 	AeModel::~AeModel() {
 		vkDestroyBuffer(m_aeDevice.device(), m_vertexBuffer, nullptr);
 		vkFreeMemory(m_aeDevice.device(), m_vertexBufferMemory, nullptr);
+
+		if (m_hasIndexBuffer) {
+			vkDestroyBuffer(m_aeDevice.device(), m_indexBuffer, nullptr);
+			vkFreeMemory(m_aeDevice.device(), m_indexBufferMemory, nullptr);
+		}
+		
 	}
 
 	void AeModel::createVertexBuffers(const std::vector<Vertex> &t_vertices) {
@@ -31,14 +38,46 @@ namespace ae {
 		vkUnmapMemory(m_aeDevice.device(), m_vertexBufferMemory);
 	}
 
+	void AeModel::createIndexBuffers(const std::vector<uint32_t>& t_indicies) {
+		m_indexCount = static_cast<uint32_t>(t_indicies.size());
+		m_hasIndexBuffer = m_indexCount > 0;
+
+		if (!m_hasIndexBuffer) {
+			return;
+		}
+		VkDeviceSize bufferSize = sizeof(t_indicies[0]) * m_indexCount;
+		m_aeDevice.createBuffer(
+			bufferSize,
+			VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+			m_indexBuffer,
+			m_indexBufferMemory);
+
+		void* data;
+		vkMapMemory(m_aeDevice.device(), m_indexBufferMemory, 0, bufferSize, 0, &data);
+		memcpy(data, t_indicies.data(), static_cast<size_t>(bufferSize));
+		vkUnmapMemory(m_aeDevice.device(), m_indexBufferMemory);
+	}
+
 	void  AeModel::bind(VkCommandBuffer t_commandBuffer) {
 		VkBuffer buffers[] = {m_vertexBuffer};
 		VkDeviceSize offsets[] = {0};
 		vkCmdBindVertexBuffers(t_commandBuffer, 0, 1, buffers, offsets);
+
+		// TODO: UINT32 could be reduced if using more simple models
+		if (m_hasIndexBuffer) {
+			vkCmdBindIndexBuffer(t_commandBuffer, m_indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+		}
 	}
 
 	void  AeModel::draw(VkCommandBuffer t_commandBuffer) {
-		vkCmdDraw(t_commandBuffer, m_vertexCount, 1, 0, 0);
+		if (m_hasIndexBuffer) {
+			vkCmdDrawIndexed(t_commandBuffer, m_indexCount, 1, 0, 0, 0);
+		}
+		else {
+			vkCmdDraw(t_commandBuffer, m_vertexCount, 1, 0, 0);
+		}
+		
 	}
 
 	std::vector<VkVertexInputBindingDescription> AeModel::Vertex::getBindingDescriptions() {
