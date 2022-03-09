@@ -41,6 +41,7 @@ add_subdirectory(engines/graphics/shaders)
 add_subdirectory(game_code)
 add_subdirectory(game_code/objects)
 add_subdirectory(game_code/render_systems)
+add_subdirectory(Libraries/tinyobjectloader)
 
 target_sources(mySrcFiles
     PRIVATE

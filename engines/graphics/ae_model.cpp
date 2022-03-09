@@ -1,5 +1,10 @@
 #include "ae_model.hpp"
 
+// libs
+#define TINYOBJLOADER_IMPLEMENTATION
+#include <tiny_obj_loader.h>
+
+// std
 #include <cassert>
 #include <cstring>
 

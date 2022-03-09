@@ -502,6 +502,7 @@ namespace ae {
 	}
 
 	// Function to end and clear the singular command buffer run
+	// TODO: implement memory barrier to improve performance
 	void AeDevice::endSingleTimeCommands(VkCommandBuffer t_commandBuffer) {
 		vkEndCommandBuffer(t_commandBuffer);
 
