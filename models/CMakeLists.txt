@@ -1,0 +1,4 @@
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/colored_cube.obj ${CMAKE_CURRENT_BINARY_DIR}/colored_cube.obj COPYONLY)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cube.obj ${CMAKE_CURRENT_BINARY_DIR}/cube.obj COPYONLY)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/flat_vase.obj ${CMAKE_CURRENT_BINARY_DIR}/flat_vase.obj COPYONLY)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/smooth_vase.obj ${CMAKE_CURRENT_BINARY_DIR}/smooth_vase.obj COPYONLY)

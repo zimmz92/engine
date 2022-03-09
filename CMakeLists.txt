@@ -36,12 +36,17 @@ add_subdirectory(Libraries/glm)
 
 # Add source to this project's executable.
 add_library(mySrcFiles "")
+
 add_subdirectory(engines/graphics)
 add_subdirectory(engines/graphics/shaders)
+
 add_subdirectory(game_code)
 add_subdirectory(game_code/objects)
 add_subdirectory(game_code/render_systems)
+
 add_subdirectory(Libraries/tinyobjectloader)
+
+add_subdirectory(models)
 
 target_sources(mySrcFiles
     PRIVATE

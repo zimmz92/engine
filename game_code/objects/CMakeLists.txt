@@ -1,6 +1,5 @@
 target_sources(mySrcFiles
     PRIVATE
-        ae_game_object.cpp
         ae_game_object.hpp
     PUBLIC
 )
