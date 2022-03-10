@@ -30,15 +30,16 @@ namespace ae {
     }
 
     void Arundos::run() {
-        AeBuffer globalUboBuffer{
-            m_aeDevice,
-            sizeof(GlobalUbo),
-            AeSwapChain::MAX_FRAMES_IN_FLIGHT,
-            VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-            m_aeDevice.m_properties.limits.minUniformBufferOffsetAlignment,
-        };
-        globalUboBuffer.map();
+        std::vector<std::unique_ptr<AeBuffer>> uboBuffers(AeSwapChain::MAX_FRAMES_IN_FLIGHT);
+        for (int i = 0; i < uboBuffers.size(); i++) {
+            uboBuffers[i] = std::make_unique<AeBuffer>(
+                m_aeDevice,
+                sizeof(GlobalUbo),
+                1,
+                VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+            uboBuffers[i]->map();
+        }
 
         AeRsSimple simpleRenderSystem(m_aeDevice, m_aeRenderer.getSwapChainRenderPass());
         AeCamera camera{};
@@ -77,8 +78,8 @@ namespace ae {
                 // update
                 GlobalUbo ubo{};
                 ubo.projectionView = camera.getProjection() * camera.getView();
-                globalUboBuffer.writeToIndex(&ubo, frameIndex);
-                globalUboBuffer.flushIndex(frameIndex);
+                uboBuffers[frameIndex]->writeToBuffer(&ubo);
+                uboBuffers[frameIndex]->flush();
 
                 // render
                 m_aeRenderer.beginSwapChainRenderPass(commandBuffer);
