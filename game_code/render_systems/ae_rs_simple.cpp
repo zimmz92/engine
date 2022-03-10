@@ -59,11 +59,11 @@ namespace ae {
             pipelineConfig);
     };
 
-    void AeRsSimple::renderGameObjects(VkCommandBuffer t_commandBuffer, std::vector<AeGameObject>& t_gameObjects, const AeCamera& t_camera) {
-        m_aePipeline->bind(t_commandBuffer);
+    void AeRsSimple::renderGameObjects(FrameInfo& t_frameInfo, std::vector<AeGameObject>& t_gameObjects) {
+        m_aePipeline->bind(t_frameInfo.m_commandBuffer);
 
         // TODO: get this off the CPU and move it to the graphics card
-        auto projectionView = t_camera.getProjection() * t_camera.getView();
+        auto projectionView = t_frameInfo.m_camera.getProjection() * t_frameInfo.m_camera.getView();
 
         for (auto& obj : t_gameObjects) {
 
@@ -73,10 +73,10 @@ namespace ae {
             push.transform = projectionView * obj.m_transform.mat4();
             push.normalMatrix = obj.m_transform.normalMatrix();
 
-            vkCmdPushConstants(t_commandBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);
+            vkCmdPushConstants(t_frameInfo.m_commandBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);
 
-            obj.m_model->bind(t_commandBuffer);
-            obj.m_model->draw(t_commandBuffer);
+            obj.m_model->bind(t_frameInfo.m_commandBuffer);
+            obj.m_model->draw(t_frameInfo.m_commandBuffer);
         }
     }
 }  // namespace ae

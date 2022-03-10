@@ -2,6 +2,7 @@
 #include "ae_rs_simple.hpp"
 #include "ae_camera.hpp"
 #include "keyboard_movement_controller.hpp"
+#include "ae_buffer.hpp"
 
 // libraries
 #define GLM_FORCE_RADIANS
@@ -16,6 +17,11 @@
 
 namespace ae {
 
+    struct GlobalUbo {
+        glm::mat4 projectionView{ 1.0f };
+        glm::vec3 lightDirection = glm::normalize(glm::vec3{ 1.0f, -3.0f, 1.0f });
+    };
+
     Arundos::Arundos() {
         loadGameObjects();
     }
@@ -24,6 +30,16 @@ namespace ae {
     }
 
     void Arundos::run() {
+        AeBuffer globalUboBuffer{
+            m_aeDevice,
+            sizeof(GlobalUbo),
+            AeSwapChain::MAX_FRAMES_IN_FLIGHT,
+            VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+            m_aeDevice.m_properties.limits.minUniformBufferOffsetAlignment,
+        };
+        globalUboBuffer.map();
+
         AeRsSimple simpleRenderSystem(m_aeDevice, m_aeRenderer.getSwapChainRenderPass());
         AeCamera camera{};
 
@@ -50,8 +66,23 @@ namespace ae {
             camera.setPerspectiveProjection(glm::radians(50.0f), aspect, 0.1f, 10.0f);
 
             if (auto commandBuffer = m_aeRenderer.beginFrame()) {
+                int frameIndex = m_aeRenderer.getFrameIndex();
+                FrameInfo frameInfo{
+                    frameIndex,
+                    frameTime,
+                    commandBuffer,
+                    camera
+                };
+
+                // update
+                GlobalUbo ubo{};
+                ubo.projectionView = camera.getProjection() * camera.getView();
+                globalUboBuffer.writeToIndex(&ubo, frameIndex);
+                globalUboBuffer.flushIndex(frameIndex);
+
+                // render
                 m_aeRenderer.beginSwapChainRenderPass(commandBuffer);
-                simpleRenderSystem.renderGameObjects(commandBuffer, m_gameObjects, camera);
+                simpleRenderSystem.renderGameObjects(frameInfo, m_gameObjects);
                 m_aeRenderer.endSwapChainRenderPass(commandBuffer);
                 m_aeRenderer.endFrame();
             }
