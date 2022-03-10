@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ae_device.hpp"
+#include "ae_buffer.hpp"
 
 // libraries
 #define GLM_FORCE_RADIANS
@@ -53,13 +54,11 @@ namespace ae {
 
 		AeDevice &m_aeDevice;
 
-		VkBuffer m_vertexBuffer;
-		VkDeviceMemory m_vertexBufferMemory;
+		std::unique_ptr<AeBuffer> m_vertexBuffer;
 		uint32_t m_vertexCount;
 
 		bool m_hasIndexBuffer = false;
-		VkBuffer m_indexBuffer;
-		VkDeviceMemory m_indexBufferMemory;
+		std::unique_ptr<AeBuffer> m_indexBuffer;
 		uint32_t m_indexCount;
 	};
 } // namespace ae

@@ -14,6 +14,8 @@ target_sources(mySrcFiles
         ae_renderer.hpp
         ae_camera.cpp
         ae_camera.hpp
+        ae_buffer.cpp
+        ae_buffer.hpp
         ae_utils.hpp
     PUBLIC
 )
