@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "ae_descriptors.hpp"
 #include "ae_device.hpp"
 #include "ae_game_object.hpp"
 #include "ae_window.hpp"
@@ -32,9 +33,14 @@ namespace ae {
     private:
         void loadGameObjects();
 
+        
         AeWindow m_aeWindow{ WIDTH, HEIGHT, "Hello Vulkan!" };
         AeDevice m_aeDevice{ m_aeWindow };
         AeRenderer m_aeRenderer{m_aeWindow, m_aeDevice };
+
+        // note: order of declarations matters
+        // TODO to prevent order from mattering in app destructor make m_globalPool a null pointer to make sure it is destroyed before device is
+        std::unique_ptr<AeDescriptorPool> m_globalPool{};
         std::vector<AeGameObject> m_gameObjects;
     };
 }  // namespace ae

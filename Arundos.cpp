@@ -23,6 +23,10 @@ namespace ae {
     };
 
     Arundos::Arundos() {
+        m_globalPool = AeDescriptorPool::Builder(m_aeDevice)
+            .setMaxSets(AeSwapChain::MAX_FRAMES_IN_FLIGHT)
+            .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, AeSwapChain::MAX_FRAMES_IN_FLIGHT)
+            .build();
         loadGameObjects();
     }
 
@@ -41,7 +45,21 @@ namespace ae {
             uboBuffers[i]->map();
         }
 
-        AeRsSimple simpleRenderSystem(m_aeDevice, m_aeRenderer.getSwapChainRenderPass());
+
+        // TODO: Implement master render system that handles sub-render systems like skybox and models etc.
+        auto globalSetLayout = AeDescriptorSetLayout::Builder(m_aeDevice)
+            .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
+            .build();
+
+        std::vector<VkDescriptorSet> globalDescriptorSets(AeSwapChain::MAX_FRAMES_IN_FLIGHT);
+        for (int i = 0; i < globalDescriptorSets.size(); i++) {
+            auto bufferInfo = uboBuffers[i]->descriptorInfo();
+            AeDescriptorWriter(*globalSetLayout, *m_globalPool)
+                .writeBuffer(0, &bufferInfo)
+                .build(globalDescriptorSets[i]);
+        }
+
+        AeRsSimple simpleRenderSystem(m_aeDevice, m_aeRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout());
         AeCamera camera{};
 
         auto viewerObject = AeGameObject::createGameObject();
@@ -72,7 +90,8 @@ namespace ae {
                     frameIndex,
                     frameTime,
                     commandBuffer,
-                    camera
+                    camera,
+                    globalDescriptorSets[frameIndex]
                 };
 
                 // update

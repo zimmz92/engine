@@ -13,12 +13,12 @@
 namespace ae {
 
     struct SimplePushConstantData {
-        glm::mat4 transform{ 1.0f };
+        glm::mat4 modelMatrix{ 1.0f };
         glm::mat4 normalMatrix{ 1.0f };
     };
 
-    AeRsSimple::AeRsSimple(AeDevice& t_device, VkRenderPass t_renderPass) : m_aeDevice{ t_device } {
-        createPipelineLayout();
+    AeRsSimple::AeRsSimple(AeDevice& t_device, VkRenderPass t_renderPass, VkDescriptorSetLayout t_globalSetLayout) : m_aeDevice{ t_device } {
+        createPipelineLayout(t_globalSetLayout);
         createPipeline(t_renderPass);
     }
 
@@ -26,17 +26,19 @@ namespace ae {
         vkDestroyPipelineLayout(m_aeDevice.device(), m_pipelineLayout, nullptr);
     }
 
-    void AeRsSimple::createPipelineLayout() {
+    void AeRsSimple::createPipelineLayout(VkDescriptorSetLayout t_globalSetLayout) {
 
         VkPushConstantRange pushConstantRange{};
         pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
         pushConstantRange.offset = 0;
         pushConstantRange.size = sizeof(SimplePushConstantData);
 
+        std::vector<VkDescriptorSetLayout> descriptorSetLayouts{ t_globalSetLayout };
+
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-        pipelineLayoutInfo.setLayoutCount = 0;
-        pipelineLayoutInfo.pSetLayouts = nullptr;
+        pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
+        pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
         pipelineLayoutInfo.pushConstantRangeCount = 1;
         pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange; // Send a small amount of data to shader program
         if (vkCreatePipelineLayout(m_aeDevice.device(), &pipelineLayoutInfo, nullptr, &m_pipelineLayout) != VK_SUCCESS) {
@@ -62,15 +64,21 @@ namespace ae {
     void AeRsSimple::renderGameObjects(FrameInfo& t_frameInfo, std::vector<AeGameObject>& t_gameObjects) {
         m_aePipeline->bind(t_frameInfo.m_commandBuffer);
 
-        // TODO: get this off the CPU and move it to the graphics card
-        auto projectionView = t_frameInfo.m_camera.getProjection() * t_frameInfo.m_camera.getView();
+        vkCmdBindDescriptorSets(
+            t_frameInfo.m_commandBuffer,
+            VK_PIPELINE_BIND_POINT_GRAPHICS,
+            m_pipelineLayout,
+            0,
+            1,
+            &t_frameInfo.m_globalDescriptorSet,
+            0,
+            nullptr);
 
         for (auto& obj : t_gameObjects) {
 
             SimplePushConstantData push{};
             auto modelMatrix = obj.m_transform.mat4();
-            // TODO: get this off the CPU and move it to the graphics card
-            push.transform = projectionView * obj.m_transform.mat4();
+            push.modelMatrix = obj.m_transform.mat4();
             push.normalMatrix = obj.m_transform.normalMatrix();
 
             vkCmdPushConstants(t_frameInfo.m_commandBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);

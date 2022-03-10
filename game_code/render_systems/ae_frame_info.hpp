@@ -11,5 +11,6 @@ namespace ae {
 		float m_frameTime;
 		VkCommandBuffer m_commandBuffer;
 		AeCamera& m_camera;
+		VkDescriptorSet m_globalDescriptorSet;
 	};
 } // namespace ae

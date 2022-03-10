@@ -13,7 +13,7 @@ namespace ae {
     class AeRsSimple {
     public:
 
-        AeRsSimple(AeDevice &t_device, VkRenderPass t_renderPass);
+        AeRsSimple(AeDevice &t_device, VkRenderPass t_renderPass, VkDescriptorSetLayout t_globalSetLayout);
         ~AeRsSimple();
 
         // Do not allow this class to be copied (2 lines below)
@@ -23,7 +23,7 @@ namespace ae {
         void renderGameObjects(FrameInfo &t_frameInfo, std::vector<AeGameObject> &t_gameObjects);
 
     private:
-        void createPipelineLayout();
+        void createPipelineLayout(VkDescriptorSetLayout t_globalSetLayout);
         void createPipeline(VkRenderPass t_renderPass);
 
 
