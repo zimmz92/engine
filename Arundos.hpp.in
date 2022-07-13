@@ -41,6 +41,6 @@ namespace ae {
         // note: order of declarations matters
         // TODO to prevent order from mattering in app destructor make m_globalPool a null pointer to make sure it is destroyed before device is
         std::unique_ptr<AeDescriptorPool> m_globalPool{};
-        std::vector<AeGameObject> m_gameObjects;
+        AeGameObject::Map m_gameObjects;
     };
 }  // namespace ae

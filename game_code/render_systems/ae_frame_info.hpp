@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ae_camera.hpp"
+#include "ae_game_object.hpp"
 
 // lib
 #include <vulkan/vulkan.h>
@@ -12,5 +13,6 @@ namespace ae {
 		VkCommandBuffer m_commandBuffer;
 		AeCamera& m_camera;
 		VkDescriptorSet m_globalDescriptorSet;
+		AeGameObject::Map &gameObjects;
 	};
 } // namespace ae

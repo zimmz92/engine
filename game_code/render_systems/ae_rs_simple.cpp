@@ -61,7 +61,7 @@ namespace ae {
             pipelineConfig);
     };
 
-    void AeRsSimple::renderGameObjects(FrameInfo& t_frameInfo, std::vector<AeGameObject>& t_gameObjects) {
+    void AeRsSimple::renderGameObjects(FrameInfo& t_frameInfo) {
         m_aePipeline->bind(t_frameInfo.m_commandBuffer);
 
         vkCmdBindDescriptorSets(
@@ -74,8 +74,8 @@ namespace ae {
             0,
             nullptr);
 
-        for (auto& obj : t_gameObjects) {
-
+        for (auto& kv : t_frameInfo.gameObjects) {
+            auto& obj = kv.second;
             SimplePushConstantData push{};
             auto modelMatrix = obj.m_transform.mat4();
             push.modelMatrix = obj.m_transform.mat4();

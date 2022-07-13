@@ -20,7 +20,7 @@ namespace ae {
         AeRsSimple(const AeRsSimple&) = delete;
         AeRsSimple& operator=(const AeRsSimple&) = delete;
 
-        void renderGameObjects(FrameInfo &t_frameInfo, std::vector<AeGameObject> &t_gameObjects);
+        void renderGameObjects(FrameInfo &t_frameInfo);
 
     private:
         void createPipelineLayout(VkDescriptorSetLayout t_globalSetLayout);

@@ -18,8 +18,11 @@
 namespace ae {
 
     struct GlobalUbo {
+        // Remember alignment always either use alignment or use only 4d!!!
         glm::mat4 projectionView{ 1.0f };
-        glm::vec3 lightDirection = glm::normalize(glm::vec3{ 1.0f, -3.0f, 1.0f });
+        glm::vec4 ambientLightColor{ 1.0f, 1.0f, 1.0f, 0.02f };
+        glm::vec3 lightPostion{ -1.0f };
+        alignas(16) glm::vec4 lightColor{ 1.0f };
     };
 
     Arundos::Arundos() {
@@ -48,7 +51,7 @@ namespace ae {
 
         // TODO: Implement master render system that handles sub-render systems like skybox and models etc.
         auto globalSetLayout = AeDescriptorSetLayout::Builder(m_aeDevice)
-            .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
+            .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
             .build();
 
         std::vector<VkDescriptorSet> globalDescriptorSets(AeSwapChain::MAX_FRAMES_IN_FLIGHT);
@@ -63,6 +66,7 @@ namespace ae {
         AeCamera camera{};
 
         auto viewerObject = AeGameObject::createGameObject();
+        viewerObject.m_transform.translation.z = -2.5f;
         KeyboardMovementController cameraController{};
 
         auto currentTime = std::chrono::high_resolution_clock::now();
@@ -82,7 +86,7 @@ namespace ae {
 
             float aspect = m_aeRenderer.getAspectRatio();
 
-            camera.setPerspectiveProjection(glm::radians(50.0f), aspect, 0.1f, 10.0f);
+            camera.setPerspectiveProjection(glm::radians(50.0f), aspect, 0.1f, 100.0f);
 
             if (auto commandBuffer = m_aeRenderer.beginFrame()) {
                 int frameIndex = m_aeRenderer.getFrameIndex();
@@ -91,7 +95,8 @@ namespace ae {
                     frameTime,
                     commandBuffer,
                     camera,
-                    globalDescriptorSets[frameIndex]
+                    globalDescriptorSets[frameIndex],
+                    m_gameObjects
                 };
 
                 // update
@@ -102,7 +107,7 @@ namespace ae {
 
                 // render
                 m_aeRenderer.beginSwapChainRenderPass(commandBuffer);
-                simpleRenderSystem.renderGameObjects(frameInfo, m_gameObjects);
+                simpleRenderSystem.renderGameObjects(frameInfo);
                 m_aeRenderer.endSwapChainRenderPass(commandBuffer);
                 m_aeRenderer.endFrame();
             }
@@ -116,17 +121,23 @@ namespace ae {
 
         auto flatVase = AeGameObject::createGameObject();
         flatVase.m_model = aeModel;
-        flatVase.m_transform.translation = { -0.5f, 0.5f, 2.5f };
+        flatVase.m_transform.translation = { -0.5f, 0.5f, 0.0f };
         flatVase.m_transform.scale = {3.0f, 1.5f, 3.0f };
-        m_gameObjects.push_back(std::move(flatVase));
+        m_gameObjects.emplace(flatVase.getID(), std::move(flatVase));
 
 
         aeModel = AeModel::createModelFromFile(m_aeDevice, "models/smooth_vase.obj");
-
         auto smoothVase = AeGameObject::createGameObject();
         smoothVase.m_model = aeModel;
-        smoothVase.m_transform.translation = { 0.5f, 0.5f, 2.5f };
+        smoothVase.m_transform.translation = { 0.5f, 0.5f, 0.0f };
         smoothVase.m_transform.scale = { 3.0f, 1.5f, 3.0f };
-        m_gameObjects.push_back(std::move(smoothVase));
+        m_gameObjects.emplace(smoothVase.getID(), std::move(smoothVase));
+
+        aeModel = AeModel::createModelFromFile(m_aeDevice, "models/quad.obj");
+        auto floor = AeGameObject::createGameObject();
+        floor.m_model = aeModel;
+        floor.m_transform.translation = { 0.0f, 0.5f, 0.0f };
+        floor.m_transform.scale = { 3.0f, 1.0f, 3.0f };
+        m_gameObjects.emplace(floor.getID(), std::move(floor));
     }
 }  // namespace ae

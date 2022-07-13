@@ -58,6 +58,4 @@ namespace ae {
 			},
 		};
 	}
-
-
 } // namespace ae

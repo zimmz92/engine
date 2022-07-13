@@ -7,6 +7,7 @@
 
 // std
 #include <memory>
+#include <unordered_map>
 
 namespace ae {
 
@@ -26,6 +27,7 @@ namespace ae {
 	class AeGameObject {
 	public:
 		using id_t = unsigned int;
+		using Map = std::unordered_map<id_t, AeGameObject>;
 
 		static AeGameObject createGameObject() {
 			static id_t currentId = 0;
