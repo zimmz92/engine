@@ -88,8 +88,8 @@ namespace ae {
 
 
         // Configure the vertex shader
-        auto bindingDescriptions = AeModel::Vertex::getBindingDescriptions();
-        auto attributDescriptions = AeModel::Vertex::getAttributeDescriptions();
+        auto& bindingDescriptions = t_configInfo.bindingDescriptions;
+        auto& attributDescriptions = t_configInfo.attributeDescriptions;
         VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
         vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
         vertexInputInfo.vertexBindingDescriptionCount = static_cast<uint32_t>(bindingDescriptions.size());;
@@ -221,6 +221,9 @@ namespace ae {
         t_configInfo.dynamicStateInfo.pDynamicStates = t_configInfo.dynamicStateEnables.data();
         t_configInfo.dynamicStateInfo.dynamicStateCount = static_cast<uint32_t>(t_configInfo.dynamicStateEnables.size());
         t_configInfo.dynamicStateInfo.flags = 0;
+
+        t_configInfo.bindingDescriptions = AeModel::Vertex::getBindingDescriptions();
+        t_configInfo.attributeDescriptions = AeModel::Vertex::getAttributeDescriptions();
     }
 
 }  // namespace ae

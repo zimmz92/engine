@@ -1,5 +1,6 @@
 ﻿#include "Arundos.hpp"
 #include "ae_rs_simple.hpp"
+#include "ae_rs_point_light.hpp"
 #include "ae_camera.hpp"
 #include "keyboard_movement_controller.hpp"
 #include "ae_buffer.hpp"
@@ -19,7 +20,8 @@ namespace ae {
 
     struct GlobalUbo {
         // Remember alignment always either use alignment or use only 4d!!!
-        glm::mat4 projectionView{ 1.0f };
+        glm::mat4 projection{ 1.0f };
+        glm::mat4 view{ 1.0f };
         glm::vec4 ambientLightColor{ 1.0f, 1.0f, 1.0f, 0.02f };
         glm::vec3 lightPostion{ -1.0f };
         alignas(16) glm::vec4 lightColor{ 1.0f };
@@ -63,6 +65,7 @@ namespace ae {
         }
 
         AeRsSimple simpleRenderSystem(m_aeDevice, m_aeRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout());
+        AeRsPointLight pointLightSystem(m_aeDevice, m_aeRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout());
         AeCamera camera{};
 
         auto viewerObject = AeGameObject::createGameObject();
@@ -101,13 +104,15 @@ namespace ae {
 
                 // update
                 GlobalUbo ubo{};
-                ubo.projectionView = camera.getProjection() * camera.getView();
+                ubo.projection = camera.getProjection();
+                ubo.view = camera.getView();
                 uboBuffers[frameIndex]->writeToBuffer(&ubo);
                 uboBuffers[frameIndex]->flush();
 
                 // render
                 m_aeRenderer.beginSwapChainRenderPass(commandBuffer);
                 simpleRenderSystem.renderGameObjects(frameInfo);
+                pointLightSystem.render(frameInfo);
                 m_aeRenderer.endSwapChainRenderPass(commandBuffer);
                 m_aeRenderer.endFrame();
             }
