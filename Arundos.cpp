@@ -104,8 +104,11 @@ namespace ae {
 
                 // render
                 m_aeRenderer.beginSwapChainRenderPass(commandBuffer);
+
+                // order here matters for transparency
                 simpleRenderSystem.renderGameObjects(frameInfo);
                 pointLightSystem.render(frameInfo);
+
                 m_aeRenderer.endSwapChainRenderPass(commandBuffer);
                 m_aeRenderer.endFrame();
             }

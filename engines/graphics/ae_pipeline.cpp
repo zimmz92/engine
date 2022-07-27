@@ -226,4 +226,18 @@ namespace ae {
         t_configInfo.attributeDescriptions = AeModel::Vertex::getAttributeDescriptions();
     }
 
+    void AePipeline::enableAlphaBlending(PipelineConfigInfo& t_configInfo) {
+        // How colors are combined in frame buffer
+        t_configInfo.colorBlendAttachment.blendEnable = VK_TRUE;
+        t_configInfo.colorBlendAttachment.colorWriteMask =
+            VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT |
+            VK_COLOR_COMPONENT_A_BIT;
+        t_configInfo.colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;   // Optional
+        t_configInfo.colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;  // farthest to closest
+        t_configInfo.colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;              // Optional
+        t_configInfo.colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;   // Optional
+        t_configInfo.colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;  // Optional
+        t_configInfo.colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;              // Optional
+    }
+
 }  // namespace ae

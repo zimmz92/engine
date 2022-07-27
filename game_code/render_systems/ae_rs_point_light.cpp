@@ -9,6 +9,7 @@
 #include <cassert>
 #include <stdexcept>
 #include <array>
+#include <map>
 
 namespace ae {
 
@@ -53,6 +54,7 @@ namespace ae {
 
         PipelineConfigInfo pipelineConfig{};
         AePipeline::defaultPipelineConfigInfo(pipelineConfig);
+        AePipeline::enableAlphaBlending(pipelineConfig);
         pipelineConfig.bindingDescriptions.clear();
         pipelineConfig.attributeDescriptions.clear();
         pipelineConfig.renderPass = t_renderPass;
@@ -88,6 +90,18 @@ namespace ae {
     }
 
     void AeRsPointLight::render(FrameInfo& t_frameInfo) {
+        //sort lights
+        std::map<float, AeGameObject::id_t> sorted;
+        for (auto& kv : t_frameInfo.gameObjects) {
+            auto& obj = kv.second;
+            if (obj.m_pointLight == nullptr) continue;
+
+            //calculate distance
+            auto offset = t_frameInfo.m_camera.getPosition() - obj.m_transform.translation;
+            float disSquared = glm::dot(offset, offset);
+            sorted[disSquared] = obj.getID();
+        }
+
         m_aePipeline->bind(t_frameInfo.m_commandBuffer);
 
         vkCmdBindDescriptorSets(
@@ -100,9 +114,10 @@ namespace ae {
             0,
             nullptr);
 
-        for (auto& kv : t_frameInfo.gameObjects) {
-            auto& obj = kv.second;
-            if (obj.m_pointLight == nullptr) continue;
+        // iterate through sorted lights in reverse order
+        for (auto& it = sorted.rbegin(); it != sorted.rend(); ++it) {
+            // use game obj id to find light object
+            auto& obj = t_frameInfo.gameObjects.at(it->second);
 
             PointLightPushConstants push{};
             push.position = glm::vec4(obj.m_transform.translation, 1.0f);

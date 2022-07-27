@@ -52,6 +52,7 @@ namespace ae {
 
         // Function to create a default pipeline
         static void defaultPipelineConfigInfo(PipelineConfigInfo& t_configInfo);
+        static void enableAlphaBlending(PipelineConfigInfo& t_configInfo);
 
     private:
 
