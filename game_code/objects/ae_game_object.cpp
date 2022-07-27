@@ -58,4 +58,14 @@ namespace ae {
 			},
 		};
 	}
+
+	AeGameObject AeGameObject::makePointLight(float t_intensity, float t_radius, glm::vec3 t_color) {
+		AeGameObject gameObj = AeGameObject::createGameObject();
+		gameObj.m_color = t_color;
+		gameObj.m_transform.scale.x = t_radius;
+		gameObj.m_pointLight = std::make_unique<PointLightComponent>();
+		gameObj.m_pointLight->lightIntensity = t_intensity;
+		return gameObj;
+	}
+
 } // namespace ae

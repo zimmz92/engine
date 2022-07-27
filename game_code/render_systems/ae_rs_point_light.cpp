@@ -12,6 +12,12 @@
 
 namespace ae {
 
+    struct PointLightPushConstants {
+        glm::vec4 position{};
+        glm::vec4 color{};
+        float radius;
+    };
+
     AeRsPointLight::AeRsPointLight(AeDevice& t_device, VkRenderPass t_renderPass, VkDescriptorSetLayout t_globalSetLayout) : m_aeDevice{ t_device } {
         createPipelineLayout(t_globalSetLayout);
         createPipeline(t_renderPass);
@@ -23,10 +29,10 @@ namespace ae {
 
     void AeRsPointLight::createPipelineLayout(VkDescriptorSetLayout t_globalSetLayout) {
 
-        // VkPushConstantRange pushConstantRange{};
-        // pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
-        // pushConstantRange.offset = 0;
-        // pushConstantRange.size = sizeof(SimplePushConstantData);
+        VkPushConstantRange pushConstantRange{};
+        pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+        pushConstantRange.offset = 0;
+        pushConstantRange.size = sizeof(PointLightPushConstants);
 
         std::vector<VkDescriptorSetLayout> descriptorSetLayouts{ t_globalSetLayout };
 
@@ -34,8 +40,8 @@ namespace ae {
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
         pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
         pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
-        pipelineLayoutInfo.pushConstantRangeCount = 0;
-        pipelineLayoutInfo.pPushConstantRanges = nullptr; // Send a small amount of data to shader program
+        pipelineLayoutInfo.pushConstantRangeCount = 1;
+        pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange; // Send a small amount of data to shader program
         if (vkCreatePipelineLayout(m_aeDevice.device(), &pipelineLayoutInfo, nullptr, &m_pipelineLayout) != VK_SUCCESS) {
             throw std::runtime_error("Failed to create pipeline layout!");
         }
@@ -58,6 +64,29 @@ namespace ae {
             pipelineConfig);
     };
 
+    void AeRsPointLight::update(FrameInfo& t_frameInfo, GlobalUbo& t_ubo) {
+        auto rotateLight = glm::rotate(
+            glm::mat4(1.0f),
+            t_frameInfo.m_frameTime,
+            { 0.0f, -1.0f, 0.0f });
+        int lightIndex = 0;
+        for (auto& kv : t_frameInfo.gameObjects) {
+            auto& obj = kv.second;
+            if (obj.m_pointLight == nullptr) continue;
+
+            assert(lightIndex < MAX_LIGHTS && "Number of point lights exceed MAX_LIGHTS!");
+
+            // update light position
+            obj.m_transform.translation = glm::vec3(rotateLight * glm::vec4(obj.m_transform.translation, 1.0f));
+
+            //copy light to ubo
+            t_ubo.pointLights[lightIndex].position = glm::vec4(obj.m_transform.translation, 1.0f);
+            t_ubo.pointLights[lightIndex].color = glm::vec4(obj.m_color, obj.m_pointLight->lightIntensity);
+            lightIndex += 1;
+        }
+        t_ubo.numLights = lightIndex;
+    }
+
     void AeRsPointLight::render(FrameInfo& t_frameInfo) {
         m_aePipeline->bind(t_frameInfo.m_commandBuffer);
 
@@ -71,6 +100,24 @@ namespace ae {
             0,
             nullptr);
 
-        vkCmdDraw(t_frameInfo.m_commandBuffer, 6, 1, 0, 0);
+        for (auto& kv : t_frameInfo.gameObjects) {
+            auto& obj = kv.second;
+            if (obj.m_pointLight == nullptr) continue;
+
+            PointLightPushConstants push{};
+            push.position = glm::vec4(obj.m_transform.translation, 1.0f);
+            push.color = glm::vec4(obj.m_color, obj.m_pointLight->lightIntensity);
+            push.radius = obj.m_transform.scale.x;
+
+            vkCmdPushConstants(
+                t_frameInfo.m_commandBuffer,
+                m_pipelineLayout,
+                VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+                0,
+                sizeof(PointLightPushConstants),
+                &push);
+
+            vkCmdDraw(t_frameInfo.m_commandBuffer, 6, 1, 0, 0);
+        } 
     }
 }  // namespace ae

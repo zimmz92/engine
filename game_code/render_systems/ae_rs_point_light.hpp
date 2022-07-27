@@ -20,6 +20,7 @@ namespace ae {
         AeRsPointLight(const AeRsPointLight&) = delete;
         AeRsPointLight& operator=(const AeRsPointLight&) = delete;
 
+        void update(FrameInfo& t_frameInfo, GlobalUbo& t_ubo);
         void render(FrameInfo &t_frameInfo);
 
     private:

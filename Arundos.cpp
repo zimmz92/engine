@@ -18,15 +18,6 @@
 
 namespace ae {
 
-    struct GlobalUbo {
-        // Remember alignment always either use alignment or use only 4d!!!
-        glm::mat4 projection{ 1.0f };
-        glm::mat4 view{ 1.0f };
-        glm::vec4 ambientLightColor{ 1.0f, 1.0f, 1.0f, 0.02f };
-        glm::vec3 lightPostion{ -1.0f };
-        alignas(16) glm::vec4 lightColor{ 1.0f };
-    };
-
     Arundos::Arundos() {
         m_globalPool = AeDescriptorPool::Builder(m_aeDevice)
             .setMaxSets(AeSwapChain::MAX_FRAMES_IN_FLIGHT)
@@ -106,6 +97,7 @@ namespace ae {
                 GlobalUbo ubo{};
                 ubo.projection = camera.getProjection();
                 ubo.view = camera.getView();
+                pointLightSystem.update(frameInfo, ubo);
                 uboBuffers[frameIndex]->writeToBuffer(&ubo);
                 uboBuffers[frameIndex]->flush();
 
@@ -144,5 +136,25 @@ namespace ae {
         floor.m_transform.translation = { 0.0f, 0.5f, 0.0f };
         floor.m_transform.scale = { 3.0f, 1.0f, 3.0f };
         m_gameObjects.emplace(floor.getID(), std::move(floor));
+
+        std::vector<glm::vec3> lightColors{
+             {1.f, .1f, .1f},
+             {.1f, .1f, 1.f},
+             {.1f, 1.f, .1f},
+             {1.f, 1.f, .1f},
+             {.1f, 1.f, 1.f},
+             {1.f, 1.f, 1.f}  //
+        };
+
+        for (int i = 0; i < lightColors.size(); i++) {
+            auto pointLight = AeGameObject::makePointLight(0.2f);
+            pointLight.m_color = lightColors[i];
+            auto rotateLight = glm::rotate(
+                glm::mat4(1.0f), 
+                (i * glm::two_pi<float>()) / lightColors.size(), 
+                {0.0f, -1.0f, 0.0f});
+            pointLight.m_transform.translation = glm::vec3(rotateLight * glm::vec4(-1.0f, -1.0f, -1.0f, 1.0f));
+            m_gameObjects.emplace(pointLight.getID(), std::move(pointLight));
+        }
     }
 }  // namespace ae

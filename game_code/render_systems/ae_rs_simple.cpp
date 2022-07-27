@@ -76,6 +76,7 @@ namespace ae {
 
         for (auto& kv : t_frameInfo.gameObjects) {
             auto& obj = kv.second;
+            if (obj.m_model == nullptr) continue;
             SimplePushConstantData push{};
             auto modelMatrix = obj.m_transform.mat4();
             push.modelMatrix = obj.m_transform.mat4();

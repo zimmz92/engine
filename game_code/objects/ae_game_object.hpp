@@ -23,6 +23,9 @@ namespace ae {
 		glm::mat3 normalMatrix();
 	};
 
+	struct PointLightComponent {
+		float lightIntensity = 1.0f;
+	};
 
 	class AeGameObject {
 	public:
@@ -34,6 +37,8 @@ namespace ae {
 			return AeGameObject{currentId++};
 		}
 
+		static AeGameObject makePointLight(float intensity = 10.0f, float radius = 0.1f, glm::vec3 color = glm::vec3(1.0f));
+
 		// Do not allow this class to be copied (2 lines below)
 		AeGameObject(const AeGameObject&) = delete;
 		AeGameObject& operator=(const AeGameObject&) = delete;
@@ -44,9 +49,12 @@ namespace ae {
 
 		const id_t getID() { return m_id; }
 
-		std::shared_ptr<AeModel> m_model{};
 		glm::vec3 m_color{};
 		TransformComponent m_transform{};
+
+		// Optional pointer components
+		std::shared_ptr<AeModel> m_model{};
+		std::unique_ptr<PointLightComponent> m_pointLight = nullptr;
 
 	private:
 		AeGameObject(id_t t_objId) : m_id{ t_objId } {}
