@@ -40,6 +40,8 @@ add_library(mySrcFiles "")
 add_subdirectory(engines/graphics)
 add_subdirectory(engines/graphics/shaders)
 
+add_subdirectory(engines/ecs)
+
 add_subdirectory(game_code)
 add_subdirectory(game_code/objects)
 add_subdirectory(game_code/render_systems)
