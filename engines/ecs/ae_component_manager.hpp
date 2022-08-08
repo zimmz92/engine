@@ -9,6 +9,8 @@ namespace ae {
 		AeComponentManager();
 		~AeComponentManager();
 
+		static const int MAX_NUM_COMPONENTS = 1024;
+
 	public:
 
 		template <typename T>

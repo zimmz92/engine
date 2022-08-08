@@ -2,8 +2,10 @@ target_sources(mySrcFiles
     PRIVATE
         ae_entity.cpp
         ae_entity.hpp
-        ae_componentManager.cpp
-        ae_componentManager.hpp
+        ae_component_manager.cpp
+        ae_component_manager.hpp
+        ae_entity_manager.cpp
+        ae_entity_manager.hpp
     PUBLIC
 )
 
