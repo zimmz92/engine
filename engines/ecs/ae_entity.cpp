@@ -6,8 +6,10 @@
 #include <string>
 
 namespace ae {
-	AeEntity::AeEntity() {};
-	AeEntity::~AeEntity() {};
+
+	AeEntity::AeEntity(AeComponentManager& t_componentManager, std::uint64_t t_entityId, std::uint64_t t_entityTypeId) : 
+		m_componentManager{ t_componentManager }, m_entityId{ t_entityId }, m_entityTypeId{ t_entityTypeId } {}
+	AeEntity::~AeEntity() {}
 
 	template <typename T>
 	void AeEntity::useComponent(std::uint64_t t_componentId, T t_entityComponentData) {
@@ -21,14 +23,14 @@ namespace ae {
 			);
 		};
 
-		m_usedComponents.push_back(t_componentId);
-		m_componentManager.addEntityComponentData(m_entityId, t_componentId, t_entityComponentData);
+		m_componentSignature[t_componentId] = 1;
+		m_componentManager.addEntityComponentData<T>(m_entityId, t_componentId, t_entityComponentData);
 	};
 
 
 	bool AeEntity::componentUsed(std::uint64_t t_componentId) {
 
-		return m_usedComponents.end() != std::find(m_usedComponents.begin(), m_usedComponents.end(), t_componentId);
+		return m_componentSignature.test(t_componentId);
 
 	};
 }

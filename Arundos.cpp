@@ -5,6 +5,12 @@
 #include "keyboard_movement_controller.hpp"
 #include "ae_buffer.hpp"
 
+// ECS
+#include "ae_component.hpp"
+#include "ae_entity.hpp"
+#include <string>
+#include <iostream>
+
 // libraries
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -64,7 +70,35 @@ namespace ae {
         KeyboardMovementController cameraController{};
 
         auto currentTime = std::chrono::high_resolution_clock::now();
+
+        //================================================================
+        // START Test ECS a little bit
+        //================================================================
+        struct testComponentStruct {
+            double p;//position
+            double v;//velocity
+            double a;//acceleration
+            double radius;
+            double mass;
+        };
+
+        AeComponent<testComponentStruct> liveTestComponentStruct;
+
+        AeComponentManager TestComponentManager;
+        AeEntity TestEntity(TestComponentManager, 0, 0);
         
+        liveTestComponentStruct.updateData(TestEntity.getEntityId(), { 1,2,3,4,5 });
+
+        struct testComponentStruct readBack = liveTestComponentStruct.getData(TestEntity.getEntityId());
+
+        std::string readBackString = "Value of readBack mass = " + std::to_string(readBack.mass);
+
+        std::cout << readBackString;
+  
+        //================================================================
+        // END Test ECS a little bit
+        //================================================================
+
         
         while (!m_aeWindow.shouldClose()) {
             glfwPollEvents();

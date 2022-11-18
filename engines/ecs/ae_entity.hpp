@@ -1,7 +1,15 @@
 #pragma once
 
+#include "ae_component.hpp"
+#include "ae_component_manager.hpp"
+
 #include <cstdint>
 #include <vector>
+#include <array>
+#include <bitset>
+
+#define MAX_ENTITIES 5000
+#define MAX_COMPONENTS 32
 
 namespace ae {
 
@@ -9,7 +17,7 @@ namespace ae {
 	public:
 
 		// Function to create an entity
-		AeEntity();
+		AeEntity(AeComponentManager& t_componentManager, std::uint64_t t_entityId, std::uint64_t t_entityTypeId);
 
 		// Function to destroy an entity
 		~AeEntity();
@@ -30,9 +38,7 @@ namespace ae {
 		bool componentUsed(std::uint64_t t_componentId);
 
 	private:
-		
 
-	protected:
 		// ID for the unique entity created
 		std::uint64_t m_entityId;
 
@@ -40,9 +46,13 @@ namespace ae {
 		std::uint64_t m_entityTypeId;
 
 		// vector storing the typeids
-		std::vector<uint64_t> m_usedComponents;
+		std::bitset<MAX_COMPONENTS> m_componentSignature;
 
 		// Pointer to the component manager
 		AeComponentManager& m_componentManager;
+		
+
+	protected:
+		
 	};
 }
