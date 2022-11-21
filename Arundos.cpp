@@ -7,6 +7,7 @@
 
 // ECS
 #include "ae_component.hpp"
+#include "ae_component_manager.hpp"
 #include "ae_entity.hpp"
 #include <string>
 #include <iostream>
@@ -85,16 +86,39 @@ namespace ae {
         AeComponent<testComponentStruct> liveTestComponentStruct;
 
         AeComponentManager TestComponentManager;
-        AeEntity TestEntity(TestComponentManager, 0, 0);
+
+        class TestEntityClassA : public AeEntity<TestEntityClassA>{
+            public:
+                using AeEntity<TestEntityClassA>::AeEntity;
+                ~TestEntityClassA() {};
+        };
+
+        class TestEntityClassB : public AeEntity<TestEntityClassB> {
+        public:
+            using AeEntity<TestEntityClassB>::AeEntity;
+            ~TestEntityClassB() {};
+        };
+
+        TestEntityClassA TestEntityA(TestComponentManager);
+        TestEntityClassB TestEntityB(TestComponentManager);
         
-        liveTestComponentStruct.updateData(TestEntity.getEntityId(), { 1,2,3,4,5 });
+        liveTestComponentStruct.updateData(TestEntityA.getEntityId(), { 1,2,3,4,5 });
+        liveTestComponentStruct.updateData(TestEntityB.getEntityId(), { 6,7,8,9,10 });
 
-        struct testComponentStruct readBack = liveTestComponentStruct.getData(TestEntity.getEntityId());
+        struct testComponentStruct readBackA = liveTestComponentStruct.getData(TestEntityA.getEntityId());
+        struct testComponentStruct readBackB = liveTestComponentStruct.getData(TestEntityB.getEntityId());
 
-        std::string readBackString = "Value of readBack mass = " + std::to_string(readBack.mass);
+        std::string readBackStringA = "Type ID of entity class A = " + std::to_string(TestEntityA.getEntityTypeId());
+        std::cout << readBackStringA;
+        readBackStringA = "Value of readBack mass entity A = " + std::to_string(readBackA.mass);
+        std::cout << readBackStringA;
 
-        std::cout << readBackString;
-  
+        std::string readBackStringB = "Type ID of entity class B = " + std::to_string(TestEntityB.getEntityTypeId());
+        std::cout << readBackStringB;
+        readBackStringB = "Value of readBack mass entity B = " + std::to_string(readBackB.mass);
+        std::cout << readBackStringB;
+
+
         //================================================================
         // END Test ECS a little bit
         //================================================================

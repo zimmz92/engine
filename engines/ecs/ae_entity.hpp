@@ -2,6 +2,7 @@
 
 #include "ae_component.hpp"
 #include "ae_component_manager.hpp"
+#include "ae_id_counters.hpp"
 
 #include <cstdint>
 #include <vector>
@@ -13,14 +14,20 @@
 
 namespace ae {
 
+	template <class T>
 	class AeEntity {
+
+		// ID for the entity class that the entity was based on
+		static const std::int64_t m_entityTypeId;
+
 	public:
 
 		// Function to create an entity
-		AeEntity(AeComponentManager& t_componentManager, std::uint64_t t_entityId, std::uint64_t t_entityTypeId);
+		AeEntity(AeComponentManager& t_componentManager) : m_componentManager{ t_componentManager } {
+		};
 
 		// Function to destroy an entity
-		~AeEntity();
+		~AeEntity() {};
 
 		// Do not allow this class to be copied (2 lines below)
 		AeEntity(const AeEntity&) = delete;
@@ -30,20 +37,34 @@ namespace ae {
 		AeEntity(AeEntity&&) = delete;
 		AeEntity& operator=(AeEntity&&) = delete;
 
-		std::uint64_t getEntityId() const { return m_entityId; }
-		std::uint64_t getEntityTypeId() const { return m_entityTypeId; }
+		std::int64_t getEntityId() const { return m_entityId; }
+		std::int64_t getEntityTypeId() const { return m_entityTypeId; }
 		
-		template <typename T> void useComponent(std::uint64_t t_componentId, T t_entityComponentData);
+		template <typename U> void useComponent(std::int64_t t_componentId, U t_entityComponentData) {
 
-		bool componentUsed(std::uint64_t t_componentId);
+			// Make sure that the entity does not already use the component
+			if (componentUsed(t_componentId)) {
+				throw std::runtime_error(
+					"Cannot log the same component twice for the same entity. Why would you to this... why? EntityID: " + std::to_string(m_entityId)
+					+ ", EntityTypeID: " + std::to_string(m_entityTypeId)
+					+ ", ComponentID: " + std::to_string(t_componentId)
+				);
+			};
+
+			m_componentSignature[t_componentId] = 1;
+			m_componentManager.addEntityComponentData<U>(m_entityId, t_componentId, t_entityComponentData);
+		};
+
+		bool componentUsed(std::int64_t t_componentId) {
+
+			return m_componentSignature.test(t_componentId);
+
+		};
 
 	private:
 
 		// ID for the unique entity created
-		std::uint64_t m_entityId;
-
-		// ID for the entity class that the entity was based on
-		std::uint64_t m_entityTypeId;
+		std::int64_t m_entityId;
 
 		// vector storing the typeids
 		std::bitset<MAX_COMPONENTS> m_componentSignature;
@@ -55,4 +76,8 @@ namespace ae {
 	protected:
 		
 	};
+
+	template <class T>
+	const std::int64_t AeEntity<T>::m_entityTypeId = AeIdCounters::allocateEntityTypeId<T>();
+
 }
