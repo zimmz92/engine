@@ -2,6 +2,7 @@
 
 #include "ae_component.hpp"
 #include "ae_component_manager.hpp"
+#include "ae_entity_manager.hpp"
 #include "ae_id_counters.hpp"
 
 #include <cstdint>
@@ -23,8 +24,8 @@ namespace ae {
 	public:
 
 		// Function to create an entity
-		AeEntity(AeComponentManager& t_componentManager) : m_componentManager{ t_componentManager } {
-			m_entityId = 1;
+		AeEntity(AeComponentManager& t_componentManager, AeEntityManager& t_entityManager) : m_componentManager{ t_componentManager }, m_entityManager{ t_entityManager } {
+			m_entityId = m_entityManager.allocateEntityId();
 			m_componentSignature = 0;
 		};
 
@@ -73,6 +74,8 @@ namespace ae {
 
 		// Pointer to the component manager
 		AeComponentManager& m_componentManager;
+
+		AeEntityManager& m_entityManager;
 		
 
 	protected:

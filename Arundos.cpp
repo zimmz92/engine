@@ -5,13 +5,6 @@
 #include "keyboard_movement_controller.hpp"
 #include "ae_buffer.hpp"
 
-// ECS
-#include "ae_component.hpp"
-#include "ae_component_manager.hpp"
-#include "ae_entity.hpp"
-#include <string>
-#include <iostream>
-
 // libraries
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -71,58 +64,6 @@ namespace ae {
         KeyboardMovementController cameraController{};
 
         auto currentTime = std::chrono::high_resolution_clock::now();
-
-        //================================================================
-        // START Test ECS a little bit
-        //================================================================
-        struct testComponentStruct {
-            double p;//position
-            double v;//velocity
-            double a;//acceleration
-            double radius;
-            double mass;
-        };
-
-        AeComponent<testComponentStruct> liveTestComponentStruct;
-
-        AeComponentManager TestComponentManager;
-
-        class TestEntityClassA : public AeEntity<TestEntityClassA>{
-            public:
-                using AeEntity<TestEntityClassA>::AeEntity;
-                ~TestEntityClassA() {};
-        };
-
-        class TestEntityClassB : public AeEntity<TestEntityClassB> {
-        public:
-            using AeEntity<TestEntityClassB>::AeEntity;
-            ~TestEntityClassB() {};
-        };
-
-        TestEntityClassA TestEntityA(TestComponentManager);
-        TestEntityClassB TestEntityB(TestComponentManager);
-        
-        liveTestComponentStruct.updateData(TestEntityA.getEntityId(), { 1,2,3,4,5 });
-        liveTestComponentStruct.updateData(TestEntityB.getEntityId(), { 6,7,8,9,10 });
-
-        struct testComponentStruct readBackA = liveTestComponentStruct.getData(TestEntityA.getEntityId());
-        struct testComponentStruct readBackB = liveTestComponentStruct.getData(TestEntityB.getEntityId());
-
-        std::string readBackStringA = "Type ID of entity class A = " + std::to_string(TestEntityA.getEntityTypeId());
-        std::cout << readBackStringA;
-        readBackStringA = "Value of readBack mass entity A = " + std::to_string(readBackA.mass);
-        std::cout << readBackStringA;
-
-        std::string readBackStringB = "Type ID of entity class B = " + std::to_string(TestEntityB.getEntityTypeId());
-        std::cout << readBackStringB;
-        readBackStringB = "Value of readBack mass entity B = " + std::to_string(readBackB.mass);
-        std::cout << readBackStringB;
-
-
-        //================================================================
-        // END Test ECS a little bit
-        //================================================================
-
         
         while (!m_aeWindow.shouldClose()) {
             glfwPollEvents();

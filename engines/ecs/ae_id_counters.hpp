@@ -5,7 +5,7 @@
 namespace ae {
 	class AeIdCounters {
 
-		static inline std::int64_t entityTypeIdCount = -1;
+		static inline std::int64_t entityTypeIdCount = 0;
 
 	public:
 

@@ -6,7 +6,7 @@ namespace ae {
 
 	AeEntityManager::AeEntityManager() {
 		// Initilize the entity ID array with all allowed entity IDs
-		for (std::int64_t i = 0; i++; i < MAX_NUM_ENTITIES) {
+		for (std::int64_t i = 0; i < MAX_NUM_ENTITIES; i++) {
 			releaseEntityId(MAX_NUM_ENTITIES - 1 - i);
 		}
 	};
@@ -27,8 +27,8 @@ namespace ae {
 			throw std::runtime_error("Entity ID Stack Underflow! No more entities to give out!");
 		}
 		else {
-			return m_entityIdStack[m_entityIdStackTop];
-			m_entityIdStackTop--;
+			return m_entityIdStack[m_entityIdStackTop--];
+			
 		}
 	};
 

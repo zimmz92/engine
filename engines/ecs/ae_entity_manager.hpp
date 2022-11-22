@@ -18,10 +18,10 @@ namespace ae {
 
 	class AeEntityManager {
 
+	public:
+
 		AeEntityManager();
 		~AeEntityManager();
-
-	public:
 
 		void releaseEntityId(std::int64_t t_value);
 		std::int64_t allocateEntityId();
