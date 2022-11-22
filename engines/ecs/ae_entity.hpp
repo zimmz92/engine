@@ -24,6 +24,8 @@ namespace ae {
 
 		// Function to create an entity
 		AeEntity(AeComponentManager& t_componentManager) : m_componentManager{ t_componentManager } {
+			m_entityId = 1;
+			m_componentSignature = 0;
 		};
 
 		// Function to destroy an entity
