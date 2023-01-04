@@ -1,10 +1,7 @@
 #include "Arundos.hpp"
 
 // Test ECS
-#include "ae_component.hpp"
-#include "ae_component_manager.hpp"
-#include "ae_entity_manager.hpp"
-#include "ae_entity.hpp"
+#include "ae_ecs.hpp"
 
 // std
 #include <cstdlib>
@@ -44,6 +41,7 @@ int main() {
 
         TestEntityClassA TestEntityA(TestComponentManager, testEntityManager);
         TestEntityClassB TestEntityB(TestComponentManager, testEntityManager);
+        TestEntityClassB TestEntityBTwo(TestComponentManager, testEntityManager);
 
         liveTestComponentStruct.updateData(TestEntityA.getEntityId(), { 1,2,3,4,5 });
         liveTestComponentStruct.updateData(TestEntityB.getEntityId(), { 6,7,8,9,10 });
@@ -65,6 +63,10 @@ int main() {
         readBackStringB = "Value of Entity ID for entity B = " + std::to_string(TestEntityB.getEntityId()) + "\n\n";
         std::cout << readBackStringB;
 
+        readBackStringB = "Type ID of entity class B2 = " + std::to_string(TestEntityBTwo.getEntityTypeId()) + "\n";
+        std::cout << readBackStringB;
+        readBackStringB = "Value of Entity ID for entity B2 = " + std::to_string(TestEntityBTwo.getEntityId()) + "\n\n";
+        std::cout << readBackStringB;
 
         //================================================================
         // END Test ECS a little bit

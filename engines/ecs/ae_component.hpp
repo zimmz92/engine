@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ae_ecs_constants.hpp"
 #include "ae_entity.hpp"
 
 #include <cstdint>

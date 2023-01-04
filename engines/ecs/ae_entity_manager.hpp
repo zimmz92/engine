@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ae_ecs_constants.hpp"
+
 #include <cstdint>
 #include <stack>
 
@@ -11,8 +13,6 @@
 
 	- TODO make maximum number of allowed entities could be based off hardware and user settings
 */
-
-#define MAX_NUM_ENTITIES 1024
 
 namespace ae {
 

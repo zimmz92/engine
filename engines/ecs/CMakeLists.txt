@@ -1,11 +1,13 @@
 target_sources(mySrcFiles
     PRIVATE
-        ae_entity.cpp
-        ae_entity.hpp
+        ae_ecs.hpp
+        ae_ecs_constants.hpp
         ae_component_manager.cpp
         ae_component_manager.hpp
         ae_entity_manager.cpp
         ae_entity_manager.hpp
+        ae_entity.cpp
+        ae_entity.hpp
         ae_component.cpp
         ae_component.hpp
         ae_system.cpp

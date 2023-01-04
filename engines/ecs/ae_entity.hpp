@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ae_ecs_constants.hpp"
 #include "ae_component.hpp"
 #include "ae_component_manager.hpp"
 #include "ae_entity_manager.hpp"
@@ -9,9 +10,6 @@
 #include <vector>
 #include <array>
 #include <bitset>
-
-#define MAX_ENTITIES 5000
-#define MAX_COMPONENTS 32
 
 namespace ae {
 
@@ -25,8 +23,6 @@ namespace ae {
 
 		// Function to create an entity
 		AeEntity(AeComponentManager& t_componentManager, AeEntityManager& t_entityManager) : m_componentManager{ t_componentManager }, m_entityManager{ t_entityManager } {
-			m_entityId = m_entityManager.allocateEntityId();
-			m_componentSignature = 0;
 		};
 
 		// Function to destroy an entity
@@ -70,7 +66,7 @@ namespace ae {
 		std::int64_t m_entityId;
 
 		// vector storing the typeids
-		std::bitset<MAX_COMPONENTS> m_componentSignature;
+		std::bitset<MAX_COMPONENTS> m_componentSignature = 0;
 
 		// Pointer to the component manager
 		AeComponentManager& m_componentManager;
