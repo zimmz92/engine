@@ -44,6 +44,10 @@ namespace ae {
 
 		};
 
+		template <class U, typename T> void useComponentTest(U &t_component, T t_componentData) {
+
+		};
+
 		bool componentUsed(std::int64_t t_componentId) {
 
 			return m_componentSignature.test(t_componentId);

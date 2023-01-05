@@ -1,3 +1,4 @@
+#pragma once
 
 #include "ae_ecs.hpp"
 #include "objectEntity.hpp"
@@ -9,6 +10,8 @@ namespace ae {
 
 		useComponent(testComponent.getComponentId());
 		testComponent.updateData(this->getEntityId(), t_testComponentDefinition);
+
+		useComponentTest<AeComponent<testComponentStructure>, testComponentStructure>(testComponent, t_testComponentDefinition);
 
 
 	};

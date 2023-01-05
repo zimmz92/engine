@@ -1,3 +1,5 @@
+#pragma once
+
 #include "ae_ecs.hpp"
 #include "testComponent.hpp"
 

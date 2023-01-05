@@ -1,3 +1,5 @@
+#pragma once
+
 #include "ae_ecs.hpp"
 
 namespace ae {
@@ -10,4 +12,10 @@ namespace ae {
     };
 
     AeComponent<testComponentStructure> testComponent;
+
+    //class testComponentClass : public AeComponent<testComponentStructure> {
+    //    using AeComponent<testComponentStructure>::AeComponent;
+    //};
+        
+    //testComponentClass testComponent;
 }
