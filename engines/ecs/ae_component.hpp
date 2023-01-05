@@ -9,6 +9,10 @@ namespace ae {
 
 	template <typename T>
 	class AeComponent {
+
+		// ID for the specific component
+		static const std::int64_t m_componentId;
+
 	public:
 		AeComponent() {
 			m_componentData = (T*)malloc(MAX_COMPONENTS * sizeof(T));
@@ -28,7 +32,6 @@ namespace ae {
 		};
 
 	private:
-		std::uint64_t m_componentId;
 
 		T* m_componentData;
 
@@ -36,5 +39,6 @@ namespace ae {
 
 	};
 
-
+	template <class T>
+	const std::int64_t AeComponent<T>::m_componentId = AeIdCounters::allocateComponentId<T>();
 }

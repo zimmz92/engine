@@ -2,6 +2,7 @@ target_sources(mySrcFiles
     PRIVATE
         objectEntity.hpp
         objectEntity.cpp
+        testComponent.hpp
     PUBLIC
 )
 

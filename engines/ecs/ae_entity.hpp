@@ -23,6 +23,7 @@ namespace ae {
 
 		// Function to create an entity
 		AeEntity(AeComponentManager& t_componentManager, AeEntityManager& t_entityManager) : m_componentManager{ t_componentManager }, m_entityManager{ t_entityManager } {
+			m_entityId = m_entityManager.allocateEntityId();
 		};
 
 		// Function to destroy an entity
@@ -39,19 +40,8 @@ namespace ae {
 		std::int64_t getEntityId() const { return m_entityId; }
 		std::int64_t getEntityTypeId() const { return m_entityTypeId; }
 		
-		template <typename U> void useComponent(std::int64_t t_componentId, U t_entityComponentData) {
+		void useComponent(std::int64_t m_componentId) {
 
-			// Make sure that the entity does not already use the component
-			if (componentUsed(t_componentId)) {
-				throw std::runtime_error(
-					"Cannot log the same component twice for the same entity. Why would you to this... why? EntityID: " + std::to_string(m_entityId)
-					+ ", EntityTypeID: " + std::to_string(m_entityTypeId)
-					+ ", ComponentID: " + std::to_string(t_componentId)
-				);
-			};
-
-			m_componentSignature[t_componentId] = 1;
-			m_componentManager.addEntityComponentData<U>(m_entityId, t_componentId, t_entityComponentData);
 		};
 
 		bool componentUsed(std::int64_t t_componentId) {
@@ -61,6 +51,9 @@ namespace ae {
 		};
 
 	private:
+
+		
+	protected:
 
 		// ID for the unique entity created
 		std::int64_t m_entityId;
@@ -72,9 +65,6 @@ namespace ae {
 		AeComponentManager& m_componentManager;
 
 		AeEntityManager& m_entityManager;
-		
-
-	protected:
 		
 	};
 
