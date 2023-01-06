@@ -11,11 +11,11 @@ namespace ae {
         double mass;
     };
 
-    AeComponent<testComponentStructure> testComponent;
+    //AeComponent<testComponentStructure> testComponent;
 
-    //class testComponentClass : public AeComponent<testComponentStructure> {
-    //    using AeComponent<testComponentStructure>::AeComponent;
-    //};
+    class testComponentClass : public AeComponent<testComponentStructure> {
+        using AeComponent<testComponentStructure>::AeComponent;
+    };
         
-    //testComponentClass testComponent;
+    testComponentClass testComponent;
 }
