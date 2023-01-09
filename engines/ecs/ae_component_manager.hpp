@@ -8,6 +8,9 @@ namespace ae {
 
 	class AeComponentManager {
 
+		// component type ID counter variable
+		static inline std::int64_t componentIdCount = 0;
+
 	public:
 
 		AeComponentManager();
@@ -19,6 +22,13 @@ namespace ae {
 
 		template <typename T> void addEntityComponentData(std::uint64_t t_entityId, std::uint64_t t_componentId, T t_entityComponentData) {
 			
+		};
+
+		// Function to allocate an ID to a specific component class so every component spawned from that class can be identifed.
+		template <class T>
+		static const std::int64_t allocateComponentTypeId() {
+			static const std::int64_t staticTypeId{ componentIdCount++ };
+			return staticTypeId;
 		};
 
 	private:

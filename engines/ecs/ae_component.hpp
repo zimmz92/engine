@@ -11,11 +11,15 @@ namespace ae {
 	template <typename T>
 	class AeComponent {
 
+		// ID for the specific component
+		static const std::int64_t m_componentTypeId;
+
 	public:
 		AeComponent(AeComponentManager& t_componentManager) : m_componentManager{ t_componentManager } {
 			m_componentId = m_componentManager.allocateComponentId();
 			m_componentData = (T*)malloc(MAX_COMPONENTS * sizeof(T));
 		};
+
 		~AeComponent() {
 			free(m_componentData);
 		};
@@ -44,4 +48,7 @@ namespace ae {
 
 	};
 
+	// When a derivitive of the AeComponent class is defined the type ID will be set for the derivative class
+	template <class T>
+	const std::int64_t AeComponent<T>::m_componentTypeId = AeComponentManager::allocateComponentTypeId<T>();
 }

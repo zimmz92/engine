@@ -18,6 +18,9 @@ namespace ae {
 
 	class AeEntityManager {
 
+		// entity type ID counter variable
+		static inline std::int64_t entityTypeIdCount = 0;
+
 	public:
 
 		AeEntityManager();
@@ -27,18 +30,17 @@ namespace ae {
 		std::int64_t allocateEntityId();
 		int64_t getAvailableEntities() { return m_entityIdStackTop + 1; };
 
-		//template <class T>
-		//int64_t allocateEntityTypeId() {
-		//	m_entityTypeIdCounter++;
-		//	return m_entityTypeIdCounter;
-		//};
+		// Function to allocate an ID to a specific entity class so every entity spawned from that class can be identifed.
+		template <class T>
+		static const std::int64_t allocateEntityTypeId() {
+			static const std::int64_t staticTypeId{ entityTypeIdCount++ };
+			return staticTypeId;
+		};
 
 	private:
 
 		std::int64_t m_entityIdStack[MAX_NUM_ENTITIES];
 		std::int64_t m_entityIdStackTop = -1;
-
-		//static std::int64_t m_entityTypeIdCounter = -1;
 
 	protected:
 

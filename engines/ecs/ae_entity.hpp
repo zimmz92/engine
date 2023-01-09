@@ -4,7 +4,6 @@
 #include "ae_component.hpp"
 #include "ae_component_manager.hpp"
 #include "ae_entity_manager.hpp"
-#include "ae_id_counters.hpp"
 
 #include <cstdint>
 #include <vector>
@@ -72,7 +71,8 @@ namespace ae {
 		
 	};
 
+	// When a derivitive of the AeEntity class is defined the type ID will be set for the derivative class
 	template <class T>
-	const std::int64_t AeEntity<T>::m_entityTypeId = AeIdCounters::allocateEntityTypeId<T>();
+	const std::int64_t AeEntity<T>::m_entityTypeId = AeEntityManager::allocateEntityTypeId<T>();
 
 }
