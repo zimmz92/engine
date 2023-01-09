@@ -12,6 +12,7 @@ namespace ae {
 	};
 	AeEntityManager::~AeEntityManager() {};
 
+	// Unassign a entity ID and put it back on top of the stack
 	void AeEntityManager::releaseEntityId(std::int64_t t_value) {
 		if (m_entityIdStackTop >= MAX_NUM_ENTITIES - 1) {
 			throw std::runtime_error("Entity ID Stack Overflow!");
@@ -22,6 +23,7 @@ namespace ae {
 		}
 	};
 
+	// Assign a entity ID by taking the next avaiable off the stack
 	std::int64_t AeEntityManager::allocateEntityId() {
 	   if(m_entityIdStackTop <= -1) {
 			throw std::runtime_error("Entity ID Stack Underflow! No more entities to give out!");

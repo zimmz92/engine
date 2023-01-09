@@ -21,9 +21,10 @@ int main() {
             double mass;
         };
 
-        ae::AeComponent<testComponentStruct> liveTestComponentStruct;
+
 
         ae::AeComponentManager TestComponentManager;
+        ae::AeComponent<testComponentStruct> liveTestComponentStruct(TestComponentManager);
 
         ae::AeEntityManager testEntityManager;
 

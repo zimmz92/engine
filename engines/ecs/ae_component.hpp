@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ae_ecs_constants.hpp"
+#include "ae_component_manager.hpp"
 #include "ae_entity.hpp"
 
 #include <cstdint>
@@ -10,11 +11,9 @@ namespace ae {
 	template <typename T>
 	class AeComponent {
 
-		// ID for the specific component
-		static const std::int64_t m_componentId;
-
 	public:
-		AeComponent() {
+		AeComponent(AeComponentManager& t_componentManager) : m_componentManager{ t_componentManager } {
+			m_componentId = m_componentManager.allocateComponentId();
 			m_componentData = (T*)malloc(MAX_COMPONENTS * sizeof(T));
 		};
 		~AeComponent() {
@@ -37,8 +36,12 @@ namespace ae {
 
 	protected:
 
+		// ID for the unique component created
+		std::int64_t m_componentId;
+
+		// Pointer to the component manager
+		AeComponentManager& m_componentManager;
+
 	};
 
-	template <class T>
-	const std::int64_t AeComponent<T>::m_componentId = AeIdCounters::allocateComponentId<T>();
 }
