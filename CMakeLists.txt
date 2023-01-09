@@ -7,6 +7,9 @@ project (Arundos VERSION 1.0)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+# specify what tests are to be run
+
+
 # Specific File Paths
 file (TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/engines/graphics/shaders/compile.bat" BATFILE)
 file (TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/engines/graphics/shaders" SHADERPATH)
@@ -41,6 +44,7 @@ add_subdirectory(engines/graphics)
 add_subdirectory(engines/graphics/shaders)
 
 add_subdirectory(engines/ecs)
+add_subdirectory(engines/ecs/test_code)
 
 add_subdirectory(game_code)
 add_subdirectory(game_code/entities)
