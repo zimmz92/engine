@@ -26,10 +26,17 @@ namespace ae {
 
 		std::uint64_t getComponentId() const { return m_componentId; }
 
+		void useComponnt(std::int64_t t_entityId, T t_entityComponentData) {
+			m_componentManager.setEntityComponentSigature(t_entityId, m_componentId);
+			updateData(t_entityId, t_entityComponentData);
+		};
+
+		// Update component data for a specific entity
 		void updateData(std::uint64_t t_index, T t_entityComponentData) {
 			m_componentData[t_index] = t_entityComponentData;
 		};
 
+		// Get data for a specific entitiy
 		T getData(std::uint64_t t_index) {
 			return m_componentData[t_index];
 		};
