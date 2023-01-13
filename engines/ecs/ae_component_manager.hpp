@@ -3,6 +3,8 @@
 #include "ae_ecs_constants.hpp"
 
 #include <cstdint>
+#include <bitset>
+#include <array>
 
 namespace ae {
 
@@ -20,8 +22,10 @@ namespace ae {
 		std::int64_t allocateComponentId();
 		int64_t getAvailableComponents() { return m_componentIdStackTop + 1; };
 
-		template <typename T> void addEntityComponentData(std::uint64_t t_entityId, std::uint64_t t_componentId, T t_entityComponentData) {
-			
+		std::bitset<MAX_COMPONENTS>*  getComponentSignature() {	return m_componentSignatures; };
+
+		void setEntityComponentSigature(std::int64_t t_entityId, int64_t t_componentId) {
+			m_componentSignatures[t_entityId].set(t_componentId);
 		};
 
 		// Function to allocate an ID to a specific component class so every component spawned from that class can be identifed.
@@ -35,6 +39,9 @@ namespace ae {
 
 		std::int64_t m_componentIdStack[MAX_COMPONENTS];
 		std::int64_t m_componentIdStackTop = -1;
+
+		// vector storing the components used for each entity
+		std::bitset<MAX_COMPONENTS> m_componentSignatures[MAX_NUM_ENTITIES] = { 0 };
 
 	protected:
 

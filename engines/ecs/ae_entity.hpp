@@ -8,7 +8,7 @@
 #include <cstdint>
 #include <vector>
 #include <array>
-#include <bitset>
+
 
 namespace ae {
 
@@ -38,18 +38,10 @@ namespace ae {
 
 		std::int64_t getEntityId() const { return m_entityId; }
 		std::int64_t getEntityTypeId() const { return m_entityTypeId; }
-		
-		void useComponent(std::int64_t m_componentId) {
 
-		};
+		bool isComponentUsed(std::int64_t t_componentId) {
 
-		template <class U, typename T> void useComponentTest(U &t_component, T t_componentData) {
-
-		};
-
-		bool componentUsed(std::int64_t t_componentId) {
-
-			return m_componentSignature.test(t_componentId);
+			return m_componentManager.m_componentSignatures[m_entityId].test(t_componentId);
 
 		};
 
@@ -61,14 +53,11 @@ namespace ae {
 		// ID for the unique entity created
 		std::int64_t m_entityId;
 
-		// vector storing the typeids
-		std::bitset<MAX_COMPONENTS> m_componentSignature = 0;
+		// Pointer to the entity manager
+		AeEntityManager& m_entityManager;
 
 		// Pointer to the component manager
 		AeComponentManager& m_componentManager;
-
-		AeEntityManager& m_entityManager;
-		
 	};
 
 	// When a derivitive of the AeEntity class is defined the type ID will be set for the derivative class
