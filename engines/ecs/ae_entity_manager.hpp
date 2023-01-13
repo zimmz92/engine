@@ -28,7 +28,8 @@ namespace ae {
 
 		void releaseEntityId(std::int64_t t_value);
 		std::int64_t allocateEntityId();
-		int64_t getAvailableEntities() { return m_entityIdStackTop + 1; };
+		int64_t getNumEntitiesAvailable() { return m_entityIdStackTop + 1; };
+		bool* getLivingEntities() { return m_livingEntities; };
 
 		// Function to allocate an ID to a specific entity class so every entity spawned from that class can be identifed.
 		template <class T>
@@ -39,8 +40,12 @@ namespace ae {
 
 	private:
 
+		// This is the entity ID stack
 		std::int64_t m_entityIdStack[MAX_NUM_ENTITIES];
+		// Tracks the current top of the entity ID stack
 		std::int64_t m_entityIdStackTop = -1;
+		// Tracks which entities are currently "still alive"
+		bool m_livingEntities[MAX_NUM_ENTITIES] = { false };
 
 	protected:
 
