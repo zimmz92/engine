@@ -7,4 +7,6 @@
 
 namespace ae {
 
+	AeComponentManager ecsComponentManager;
+
 }

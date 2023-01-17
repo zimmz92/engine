@@ -48,6 +48,7 @@ add_subdirectory(engines/ecs/test_code)
 
 add_subdirectory(game_code)
 add_subdirectory(game_code/entities)
+add_subdirectory(game_code/components)
 add_subdirectory(game_code/objects)
 add_subdirectory(game_code/render_systems)
 
