@@ -1,7 +1,8 @@
+#pragma once
+
 #include "Arundos.hpp"
 
 // Test ECS
-#include "ae_ecs.hpp"
 #include "ecs_test.hpp"
 
 // std
@@ -13,6 +14,7 @@ int main() {
 
         
     test_ecs();
+
 
     ae::Arundos app{};
 

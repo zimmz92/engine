@@ -6,7 +6,7 @@
 #include <bitset>
 #include <array>
 
-namespace ae {
+namespace ae_ecs {
 
 	class AeComponentManager {
 

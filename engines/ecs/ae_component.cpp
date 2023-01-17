@@ -1,5 +1,5 @@
 #include "ae_component.hpp"
 
-namespace ae {
+namespace ae_ecs {
 
 }

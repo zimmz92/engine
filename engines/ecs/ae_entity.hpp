@@ -10,7 +10,7 @@
 #include <array>
 
 
-namespace ae {
+namespace ae_ecs {
 
 	template <class T>
 	class AeEntity {

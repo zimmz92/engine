@@ -2,7 +2,7 @@
 
 #include <stdexcept>
 
-namespace ae {
+namespace ae_ecs {
 
 	AeComponentManager::AeComponentManager() {
 		// Initilize the component ID array with all allowed component IDs

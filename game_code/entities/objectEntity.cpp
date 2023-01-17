@@ -6,7 +6,7 @@
 
 namespace ae {
 
-	ObjectEntity::ObjectEntity(AeComponentManager& t_componentManager, AeEntityManager& t_entityManager, 
+	ObjectEntity::ObjectEntity(ae_ecs::AeComponentManager& t_componentManager, ae_ecs::AeEntityManager& t_entityManager,
 		testComponentStructure t_testComponentDefinition) : AeEntity(t_componentManager, t_entityManager) {
 
 		testComponent.useComponnt(this->m_entityId, t_testComponentDefinition);

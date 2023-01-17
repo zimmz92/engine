@@ -1,4 +1,5 @@
 #include "ecs_test.hpp"
+#include "ae_ecs.hpp"
 
 #include <cstdlib>
 #include <iostream>
@@ -14,26 +15,25 @@ void test_ecs() {
         double mass;
     };
 
-    ae::AeComponentManager TestComponentManager;
-    ae::AeComponent<testComponentStruct> liveTestComponentStruct(TestComponentManager);
+    ae_ecs::AeComponent<testComponentStruct> liveTestComponentStruct(ae_ecs::ecsComponentManager);
 
-    ae::AeEntityManager testEntityManager;
+    ae_ecs::AeEntityManager testEntityManager;
 
-    class TestEntityClassA : public ae::AeEntity<TestEntityClassA> {
+    class TestEntityClassA : public ae_ecs::AeEntity<TestEntityClassA> {
     public:
-        using ae::AeEntity<TestEntityClassA>::AeEntity;
+        using ae_ecs::AeEntity<TestEntityClassA>::AeEntity;
         ~TestEntityClassA() {};
     };
 
-    class TestEntityClassB : public ae::AeEntity<TestEntityClassB> {
+    class TestEntityClassB : public ae_ecs::AeEntity<TestEntityClassB> {
     public:
-        using ae::AeEntity<TestEntityClassB>::AeEntity;
+        using ae_ecs::AeEntity<TestEntityClassB>::AeEntity;
         ~TestEntityClassB() {};
     };
 
-    TestEntityClassA TestEntityA(TestComponentManager, testEntityManager);
-    TestEntityClassB TestEntityB(TestComponentManager, testEntityManager);
-    TestEntityClassB TestEntityBTwo(TestComponentManager, testEntityManager);
+    TestEntityClassA TestEntityA(ae_ecs::ecsComponentManager, testEntityManager);
+    TestEntityClassB TestEntityB(ae_ecs::ecsComponentManager, testEntityManager);
+    TestEntityClassB TestEntityBTwo(ae_ecs::ecsComponentManager, testEntityManager);
 
     liveTestComponentStruct.updateData(TestEntityA.getEntityId(), { 1,2,3,4,5 });
     liveTestComponentStruct.updateData(TestEntityB.getEntityId(), { 6,7,8,9,10 });

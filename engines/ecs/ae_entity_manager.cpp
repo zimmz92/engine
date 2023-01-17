@@ -2,7 +2,7 @@
 
 #include <stdexcept>
 
-namespace ae {
+namespace ae_ecs {
 
 	// AeEntityManager constructor. Initilizes the entity ID stack.
 	AeEntityManager::AeEntityManager() {

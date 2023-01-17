@@ -14,14 +14,13 @@ namespace ae {
     //AeComponent<testComponentStructure> testComponent;
 
 
-    class testComponentClass : public AeComponent<testComponentStructure> {
+    class testComponentClass : public ae_ecs::AeComponent<testComponentStructure> {
     public:
-        testComponentClass(AeComponentManager& t_componentManager) : AeComponent(t_componentManager) {};
+        testComponentClass(ae_ecs::AeComponentManager& t_componentManager) : AeComponent(t_componentManager) {};
         ~testComponentClass() {};
     private:
     protected:
     };
     
-    AeComponentManager testComponentManager;
-    testComponentClass testComponent(testComponentManager);
+    testComponentClass testComponent(ae_ecs::ecsComponentManager);
 }

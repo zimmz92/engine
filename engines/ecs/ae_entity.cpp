@@ -5,6 +5,6 @@
 #include <algorithm>
 #include <string>
 
-namespace ae {
+namespace ae_ecs {
 
 }

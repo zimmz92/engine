@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "ae_ecs.hpp"
@@ -10,9 +9,9 @@ namespace ae {
         std::int64_t phi; // Rotation from "z" axis
     };
 
-    class worldPositionComponentClass : public AeComponent<worldPositionComponentStructure> {
+    class worldPositionComponentClass : public ae_ecs::AeComponent<worldPositionComponentStructure> {
     public:
-        worldPositionComponentClass(AeComponentManager& t_componentManager) : AeComponent(t_componentManager) {};
+        worldPositionComponentClass(ae_ecs::AeComponentManager& t_componentManager) : AeComponent(t_componentManager) {};
         ~worldPositionComponentClass() {};
 
     private:
@@ -21,5 +20,5 @@ namespace ae {
 
     };
 
-    worldPositionComponentClass worldPositionComponent(ecsComponentManager);
+    worldPositionComponentClass worldPositionComponent(ae_ecs::ecsComponentManager);
 }

@@ -6,7 +6,7 @@
 
 #include <cstdint>
 
-namespace ae {
+namespace ae_ecs {
 
 	template <typename T>
 	class AeComponent {

@@ -14,7 +14,7 @@
 	- TODO make maximum number of allowed entities could be based off hardware and user settings
 */
 
-namespace ae {
+namespace ae_ecs {
 
 	class AeEntityManager {
 

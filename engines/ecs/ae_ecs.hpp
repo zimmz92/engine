@@ -5,7 +5,7 @@
 #include "ae_component.hpp"
 #include "ae_entity.hpp"
 
-namespace ae {
+namespace ae_ecs {
 
 	AeComponentManager ecsComponentManager;
 

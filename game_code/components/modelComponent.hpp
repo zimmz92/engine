@@ -22,9 +22,9 @@ namespace ae {
         // TODO Placeholder for texture
     };
 
-    class positionComponentClass : public AeComponent<positionComponentStructure> {
+    class positionComponentClass : public ae_ecs::AeComponent<modelComponentStructure> {
     public:
-        positionComponentClass(AeComponentManager& t_componentManager) : AeComponent(t_componentManager) {};
+        positionComponentClass(ae_ecs::AeComponentManager& t_componentManager) : AeComponent(t_componentManager) {};
         ~positionComponentClass() {};
 
     private:
@@ -33,5 +33,5 @@ namespace ae {
 
     };
 
-    positionComponentClass positionComponent(ecsComponentManager);
+    positionComponentClass positionComponent(ae_ecs::ecsComponentManager);
 }
