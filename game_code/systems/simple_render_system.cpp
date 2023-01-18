@@ -17,16 +17,16 @@ namespace ae {
         glm::mat4 normalMatrix{ 1.0f };
     };
 
-    SystemSimpleRenderer::SystemSimpleRenderer(AeDevice& t_device, VkRenderPass t_renderPass, VkDescriptorSetLayout t_globalSetLayout) : m_aeDevice{ t_device } {
+    SimpleRenderSystem::SimpleRenderSystem(AeDevice& t_device, VkRenderPass t_renderPass, VkDescriptorSetLayout t_globalSetLayout) : m_aeDevice{ t_device } {
         createPipelineLayout(t_globalSetLayout);
         createPipeline(t_renderPass);
     }
 
-    SystemSimpleRenderer::~SystemSimpleRenderer() {
+    SimpleRenderSystem::~SimpleRenderSystem() {
         vkDestroyPipelineLayout(m_aeDevice.device(), m_pipelineLayout, nullptr);
     }
 
-    void SystemSimpleRenderer::createPipelineLayout(VkDescriptorSetLayout t_globalSetLayout) {
+    void SimpleRenderSystem::createPipelineLayout(VkDescriptorSetLayout t_globalSetLayout) {
 
         VkPushConstantRange pushConstantRange{};
         pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
@@ -47,7 +47,7 @@ namespace ae {
 
     };
 
-    void SystemSimpleRenderer::createPipeline(VkRenderPass t_renderPass) {
+    void SimpleRenderSystem::createPipeline(VkRenderPass t_renderPass) {
         assert(m_pipelineLayout != nullptr && "Cannot create pipeline before pipeline layout!");
 
         PipelineConfigInfo pipelineConfig{};
@@ -61,7 +61,7 @@ namespace ae {
             pipelineConfig);
     };
 
-    void SystemSimpleRenderer::renderGameObjects(FrameInfo& t_frameInfo) {
+    void SimpleRenderSystem::renderGameObjects(FrameInfo& t_frameInfo) {
         m_aePipeline->bind(t_frameInfo.m_commandBuffer);
 
         vkCmdBindDescriptorSets(

@@ -10,15 +10,15 @@
 #include <vector>
 
 namespace ae {
-    class SystemSimpleRenderer {
+    class SimpleRenderSystem {
     public:
 
-        SystemSimpleRenderer(AeDevice &t_device, VkRenderPass t_renderPass, VkDescriptorSetLayout t_globalSetLayout);
-        ~SystemSimpleRenderer();
+        SimpleRenderSystem(AeDevice &t_device, VkRenderPass t_renderPass, VkDescriptorSetLayout t_globalSetLayout);
+        ~SimpleRenderSystem();
 
         // Do not allow this class to be copied (2 lines below)
-        SystemSimpleRenderer(const SystemSimpleRenderer&) = delete;
-        SystemSimpleRenderer& operator=(const SystemSimpleRenderer&) = delete;
+        SimpleRenderSystem(const SimpleRenderSystem&) = delete;
+        SimpleRenderSystem& operator=(const SimpleRenderSystem&) = delete;
 
         void renderGameObjects(FrameInfo &t_frameInfo);
 
