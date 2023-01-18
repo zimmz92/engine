@@ -2,15 +2,13 @@
 
 #include "ae_ecs.hpp"
 #include "objectEntity.hpp"
-#include "testComponent.hpp"
+#include "position_component.hpp"
 
 namespace ae {
 
-	ObjectEntity::ObjectEntity(ae_ecs::AeComponentManager& t_componentManager, ae_ecs::AeEntityManager& t_entityManager,
-		testComponentStructure t_testComponentDefinition) : AeEntity(t_componentManager, t_entityManager) {
-
-		testComponent.useComponnt(this->m_entityId, t_testComponentDefinition);
-
+	ObjectEntity::ObjectEntity(modelComponentStructure t_modelComponentDefinition, glm::vec3 t_worldPosition) : AeEntity(ae_ecs::ecsComponentManager, ae_ecs::ecsEntityManager) {
+		worldPositionComponent.useComponnt(this->m_entityId, t_worldPosition);
+		modelComponent.useComponnt(this->m_entityId, t_modelComponentDefinition);
 	};
 
 }

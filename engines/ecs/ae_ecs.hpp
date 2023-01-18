@@ -6,7 +6,6 @@
 #include "ae_entity.hpp"
 
 namespace ae_ecs {
-
-	AeComponentManager ecsComponentManager;
-
+	inline AeEntityManager ecsEntityManager;
+	inline AeComponentManager ecsComponentManager;
 }

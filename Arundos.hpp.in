@@ -10,7 +10,6 @@
 #include "ae_window.hpp"
 #include "ae_renderer.hpp"
 
-
 #include <memory>
 #include <vector>
 

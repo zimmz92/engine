@@ -1,7 +1,7 @@
 target_sources(mySrcFiles
     PRIVATE
-        model_component.hpp
-        position_component.hpp
+        simple_render_system.cpp
+        simple_render_system.hpp
     PUBLIC
 )
 

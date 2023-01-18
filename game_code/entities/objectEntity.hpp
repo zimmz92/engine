@@ -1,18 +1,17 @@
 #pragma once
 
 #include "ae_ecs.hpp"
-#include "testComponent.hpp"
+#include "model_component.hpp"
 
 namespace ae {
 	class ObjectEntity : public ae_ecs::AeEntity<ObjectEntity> {
 
 	public:
 		// Function to create an entity
-		ObjectEntity(ae_ecs::AeComponentManager& t_componentManager, ae_ecs::AeEntityManager& t_entityManager, testComponentStructure t_testComponentDefinition);
+		ObjectEntity( modelComponentStructure t_modelComponentDefinition, glm::vec3 t_worldPosition);
 
 		// Function to destroy an entity
 		~ObjectEntity() {};
-
 
 	private:
 

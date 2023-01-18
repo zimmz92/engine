@@ -1,4 +1,4 @@
-/*! \file modelComponent.hpp
+/*! \file model_component.hpp
     \brief The script defining the model component.
 
     The model compoent is defined and the instance for the game is declared.
@@ -6,7 +6,6 @@
 */
 #pragma once
 
-#include "ae_ecs.hpp"
 #include "ae_model.hpp"
 
 namespace ae {
@@ -31,9 +30,10 @@ namespace ae {
 
         //! The rotation of the model.
         /*!
-        * Defines the rotation of the model used by a entity.
+        * Defines the rotation of the model used by a entity in radians. 
+        * Rotations correspond to Tait-bryan angles of Y(1) - varphi, X(2) - theta, Z(3) - psi.
         */
-        glm::vec3 rotation;
+        glm::vec3 rotation{ 0.0f, 0.0f, 0.0f };
 
 
         // TODO Placeholder for texture
@@ -68,5 +68,5 @@ namespace ae {
     /*!
     * The instansiation of the model component for use by the game.
     */
-    modelComponentClass modelComponent(ae_ecs::ecsComponentManager);
+    inline modelComponentClass modelComponent(ae_ecs::ecsComponentManager);
 }
