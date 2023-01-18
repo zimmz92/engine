@@ -4,7 +4,7 @@
 #include "ae_camera.hpp"
 #include "keyboard_movement_controller.hpp"
 #include "ae_buffer.hpp"
-#include "objectEntity.hpp"
+#include "game_object_entity.hpp"
 
 // libraries
 #define GLM_FORCE_RADIANS
@@ -130,7 +130,7 @@ namespace ae {
         modelComponentStructure tempStructure;
         tempStructure.m_model = aeModel;
         tempStructure.scale = { 3.0f, 1.5f, 3.0f };
-        auto testFlatVase = ObjectEntity(tempStructure, { -0.5f, 0.5f, 0.0f });
+        auto testFlatVase = GameObjectEntity(tempStructure, { -0.5f, 0.5f, 0.0f });
 
         aeModel = AeModel::createModelFromFile(m_aeDevice, "models/smooth_vase.obj");
         auto smoothVase = AeGameObject::createGameObject();
@@ -142,7 +142,7 @@ namespace ae {
         // ECS version of smoothVase
         tempStructure.m_model = aeModel;
         tempStructure.scale = { 3.0f, 1.5f, 3.0f };
-        auto testSmoothVase = ObjectEntity(tempStructure, { 0.5f, 0.5f, 0.0f });
+        auto testSmoothVase = GameObjectEntity(tempStructure, { 0.5f, 0.5f, 0.0f });
 
         aeModel = AeModel::createModelFromFile(m_aeDevice, "models/quad.obj");
         auto floor = AeGameObject::createGameObject();
@@ -154,7 +154,7 @@ namespace ae {
         // ECS version of the floor
         tempStructure.m_model = aeModel;
         tempStructure.scale = { 3.0f, 1.0f, 3.0f };
-        auto testFloor = ObjectEntity(tempStructure, { 3.0f, 1.0f, 3.0f });
+        auto testFloor = GameObjectEntity(tempStructure, { 3.0f, 1.0f, 3.0f });
 
 
         // Create Point Lights

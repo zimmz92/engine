@@ -1,8 +1,7 @@
 target_sources(mySrcFiles
     PRIVATE
-        objectEntity.hpp
-        objectEntity.cpp
-        testComponent.hpp
+        game_object_entity.hpp
+        game_object_entity.cpp
     PUBLIC
 )
 
