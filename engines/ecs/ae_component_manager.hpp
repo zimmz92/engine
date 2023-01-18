@@ -28,6 +28,10 @@ namespace ae_ecs {
 			m_componentSignatures[t_entityId].set(t_componentId);
 		};
 
+		void unsetEntityComponentSigature(std::int64_t t_entityId, int64_t t_componentId) {
+			m_componentSignatures[t_entityId].reset(t_componentId);
+		};
+
 		// Function to allocate an ID to a specific component class so every component spawned from that class can be identifed.
 		template <class T>
 		static const std::int64_t allocateComponentTypeId() {

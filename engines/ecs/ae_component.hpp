@@ -26,9 +26,13 @@ namespace ae_ecs {
 
 		std::uint64_t getComponentId() const { return m_componentId; }
 
-		void useComponnt(std::int64_t t_entityId, T t_entityComponentData) {
+		void useComponent(std::int64_t t_entityId, T t_entityComponentData) {
 			m_componentManager.setEntityComponentSigature(t_entityId, m_componentId);
 			updateData(t_entityId, t_entityComponentData);
+		};
+
+		void removeComponent(std::int64_t t_entityId) {
+			m_componentManager.unsetEntityComponentSigature(t_entityId, m_componentId);
 		};
 
 		// Update component data for a specific entity

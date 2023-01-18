@@ -7,8 +7,8 @@
 namespace ae {
 
 	GameObjectEntity::GameObjectEntity(modelComponentStructure t_modelComponentDefinition, glm::vec3 t_worldPosition) : AeEntity(ae_ecs::ecsComponentManager, ae_ecs::ecsEntityManager) {
-		worldPositionComponent.useComponnt(this->m_entityId, t_worldPosition);
-		modelComponent.useComponnt(this->m_entityId, t_modelComponentDefinition);
+		worldPositionComponent.useComponent(this->m_entityId, t_worldPosition);
+		modelComponent.useComponent(this->m_entityId, t_modelComponentDefinition);
 	};
 
 }
