@@ -22,7 +22,7 @@ namespace ae_ecs {
 		std::int64_t allocateComponentId();
 		int64_t getAvailableComponents() { return m_componentIdStackTop + 1; };
 
-		std::bitset<MAX_COMPONENTS>*  getComponentSignature() {	return m_componentSignatures; };
+		std::bitset<MAX_COMPONENTS+1>*  getComponentSignature() {	return m_componentSignatures; };
 
 		void setEntityComponentSigature(std::int64_t t_entityId, int64_t t_componentId) {
 			m_componentSignatures[t_entityId].set(t_componentId);
@@ -30,6 +30,18 @@ namespace ae_ecs {
 
 		void unsetEntityComponentSigature(std::int64_t t_entityId, int64_t t_componentId) {
 			m_componentSignatures[t_entityId].reset(t_componentId);
+		};
+
+		// Enables entity from be acted upon by systems
+		void enableEntity(std::int64_t t_entityId) {
+			m_componentSignatures[t_entityId].set(MAX_COMPONENTS + 1);
+			// TODO: Alert system manager that this entity is now enabled.
+		};
+
+		// Disables entity from be acted upon by systems
+		void disableEntity(std::int64_t t_entityId) {
+			m_componentSignatures[t_entityId].reset(MAX_COMPONENTS + 1);
+			// TODO: Alert system manager that this entity is now disabled.
 		};
 
 		// Function to allocate an ID to a specific component class so every component spawned from that class can be identifed.
@@ -44,8 +56,9 @@ namespace ae_ecs {
 		std::int64_t m_componentIdStack[MAX_COMPONENTS];
 		std::int64_t m_componentIdStackTop = -1;
 
-		// vector storing the components used for each entity
-		std::bitset<MAX_COMPONENTS> m_componentSignatures[MAX_NUM_ENTITIES] = { 0 };
+		// vector storing the components used for each entity, last bit is to indicate that the entity is living aka fully initialized. 
+		// After initilization adding or removing a component forces intilization data to be included. 
+		std::bitset<MAX_COMPONENTS+1> m_componentSignatures[MAX_NUM_ENTITIES] = { 0 };
 
 	protected:
 

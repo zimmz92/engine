@@ -17,6 +17,8 @@ namespace ae_ecs {
 	public:
 		AeComponent(AeComponentManager& t_componentManager) : m_componentManager{ t_componentManager } {
 			m_componentId = m_componentManager.allocateComponentId();
+
+			// TODO: Allow the use of different memory architectures
 			m_componentData = (T*)malloc(MAX_COMPONENTS * sizeof(T));
 		};
 
@@ -29,10 +31,12 @@ namespace ae_ecs {
 		void useComponent(std::int64_t t_entityId, T t_entityComponentData) {
 			m_componentManager.setEntityComponentSigature(t_entityId, m_componentId);
 			updateData(t_entityId, t_entityComponentData);
+			// TODO: If the entity has been enabled alert system manager that this entity no longer uses this component.
 		};
 
 		void removeComponent(std::int64_t t_entityId) {
 			m_componentManager.unsetEntityComponentSigature(t_entityId, m_componentId);
+			// TODO: Alert system manager that this entity no longer uses this component.
 		};
 
 		// Update component data for a specific entity
