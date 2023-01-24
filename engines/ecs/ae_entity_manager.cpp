@@ -7,7 +7,7 @@ namespace ae_ecs {
 	// AeEntityManager constructor. Initilizes the entity ID stack.
 	AeEntityManager::AeEntityManager() {
 		// Initilize the entity ID array with all allowed entity IDs
-		for (std::int64_t i = 0; i < MAX_NUM_ENTITIES; i++) {
+		for (ecs_id i = 0; i < MAX_NUM_ENTITIES; i++) {
 			releaseEntityId(MAX_NUM_ENTITIES - 1 - i);
 		}
 	};
@@ -16,7 +16,7 @@ namespace ae_ecs {
 	AeEntityManager::~AeEntityManager() {};
 
 	// Unassign a entity ID and put it back on top of the stack.
-	void AeEntityManager::releaseEntityId(std::int64_t t_value) {
+	void AeEntityManager::releaseEntityId(ecs_id t_value) {
 		if (m_entityIdStackTop >= MAX_NUM_ENTITIES - 1) {
 			throw std::runtime_error("Entity ID Stack Overflow! Releasing more entities than should have been able to exist!");
 		}
@@ -37,7 +37,7 @@ namespace ae_ecs {
 		else {
 		   // Get the new entity ID being allocated from the top of the stack and add the popped entity ID to the living
 		   // entities array then decrement the stack counter.
-		   std::int64_t allocatedId = m_entityIdStack[m_entityIdStackTop];
+		   ecs_id allocatedId = m_entityIdStack[m_entityIdStackTop];
 		   m_livingEntities[allocatedId] = true;
 		   m_entityIdStackTop = m_entityIdStackTop - 1;
 		   return allocatedId;

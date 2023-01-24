@@ -19,31 +19,31 @@ namespace ae_ecs {
 	class AeEntityManager {
 
 		// entity type ID counter variable
-		static inline std::int64_t entityTypeIdCount = 0;
+		static inline ecs_id entityTypeIdCount = 0;
 
 	public:
 
 		AeEntityManager();
 		~AeEntityManager();
 
-		void releaseEntityId(std::int64_t t_value);
-		std::int64_t allocateEntityId();
-		int64_t getNumEntitiesAvailable() { return m_entityIdStackTop + 1; };
+		void releaseEntityId(ecs_id t_value);
+		ecs_id allocateEntityId();
+		ecs_id getNumEntitiesAvailable() { return m_entityIdStackTop + 1; };
 		bool* getLivingEntities() { return m_livingEntities; };
 
 		// Function to allocate an ID to a specific entity class so every entity spawned from that class can be identifed.
 		template <class T>
-		static const std::int64_t allocateEntityTypeId() {
-			static const std::int64_t staticTypeId{ entityTypeIdCount++ };
+		static const ecs_id allocateEntityTypeId() {
+			static const ecs_id staticTypeId{ entityTypeIdCount++ };
 			return staticTypeId;
 		};
 
 	private:
 
 		// This is the entity ID stack
-		std::int64_t m_entityIdStack[MAX_NUM_ENTITIES];
+		ecs_id m_entityIdStack[MAX_NUM_ENTITIES];
 		// Tracks the current top of the entity ID stack
-		std::int64_t m_entityIdStackTop = -1;
+		ecs_id m_entityIdStackTop = -1;
 		// Tracks which entities are currently "still alive"
 		bool m_livingEntities[MAX_NUM_ENTITIES] = { false };
 

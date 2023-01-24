@@ -16,7 +16,7 @@ namespace ae_ecs {
 	class AeEntity {
 
 		// ID for the entity class that the entity was based on
-		static const std::int64_t m_entityTypeId;
+		static const ecs_id m_entityTypeId;
 
 	public:
 
@@ -36,10 +36,10 @@ namespace ae_ecs {
 		AeEntity(AeEntity&&) = delete;
 		AeEntity& operator=(AeEntity&&) = delete;
 
-		std::int64_t getEntityId() const { return m_entityId; }
-		std::int64_t getEntityTypeId() const { return m_entityTypeId; }
+		ecs_id getEntityId() const { return m_entityId; }
+		ecs_id getEntityTypeId() const { return m_entityTypeId; }
 
-		bool isComponentUsed(std::int64_t t_componentId) {
+		bool isComponentUsed(ecs_id t_componentId) {
 
 			return m_componentManager.m_componentSignatures[m_entityId].test(t_componentId);
 
@@ -51,7 +51,7 @@ namespace ae_ecs {
 	protected:
 
 		// ID for the unique entity created
-		std::int64_t m_entityId;
+		ecs_id m_entityId;
 
 		// Pointer to the entity manager
 		AeEntityManager& m_entityManager;
@@ -62,6 +62,6 @@ namespace ae_ecs {
 
 	// When a derivitive of the AeEntity class is defined the type ID will be set for the derivative class
 	template <class T>
-	const std::int64_t AeEntity<T>::m_entityTypeId = AeEntityManager::allocateEntityTypeId<T>();
+	const ecs_id AeEntity<T>::m_entityTypeId = AeEntityManager::allocateEntityTypeId<T>();
 
 }

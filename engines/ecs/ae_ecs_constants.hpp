@@ -2,3 +2,8 @@
 #define MAX_ENTITIES 5000
 #define MAX_COMPONENTS 32
 #define MAX_NUM_ENTITIES 1024
+
+#pragma once
+#include <cstdint>
+
+using ecs_id = std::int64_t;
