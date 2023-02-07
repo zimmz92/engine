@@ -60,6 +60,7 @@ namespace ae_ecs {
 
 	private:
 
+		// componenet ID stack and a counter used for the stack
 		ecs_id m_componentIdStack[MAX_COMPONENTS];
 		ecs_id m_componentIdStackTop = -1;
 
