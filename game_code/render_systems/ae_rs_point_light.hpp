@@ -12,7 +12,7 @@
 namespace ae {
     class AeRsPointLight {
     public:
-
+        // This comment is a test
         AeRsPointLight(AeDevice &t_device, VkRenderPass t_renderPass, VkDescriptorSetLayout t_globalSetLayout);
         ~AeRsPointLight();
 
