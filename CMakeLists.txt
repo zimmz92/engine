@@ -1,6 +1,6 @@
 ﻿# CMakeList.txt : CMake project for Arundos, include source and define
 # project specific logic here.
-cmake_minimum_required (VERSION 3.15)
+cmake_minimum_required (VERSION 3.25.2)
 project (Arundos VERSION 1.0)
 
 # specify the C++ standard
@@ -11,11 +11,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 
 # Specific File Paths
-file (TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/engines/graphics/shaders/compile.bat" BATFILE)
 file (TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/engines/graphics/shaders" SHADERPATH)
 
 if(WIN32)
     file (TO_NATIVE_PATH "C:/VulkanSDK/1.2.182.0/Bin32" VULKANDIR)
+    file (TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/engines/graphics/shaders/compile.bat" BATFILE)
+else()
+    file (TO_NATIVE_PATH "/home/jzimmermann/my_programs/vulkan_sdk/1.3.243.0/x86_64/bin" VULKANDIR)
+    file (TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/engines/graphics/shaders/compile.sh" BATFILE)
 endif()
 
 add_executable (Arundos main.cpp)
@@ -75,9 +78,15 @@ configure_file(Arundos.hpp.in Arundos.hpp)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 
+if(WIN32)
 add_custom_target(GenerateShaders ALL
                   COMMAND CMD /D /C "${BATFILE}" "${CMAKE_CURRENT_SOURCE_DIR}" "${VULKANDIR}"
                   DEPENDS ${SHADERPATH})
+else()
+    add_custom_target(GenerateShaders ALL
+            COMMAND /usr/bin/bash ${BATFILE} ${CMAKE_CURRENT_SOURCE_DIR} "${VULKANDIR}"
+            DEPENDS ${SHADERPATH})
+endif()
 
 ADD_DEPENDENCIES(mySrcFiles GenerateShaders)
 ADD_DEPENDENCIES(Arundos GenerateShaders)

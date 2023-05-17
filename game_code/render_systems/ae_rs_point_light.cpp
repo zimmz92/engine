@@ -115,7 +115,7 @@ namespace ae {
             nullptr);
 
         // iterate through sorted lights in reverse order
-        for (auto& it = sorted.rbegin(); it != sorted.rend(); ++it) {
+        for (auto it = sorted.rbegin(); it != sorted.rend(); ++it) {
             // use game obj id to find light object
             auto& obj = t_frameInfo.gameObjects.at(it->second);
 

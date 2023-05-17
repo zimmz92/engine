@@ -41,13 +41,13 @@ namespace ae_ecs {
 
 		// Enables entity from be acted upon by systems
 		void enableEntity(ecs_id t_entityId) {
-			m_componentSignatures[t_entityId].set(MAX_COMPONENTS + 1);
+			m_componentSignatures[t_entityId].set(MAX_COMPONENTS);
 			// TODO: Alert system manager that this entity is now enabled.
 		};
 
 		// Disables entity from be acted upon by systems
 		void disableEntity(ecs_id t_entityId) {
-			m_componentSignatures[t_entityId].reset(MAX_COMPONENTS + 1);
+			m_componentSignatures[t_entityId].reset(MAX_COMPONENTS);
 			// TODO: Alert system manager that this entity is now disabled.
 		};
 
