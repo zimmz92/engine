@@ -1,7 +1,7 @@
 /*! \file model_component.hpp
     \brief The script defining the model component.
 
-    The model compoent is defined and the instance for the game is declared.
+    The model component is defined and the instance for the game is declared.
 
 */
 #pragma once
@@ -24,7 +24,7 @@ namespace ae {
 
         //! The scale of the model.
         /*!
-        * Defines the scaling of the model used by a entity.
+        * Defines the scaling factors to be applied to the model being used by the entity.
         */
         glm::vec3 scale{ 1.0f, 1.0f, 1.0f };
 
@@ -48,13 +48,13 @@ namespace ae {
     public:
         //!  The constructor of the modelComponent class.
         /*!
-        * The modelComponentClass constructor uses the AeComponent constructor with no addtions.
+        * The modelComponentClass constructor uses the AeComponent constructor with no additions.
         */
         modelComponentClass(ae_ecs::AeComponentManager& t_componentManager) : AeComponent(t_componentManager) {};
 
         //!  The destructor of the modelComponent class.
         /*!
-        * The modelComponentClass destructor uses the AeComponent constructor with no addtions.
+        * The modelComponentClass destructor uses the AeComponent constructor with no additions.
         */
         ~modelComponentClass() {};
 
@@ -64,9 +64,9 @@ namespace ae {
 
     };
 
-    //!  The instansiation of the model component for use by the game.
+    //!  The instantiation of the model component for use by the game.
     /*!
-    * The instansiation of the model component for use by the game.
+    * The instantiation of the model component for use by the game.
     */
     inline modelComponentClass modelComponent(ae_ecs::ecsComponentManager);
 }

@@ -119,8 +119,11 @@ namespace ae {
     }
 
     void Arundos::loadGameObjects() {
+        // Load the flat vase object model from the file
         std::shared_ptr<AeModel> aeModel = AeModel::createModelFromFile(m_aeDevice, "models/flat_vase.obj");
 
+        // Non-ECS version of putting the flat vase into the game
+        // TODO Remove once a system is implemented for gathering entities with the model component that are in a scene
         auto flatVase = AeGameObject::createGameObject();
         flatVase.m_model = aeModel;
         flatVase.m_transform.translation = { -0.5f, 0.5f, 0.0f };
@@ -133,6 +136,8 @@ namespace ae {
         tempStructure.scale = { 3.0f, 1.5f, 3.0f };
         auto testFlatVase = GameObjectEntity(tempStructure, { -0.5f, 0.5f, 0.0f });
 
+        // Non-ECS version of putting the smooth vase into the game
+        // TODO Remove once a system is implemented for gathering entities with the model component that are in a scene
         aeModel = AeModel::createModelFromFile(m_aeDevice, "models/smooth_vase.obj");
         auto smoothVase = AeGameObject::createGameObject();
         smoothVase.m_model = aeModel;
@@ -145,6 +150,8 @@ namespace ae {
         tempStructure.scale = { 3.0f, 1.5f, 3.0f };
         auto testSmoothVase = GameObjectEntity(tempStructure, { 0.5f, 0.5f, 0.0f });
 
+        // Non-ECS version of putting the floor plane into the game
+        // TODO Remove once a system is implemented for gathering entities with the model component that are in a scene
         aeModel = AeModel::createModelFromFile(m_aeDevice, "models/quad.obj");
         auto floor = AeGameObject::createGameObject();
         floor.m_model = aeModel;

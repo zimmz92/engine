@@ -39,12 +39,6 @@ namespace ae_ecs {
 		ecs_id getEntityId() const { return m_entityId; }
 		ecs_id getEntityTypeId() const { return m_entityTypeId; }
 
-		bool isComponentUsed(ecs_id t_componentId) {
-
-			return m_componentManager.m_componentSignatures[m_entityId].test(t_componentId);
-
-		};
-
 	private:
 
 		

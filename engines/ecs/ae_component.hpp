@@ -16,7 +16,9 @@ namespace ae_ecs {
 		static const ecs_id m_componentTypeId;
 
 	public:
+        // When creating the component ensure to allocate space for the component data
 		AeComponent(AeComponentManager& t_componentManager) : m_componentManager{ t_componentManager } {
+            // Get an ID for the component from the component manager
 			m_componentId = m_componentManager.allocateComponentId();
 
 			// TODO: Allow the use of different memory architectures
@@ -32,7 +34,7 @@ namespace ae_ecs {
 		void useComponent(ecs_id t_entityId, T t_entityComponentData) {
 			m_componentManager.setEntityComponentSigature(t_entityId, m_componentId);
 			updateData(t_entityId, t_entityComponentData);
-			// TODO: If the entity has been enabled alert system manager that this entity no longer uses this component.
+			// TODO: If the entity has been enabled alert system manager that this entity uses this component.
 		};
 
 		void removeComponent(ecs_id t_entityId) {
