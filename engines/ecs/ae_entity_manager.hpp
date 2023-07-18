@@ -50,4 +50,6 @@ namespace ae_ecs {
 	protected:
 
 	};
+
+    inline AeEntityManager ecsEntityManager;
 }

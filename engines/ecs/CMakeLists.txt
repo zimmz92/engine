@@ -6,9 +6,10 @@ target_sources(mySrcFiles
         ae_component_manager.hpp
         ae_entity_manager.cpp
         ae_entity_manager.hpp
+        ae_system_manager.cpp
+        ae_system_manager.hpp
         ae_entity.hpp
         ae_component.hpp
-        ae_system.cpp
         ae_system.hpp
     PUBLIC
 )

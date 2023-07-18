@@ -1,9 +1,8 @@
 #pragma once
 
 #include "ae_ecs_constants.hpp"
-#include "ae_component.hpp"
-#include "ae_component_manager.hpp"
 #include "ae_entity_manager.hpp"
+#include "ae_component_manager.hpp"
 
 #include <cstdint>
 #include <vector>
@@ -21,12 +20,15 @@ namespace ae_ecs {
 	public:
 
 		// Function to create an entity
-		AeEntity(AeComponentManager& t_componentManager, AeEntityManager& t_entityManager) : m_componentManager{ t_componentManager }, m_entityManager{ t_entityManager } {
+		AeEntity( AeEntityManager& t_entityManager) : m_entityManager{ t_entityManager } {
 			m_entityId = m_entityManager.allocateEntityId();
 		};
 
 		// Function to destroy an entity
-		~AeEntity() {};
+		~AeEntity() {
+            /// TODO: on destruction delete the entity from the component manager
+            m_entityManager.releaseEntityId(m_entityId);
+        };
 
 		// Do not allow this class to be copied (2 lines below)
 		AeEntity(const AeEntity&) = delete;
@@ -50,8 +52,6 @@ namespace ae_ecs {
 		// Pointer to the entity manager
 		AeEntityManager& m_entityManager;
 
-		// Pointer to the component manager
-		AeComponentManager& m_componentManager;
 	};
 
 	// When a derivative of the AeEntity class is defined the type ID will be set for the derivative class

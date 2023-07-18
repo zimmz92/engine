@@ -11,7 +11,7 @@ namespace ae {
 		GameObjectEntity( modelComponentStructure t_modelComponentDefinition, glm::vec3 t_worldPosition);
 
 		// Function to destroy an entity
-		~GameObjectEntity() {};
+		~GameObjectEntity();
 
 	private:
 

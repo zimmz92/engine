@@ -36,7 +36,7 @@ namespace ae_ecs {
         /// Gets the component signature for an entity.
         /// \param t_entityId The ID of the entity.
         /// \return A bitset array that indicates the components utilized by an entity.
-		std::bitset<MAX_COMPONENTS+1>  getComponentSignature(ecs_id t_entityId) {	return m_entityComponentSignatures[t_entityId]; };
+		std::bitset<MAX_NUM_COMPONENTS + 1>  getComponentSignature(ecs_id t_entityId) {	return m_entityComponentSignatures[t_entityId]; };
 
         ///  A function that sets the field in the entity component signature corresponding to the specific component.
         /// \param t_entityId  The ID of the entity.
@@ -54,6 +54,32 @@ namespace ae_ecs {
             // TODO: When the entity removes a component force the component manager to update applicable systems lists of valid entities to act upon
 		};
 
+        /// Enables entity from be acted upon by systems
+        /// \param t_entityId The ID of the entity
+        void enableEntity(ecs_id t_entityId) {
+            m_entityComponentSignatures[t_entityId].set(MAX_NUM_COMPONENTS);
+            // TODO: When the entity is set live, force the component manager to update applicable systems lists of valid entities to act upon
+        };
+
+        /// Disables entity from be acted upon by systems
+        /// \param t_entityId The ID of the entity
+        void disableEntity(ecs_id t_entityId) {
+            m_entityComponentSignatures[t_entityId].reset(MAX_NUM_COMPONENTS);
+            // TODO: When the entity is disabled, force the component manager to update applicable systems lists of valid entities to act upon
+        };
+
+        /// Checks to see if an entity uses a component.
+        /// \param t_entityId The ID of the entity
+        /// \param t_componentId The ID of the component.
+        /// \return true if the entity uses the component.
+        bool isComponentUsed(ecs_id t_entityId, ecs_id t_componentId) {
+            return m_entityComponentSignatures[t_entityId].test(t_componentId);
+        };
+
+        /// TODO: Destroy an Entity
+
+
+
         ///  A function that sets the field in the system component signature corresponding to the specific component.
         /// \param t_systemId The ID of the system.
         /// \param t_componentId The ID of the component to be added as required for the system.
@@ -68,27 +94,7 @@ namespace ae_ecs {
             m_systemComponentSignatures[t_systemId].reset(t_componentId);
         };
 
-		/// Checks to see if an entity uses a component.
-		/// \param t_entityId The ID of the entity
-		/// \param t_componentId The ID of the component.
-		/// \return true if the entity uses the component.
-		bool isComponentUsed(ecs_id t_entityId, ecs_id t_componentId) {
-			return m_entityComponentSignatures[t_entityId].test(t_componentId);
-		};
-
-		/// Enables entity from be acted upon by systems
-		/// \param t_entityId The ID of the entity
-		void enableEntity(ecs_id t_entityId) {
-			m_entityComponentSignatures[t_entityId].set(MAX_COMPONENTS);
-            // TODO: When the entity is set live, force the component manager to update applicable systems lists of valid entities to act upon
-        };
-
-		/// Disables entity from be acted upon by systems
-		/// \param t_entityId The ID of the entity
-		void disableEntity(ecs_id t_entityId) {
-			m_entityComponentSignatures[t_entityId].reset(MAX_COMPONENTS);
-            // TODO: When the entity is disabled, force the component manager to update applicable systems lists of valid entities to act upon
-		};
+        /// TODO: Destroy a system
 
         /// Compares system component signatures to the entity component signatures and returns a list of valid entities
         /// to the systems to act upon.
@@ -108,7 +114,7 @@ namespace ae_ecs {
 	private:
 
 		/// Component ID stack and a counter used for the stack
-		ecs_id m_componentIdStack[MAX_COMPONENTS];
+		ecs_id m_componentIdStack[MAX_NUM_COMPONENTS];
 
         /// The component ID stack current top value pointer.
         ecs_id m_componentIdStackTop = -1;
@@ -116,12 +122,14 @@ namespace ae_ecs {
 		/// Vector storing the components used for each entity, last bit is to indicate that the entity is fully
         /// initialized and ready to go live. After initialization adding or removing a component forces
         /// initialization data to be included.
-		std::bitset<MAX_COMPONENTS+1> m_entityComponentSignatures[MAX_NUM_ENTITIES] = {0 };
+		std::bitset<MAX_NUM_COMPONENTS + 1> m_entityComponentSignatures[MAX_NUM_ENTITIES] = {0};
 
         /// Vector storing the components required for each system, last bit is to indicate that the system is active.
-        std::bitset<MAX_COMPONENTS+1> m_systemComponentSignatures[MAX_NUM_ENTITIES] = {0 };
+        std::bitset<MAX_NUM_COMPONENTS + 1> m_systemComponentSignatures[MAX_NUM_ENTITIES] = {0};
 
 	protected:
 
 	};
+
+    inline AeComponentManager ecsComponentManager;
 }

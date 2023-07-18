@@ -8,6 +8,7 @@
 
 // libs
 #include <glm/gtc/matrix_transform.hpp>
+#include "ae_ecs.hpp"
 
 namespace ae {
     /// A component that specifies the world position of an entity in spherical coordinates. The world position vector
