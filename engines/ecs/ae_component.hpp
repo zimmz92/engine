@@ -3,14 +3,13 @@
 #include "ae_ecs_constants.hpp"
 #include "ae_component_manager.hpp"
 #include "ae_entity.hpp"
-#include "ae_component_base.hpp"
 
 #include <cstdint>
 
 namespace ae_ecs {
 
 	template <typename T>
-	class AeComponent : public AeComponentBase {
+	class AeComponent {
 
 		// ID for the specific component
 		static const ecs_id m_componentTypeId;
@@ -30,6 +29,7 @@ namespace ae_ecs {
 		};
 
 		ecs_id getComponentId() const { return m_componentId; }
+        ecs_id getComponentTypeId() const { return m_componentTypeId; }
 
 		void useComponent(ecs_id t_entityId, T t_entityComponentData) {
             m_componentManager.setEntityComponentSignature(t_entityId, m_componentId);
@@ -64,6 +64,9 @@ namespace ae_ecs {
 
 		// Pointer to the component manager
 		AeComponentManager& m_componentManager;
+
+        // ID for the unique component created
+        ecs_id m_componentId;
 
 	};
 
