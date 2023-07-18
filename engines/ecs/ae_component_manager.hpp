@@ -18,7 +18,7 @@ namespace ae_ecs {
 
 	class AeComponentManager {
 
-		// component type ID counter variable
+		/// component type ID counter variable
 		static inline ecs_id componentIdCount = 0;
 
 	public:
@@ -26,11 +26,18 @@ namespace ae_ecs {
 		AeComponentManager();
 		~AeComponentManager();
 
-		void releaseComponentId(ecs_id t_value);
+		void releaseComponentId(ecs_id t_componentId);
 		ecs_id allocateComponentId();
+
+        /// Gets the number of components that have not been allocated from the stack and are therefore available for
+        /// use.
+        /// \return Number of components still available to be used.
 		ecs_id getAvailableComponents() { return m_componentIdStackTop + 1; };
 
-		std::bitset<MAX_COMPONENTS+1>*  getComponentSignature() {	return m_entityComponentSignatures; };
+        /// Gets the component signature for an entity.
+        /// \param t_entityId The ID of the entity.
+        /// \return A bitset array that indicates the components utilized by an entity.
+		std::bitset<MAX_COMPONENTS+1>  getComponentSignature(ecs_id t_entityId) {	return m_entityComponentSignatures[t_entityId]; };
 
         ///  A function that sets the field in the entity component signature corresponding to the specific component.
         /// \param t_entityId  The ID of the entity.
@@ -99,14 +106,12 @@ namespace ae_ecs {
         /// The component ID stack current top value pointer.
         ecs_id m_componentIdStackTop = -1;
 
-		std::shared_ptr<AeComponentBase> m_components[MAX_COMPONENTS];
-
-		// Vector storing the components used for each entity, last bit is to indicate that the entity is fully
-        // initialized and ready to go live. After initialization adding or removing a component forces
-        // initialization data to be included.
+		/// Vector storing the components used for each entity, last bit is to indicate that the entity is fully
+        /// initialized and ready to go live. After initialization adding or removing a component forces
+        /// initialization data to be included.
 		std::bitset<MAX_COMPONENTS+1> m_entityComponentSignatures[MAX_NUM_ENTITIES] = {0 };
 
-        // Vector storing the components required for each system, last bit is to indicate that the system is active.
+        /// Vector storing the components required for each system, last bit is to indicate that the system is active.
         std::bitset<MAX_COMPONENTS+1> m_systemComponentSignatures[MAX_NUM_ENTITIES] = {0 };
 
 	protected:

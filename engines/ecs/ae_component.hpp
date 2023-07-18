@@ -33,24 +33,25 @@ namespace ae_ecs {
 
 		void useComponent(ecs_id t_entityId, T t_entityComponentData) {
             m_componentManager.setEntityComponentSignature(t_entityId, m_componentId);
-			updateData(t_entityId, t_entityComponentData);
+            updateComponentData(t_entityId, t_entityComponentData);
 			// TODO: If the entity has been enabled alert system manager that this entity uses this component.
 		};
 
 		void removeComponent(ecs_id t_entityId) {
             m_componentManager.unsetEntityComponentSignature(t_entityId, m_componentId);
+            // TODO: When an entity is destroyed ensure that it cleans up it's component signature to prevent conflicts
 			// TODO: Alert system manager that this entity no longer uses this component.
 		};
 
 		// Update component data for a specific entity
-		void updateData(ecs_id t_index, T t_entityComponentData) {
+		void updateComponentData(ecs_id t_index, T t_entityComponentData) {
 			// Check that an entity has actually registered that it uses the component before 
-			// updating it's data to ensure data will not collide
+			// updating its data to ensure data will not collide
 			m_componentManager.isComponentUsed(t_index, this->m_componentId);
 			m_componentData[t_index] = t_entityComponentData;
 		};
 
-		// Get data for a specific entitiy
+		// Get data for a specific entity
 		T getData(ecs_id t_index) {
 			return m_componentData[t_index];
 		};
@@ -66,7 +67,7 @@ namespace ae_ecs {
 
 	};
 
-	// When a derivitive of the AeComponent class is defined the type ID will be set for the derivative class
+	// When a derivative of the AeComponent class is defined the type ID will be set for the derivative class
 	template <class T>
 	const ecs_id AeComponent<T>::m_componentTypeId = AeComponentManager::allocateComponentTypeId<T>();
 }
