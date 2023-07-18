@@ -54,7 +54,7 @@ namespace ae_ecs {
 		AeComponentManager& m_componentManager;
 	};
 
-	// When a derivitive of the AeEntity class is defined the type ID will be set for the derivative class
+	// When a derivative of the AeEntity class is defined the type ID will be set for the derivative class
 	template <class T>
 	const ecs_id AeEntity<T>::m_entityTypeId = AeEntityManager::allocateEntityTypeId<T>();
 

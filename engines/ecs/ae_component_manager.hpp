@@ -44,6 +44,7 @@ namespace ae_ecs {
         /// \param t_componentId The ID of the component to be added as used for the entity.
 		void setEntityComponentSignature(ecs_id t_entityId, ecs_id t_componentId) {
 			m_entityComponentSignatures[t_entityId].set(t_componentId);
+            // TODO: When the entity sets a component, and is live, force the component manager to update applicable systems lists of valid entities to act upon
 		};
 
         /// A function that unsets the field in the entity component signature corresponding to the specific component.
@@ -51,6 +52,7 @@ namespace ae_ecs {
         /// \param t_componentId The ID of the component to be removed as used for the entity.
 		void unsetEntityComponentSignature(ecs_id t_entityId, ecs_id t_componentId) {
 			m_entityComponentSignatures[t_entityId].reset(t_componentId);
+            // TODO: When the entity removes a component force the component manager to update applicable systems lists of valid entities to act upon
 		};
 
         ///  A function that sets the field in the system component signature corresponding to the specific component.
@@ -79,15 +81,21 @@ namespace ae_ecs {
 		/// \param t_entityId The ID of the entity
 		void enableEntity(ecs_id t_entityId) {
 			m_entityComponentSignatures[t_entityId].set(MAX_COMPONENTS);
-			// TODO: Alert system manager that this entity is now enabled.
-		};
+            // TODO: When the entity is set live, force the component manager to update applicable systems lists of valid entities to act upon
+        };
 
 		/// Disables entity from be acted upon by systems
 		/// \param t_entityId The ID of the entity
 		void disableEntity(ecs_id t_entityId) {
 			m_entityComponentSignatures[t_entityId].reset(MAX_COMPONENTS);
-			// TODO: Alert system manager that this entity is now disabled.
+            // TODO: When the entity is disabled, force the component manager to update applicable systems lists of valid entities to act upon
 		};
+
+        /// Compares system component signatures to the entity component signatures and returns a list of valid entities
+        /// to the systems to act upon.
+        void updateSystemsEntities() {
+            // TODO: Create a class that compares system component signatures to the entity component signatures and returns a list of valid entities to the systems to act upon.
+        }
 
 		/// Function to allocate an ID to a specific component class so every component spawned from that class can be identified.
 		/// \tparam T The component class being allocated an ID.
