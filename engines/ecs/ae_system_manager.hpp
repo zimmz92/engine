@@ -1,11 +1,6 @@
-// TODO: Responsible for ensuring systems are executed in the proper order, handing out system IDs
-
-/*! \file ae_system_manager.hpp
-    \brief The script defining the system manager.
-
-    The system manager is defined.
-
-*/
+/// \file ae_system_manager.hpp
+/// \brief The script defining the system manager.
+/// The system manager is defined. Responsible for ensuring systems are executed in the proper order, handing out system IDs
 #pragma once
 
 #include "ae_ecs_constants.hpp"
@@ -17,6 +12,7 @@
 
 namespace ae_ecs {
 
+    /// A class that is used to register, prioritize, and run systems.
     class AeSystemManager {
 
         /// component type ID counter variable
@@ -24,10 +20,18 @@ namespace ae_ecs {
 
     public:
 
+        /// Create the system manager and initialize the system ID stack.
         AeSystemManager();
+
+        /// Destroy the system manager.
         ~AeSystemManager();
 
+        /// Release the system ID and put it back on the top of the stack.
+        /// \param t_systemId The system ID to be released.
         void releaseSystemId(ecs_id t_systemId);
+
+        /// Assign a system ID by taking the next available off the stack.
+        /// \return A system ID.
         ecs_id allocateSystemId();
 
         ///  A function that sets the field in the system dependency signature corresponding to required predecessor system.

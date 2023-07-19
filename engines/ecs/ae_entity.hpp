@@ -1,9 +1,6 @@
-/*! \file ae_entity.hpp
-    \brief The script defining the template entity class.
-
-    The template entity class is defined.
-
-*/
+/// \file ae_entity.hpp
+/// \brief The script defining the template entity class.
+/// The template entity class is defined.
 #pragma once
 
 #include "ae_ecs_constants.hpp"

@@ -1,9 +1,6 @@
-/*! \file ae_system.hpp
-    \brief The script defining the template system class.
-
-    The template system class is defined.
-
-*/
+/// \file ae_system.hpp
+/// \brief The script defining the template system class.
+/// The template system class is defined.
 #pragma once
 
 #include "ae_ecs_constants.hpp"

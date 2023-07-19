@@ -1,3 +1,6 @@
+/// \file ae_entity_manager.hpp
+/// \brief The script defining the entity manager.
+/// The entity manager is defined.
 #pragma once
 
 #include "ae_ecs_constants.hpp"
@@ -5,29 +8,32 @@
 #include <cstdint>
 #include <stack>
 
-/*
- The entity manager is responsible for:
-	- Allocation/Deallocation of entity IDs
-	- Allocation and tracking of entity types
-	- Limiting the total number of entities
-
-	- TODO make maximum number of allowed entities could be based off hardware and user settings
-*/
-
 namespace ae_ecs {
 
+    /// A class that is used to register and track entities.
+    //TODO make maximum number of allowed entities could be based off hardware and user settings
 	class AeEntityManager {
 
-		// entity type ID counter variable
+		/// Entity type ID counter variable
 		static inline ecs_id entityTypeIdCount = 0;
 
 	public:
 
+        /// Create the entity manager and initialize the entity ID stack.
 		AeEntityManager();
+
+        /// Destroy the entity manager.
 		~AeEntityManager();
 
-		void releaseEntityId(ecs_id t_value);
+        /// Retract the ID from an entity and put it back on top of the stack.
+        /// \param t_entityId The entity ID to be released.
+		void releaseEntityId(ecs_id t_entityId);
+
+        /// Assign an entity ID by taking the next available off the stack.
+        /// \return A entity ID.
 		ecs_id allocateEntityId();
+
+
 		ecs_id getNumEntitiesAvailable() { return m_entityIdStackTop + 1; };
 		bool* getLivingEntities() { return m_livingEntities; };
 

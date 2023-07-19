@@ -1,9 +1,6 @@
-/*! \file ae_component.hpp
-    \brief The script defining the template component class.
-
-    The template component class is defined.
-
-*/
+/// \file ae_component.hpp
+/// \brief The script defining the template component class.
+/// The template component class is defined.
 #pragma once
 
 #include "ae_ecs_constants.hpp"

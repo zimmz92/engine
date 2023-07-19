@@ -1,9 +1,6 @@
-/*! \file ae_component_manager.hpp
-    \brief The script defining the component manager.
-
-    The component manager is defined.
-
-*/
+/// \file ae_component_manager.hpp
+/// \brief The script defining the component manager.
+/// The component manager is defined.
 #pragma once
 
 #include "ae_ecs_constants.hpp"
@@ -15,6 +12,7 @@
 
 namespace ae_ecs {
 
+    /// A class that is used to register and organize components and correlate them to entities and systems.
 	class AeComponentManager {
 
 		/// component type ID counter variable
@@ -22,10 +20,18 @@ namespace ae_ecs {
 
 	public:
 
+        /// Create the component manager and initialize the component ID stack.
 		AeComponentManager();
+
+        /// Destroy the component manager.
 		~AeComponentManager();
 
+        /// Release the component ID and put it back on the top of the stack.
+        /// \param t_componentId The component ID to be released.
 		void releaseComponentId(ecs_id t_componentId);
+
+        /// Assign a component ID by taking the next available off the stack.
+        /// \return A component ID.
 		ecs_id allocateComponentId();
 
         /// Gets the number of components that have not been allocated from the stack and are therefore available for
@@ -36,7 +42,9 @@ namespace ae_ecs {
         /// Gets the component signature for an entity.
         /// \param t_entityId The ID of the entity.
         /// \return A bitset array that indicates the components utilized by an entity.
-		std::bitset<MAX_NUM_COMPONENTS + 1>  getComponentSignature(ecs_id t_entityId) {	return m_entityComponentSignatures[t_entityId]; };
+		std::bitset<MAX_NUM_COMPONENTS + 1>  getComponentSignature(ecs_id t_entityId) {
+            return m_entityComponentSignatures[t_entityId];
+        };
 
         ///  A function that sets the field in the entity component signature corresponding to the specific component.
         /// \param t_entityId  The ID of the entity.
@@ -54,19 +62,22 @@ namespace ae_ecs {
             // TODO: When the entity removes a component force the component manager to update applicable systems lists of valid entities to act upon
 		};
 
-        /// Enables entity from be acted upon by systems
+        /// Enables entity allowing it to be acted upon by systems
         /// \param t_entityId The ID of the entity
         void enableEntity(ecs_id t_entityId) {
             m_entityComponentSignatures[t_entityId].set(MAX_NUM_COMPONENTS);
             // TODO: When the entity is set live, force the component manager to update applicable systems lists of valid entities to act upon
         };
 
-        /// Disables entity from be acted upon by systems
+        /// Disables entity preventing it from being acted upon by systems
         /// \param t_entityId The ID of the entity
         void disableEntity(ecs_id t_entityId) {
             m_entityComponentSignatures[t_entityId].reset(MAX_NUM_COMPONENTS);
             // TODO: When the entity is disabled, force the component manager to update applicable systems lists of valid entities to act upon
         };
+
+
+        void removeEntity(ecs_id t_entityId);
 
         /// Checks to see if an entity uses a component.
         /// \param t_entityId The ID of the entity

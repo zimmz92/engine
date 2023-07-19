@@ -1,10 +1,13 @@
+/// \file ae_system_manager.cpp
+/// \brief The script implementing the system manager class.
+/// The system manager class is implemented.
 #include "ae_system_manager.hpp"
 
 #include <stdexcept>
 
 namespace ae_ecs {
 
-    /// Create the system manager and initialize the system ID stack.
+    // Create the system manager and initialize the system ID stack.
     AeSystemManager::AeSystemManager() {
         // Initialize the system ID array with all allowed system IDs
         for (ecs_id i = 0; i < MAX_NUM_SYSTEMS; i++) {
@@ -12,11 +15,11 @@ namespace ae_ecs {
         }
     };
 
-    /// Destroy the system manager.
+    // Destroy the system manager.
     AeSystemManager::~AeSystemManager() {};
 
-    /// Release the system ID and put it back on the top of the stack.
-    /// \param t_systemId The system ID to be released.
+    // Release the system ID by incrementing the top of stack pointer and putting the system ID being released
+    // at that location.
     void AeSystemManager::releaseSystemId(ecs_id t_systemId) {
         if (m_systemIdStackTop >= MAX_NUM_SYSTEMS - 1) {
             throw std::runtime_error("Entity ID Stack Overflow!");
@@ -27,8 +30,8 @@ namespace ae_ecs {
         }
     };
 
-    /// Assign a system ID by taking the next available off the stack.
-    /// \return A system ID.
+    // Allocate a system ID by popping the system ID off the stack, indicated by the top of stack pointer, then
+    // decrementing the top of stack pointer to point to the next available system ID.
     ecs_id AeSystemManager::allocateSystemId() {
         if (m_systemIdStackTop <= -1) {
             throw std::runtime_error("Entity ID Stack Underflow! No more system IDs to give out!");
