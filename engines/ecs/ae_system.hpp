@@ -22,11 +22,13 @@ namespace ae_ecs {
 
     public:
 
-        /// Function to create the system using the default system manager
-        AeSystem() : AeSystem(ecsSystemManager) {};
+        /// Function to create the system using the default system and component managers of the ecs engine
+        AeSystem() : AeSystem(ecsComponentManager, ecsSystemManager) {};
 
         /// Function to create the system defining a specific system manager
-        explicit AeSystem(AeSystemManager& t_systemManager) : m_systemManager{ t_systemManager} {
+        /// \param t_componentManager The component manager that this system will be interacting with.
+        /// \param t_systemManager The system manager that will manage this system.
+        explicit AeSystem(AeComponentManager& t_componentManager, AeSystemManager& t_systemManager) : m_componentManager{ t_componentManager}, m_systemManager{ t_systemManager} {
             // Get an ID for the system from the system manager
             m_systemId = m_systemManager.allocateSystemId();
         };
@@ -72,6 +74,9 @@ namespace ae_ecs {
 
         /// An integer representing the number of systemManager ticks to wait between system execution. 0 = every tick.
         ecs_systemInterval m_systemInterval = 0;
+
+        /// Pointer to the component manager
+        AeComponentManager& m_componentManager;
 
         /// Pointer to the system manager
         AeSystemManager& m_systemManager;

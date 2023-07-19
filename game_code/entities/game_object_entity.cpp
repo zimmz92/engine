@@ -6,12 +6,14 @@
 
 namespace ae {
 
-	GameObjectEntity::GameObjectEntity(modelComponentStructure t_modelComponentDefinition, glm::vec3 t_worldPosition) : AeEntity(ae_ecs::ecsEntityManager) {
+	GameObjectEntity::GameObjectEntity(modelComponentStructure t_modelComponentDefinition, worldPosition t_worldPosition) : AeEntity() {
         worldPositionComponent.requiredByEntity(this->m_entityId, t_worldPosition);
         modelComponent.requiredByEntity(this->m_entityId, t_modelComponentDefinition);
 
 		ae_ecs::ecsComponentManager.enableEntity(this->m_entityId);
 	};
 
-    GameObjectEntity::~GameObjectEntity() = default;
+    GameObjectEntity::~GameObjectEntity() {
+
+    };
 }

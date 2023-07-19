@@ -15,25 +15,23 @@ void test_ecs() {
         double mass;
     };
 
-    ae_ecs::AeComponent<testComponentStruct> liveTestComponentStruct(ae_ecs::ecsComponentManager);
+    ae_ecs::AeComponent<testComponentStruct> liveTestComponentStruct;
 
     ae_ecs::AeEntityManager testEntityManager;
 
     class TestEntityClassA : public ae_ecs::AeEntity<TestEntityClassA> {
     public:
         using ae_ecs::AeEntity<TestEntityClassA>::AeEntity;
-        ~TestEntityClassA() {};
     };
 
     class TestEntityClassB : public ae_ecs::AeEntity<TestEntityClassB> {
     public:
         using ae_ecs::AeEntity<TestEntityClassB>::AeEntity;
-        ~TestEntityClassB() {};
     };
 
-    TestEntityClassA TestEntityA( testEntityManager);
-    TestEntityClassB TestEntityB( testEntityManager);
-    TestEntityClassB TestEntityBTwo( testEntityManager);
+    TestEntityClassA TestEntityA;
+    TestEntityClassB TestEntityB;
+    TestEntityClassB TestEntityBTwo;
 
     liveTestComponentStruct.updateData(TestEntityA.getEntityId(), {1, 2, 3, 4, 5});
     liveTestComponentStruct.updateData(TestEntityB.getEntityId(), {6, 7, 8, 9, 10});

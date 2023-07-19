@@ -31,7 +31,7 @@ namespace ae {
     class modelComponentClass : public ae_ecs::AeComponent<modelComponentStructure> {
     public:
         /// The modelComponentClass constructor uses the AeComponent constructor with no additions.
-        modelComponentClass(ae_ecs::AeComponentManager& t_componentManager) : AeComponent(t_componentManager) {};
+        modelComponentClass() : AeComponent() {};
 
         ///  The destructor of the modelComponent class. The modelComponentClass destructor uses the AeComponent
         /// constructor with no additions.
@@ -44,5 +44,5 @@ namespace ae {
     };
 
     /// The instantiation of the model component for use by the game.
-    inline modelComponentClass modelComponent(ae_ecs::ecsComponentManager);
+    inline modelComponentClass modelComponent;
 }
