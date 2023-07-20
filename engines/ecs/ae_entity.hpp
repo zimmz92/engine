@@ -5,7 +5,6 @@
 
 #include "ae_ecs_constants.hpp"
 #include "ae_entity_manager.hpp"
-#include "ae_component_manager.hpp"
 
 #include <cstdint>
 #include <vector>
@@ -24,20 +23,18 @@ namespace ae_ecs {
 	public:
 
         /// Function to create the entity using the default entity and component managers of the ecs engine
-        AeEntity() : AeEntity(ecsEntityManager, ecsComponentManager) {};
+        AeEntity() : AeEntity(ecsEntityManager) {};
 
 		/// Function to create an entity and specify the specific manager for the entity
 		/// \param t_entityManager The entity manager that will manage this entity.
-		/// \param t_componentManager The component manager that will be managing the data of this entity.
-        explicit AeEntity( AeEntityManager& t_entityManager, AeComponentManager& t_componentManager) : m_entityManager{ t_entityManager }, m_componentManager{ t_componentManager } {
+        explicit AeEntity( AeEntityManager& t_entityManager) : m_entityManager{ t_entityManager } {
 			m_entityId = m_entityManager.allocateEntityId();
 		};
 
 		/// Function to destroy an entity. Alerts the component manager that an entity is being destroyed to ensure the
 		/// component signature is properly reset.
 		~AeEntity() {
-            // TODO: When an entity is destroyed ensure that it cleans up it's component signature to prevent conflicts by alerting the component manager.
-            m_entityManager.releaseEntityId(m_entityId);
+            m_entityManager.destroyEntity(m_entityId);
         };
 
 		/// Do not allow this class to be copied (2 lines below)
@@ -56,6 +53,11 @@ namespace ae_ecs {
         /// \return The type ID of the entity.
 		ecs_id getEntityTypeId() const { return m_entityTypeId; }
 
+        /// Enables entity allowing it to be acted upon by systems
+        void enableEntity() {
+            m_entityManager.enableEntity(m_entityId);
+        };
+
 	private:
 
 		
@@ -66,9 +68,6 @@ namespace ae_ecs {
 
 		/// Pointer to the entity manager
 		AeEntityManager& m_entityManager;
-
-        /// Pointer to the component manager
-        AeComponentManager& m_componentManager;
 
 	};
 

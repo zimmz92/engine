@@ -69,7 +69,7 @@ namespace ae_ecs {
         bool isComponentUsed(ecs_id t_entityId, ecs_id t_componentId);
 
         /// TODO: Document the usage of this function
-        void removeEntity(ecs_id t_entityId);
+        void destroyEntity(ecs_id t_entityId);
 
         ///  A function that sets the field in the system component signature corresponding to the specific component.
         /// \param t_systemId The ID of the system.
@@ -93,7 +93,11 @@ namespace ae_ecs {
 		/// \tparam T The component class being allocated an ID.
 		/// \return The component class ID.
 		template <class T>
-		static const ecs_id allocateComponentTypeId();
+		static ecs_id allocateComponentTypeId() {
+            //  Give each component class a unique type ID at runtime and increment the counter used generate the unique IDs.
+            static const ecs_id staticTypeId{ componentIdCount++ };
+            return staticTypeId;
+        };
 
 	private:
 
@@ -115,6 +119,5 @@ namespace ae_ecs {
 
 	};
 
-    /// Declare the default component manager for the ecs.
     inline AeComponentManager ecsComponentManager;
 }

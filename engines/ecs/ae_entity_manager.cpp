@@ -8,12 +8,14 @@
 namespace ae_ecs {
 
 	// Create the component manager and initialize the entity ID stack.
-	AeEntityManager::AeEntityManager() {
+	AeEntityManager::AeEntityManager(AeComponentManager& t_componentManager) : m_componentManager{t_componentManager} {
 		// Initialize the entity ID array with all allowed entity IDs
 		for (ecs_id i = 0; i < MAX_NUM_ENTITIES; i++) {
 			releaseEntityId(MAX_NUM_ENTITIES - 1 - i);
 		}
 	};
+
+
 
 	// Destroy the entity manager.
 	AeEntityManager::~AeEntityManager() {};
@@ -33,6 +35,8 @@ namespace ae_ecs {
 		}
 	};
 
+
+
     // Allocate an entity ID by popping the entity ID off the stack, indicated by the top of stack pointer, then
     // decrementing the top of stack pointer to point to the next available entity ID.
     ecs_id AeEntityManager::allocateEntityId() {
@@ -49,19 +53,34 @@ namespace ae_ecs {
     };
 
 
+
+    // Tell the component manager that this entity has been enabled.
+    void AeEntityManager::enableEntity(ecs_id t_entityId) {
+        m_componentManager.enableEntity(t_entityId);
+    };
+
+
+
+    // Tell the component manager that this entity has been enabled.
+    void AeEntityManager::disableEntity(ecs_id t_entityId) {
+        m_componentManager.disableEntity(t_entityId);
+    };
+
+
+
+    // Free up the entity ID and ensure the component manager cleans up entity data appropriately.
+    void AeEntityManager::destroyEntity(ecs_id t_entityId){
+        m_componentManager.destroyEntity(t_entityId);
+        releaseEntityId(t_entityId);
+    };
+
+
     // Gets the number of available entities that can be allocated by returning the current value of the top of stack
     // pointer and adding one since the stack array starts at 0.
     ecs_id AeEntityManager::getNumEntitiesAvailable() { return m_entityIdStackTop + 1; };
 
 
+
     // Returns the variable that tracks the number of living entities.
-    bool* AeEntityManager::getLivingEntities() { return m_livingEntities; };
-
-
-    //  Give each entity class a unique type ID at runtime and increment the counter used generate the unique IDs.
-    template <class T>
-    const ecs_id AeEntityManager::allocateEntityTypeId() {
-        static const ecs_id staticTypeId{ entityTypeIdCount++ };
-        return staticTypeId;
-    };
+    bool* AeEntityManager::getEnabledEntities() { return m_livingEntities; };
 }

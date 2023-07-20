@@ -33,7 +33,7 @@ namespace ae {
         /// The modelComponentClass constructor uses the AeComponent constructor with no additions.
         modelComponentClass() : AeComponent() {};
 
-        ///  The destructor of the modelComponent class. The modelComponentClass destructor uses the AeComponent
+        /// The destructor of the modelComponent class. The modelComponentClass destructor uses the AeComponent
         /// constructor with no additions.
         ~modelComponentClass() {};
 

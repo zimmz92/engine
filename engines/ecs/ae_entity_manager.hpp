@@ -4,6 +4,7 @@
 #pragma once
 
 #include "ae_ecs_constants.hpp"
+#include "ae_component_manager.hpp"
 
 #include <cstdint>
 #include <stack>
@@ -20,7 +21,8 @@ namespace ae_ecs {
 	public:
 
         /// Create the entity manager and initialize the entity ID stack.
-		AeEntityManager();
+        /// \param t_componentManager The component manager the entity manager works with.
+		explicit AeEntityManager(AeComponentManager& t_componentManager);
 
         /// Destroy the entity manager.
 		~AeEntityManager();
@@ -33,35 +35,55 @@ namespace ae_ecs {
         /// \return A entity ID.
 		ecs_id allocateEntityId();
 
+        /// Enables entity allowing it to be acted upon by systems
+        /// \param t_entityId The entity ID to be enabled.
+        void enableEntity(ecs_id t_entityId);
+
+        /// Disables the entity preventing systems from acting upon it
+        /// \param t_entityId The entity ID to be disabled.
+        void disableEntity(ecs_id t_entityId);
+
+        /// Destroys an entity and ensures to clean everything up
+        void destroyEntity(ecs_id t_entityId);
+
         /// Gets the number of entities that have not been allocated from the stack and are therefore available for
         /// use.
         /// \return Number of entities still available to be used.
 		ecs_id getNumEntitiesAvailable();
 
-        /// Gets the number of entities that are currently "alive".
-        /// \return Number of entities that are living.
+        /// Gets the number of entities that are currently enabled.
+        /// \return Number of entities that are enabled.
         // TODO: Does this still make sense and is it still useful?
-		bool* getLivingEntities();
+		bool* getEnabledEntities();
 
         /// Function to allocate an ID to a specific entity class so every entity spawned from that class can be identified.
         /// \tparam T The entity class being allocated an ID.
         /// \return The entity class ID.
 		template <class T>
-		static const ecs_id allocateEntityTypeId();
+		static ecs_id allocateEntityTypeId(){
+            //  Give each entity class a unique type ID at runtime and increment the counter used generate the unique IDs.
+            static const ecs_id staticTypeId{ entityTypeIdCount++ };
+            return staticTypeId;
+        };
 
 	private:
 
 		/// This is the entity ID stack
 		ecs_id m_entityIdStack[MAX_NUM_ENTITIES];
+
 		/// Tracks the current top of the entity ID stack
 		ecs_id m_entityIdStackTop = -1;
+
 		/// Tracks which entities are currently "still alive"
 		bool m_livingEntities[MAX_NUM_ENTITIES] = { false };
+
+        /// The component manager the entity manager works with
+        AeComponentManager& m_componentManager;
 
 	protected:
 
 	};
 
     /// Declare the default entity manager for the ecs.
-    inline AeEntityManager ecsEntityManager;
+    inline AeEntityManager ecsEntityManager(ecsComponentManager);
 }

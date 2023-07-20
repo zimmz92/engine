@@ -4,6 +4,7 @@
 #pragma once
 
 #include "ae_ecs_constants.hpp"
+#include "ae_component_manager.hpp"
 
 #include <cstdint>
 #include <bitset>

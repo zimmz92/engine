@@ -4,9 +4,7 @@
 #pragma once
 
 #include "ae_ecs_constants.hpp"
-#include "ae_entity_manager.hpp"
 #include "ae_component_manager.hpp"
-#include "ae_system_manager.hpp"
 
 #include <cstdint>
 
@@ -22,14 +20,12 @@ namespace ae_ecs {
 	public:
 
         /// Function to create the entity using the default entity, component, and system managers of the ecs engine
-        AeComponent() : AeComponent(ecsEntityManager, ecsComponentManager, ecsSystemManager) {};
+        AeComponent() : AeComponent(ecsComponentManager) {};
 
         /// Function to create a component, specify the specific manager for the component, and allocate memory for the
         /// component data.
-        /// \param t_entityManager The entity manager that will manage the entities keeping data within this component.
         /// \param t_componentManager The component manager that will manage this component.
-        /// \param t_systemManager The system manager that will manage the systems using or acting upon this component.
-		explicit AeComponent(AeEntityManager& t_entityManager,AeComponentManager& t_componentManager, AeSystemManager& t_systemManager) : m_entityManager{ t_entityManager }, m_componentManager{ t_componentManager }, m_systemManager{ t_systemManager } {
+		explicit AeComponent(AeComponentManager& t_componentManager) : m_componentManager{ t_componentManager } {
             // Get an ID for the component from the component manager
 			m_componentId = m_componentManager.allocateComponentId();
 
@@ -107,15 +103,8 @@ namespace ae_ecs {
         /// ID for the unique component created
         ecs_id m_componentId;
 
-        /// Pointer to the entity manager
-        AeEntityManager& m_entityManager;
-
 		/// Pointer to the component manager
 		AeComponentManager& m_componentManager;
-
-        /// Pointer to the system manager
-        AeSystemManager& m_systemManager;
-
 	};
 
 	/// When a derivative of the AeComponent class is defined the type ID will be set for the derivative class

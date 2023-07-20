@@ -17,8 +17,6 @@ void test_ecs() {
 
     ae_ecs::AeComponent<testComponentStruct> liveTestComponentStruct;
 
-    ae_ecs::AeEntityManager testEntityManager;
-
     class TestEntityClassA : public ae_ecs::AeEntity<TestEntityClassA> {
     public:
         using ae_ecs::AeEntity<TestEntityClassA>::AeEntity;
