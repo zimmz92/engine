@@ -44,7 +44,7 @@ namespace ae_ecs {
 
 	// Gets the number of available components that can be allocated by returning the current value of the top of stack
 	// pointer and adding one since the stack array starts at 0.
-	ecs_id AeComponentManager::getAvailableComponents() {
+	ecs_id AeComponentManager::getNumAvailableComponents() {
 		return m_componentIdStackTop + 1;
 	};
 
@@ -111,7 +111,7 @@ namespace ae_ecs {
 
 	};
 
-	//  TODO: Document the implementation
+	//  Give each component class a unique type ID at runtime and increment the counter used generate the unique IDs.
 	template <class T>
 	const ecs_id AeComponentManager::allocateComponentTypeId() {
 		static const ecs_id staticTypeId{ componentIdCount++ };

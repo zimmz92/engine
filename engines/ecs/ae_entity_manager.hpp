@@ -33,29 +33,35 @@ namespace ae_ecs {
         /// \return A entity ID.
 		ecs_id allocateEntityId();
 
+        /// Gets the number of entities that have not been allocated from the stack and are therefore available for
+        /// use.
+        /// \return Number of entities still available to be used.
+		ecs_id getNumEntitiesAvailable();
 
-		ecs_id getNumEntitiesAvailable() { return m_entityIdStackTop + 1; };
-		bool* getLivingEntities() { return m_livingEntities; };
+        /// Gets the number of entities that are currently "alive".
+        /// \return Number of entities that are living.
+        // TODO: Does this still make sense and is it still useful?
+		bool* getLivingEntities();
 
-		// Function to allocate an ID to a specific entity class so every entity spawned from that class can be identifed.
+        /// Function to allocate an ID to a specific entity class so every entity spawned from that class can be identified.
+        /// \tparam T The entity class being allocated an ID.
+        /// \return The entity class ID.
 		template <class T>
-		static const ecs_id allocateEntityTypeId() {
-			static const ecs_id staticTypeId{ entityTypeIdCount++ };
-			return staticTypeId;
-		};
+		static const ecs_id allocateEntityTypeId();
 
 	private:
 
-		// This is the entity ID stack
+		/// This is the entity ID stack
 		ecs_id m_entityIdStack[MAX_NUM_ENTITIES];
-		// Tracks the current top of the entity ID stack
+		/// Tracks the current top of the entity ID stack
 		ecs_id m_entityIdStackTop = -1;
-		// Tracks which entities are currently "still alive"
+		/// Tracks which entities are currently "still alive"
 		bool m_livingEntities[MAX_NUM_ENTITIES] = { false };
 
 	protected:
 
 	};
 
+    /// Declare the default entity manager for the ecs.
     inline AeEntityManager ecsEntityManager;
 }

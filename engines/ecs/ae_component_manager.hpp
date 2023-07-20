@@ -37,7 +37,7 @@ namespace ae_ecs {
         /// Gets the number of components that have not been allocated from the stack and are therefore available for
         /// use.
         /// \return Number of components still available to be used.
-		ecs_id getAvailableComponents();
+		ecs_id getNumAvailableComponents();
 
         /// Gets the component signature for an entity.
         /// \param t_entityId The ID of the entity.
@@ -115,5 +115,6 @@ namespace ae_ecs {
 
 	};
 
+    /// Declare the default component manager for the ecs.
     inline AeComponentManager ecsComponentManager;
 }

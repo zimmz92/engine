@@ -47,4 +47,21 @@ namespace ae_ecs {
             return allocatedId;
         }
     };
+
+
+    // Gets the number of available entities that can be allocated by returning the current value of the top of stack
+    // pointer and adding one since the stack array starts at 0.
+    ecs_id AeEntityManager::getNumEntitiesAvailable() { return m_entityIdStackTop + 1; };
+
+
+    // Returns the variable that tracks the number of living entities.
+    bool* AeEntityManager::getLivingEntities() { return m_livingEntities; };
+
+
+    //  Give each entity class a unique type ID at runtime and increment the counter used generate the unique IDs.
+    template <class T>
+    const ecs_id AeEntityManager::allocateEntityTypeId() {
+        static const ecs_id staticTypeId{ entityTypeIdCount++ };
+        return staticTypeId;
+    };
 }

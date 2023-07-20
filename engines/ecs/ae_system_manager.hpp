@@ -37,30 +37,20 @@ namespace ae_ecs {
         ///  A function that sets the field in the system dependency signature corresponding to required predecessor system.
         /// \param t_systemId The ID of the system.
         /// \param t_predecessorSystemId The ID of the system in which the system specified by t_systemId is dependent on.
-        void setSystemDependencySignature(ecs_id t_systemId, ecs_id t_predecessorSystemId) {
-            m_systemDependencySignatures[t_systemId].set(t_predecessorSystemId);
-        };
+        void setSystemDependencySignature(ecs_id t_systemId, ecs_id t_predecessorSystemId);
 
         ///  A function that unsets the field in the system dependency signature corresponding to required predecessor system.
         /// \param t_systemId The ID of the system.
         /// \param t_predecessorSystemId The ID of the system in which the system specified by t_systemId was dependent on.
-        void unsetSystemDependencySignature(ecs_id t_systemId, ecs_id t_predecessorSystemId) {
-            m_systemDependencySignatures[t_systemId].reset(t_predecessorSystemId);
-        };
+        void unsetSystemDependencySignature(ecs_id t_systemId, ecs_id t_predecessorSystemId);
 
         /// Enables management of the system
         /// \param t_systemId The ID of the system
-        void enableSystem(ecs_id t_systemId) {
-            m_systemDependencySignatures[t_systemId].set(MAX_NUM_SYSTEMS);
-            // TODO: When the entity is set live, force the component manager to update applicable systems lists of valid entities to act upon
-        };
+        void enableSystem(ecs_id t_systemId);
 
         /// Disables system from be being managed
         /// \param t_systemId The ID of the system
-        void disableSystem(ecs_id t_systemId) {
-            m_systemDependencySignatures[t_systemId].reset(MAX_NUM_SYSTEMS);
-            // TODO: When the entity is disabled, force the component manager to update applicable systems lists of valid entities to act upon
-        };
+        void disableSystem(ecs_id t_systemId);
 
     private:
 
@@ -78,5 +68,6 @@ namespace ae_ecs {
 
     };
 
+    /// Declare the default system manager for the ecs.
     inline AeSystemManager ecsSystemManager;
 }
