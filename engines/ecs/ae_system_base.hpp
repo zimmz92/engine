@@ -43,29 +43,45 @@ namespace ae_ecs {
 
         /// Register system dependencies with the system manager
         /// \param t_predecessorSystemId The system ID that this system requires to operate prior to its own operation.
-        void registerDependency(ecs_id t_predecessorSystemId);
+        void registerSystemDependency(ecs_id t_predecessorSystemId);
 
         /// Get the frequency in which the system should run
-        ecs_systemInterval getSystemInterval() const;
+        ecs_systemInterval getExecutionInterval() const;
 
         /// Specify the frequency in which the system runs, for instance an object clean-up system may not run every frame
         /// \param t_systemInterval An integer representing the number of systemManager ticks to wait between system execution. 0 = every tick.
-        void setSystemInterval(ecs_systemInterval t_systemInterval);
+        void setExecutionInterval(ecs_systemInterval t_systemInterval);
+
+        /// Enables this system. Tells the system manager that this system should execute.
+        void enableSystem();
+
+        /// Disables this system. Tells the system manager that this system should no longer execute.
+        void disableSystem();
+
+        /// Tells the system manager that this system depends on another system to execute prior to it's own execution.
+        /// \param t_systemId The system ID of the system that this system requires as a predecessor. Systems are
+        /// assumed to be independent of other systems by default.
+        void dependsOnSystem(ecs_id t_systemId);
+
+        /// Tells the system manager that this system no longer depends on another system to execute prior to it's own
+        /// execution. Systems are assumed to be independent of other systems by default.
+        /// \param t_systemId The system ID of the system that this system no longer requires as a predecessor.
+        void independentOfSystem(ecs_id t_systemId);
 
         /// Implements any setup required before executing the main functionality of the system.
         /// This is intentionally left empty for a derivative class to override but allow the system manager to access
         /// this function.
-        virtual void systemSetup(){};
+        virtual void setupSystem(){};
 
         /// Implements the main functionality of the system.
         /// This is intentionally left empty for a derivative class to override but allow the system manager to access
         /// this function.
-        virtual void systemRun(){};
+        virtual void executeSystem(){};
 
         /// Implements any processing or cleanup required after the execution of the main functionality of the system.
         /// This is intentionally left empty for a derivative class to override but allow the system manager to access
         /// this function.
-        virtual void systemCleanup(){};
+        virtual void cleanupSystem(){};
 
     private:
 
@@ -75,7 +91,7 @@ namespace ae_ecs {
         ecs_id m_systemId;
 
         /// An integer representing the number of systemManager ticks to wait between system execution. 0 = every tick.
-        ecs_systemInterval m_systemInterval = 0;
+        ecs_systemInterval m_executionInterval = 0;
 
         /// Pointer to the system manager
         AeSystemManager& m_systemManager;

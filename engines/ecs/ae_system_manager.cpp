@@ -23,7 +23,7 @@ namespace ae_ecs {
 
 
 
-
+    // Give the system an ID and inform the component manager that a new system exists.
     ecs_id AeSystemManager::registerSystem(){
         ecs_id new_system_id = allocateSystemId();
         m_componentManager.registerSystem(new_system_id);
@@ -77,7 +77,7 @@ namespace ae_ecs {
 
     // Orders the currently enabled systems to ensure they are executed in the proper order.
     // TODO: Implement
-    void orderSystems() {
+    void AeSystemManager::orderSystems() {
 
     };
 
@@ -87,9 +87,9 @@ namespace ae_ecs {
     void AeSystemManager::runSystems(){
         // Loop through the enabled systems
         for(auto & m_System : m_enabledSystems){
-            m_System.second->systemSetup();
-            m_System.second->systemRun();
-            m_System.second->systemCleanup();
+            m_System.second->setupSystem();
+            m_System.second->executeSystem();
+            m_System.second->cleanupSystem();
         };
     };
 

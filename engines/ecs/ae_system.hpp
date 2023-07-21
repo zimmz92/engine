@@ -28,23 +28,19 @@ namespace ae_ecs {
         explicit AeSystem(AeSystemManager& t_systemManager) : AeSystemBase(t_systemManager) {};
 
         /// Function to destroy the system
-        ~AeSystem() {
-            m_systemManager.releaseSystemId(m_systemId);
-        };
-
-
+        ~AeSystem() {};
 
         /// Implements any setup required before executing the main functionality of the system.
         /// This is intentionally left empty for the actual system implementation to override.
-        virtual void systemSetup() override{};
+        virtual void setupSystem() override{};
 
         /// Implements the main functionality of the system.
         /// This is intentionally left empty for the actual system implementation to override.
-        virtual void systemRun() override{};
+        virtual void executeSystem() override{};
 
-        /// Implements any processing or cleanup required after the execution of the main functionality of the system.
+        /// Implements any processing or cleanupSystem required after the execution of the main functionality of the system.
         /// This is intentionally left empty for the actual system implementation to override.
-        virtual void systemCleanup() override{};
+        virtual void cleanupSystem() override{};
 
     private:
 
