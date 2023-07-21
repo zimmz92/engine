@@ -114,29 +114,65 @@ namespace ae_ecs {
 
 
 
+
+    // Registers the system with the component manager, creates a blank entry in the systemComponentSignature. The last
+    // bit is set high so when called by the getSystemEntities function only enabled entities are returned.
+    void AeComponentManager::registerSystem(ecs_id t_systemId) {
+        m_systemComponentSignatures[t_systemId] = {0};
+        setSystemComponentSignature(t_systemId,MAX_NUM_COMPONENTS + 1);
+    };
+
+
+
 	// Sets the system component signature bit to indicate that the system uses the component.
 	void AeComponentManager::setSystemComponentSignature(ecs_id t_systemId, ecs_id t_componentId) {
-		m_systemComponentSignatures[t_systemId].set(t_componentId);
+        if (m_systemComponentSignatures.find(t_systemId) != m_systemComponentSignatures.end()){
+            m_systemComponentSignatures.find(t_systemId)->second.set(t_componentId);
+        } else {
+            throw std::runtime_error("Cannot set a system component signature for a system that doesn't exist. Has it"
+                                     " been registered?");
+        };
 	};
 
 
 
 	// Resets the system component signature bit to indicate that the system does not use the component.
 	void AeComponentManager::unsetSystemComponentSignature(ecs_id t_systemId, ecs_id t_componentId) {
-		m_systemComponentSignatures[t_systemId].reset(t_componentId);
+        if (m_systemComponentSignatures.find(t_systemId) != m_systemComponentSignatures.end()){
+            m_systemComponentSignatures.find(t_systemId)->second.reset(t_componentId);
+        } else {
+            throw std::runtime_error("Cannot reset a system component signature for a system that doesn't exist. Has it"
+                                     " been registered?");
+        };
+
 	};
 
 
 
 	// TODO: Implement this function
 	void AeComponentManager::removeSystem(ecs_id t_systemId) {
-
+        m_systemComponentSignatures.erase(t_systemId);
 	};
 
 
 
-	// TODO: Implement function that compares system component signatures to the entity component signatures and returns a list of valid entities to the systems to act upon.
-	void AeComponentManager::updateSystemsEntities() {
+	// Compare the system component signature of interest to the entity component signatures and return a list of
+    // entities whose component signatures match the system's component signature and the system can act upon.
+    std::vector<ecs_id> AeComponentManager::getSystemsEntities(ecs_id t_systemId) {
 
+        // The set of valid entities for a system to act upon.
+        std::vector<ecs_id> valid_entities;
+
+        // Loop through the entity component signatures
+        for(ecs_id componentId=0; componentId<sizeof(m_entityComponentSignatures) ; componentId++){
+
+            // If the entities component signature matches the system's component signature add it to the list of entity
+            // indexes being returned.
+            if( m_entityComponentSignatures[componentId]==m_systemComponentSignatures[t_systemId] ){
+                valid_entities.push_back(componentId);
+            };
+
+        };
+        return valid_entities;
 	};
 }

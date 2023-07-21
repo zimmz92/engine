@@ -9,6 +9,8 @@
 #include <bitset>
 #include <array>
 #include <memory>
+#include <vector>
+#include <unordered_map>
 
 namespace ae_ecs {
 
@@ -71,6 +73,10 @@ namespace ae_ecs {
         /// TODO: Document the usage of this function
         void destroyEntity(ecs_id t_entityId);
 
+        /// Register the system with the component system
+        /// \param t_systemId The ID of the system to be registered.
+        void registerSystem(ecs_id t_systemId);
+
         ///  A function that sets the field in the system component signature corresponding to the specific component.
         /// \param t_systemId The ID of the system.
         /// \param t_componentId The ID of the component to be added as required for the system.
@@ -81,13 +87,14 @@ namespace ae_ecs {
         /// \param t_componentId The ID of the component to be removed as required for the system.
         void unsetSystemComponentSignature(ecs_id t_systemId, ecs_id t_componentId);
 
-        /// TODO: Document the usage of this function
+        /// A function to remove a systems component usage information from the component manager.
+        /// \param t_systemId The ID of the system to be removed.
         void removeSystem(ecs_id t_systemId);
 
         /// Compares system component signatures to the entity component signatures and returns a list of valid entities
         /// to the systems to act upon.
         /// TODO: Document the usage of this function
-        void updateSystemsEntities();
+        std::vector<ecs_id> getSystemsEntities(ecs_id t_systemId);
 
 		/// Function to allocate an ID to a specific component class so every component spawned from that class can be identified.
 		/// \tparam T The component class being allocated an ID.
@@ -112,8 +119,8 @@ namespace ae_ecs {
         /// initialization data to be included.
 		std::bitset<MAX_NUM_COMPONENTS + 1> m_entityComponentSignatures[MAX_NUM_ENTITIES] = {0};
 
-        /// Vector storing the components required for each system, last bit is to indicate that the system is active.
-        std::bitset<MAX_NUM_COMPONENTS + 1> m_systemComponentSignatures[MAX_NUM_ENTITIES] = {0};
+        /// Unordered map storing the components required for each active system.
+        std::unordered_map<ecs_id,std::bitset<MAX_NUM_COMPONENTS + 1>> m_systemComponentSignatures;
 
 	protected:
 
