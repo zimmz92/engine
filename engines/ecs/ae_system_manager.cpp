@@ -4,8 +4,6 @@
 #include "ae_system_manager.hpp"
 #include "ae_system_base.hpp"
 
-#include <stdexcept>
-
 namespace ae_ecs {
 
     // Create the system manager and initialize the system ID stack.
@@ -45,7 +43,7 @@ namespace ae_ecs {
     };
 
     // Enable the system by adding it to the enabled systems map and alerting the component manager that the system has
-    // been enabled.
+    // been enabled. When a system is enabled ensure the systems are ordered correctly.
     void AeSystemManager::enableSystem(AeSystemBase* t_system) {
         m_systemDependencySignatures[t_system->m_systemId].set(MAX_NUM_SYSTEMS);
         // Add the system to the unordered map that indicates which systems need to be run.
@@ -55,11 +53,17 @@ namespace ae_ecs {
 
 
     // Reset the last bit of the systemDependencySignatures high to indicate that the system is disabled and should no
-    // longer operate.
+    // longer operate. When a system is disabled make sure to remove that system's entry from the ordered map.
     void AeSystemManager::disableSystem(AeSystemBase* t_system) {
         m_systemDependencySignatures[t_system->m_systemId].reset(MAX_NUM_SYSTEMS);
+
+        // TODO: Check if any other list that is currently enabled depends on this system, if so error.
+
         // remove the system to the unordered map that indicates which systems need to be run.
         m_enabledSystems.erase(t_system->m_systemId);
+        // Remove the system from the execution order list. Since we already checked that no other enabled system needs
+        // this system to operate.
+        m_systemExecutionOrder.remove(t_system);
     };
 
 
@@ -73,13 +77,25 @@ namespace ae_ecs {
 
     };
 
-
-
     // Orders the currently enabled systems to ensure they are executed in the proper order.
     // TODO: Implement
     void AeSystemManager::orderSystems() {
+        // Clear the current system order list so the new list can be built up.
+        m_systemExecutionOrder.clear();
 
+        // Loop through the enable systems and put them into the execution order list based on their dependencies.
+        for(const auto& [systemId , systemDependencySignature] : m_enabledSystems ) {
+
+        }
+
+
+        // "Loop" through the enabled systems
+        // Check what other systems the current system depends on.
+        // Check what other systems depend on the current system.
+        // Emplace the current system into the list after
     };
+
+
 
 
 

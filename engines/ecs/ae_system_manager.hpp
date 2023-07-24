@@ -11,6 +11,8 @@
 #include <array>
 #include <memory>
 #include <unordered_map>
+#include <forward_list>
+#include <stdexcept>
 
 namespace ae_ecs {
 
@@ -86,7 +88,7 @@ namespace ae_ecs {
         std::unordered_map<ecs_id ,AeSystemBase*> m_enabledSystems;
 
         /// Systems in the order they shall be executed
-        std::vector<AeSystemBase*> m_systemExecution;
+        std::forward_list<AeSystemBase*> m_systemExecutionOrder;
 
         /// The component manager the system manager works with
         AeComponentManager& m_componentManager;
