@@ -84,15 +84,26 @@ namespace ae_ecs {
         m_systemExecutionOrder.clear();
 
         // Loop through the enable systems and put them into the execution order list based on their dependencies.
-        for(const auto& [systemId , systemDependencySignature] : m_enabledSystems ) {
+        for(const auto& [systemId , system] : m_enabledSystems ) {
+            if(m_systemExecutionOrder.empty()){
+                m_systemExecutionOrder.push_front(system);
+            } else {
+                // Check what other systems currently in the list this system depends on.
+                for (auto& executionSystem : m_systemExecutionOrder) {
+                    // Create the signature of the system already in the execution order list.
+                    std::bitset<MAX_NUM_SYSTEMS> systemSignature;
+                    systemSignature.set(executionSystem->m_systemId);
 
-        }
+                    // Compare the signature of the system already in the list to the current system being
+                    // evaluated for ordering.
+                    if()
+                };
 
-
-        // "Loop" through the enabled systems
-        // Check what other systems the current system depends on.
-        // Check what other systems depend on the current system.
-        // Emplace the current system into the list after
+                // Check what other systems depend on the current system.
+                // Emplace the current system into the list after it's dependencies but before systems that depend on
+                // it.
+            };
+        };
     };
 
 
