@@ -88,15 +88,21 @@ namespace ae_ecs {
             if(m_systemExecutionOrder.empty()){
                 m_systemExecutionOrder.push_front(system);
             } else {
+                bool list_dependent = false;
+                std::forward_list<AeSystemBase*>::iterator lastSystemDependency = m_systemExecutionOrder.begin();
                 // Check what other systems currently in the list this system depends on.
                 for (auto& executionSystem : m_systemExecutionOrder) {
                     // Create the signature of the system already in the execution order list.
                     std::bitset<MAX_NUM_SYSTEMS> systemSignature;
                     systemSignature.set(executionSystem->m_systemId);
 
-                    // Compare the signature of the system already in the list to the current system being
-                    // evaluated for ordering.
-                    if()
+                    // Compare the signature of the system already in the ordered list to the dependencies of the system
+                    // under evaluated for ordering. The system under evaluation needs to be placed in the list after
+                    // all systems it requires to operate. If the system under evaluation requires the current system in
+                    // the list record the
+                    if( (m_systemDependencySignatures[systemId].operator&=(systemSignature)).any() ) {
+
+                    };
                 };
 
                 // Check what other systems depend on the current system.
