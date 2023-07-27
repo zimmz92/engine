@@ -1,3 +1,4 @@
+#ifdef DECS_DEBUG
 #include "ecs_test.hpp"
 
 #include <cstdlib>
@@ -57,3 +58,4 @@ void test_ecs() {
 
     ae_ecs::ecsSystemManager.orderSystems();
 };
+#endif

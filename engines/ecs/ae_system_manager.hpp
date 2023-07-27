@@ -62,7 +62,7 @@ namespace ae_ecs {
         /// Orders the currently enabled systems to ensure they are executed in the proper order.
         void orderSystems();
 
-        /// Run Systems TODO: Properly implement
+        /// Runs the systems that are managed by this system manager
         void runSystems();
 
     private:

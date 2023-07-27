@@ -5,6 +5,7 @@
 #include "keyboard_movement_controller.hpp"
 #include "ae_buffer.hpp"
 #include "game_object_entity.hpp"
+#include "timing_system.hpp"
 
 // libraries
 // test comment
@@ -70,13 +71,12 @@ namespace ae {
         while (!m_aeWindow.shouldClose()) {
             glfwPollEvents();
 
-            auto newTime = std::chrono::high_resolution_clock::now();
-            float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
-            currentTime = newTime;
+            ae_ecs::ecsSystemManager.runSystems();
 
-            //frameTime = glm::min(frameTime, MAX_FRAME_TIME);
+            // TODO allow for option to limit frame timing, aka lock FPS, if desired but allow other systems to continue to run
+            //time_delta = glm::min(time_delta, MAX_FRAME_TIME);
 
-            cameraController.moveInPlaneXZ(m_aeWindow.getGLFWwindow(), frameTime, viewerObject);
+            cameraController.moveInPlaneXZ(m_aeWindow.getGLFWwindow(), timingSystem.getDt(), viewerObject);
             camera.setViewYXZ(viewerObject.m_transform.translation, viewerObject.m_transform.rotation);
 
             float aspect = m_aeRenderer.getAspectRatio();
@@ -86,12 +86,12 @@ namespace ae {
             if (auto commandBuffer = m_aeRenderer.beginFrame()) {
                 int frameIndex = m_aeRenderer.getFrameIndex();
                 FrameInfo frameInfo{
-                    frameIndex,
-                    frameTime,
-                    commandBuffer,
-                    camera,
-                    globalDescriptorSets[frameIndex],
-                    m_gameObjects
+                        frameIndex,
+                        timingSystem.getDt(),
+                        commandBuffer,
+                        camera,
+                        globalDescriptorSets[frameIndex],
+                        m_gameObjects
                 };
 
                 // update

@@ -2,7 +2,7 @@
 #include "ae_ecs.hpp"
 
 // Test ECS
-#ifdef MY_DEBUG
+#ifdef DECS_DEBUG
 #include "ecs_test.hpp"
 #endif
 
@@ -15,7 +15,7 @@
 int main() {
 
 
-#ifdef MY_DEBUG
+#ifdef DECS_DEBUG
     test_ecs();
 #endif
 

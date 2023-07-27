@@ -93,6 +93,9 @@ namespace ae_ecs {
         /// An integer representing the number of systemManager ticks to wait between system execution. 0 = every tick.
         ecs_systemInterval m_executionInterval = 0;
 
+        /// Counter that keeps track of how many cycles have past since it was last run.
+        ecs_systemInterval m_cyclesSinceExecution = 0;
+
         /// Pointer to the system manager
         AeSystemManager& m_systemManager;
     };

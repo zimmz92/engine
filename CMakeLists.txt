@@ -8,7 +8,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # specify what tests are to be run
-#set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DMY_DEBUG")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DMY_DEBUG")
+#set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DECS_DEBUG")
 
 # Specific File Paths
 file (TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/engines/graphics/shaders" SHADERPATH)
@@ -41,7 +42,7 @@ add_subdirectory(Libraries/glfw3)
 add_subdirectory(Libraries/glm)
 
 # Add source to this project's executable.
-add_library(mySrcFiles "")
+add_library(mySrcFiles "" game_code/systems/timing_system.cpp)
 
 add_subdirectory(engines/graphics)
 add_subdirectory(engines/graphics/shaders)

@@ -60,10 +60,34 @@ namespace ae_ecs {
     void AeSystemManager::disableSystem(AeSystemBase* t_system) {
         m_systemDependencySignatures[t_system->m_systemId].reset(MAX_NUM_SYSTEMS-1);
 
-        // TODO: Check if any other list that is currently enabled depends on this system, if so error.
+        // Check if any other systems depend on the system do be disabled system.
+        bool dependentOnCurrentSystem = false;
+        auto dependentSystem = m_systemExecutionOrder.begin();
+        for (auto it = m_systemExecutionOrder.begin(); it != m_systemExecutionOrder.end(); ++it) {
+            // Create the signature of the system to be disabled.
+            std::bitset<MAX_NUM_SYSTEMS> disableSystemSignature;
+            disableSystemSignature.set(t_system->m_systemId);
+
+            // Compare the signature of the system to be disabled to the dependencies of the systems in the
+            // execution list.
+            if( (m_systemDependencySignatures[(*it)->m_systemId].operator&=(disableSystemSignature)).any() ) {
+                dependentOnCurrentSystem = true;
+                dependentSystem = it;
+                break;
+            };
+        };
+        if(dependentOnCurrentSystem){
+            std::string errorMessage = std::string("Disabling this system will result in other enabled systems to not "
+                                                   "have one of their required systems! System being disabled: ") +
+                                       std::string(typeid(t_system).name()) +
+                                       std::string(", dependent system: ") +
+                                       std::string(typeid(*dependentSystem).name());
+            throw std::runtime_error(errorMessage);
+        };
 
         // remove the system to the unordered map that indicates which systems need to be run.
         m_enabledSystems.erase(t_system->m_systemId);
+
         // Remove the system from the execution order list. Since we already checked that no other enabled system needs
         // this system to operate.
         m_systemExecutionOrder.remove(t_system);
@@ -153,6 +177,7 @@ namespace ae_ecs {
                 };
             };
         };
+
 #ifdef MY_DEBUG
         std::string headerString = "System Execution Order:\n";
         std::cout << headerString;
@@ -161,19 +186,24 @@ namespace ae_ecs {
             std::cout << readBackString;
         };
 #endif
+
     };
 
 
 
-
-
-    // Run Systems TODO: Properly implement
+    // Run the systems in the order specified in the enabled systems
     void AeSystemManager::runSystems(){
-        // Loop through the enabled systems
-        for(auto & m_System : m_enabledSystems){
-            m_System.second->setupSystem();
-            m_System.second->executeSystem();
-            m_System.second->cleanupSystem();
+        // Loop through the enabled systems and if they are supposed to be run again reset their m_cyclesSinceExecution
+        // counter and execute. If not then increment their cyclesSinceExecution counter.
+        for(auto & m_System : m_systemExecutionOrder){
+            if(m_System->m_cyclesSinceExecution >= m_System->m_executionInterval){
+                m_System->setupSystem();
+                m_System->executeSystem();
+                m_System->cleanupSystem();
+                m_System->m_cyclesSinceExecution = 0;
+            } else{
+                m_System->m_cyclesSinceExecution++;
+            };
         };
     };
 

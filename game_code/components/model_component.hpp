@@ -6,6 +6,7 @@
 */
 #pragma once
 
+#include "ae_ecs.hpp"
 #include "ae_model.hpp"
 
 namespace ae {
