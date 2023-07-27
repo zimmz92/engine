@@ -119,7 +119,7 @@ namespace ae_ecs {
     // bit is set high so when called by the getSystemEntities function only enabled entities are returned.
     void AeComponentManager::registerSystem(ecs_id t_systemId) {
         m_systemComponentSignatures[t_systemId] = {0};
-        setSystemComponentSignature(t_systemId,MAX_NUM_COMPONENTS + 1);
+        setSystemComponentSignature(t_systemId,MAX_NUM_COMPONENTS);
     };
 
 
