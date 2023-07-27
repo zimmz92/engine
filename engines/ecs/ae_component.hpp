@@ -30,7 +30,7 @@ namespace ae_ecs {
 			m_componentId = m_componentManager.allocateComponentId();
 
 			// TODO: Allow the use of different memory architectures
-			m_componentData = (T*)malloc(MAX_NUM_COMPONENTS * sizeof(T));
+			m_componentData = (T*)malloc(MAX_NUM_ENTITIES * sizeof(T));
 		};
 
         /// Component destructor. Ensures that the component ID and the memory of the component are released.
