@@ -1,6 +1,7 @@
 /// \file ae_system_manager.cpp
 /// \brief The script implementing the system manager class.
 /// The system manager class is implemented.
+#include <iostream>
 #include "ae_system_manager.hpp"
 #include "ae_system_base.hpp"
 
@@ -45,9 +46,11 @@ namespace ae_ecs {
     // Enable the system by adding it to the enabled systems map and alerting the component manager that the system has
     // been enabled. When a system is enabled ensure the systems are ordered correctly.
     void AeSystemManager::enableSystem(AeSystemBase* t_system) {
-        m_systemDependencySignatures[t_system->m_systemId].set(MAX_NUM_SYSTEMS);
+        m_systemDependencySignatures[t_system->m_systemId].set(MAX_NUM_SYSTEMS-1);
         // Add the system to the unordered map that indicates which systems need to be run.
         m_enabledSystems[t_system->m_systemId] = t_system;
+        // Ensure the systems are run in the proper order now that a new system has been added.
+        this->orderSystems();
     };
 
 
@@ -55,7 +58,7 @@ namespace ae_ecs {
     // Reset the last bit of the systemDependencySignatures high to indicate that the system is disabled and should no
     // longer operate. When a system is disabled make sure to remove that system's entry from the ordered map.
     void AeSystemManager::disableSystem(AeSystemBase* t_system) {
-        m_systemDependencySignatures[t_system->m_systemId].reset(MAX_NUM_SYSTEMS);
+        m_systemDependencySignatures[t_system->m_systemId].reset(MAX_NUM_SYSTEMS-1);
 
         // TODO: Check if any other list that is currently enabled depends on this system, if so error.
 
@@ -78,7 +81,6 @@ namespace ae_ecs {
     };
 
     // Orders the currently enabled systems to ensure they are executed in the proper order.
-    // TODO: Implement
     void AeSystemManager::orderSystems() {
         // Clear the current system order list so the new list can be built up.
         m_systemExecutionOrder.clear();
@@ -88,27 +90,74 @@ namespace ae_ecs {
             if(m_systemExecutionOrder.empty()){
                 m_systemExecutionOrder.push_front(system);
             } else {
-                bool list_dependent = false;
-                std::forward_list<AeSystemBase*>::iterator lastSystemDependency = m_systemExecutionOrder.begin();
+
                 // Check what other systems currently in the list this system depends on.
-                for (auto& executionSystem : m_systemExecutionOrder) {
+                bool dependentOnListSystem = false;
+                auto lastListSystemDependency = m_systemExecutionOrder.begin();
+                for (auto it = m_systemExecutionOrder.begin(); it != m_systemExecutionOrder.end(); ++it) {
                     // Create the signature of the system already in the execution order list.
-                    std::bitset<MAX_NUM_SYSTEMS> systemSignature;
-                    systemSignature.set(executionSystem->m_systemId);
+                    std::bitset<MAX_NUM_SYSTEMS> listSystemSignature;
+                    listSystemSignature.set((*it)->m_systemId);
 
                     // Compare the signature of the system already in the ordered list to the dependencies of the system
                     // under evaluated for ordering. The system under evaluation needs to be placed in the list after
-                    // all systems it requires to operate. If the system under evaluation requires the current system in
-                    // the list record the
-                    if( (m_systemDependencySignatures[systemId].operator&=(systemSignature)).any() ) {
-
+                    // all systems it requires to operate.
+                    if( (m_systemDependencySignatures[systemId].operator&=(listSystemSignature)).any() ) {
+                        lastListSystemDependency = it;
+                        dependentOnListSystem = true;
                     };
                 };
 
                 // Check what other systems depend on the current system.
+                bool dependentOnCurrentSystem = false;
+                auto firstDependentOnSystem = m_systemExecutionOrder.begin();
+                for (auto it = m_systemExecutionOrder.begin(); it != m_systemExecutionOrder.end(); ++it) {
+                    // Create the signature of the system under evaluation.
+                    std::bitset<MAX_NUM_SYSTEMS> evalSystemSignature;
+                    evalSystemSignature.set(systemId);
+
+                    // Compare the signature of the system under evaluation to the dependencies of the systems in the
+                    // ordered list. The system under evaluation needs to be placed in the list before all systems it
+                    // that require the current system in order to operate.
+                    if( (m_systemDependencySignatures[(*it)->m_systemId].operator&=(evalSystemSignature)).any() ) {
+                        dependentOnCurrentSystem = true;
+                        // Once we have hit the first system that depends on this system we have what is required.
+                        break;
+                    };
+                    // A little odd but what we actually want here is the iterator to point to the element in the
+                    // forward list that comes before the element that depends on the system being evaluated so when
+                    // emplace_after is used we are actually placing it before the dependent system.
+                    firstDependentOnSystem = it;
+                };
+
+                // Check to make sure a cyclic dependency does not exist aka. two systems depend on each other.
+                if(dependentOnListSystem && dependentOnCurrentSystem) {
+                    if (std::distance(lastListSystemDependency, firstDependentOnSystem) < 1) {
+                        std::string errorMessage = std::string("A cyclic system dependency has been found between: ") +
+                                                   std::string(typeid(*lastListSystemDependency).name()) +
+                                                   std::string(" and ") +
+                                                   std::string(typeid(*firstDependentOnSystem).name());
+                        throw std::runtime_error(errorMessage);
+                    };
+                };
+
                 // Emplace the current system into the list after it's dependencies but before systems that depend on
                 // it.
+                if( (!dependentOnListSystem && !dependentOnCurrentSystem)){
+                    m_systemExecutionOrder.push_front(system);
+                } else if((!dependentOnListSystem && dependentOnCurrentSystem) && (lastListSystemDependency == m_systemExecutionOrder.begin())) {
+                    m_systemExecutionOrder.push_front(system);
+                }
+                else {
+                    m_systemExecutionOrder.emplace_after(lastListSystemDependency,system);
+                };
             };
+        };
+        std::string headerString = "System Execution Order:\n";
+        std::cout << headerString;
+        for (auto executeSystem : m_systemExecutionOrder){
+            std::string readBackString = std::to_string(executeSystem->m_systemId) + "\n";
+            std::cout << readBackString;
         };
     };
 
