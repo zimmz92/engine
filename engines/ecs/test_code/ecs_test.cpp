@@ -1,5 +1,4 @@
 #include "ecs_test.hpp"
-#include "ae_ecs.hpp"
 
 #include <cstdlib>
 #include <iostream>
@@ -55,4 +54,6 @@ void test_ecs() {
     std::cout << readBackStringB;
     readBackStringB = "Value of Entity ID for entity B2 = " + std::to_string(TestEntityBTwo.getEntityId()) + "\n\n";
     std::cout << readBackStringB;
+
+    ae_ecs::ecsSystemManager.orderSystems();
 };
