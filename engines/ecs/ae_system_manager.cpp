@@ -153,12 +153,14 @@ namespace ae_ecs {
                 };
             };
         };
+#ifdef MY_DEBUG
         std::string headerString = "System Execution Order:\n";
         std::cout << headerString;
         for (auto executeSystem : m_systemExecutionOrder){
             std::string readBackString = std::to_string(executeSystem->m_systemId) + "\n";
             std::cout << readBackString;
         };
+#endif
     };
 
 
