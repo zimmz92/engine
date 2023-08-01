@@ -2,7 +2,6 @@
 /// \brief The script implementing the player input system class.
 /// The player input system class is implemented.
 
-#include <iostream>
 #include "player_input_system.hpp"
 #include "timing_system.hpp"
 #include "player_controlled_component.hpp"
@@ -26,11 +25,8 @@ namespace ae {
         std::vector<ecs_id> validEntityIds = m_systemManager.getValidEntities(this->getSystemId());
 
         for (ecs_id entityId : validEntityIds){
-            std::string readBackString = "The Entity with ID: " + std::to_string(entityId) + " being evaluated by the player input system.\n";
-            std::cout << readBackString;
-            if(playerControlledComponent.getData(entityId)->isCurrentlyControlled){
-                readBackString = "The Entity with ID: " + std::to_string(entityId) + " can be controlled by the player!\n";
-                std::cout << readBackString;
+            if(playerControlledComponent.getDataPointer(entityId)->isCurrentlyControlled){
+                moveInPlaneXZ( worldPositionComponent.getDataPointer(entityId), modelComponent.getDataPointer(entityId));
             };
         };
     };

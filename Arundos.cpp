@@ -8,6 +8,7 @@
 #include "timing_system.hpp"
 #include "camera_entity.hpp"
 #include "player_input_system.hpp"
+#include "camera_update_system.hpp"
 
 // libraries
 // test comment
@@ -66,8 +67,12 @@ namespace ae {
 
         // Try to make a camera with the ECS
         PlayerInputSystem playerInputSystem(m_aeWindow.getGLFWwindow()); // Need to do this here for now since the window itself is not yet a defined entity that this system can work on and must be initilized with that information.
+        CameraUpdateSystemClass cameraUpdateSystem(&m_aeRenderer, &playerInputSystem);
         CameraEntity cameraECS{};
         cameraECS.m_playerControlledData->isCurrentlyControlled = true;
+        cameraECS.m_worldPosition->phi = -2.5f;
+        cameraECS.m_model->rotation = { 0.0f, -1.0f, 0.0f };
+        cameraECS.m_cameraData->usePerspectiveProjection = true;
         cameraECS.enableEntity();
 
         auto viewerObject = AeGameObject::createGameObject();
@@ -81,15 +86,19 @@ namespace ae {
 
             ae_ecs::ecsSystemManager.runSystems();
 
+            // Test the ECS Camera to see if it is working
+            camera.setProjectionMatrix(cameraECS.m_cameraData->m_projectionMatrix);
+            camera.setViewMatrix(cameraECS.m_cameraData->m_viewMatrix);
+            camera.setInverseMatrix(cameraECS.m_cameraData->m_inverseViewMatrix);
+
             // TODO allow for option to limit frame timing, aka lock FPS, if desired but allow other systems to continue to run
             //time_delta = glm::min(time_delta, MAX_FRAME_TIME);
 
-            cameraController.moveInPlaneXZ(m_aeWindow.getGLFWwindow(), timingSystem.getDt(), viewerObject);
-            camera.setViewYXZ(viewerObject.m_transform.translation, viewerObject.m_transform.rotation);
-
-            float aspect = m_aeRenderer.getAspectRatio();
-
-            camera.setPerspectiveProjection(glm::radians(50.0f), aspect, 0.1f, 100.0f);
+            // Original Camera Code
+            //cameraController.moveInPlaneXZ(m_aeWindow.getGLFWwindow(), timingSystem.getDt(), viewerObject);
+            //camera.setViewYXZ(viewerObject.m_transform.translation, viewerObject.m_transform.rotation);
+            //float aspect = m_aeRenderer.getAspectRatio();
+            //camera.setPerspectiveProjection(glm::radians(50.0f), aspect, 0.1f, 100.0f);
 
             if (auto commandBuffer = m_aeRenderer.beginFrame()) {
                 int frameIndex = m_aeRenderer.getFrameIndex();

@@ -25,6 +25,9 @@ namespace ae {
 		const glm::mat4 getView() const { return m_viewMatrix; }
 		const glm::mat4 getInverseView() const { return m_inverseViewMatrix;  }
 		const glm::vec3 getPosition() const { return glm::vec3(m_inverseViewMatrix[3]); }
+        void setProjectionMatrix(glm::mat4 t_projectionMatrix) {m_projectionMatrix = t_projectionMatrix; };
+        void setViewMatrix(glm::mat4 t_projectionMatrix) {m_projectionMatrix = t_projectionMatrix; };
+        void setInverseMatrix(glm::mat4 t_projectionMatrix) {m_projectionMatrix = t_projectionMatrix; };
 
 	private:
 		glm::mat4 m_projectionMatrix{ 1.0f };

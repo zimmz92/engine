@@ -4,6 +4,10 @@ target_sources(mySrcFiles
         timing_system.hpp
         simple_render_system.cpp
         simple_render_system.hpp
+        player_input_system.cpp
+        player_input_system.hpp
+        camera_update_system.cpp
+        camera_update_system.hpp
     PUBLIC
 )
 

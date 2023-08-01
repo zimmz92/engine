@@ -3,7 +3,6 @@ target_sources(mySrcFiles
         model_component.hpp
         world_position_component.hpp
         player_controlled_component.hpp
-        camera_component.cpp
         camera_component.hpp
     PUBLIC
 )

@@ -10,6 +10,7 @@
 #include "ae_ecs.hpp"
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
+#include "world_position_component.hpp"
 
 namespace ae {
 
@@ -19,11 +20,42 @@ namespace ae {
         /// The matrix describing the mapping of a pinhole camera from 3D world space to the 2D screen.
         glm::mat4 m_projectionMatrix{ 1.0f };
 
-        ///
+        /// The camera transform matrix
         glm::mat4 m_viewMatrix{ 1.0f };
 
-        ///
+        /// Allows specular lighting and contains the position of the camera. Enables transform from camera space to
+        /// world space if needed as well.
         glm::mat4 m_inverseViewMatrix{ 1.0f };
+
+        /// The field of view of the camera from the center of the fov to the top of the near plane in the +y direction.
+        float m_fovY = glm::radians(50.0f);
+
+        /// The world distance from the camera to the near plane the camera displays.
+        float m_nearDistance = 0.1f;
+
+        /// The world distance from the camera to the far plane the camera displays.
+        float m_farDistance = 100.0f;
+
+        /// Sets the camera to use a perspective projection. If false will default to orthographic projection.
+        bool usePerspectiveProjection = true;
+
+        /// States if the camera is locked onto a set of world coordinates.
+        bool cameraLockedOnWorldPosition = false;
+
+        /// The coordinates of the target the camera is locked onto, this is the default behavior.
+        worldPositionComponentStruct cameraLockWorldPosition {0.0f, 0.0f, 0.0f};
+
+        /// Specifies that the camera is locked onto an entity.
+        bool cameraLockedOnEntity = false;
+
+        /// The entity ID of the entity the camera is locked onto. Only works if cameraLockedOnEntity is set true.
+        ecs_id lockOnEntityId = 0;
+
+        /// Specifies that the camera is locked looking in a specific direction
+        bool cameraLockedOnDirection = false;
+
+        /// This is a xyz vector representing the direction that the camera is looking
+        glm::vec3 cameraLockDirection = {0.0f, 0.0f, 0.0f};
 
         /// TODO: Implement camera offset from model center.
     };
@@ -39,18 +71,6 @@ namespace ae {
         /// The destructor of the playerControlledComponentClass class. The playerControlledComponentClass destructor
         /// uses the AeComponent constructor with no additions.
         ~cameraComponentClass() {};
-
-
-        void setOrthographicProjection(ecs_id t_entityId, float t_left, float t_right, float t_top, float t_bottom, float t_near, float t_far);
-        void setPerspectiveProjection(ecs_id t_entityId, float t_fovy, float t_aspect, float t_near, float t_far);
-
-        void setViewDirection(ecs_id t_entityId, glm::vec3 t_position, glm::vec3 t_direction, glm::vec3 t_up = { 0.0f, -1.0f, 0.0f });
-
-        /// Camera locked onto a particular location, or object.
-        void setViewTarget(ecs_id t_entityId, glm::vec3 t_position, glm::vec3 t_target, glm::vec3 t_up = { 0.0f, -1.0f, 0.0f });
-
-        /// Euler angles to specify position of the camera
-        void setViewYXZ(ecs_id t_entityId, glm::vec3 t_position, glm::vec3 t_rotation);
 
     private:
 
