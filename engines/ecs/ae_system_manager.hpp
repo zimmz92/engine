@@ -59,6 +59,10 @@ namespace ae_ecs {
         /// \param t_system A pointer to the system.
         void destroySystem(AeSystemBase* t_system);
 
+        /// Get the entities that a system may act upon from the component manager.
+        /// \param
+        std::vector<ecs_id> getValidEntities(ecs_id t_systemId);
+
         /// Orders the currently enabled systems to ensure they are executed in the proper order.
         void orderSystems();
 

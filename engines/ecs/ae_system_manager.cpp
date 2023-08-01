@@ -104,6 +104,10 @@ namespace ae_ecs {
 
     };
 
+    std::vector<ecs_id> AeSystemManager::getValidEntities(ecs_id t_systemId){
+        return m_componentManager.getSystemsEntities(t_systemId);
+    };
+
     // Orders the currently enabled systems to ensure they are executed in the proper order.
     void AeSystemManager::orderSystems() {
         // Clear the current system order list so the new list can be built up.
