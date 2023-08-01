@@ -14,7 +14,11 @@ namespace ae {
 		void setPerspectiveProjection(float t_fovy, float t_aspect, float t_near, float t_far);
 
 		void setViewDirection(glm::vec3 t_position, glm::vec3 t_direction, glm::vec3 t_up = { 0.0f, -1.0f, 0.0f });
+
+        /// Camera locked onto a particular location, or object.
 		void setViewTarget(glm::vec3 t_position, glm::vec3 t_target, glm::vec3 t_up = { 0.0f, -1.0f, 0.0f });
+
+        /// Euler angles to specify position of the camera
 		void setViewYXZ(glm::vec3 t_position, glm::vec3 t_rotation);
 
 		const glm::mat4 getProjection() const { return m_projectionMatrix; }

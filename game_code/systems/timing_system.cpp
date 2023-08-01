@@ -1,6 +1,7 @@
-/// \file ae_component_manager.cpp
-/// \brief The script implementing the component manager class.
-/// The component manager class is implemented.
+/// \file timing_system.cpp
+/// \brief The script implementing the timing system class.
+/// The timing system class is implemented.
+
 #include "timing_system.hpp"
 
 TimingSystem::TimingSystem() : ae_ecs::AeSystem<TimingSystem>()  {

@@ -6,6 +6,8 @@
 #include "ae_buffer.hpp"
 #include "game_object_entity.hpp"
 #include "timing_system.hpp"
+#include "camera_entity.hpp"
+#include "player_input_system.hpp"
 
 // libraries
 // test comment
@@ -61,6 +63,12 @@ namespace ae {
         AeRsSimple simpleRenderSystem(m_aeDevice, m_aeRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout());
         AeRsPointLight pointLightSystem(m_aeDevice, m_aeRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout());
         AeCamera camera{};
+
+        // Try to make a camera with the ECS
+        PlayerInputSystem playerInputSystem(m_aeWindow.getGLFWwindow()); // Need to do this here for now since the window itself is not yet a defined entity that this system can work on and must be initilized with that information.
+        CameraEntity cameraECS{};
+        cameraECS.m_playerControlledData->isCurrentlyControlled = true;
+        cameraECS.enableEntity();
 
         auto viewerObject = AeGameObject::createGameObject();
         viewerObject.m_transform.translation.z = -2.5f;
@@ -131,10 +139,12 @@ namespace ae {
         m_gameObjects.emplace(flatVase.getID(), std::move(flatVase));
 
         // ECS version of flatVase
-        modelComponentStructure tempStructure;
-        tempStructure.m_model = aeModel;
-        tempStructure.scale = { 3.0f, 1.5f, 3.0f };
-        auto testFlatVase = GameObjectEntity(tempStructure, { -0.5f, 0.5f, 0.0f });
+        //auto testFlatVase = GameObjectEntity();
+        //*testFlatVase.m_worldPosition = {-0.5f, 0.5f, 0.0f };
+        //testFlatVase.m_model->m_model = aeModel;
+        //testFlatVase.m_model->scale = {3.0f, 1.5f, 3.0f };
+        //testFlatVase.enableEntity();
+
 
         // Non-ECS version of putting the smooth vase into the game
         // TODO Remove once a system is implemented for gathering entities with the model component that are in a scene
@@ -146,9 +156,11 @@ namespace ae {
         m_gameObjects.emplace(smoothVase.getID(), std::move(smoothVase));
 
         // ECS version of smoothVase
-        tempStructure.m_model = aeModel;
-        tempStructure.scale = { 3.0f, 1.5f, 3.0f };
-        auto testSmoothVase = GameObjectEntity(tempStructure, { 0.5f, 0.5f, 0.0f });
+        //auto testSmoothVase = GameObjectEntity( );
+        //*testSmoothVase.m_worldPosition = {0.5f, 0.5f, 0.0f };
+        //testSmoothVase.m_model->m_model = aeModel;
+        //testSmoothVase.m_model->scale = {3.0f, 1.5f, 3.0f };
+        //testSmoothVase.enableEntity();
 
         // Non-ECS version of putting the floor plane into the game
         // TODO Remove once a system is implemented for gathering entities with the model component that are in a scene
@@ -160,9 +172,11 @@ namespace ae {
         m_gameObjects.emplace(floor.getID(), std::move(floor));
 
         // ECS version of the floor
-        tempStructure.m_model = aeModel;
-        tempStructure.scale = { 3.0f, 1.0f, 3.0f };
-        auto testFloor = GameObjectEntity(tempStructure, { 3.0f, 1.0f, 3.0f });
+        //auto testFloor = GameObjectEntity();
+        //*testFloor.m_worldPosition = {0.0f, 0.5f, 0.0f };
+        //testFloor.m_model->m_model = aeModel;
+        //testFloor.m_model->scale = {3.0f, 1.0f, 3.0f };
+        //testFloor.enableEntity();
 
 
         // Create Point Lights

@@ -22,7 +22,7 @@ else()
     file (TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/engines/graphics/shaders/compile.sh" BATFILE)
 endif()
 
-add_executable (Arundos main.cpp)
+add_executable (Arundos main.cpp game_code/components/camera_component.cpp)
 
 # add the binary tree to the search path for include files
 # so that we will find TutorialConfig.h
@@ -42,7 +42,7 @@ add_subdirectory(Libraries/glfw3)
 add_subdirectory(Libraries/glm)
 
 # Add source to this project's executable.
-add_library(mySrcFiles "" game_code/systems/timing_system.cpp)
+add_library(mySrcFiles "" game_code/systems/timing_system.cpp game_code/systems/player_input_system.cpp game_code/systems/player_input_system.hpp)
 
 add_subdirectory(engines/graphics)
 add_subdirectory(engines/graphics/shaders)

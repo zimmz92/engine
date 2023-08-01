@@ -1,7 +1,10 @@
 target_sources(mySrcFiles
     PRIVATE
         model_component.hpp
-        position_component.hpp
+        world_position_component.hpp
+        player_controlled_component.hpp
+        camera_component.cpp
+        camera_component.hpp
     PUBLIC
 )
 

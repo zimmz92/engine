@@ -12,7 +12,7 @@
 namespace ae {
 
     /// This structure defines the model data stored for each entity using the model component.
-    struct modelComponentStructure {
+    struct modelComponentStruct {
 
         /// A pointer to the model used by a entity.
         std::shared_ptr<AeModel> m_model{};
@@ -29,7 +29,7 @@ namespace ae {
 
 
     /// The model component class is derived from the AeComponent template class using the model component structure.
-    class modelComponentClass : public ae_ecs::AeComponent<modelComponentStructure> {
+    class modelComponentClass : public ae_ecs::AeComponent<modelComponentStruct> {
     public:
         /// The modelComponentClass constructor uses the AeComponent constructor with no additions.
         modelComponentClass() : AeComponent() {};

@@ -30,6 +30,8 @@ namespace ae_ecs {
 			m_componentId = m_componentManager.allocateComponentId();
 
 			// TODO: Allow the use of different memory architectures
+            // TODO: Allow for a stack instead of allocating memory for every entity even if every entity will never
+            //  have a component, for instance there will not be a ton of cameras.
 			m_componentData = (T*)malloc(MAX_NUM_ENTITIES * sizeof(T));
 		};
 
@@ -47,15 +49,15 @@ namespace ae_ecs {
         /// \return The type ID of the component.
         ecs_id getComponentTypeId() const { return m_componentTypeId; }
 
-        /// Alerts the component manager that a specific entity uses a component, and store the data
-        /// of the entity within the component.
+        /// Alerts the component manager that a specific entity uses a component and returns the location allocated in
+        /// memory for the storage of the entities data.
         /// \param t_entityId The ID of the entity using the component.
-        /// \param t_entityComponentData The data of the specified entity to be stored within the component.
-		void requiredByEntity(ecs_id t_entityId, T t_entityComponentData) {
+        T* requiredByEntity(ecs_id t_entityId) {
             m_componentManager.setEntityComponentSignature(t_entityId, m_componentId);
-            updateData(t_entityId, t_entityComponentData);
-			// TODO: If the entity has been enabled alert system manager that this entity uses this component.
-		};
+            return getData(t_entityId);
+            // TODO: If stack type component allocate additional memory for the entity on the stack.
+        };
+
 
         /// Alerts the component manager that a specific entity no longer uses a component.
         /// \param t_entityId The ID of the entity that no longer uses this component.
@@ -90,8 +92,8 @@ namespace ae_ecs {
 
 		/// Get data for a specific entity.
 		/// \param t_entityID The ID of the entity to return the component data for.
-		T getData(ecs_id t_entityID) {
-			return m_componentData[t_entityID];
+		T* getData(ecs_id t_entityID) {
+			return &m_componentData[t_entityID];
 		};
 
 	private:
