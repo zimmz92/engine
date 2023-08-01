@@ -163,16 +163,19 @@ namespace ae_ecs {
         // The set of valid entities for a system to act upon.
         std::vector<ecs_id> valid_entities;
 
-        // Loop through the entity component signatures
-        for(ecs_id componentId=0; componentId<sizeof(m_entityComponentSignatures) ; componentId++){
+        auto systemSignaturePair = m_systemComponentSignatures.find(t_systemId);
+        if(systemSignaturePair != m_systemComponentSignatures.end()){
+            // Loop through the entity component signatures
+            for(ecs_id entityId=0; entityId < MAX_NUM_ENTITIES ; entityId++){
 
-            // If the entities component signature matches the system's component signature add it to the list of entity
-            // indexes being returned.
-            if( m_entityComponentSignatures[componentId]==m_systemComponentSignatures[t_systemId] ){
-                valid_entities.push_back(componentId);
+                // If the entities component signature matches the system's component signature add it to the list of entity
+                // indexes being returned.
+                if( m_systemComponentSignatures[t_systemId].operator==(m_entityComponentSignatures[entityId].operator&=(systemSignaturePair->second))){
+                    valid_entities.push_back(entityId);
+                };
             };
+        }
 
-        };
         return valid_entities;
 	};
 }
