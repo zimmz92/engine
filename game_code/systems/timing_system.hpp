@@ -24,5 +24,3 @@ private:
     std::chrono::time_point<std::chrono::high_resolution_clock> m_previousTime;
     float m_timeDelta = 0.0f;
 };
-
-inline TimingSystem timingSystem;

@@ -31,6 +31,4 @@ namespace ae {
     protected:
 
     };
-
-    inline worldPositionComponentClass worldPositionComponent;
 }

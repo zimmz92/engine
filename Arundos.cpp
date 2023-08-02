@@ -1,25 +1,16 @@
 ﻿#include "Arundos.hpp"
 #include "ae_rs_simple.hpp"
 #include "ae_rs_point_light.hpp"
-#include "keyboard_movement_controller.hpp"
 #include "ae_buffer.hpp"
+
 #include "game_object_entity.hpp"
-#include "timing_system.hpp"
 #include "camera_entity.hpp"
-#include "player_input_system.hpp"
-#include "camera_update_system.hpp"
 
 // libraries
-// test comment
-#define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#include <glm/glm.hpp>
-#include <glm/gtc/constants.hpp>
 
-#include <stdexcept>
 #include <chrono>
 #include <array>
-#include <cassert>
 
 namespace ae {
 
@@ -28,10 +19,15 @@ namespace ae {
             .setMaxSets(AeSwapChain::MAX_FRAMES_IN_FLIGHT)
             .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, AeSwapChain::MAX_FRAMES_IN_FLIGHT)
             .build();
+
+        m_gameSystems = new GameSystems(&m_gameComponents, m_aeWindow.getGLFWwindow(), &m_aeRenderer);
+
         loadGameObjects();
     }
 
     Arundos::~Arundos() {
+        delete m_gameSystems;
+        m_gameSystems = nullptr;
     }
 
     void Arundos::run() {
@@ -63,10 +59,8 @@ namespace ae {
         AeRsSimple simpleRenderSystem(m_aeDevice, m_aeRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout());
         AeRsPointLight pointLightSystem(m_aeDevice, m_aeRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout());
 
-        // Try to make a camera with the ECS
-        PlayerInputSystem playerInputSystem(m_aeWindow.getGLFWwindow()); // Need to do this here for now since the window itself is not yet a defined entity that this system can work on and must be initilized with that information.
-        CameraUpdateSystemClass cameraUpdateSystem(&m_aeRenderer, &playerInputSystem);
-        CameraEntity cameraECS{};
+        // Make the game camera using ECS
+        CameraEntity cameraECS{&m_gameComponents};
         cameraECS.m_playerControlledData->isCurrentlyControlled = true;
         cameraECS.m_worldPosition->phi = -2.5f;
         cameraECS.m_cameraData->usePerspectiveProjection = true;
@@ -87,7 +81,7 @@ namespace ae {
                 int frameIndex = m_aeRenderer.getFrameIndex();
                 FrameInfo frameInfo{
                         frameIndex,
-                        timingSystem.getDt(),
+                        m_gameSystems->timingSystem.getDt(),
                         commandBuffer,
                         cameraECS.getEntityId(),
                         globalDescriptorSets[frameIndex],
@@ -108,7 +102,7 @@ namespace ae {
 
                 // order here matters for transparency
                 simpleRenderSystem.renderGameObjects(frameInfo);
-                pointLightSystem.render(frameInfo);
+                pointLightSystem.render(frameInfo,&m_gameComponents);
 
                 m_aeRenderer.endSwapChainRenderPass(commandBuffer);
                 m_aeRenderer.endFrame();
@@ -131,11 +125,11 @@ namespace ae {
         m_gameObjects.emplace(flatVase.getID(), std::move(flatVase));
 
         // ECS version of flatVase
-        //auto testFlatVase = GameObjectEntity();
-        //*testFlatVase.m_worldPosition = {-0.5f, 0.5f, 0.0f };
-        //testFlatVase.m_model->m_model = aeModel;
-        //testFlatVase.m_model->scale = {3.0f, 1.5f, 3.0f };
-        //testFlatVase.enableEntity();
+        auto testFlatVase = GameObjectEntity(&m_gameComponents);
+        *testFlatVase.m_worldPosition = {-0.5f, 0.5f, 0.0f };
+        testFlatVase.m_model->m_model = aeModel;
+        testFlatVase.m_model->scale = {3.0f, 1.5f, 3.0f };
+        testFlatVase.enableEntity();
 
 
         // Non-ECS version of putting the smooth vase into the game
@@ -148,11 +142,11 @@ namespace ae {
         m_gameObjects.emplace(smoothVase.getID(), std::move(smoothVase));
 
         // ECS version of smoothVase
-        //auto testSmoothVase = GameObjectEntity( );
-        //*testSmoothVase.m_worldPosition = {0.5f, 0.5f, 0.0f };
-        //testSmoothVase.m_model->m_model = aeModel;
-        //testSmoothVase.m_model->scale = {3.0f, 1.5f, 3.0f };
-        //testSmoothVase.enableEntity();
+        auto testSmoothVase = GameObjectEntity(&m_gameComponents);
+        *testSmoothVase.m_worldPosition = {0.5f, 0.5f, 0.0f };
+        testSmoothVase.m_model->m_model = aeModel;
+        testSmoothVase.m_model->scale = {3.0f, 1.5f, 3.0f };
+        testSmoothVase.enableEntity();
 
         // Non-ECS version of putting the floor plane into the game
         // TODO Remove once a system is implemented for gathering entities with the model component that are in a scene
@@ -164,11 +158,11 @@ namespace ae {
         m_gameObjects.emplace(floor.getID(), std::move(floor));
 
         // ECS version of the floor
-        //auto testFloor = GameObjectEntity();
-        //*testFloor.m_worldPosition = {0.0f, 0.5f, 0.0f };
-        //testFloor.m_model->m_model = aeModel;
-        //testFloor.m_model->scale = {3.0f, 1.0f, 3.0f };
-        //testFloor.enableEntity();
+        auto testFloor = GameObjectEntity(&m_gameComponents);
+        *testFloor.m_worldPosition = {0.0f, 0.5f, 0.0f };
+        testFloor.m_model->m_model = aeModel;
+        testFloor.m_model->scale = {3.0f, 1.0f, 3.0f };
+        testFloor.enableEntity();
 
 
         // Create Point Lights

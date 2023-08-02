@@ -43,7 +43,4 @@ namespace ae {
     protected:
 
     };
-
-    /// The instantiation of the model component for use by the game.
-    inline modelComponentClass modelComponent;
 }

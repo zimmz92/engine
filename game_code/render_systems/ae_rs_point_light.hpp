@@ -6,6 +6,8 @@
 #include "ae_camera.hpp"
 #include "ae_frame_info.hpp"
 
+#include "game_components.hpp"
+
 #include <memory>
 #include <vector>
 
@@ -21,7 +23,7 @@ namespace ae {
         AeRsPointLight& operator=(const AeRsPointLight&) = delete;
 
         void update(FrameInfo& t_frameInfo, GlobalUbo& t_ubo);
-        void render(FrameInfo &t_frameInfo);
+        void render(FrameInfo& t_frameInfo, GameComponents* t_gameComponents);
 
     private:
         void createPipelineLayout(VkDescriptorSetLayout t_globalSetLayout);

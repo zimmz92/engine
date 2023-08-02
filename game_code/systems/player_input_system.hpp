@@ -7,14 +7,16 @@
 #pragma once
 
 #include "ae_ecs.hpp"
+
+#include "game_components.hpp"
+#include "timing_system.hpp"
+
 #include "ae_window.hpp"
-#include "world_position_component.hpp"
-#include "model_component.hpp"
 
 namespace ae {
     class PlayerInputSystem : public ae_ecs::AeSystem<PlayerInputSystem> {
     public:
-        PlayerInputSystem(GLFWwindow* t_window);
+        PlayerInputSystem(GameComponents* t_game_components, TimingSystem* t_timingSystem, GLFWwindow* t_window);
         ~PlayerInputSystem();
 
         void setupSystem() override{};
@@ -44,9 +46,10 @@ namespace ae {
 
         GLFWwindow* m_window;
 
-    };
+        GameComponents* m_game_components;
+        TimingSystem* m_timingSystem;
 
-    //inline PlayerInputSystem playerInputSystem;
+    };
 }
 
 

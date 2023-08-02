@@ -3,19 +3,21 @@
 /// The player input system class is implemented.
 
 #include "player_input_system.hpp"
-#include "timing_system.hpp"
-#include "player_controlled_component.hpp"
 
 namespace ae {
-    PlayerInputSystem::PlayerInputSystem(GLFWwindow* t_window) : ae_ecs::AeSystem<PlayerInputSystem>()  {
+    PlayerInputSystem::PlayerInputSystem(GameComponents* t_game_components, TimingSystem* t_timingSystem, GLFWwindow* t_window) : ae_ecs::AeSystem<PlayerInputSystem>()  {
         m_window = t_window;
+
+        m_game_components = t_game_components;
+        m_timingSystem = t_timingSystem;
+
         // Register component dependencies
-        worldPositionComponent.requiredBySystem(this->getSystemId());
-        modelComponent.requiredBySystem(this->getSystemId());
-        playerControlledComponent.requiredBySystem(this->getSystemId());
+        m_game_components->worldPositionComponent.requiredBySystem(this->getSystemId());
+        m_game_components->modelComponent.requiredBySystem(this->getSystemId());
+        m_game_components->playerControlledComponent.requiredBySystem(this->getSystemId());
 
         // Register system dependencies
-        this->dependsOnSystem(timingSystem.getSystemId());
+        this->dependsOnSystem(m_timingSystem->getSystemId());
         this->enableSystem();
     };
 
@@ -25,8 +27,8 @@ namespace ae {
         std::vector<ecs_id> validEntityIds = m_systemManager.getValidEntities(this->getSystemId());
 
         for (ecs_id entityId : validEntityIds){
-            if(playerControlledComponent.getDataPointer(entityId)->isCurrentlyControlled){
-                moveInPlaneXZ( worldPositionComponent.getDataPointer(entityId), modelComponent.getDataPointer(entityId));
+            if(m_game_components->playerControlledComponent.getDataPointer(entityId)->isCurrentlyControlled){
+                moveInPlaneXZ( m_game_components->worldPositionComponent.getDataPointer(entityId), m_game_components->modelComponent.getDataPointer(entityId));
             };
         };
     };
@@ -40,7 +42,7 @@ namespace ae {
         if (glfwGetKey(m_window, keys.lookDown) == GLFW_PRESS) rotate.x -= 1.0f;
 
         if (glm::dot(rotate, rotate) > std::numeric_limits<float>::epsilon()) {
-            t_modelData->rotation += m_lookSpeed * timingSystem.getDt() * glm::normalize(rotate);
+            t_modelData->rotation += m_lookSpeed * m_timingSystem->getDt() * glm::normalize(rotate);
         }
 
         // Limit pitch value between about +/- 85 degrees
@@ -61,7 +63,7 @@ namespace ae {
         if (glfwGetKey(m_window, keys.moveDown) == GLFW_PRESS) moveDir -= upDir;
 
         if (glm::dot(moveDir, moveDir) > std::numeric_limits<float>::epsilon()) {
-            glm::vec3 movement = m_moveSpeed * timingSystem.getDt() * glm::normalize(moveDir);
+            glm::vec3 movement = m_moveSpeed * m_timingSystem->getDt() * glm::normalize(moveDir);
             t_worldPosition->rho = t_worldPosition->rho + movement.x;
             t_worldPosition->theta = t_worldPosition->theta + movement.y;
             t_worldPosition->phi = t_worldPosition->phi + movement.z;

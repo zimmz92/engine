@@ -4,20 +4,19 @@
 
 #include "camera_update_system.hpp"
 
-#include "world_position_component.hpp"
-#include "model_component.hpp"
-#include "camera_component.hpp"
-
 namespace ae {
     // Constructor of the CameraUpdateSystemClass
-    CameraUpdateSystemClass::CameraUpdateSystemClass(AeRenderer* t_renderer, PlayerInputSystem* t_playerInputSystem)  : ae_ecs::AeSystem<CameraUpdateSystemClass>()  {
+    CameraUpdateSystemClass::CameraUpdateSystemClass(GameComponents* t_game_components,
+                                                     PlayerInputSystem* t_playerInputSystem,
+                                                     AeRenderer* t_renderer)
+                                                     : ae_ecs::AeSystem<CameraUpdateSystemClass>()  {
         m_renderer = t_renderer;
-        m_playerInputSystem = t_playerInputSystem;
+        m_game_components = t_game_components;
 
         // Register component dependencies
-        worldPositionComponent.requiredBySystem(this->getSystemId());
-        modelComponent.requiredBySystem(this->getSystemId());
-        cameraComponent.requiredBySystem(this->getSystemId());
+        m_game_components->worldPositionComponent.requiredBySystem(this->getSystemId());
+        m_game_components->modelComponent.requiredBySystem(this->getSystemId());
+        m_game_components->cameraComponent.requiredBySystem(this->getSystemId());
 
         // Register system dependencies
         this->dependsOnSystem(t_playerInputSystem->getSystemId());
@@ -45,9 +44,9 @@ namespace ae {
         std::vector<ecs_id> validEntityIds = m_systemManager.getValidEntities(this->getSystemId());
 
         for (ecs_id entityId : validEntityIds){
-            cameraComponentStructure* entityCameraData = cameraComponent.getDataPointer(entityId);
-            worldPositionComponentStruct* entityWorldPosition = worldPositionComponent.getDataPointer(entityId);
-            modelComponentStruct* entityModel = modelComponent.getDataPointer(entityId);
+            cameraComponentStructure* entityCameraData = m_game_components->cameraComponent.getDataPointer(entityId);
+            worldPositionComponentStruct* entityWorldPosition = m_game_components->worldPositionComponent.getDataPointer(entityId);
+            modelComponentStruct* entityModel = m_game_components->modelComponent.getDataPointer(entityId);
 
             // Set the view based upon the updated position of the camera, and potentially it's target.
             if(entityCameraData->cameraLockedOnDirection){
@@ -56,7 +55,7 @@ namespace ae {
                               entityWorldPosition,
                               entityCameraData->cameraLockDirection);
             }else if(entityCameraData->cameraLockedOnEntity){
-                worldPositionComponentStruct* targetEntityWorldPosition = worldPositionComponent.getDataPointer(entityCameraData->lockOnEntityId);
+                worldPositionComponentStruct* targetEntityWorldPosition = m_game_components->worldPositionComponent.getDataPointer(entityCameraData->lockOnEntityId);
                 setViewTarget(entityCameraData,
                               entityModel,
                               entityWorldPosition,

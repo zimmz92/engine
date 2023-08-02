@@ -10,8 +10,10 @@
 #include "ae_window.hpp"
 #include "ae_renderer.hpp"
 
+#include "game_components.hpp"
+#include "game_systems.hpp"
+
 #include <memory>
-#include <vector>
 
 namespace ae {
     class Arundos {
@@ -36,6 +38,9 @@ namespace ae {
         AeWindow m_aeWindow{ WIDTH, HEIGHT, "Hello Vulkan!" };
         AeDevice m_aeDevice{ m_aeWindow };
         AeRenderer m_aeRenderer{m_aeWindow, m_aeDevice };
+
+        GameComponents m_gameComponents{};
+        GameSystems* m_gameSystems;
 
         // note: order of declarations matters
         // TODO to prevent order from mattering in app destructor make m_globalPool a null pointer to make sure it is destroyed before device is

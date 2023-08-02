@@ -37,7 +37,4 @@ namespace ae {
     protected:
 
     };
-
-    /// The instantiation of the player controlled component for use by the game.
-    inline playerControlledComponentClass playerControlledComponent;
 }

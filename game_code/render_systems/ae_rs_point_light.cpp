@@ -11,8 +11,6 @@
 #include <array>
 #include <map>
 
-#include "world_position_component.hpp"
-
 namespace ae {
 
     struct PointLightPushConstants {
@@ -91,7 +89,7 @@ namespace ae {
         t_ubo.numLights = lightIndex;
     }
 
-    void AeRsPointLight::render(FrameInfo& t_frameInfo) {
+    void AeRsPointLight::render(FrameInfo& t_frameInfo, GameComponents* t_gameComponents) {
         //sort lights
         std::map<float, AeGameObject::id_t> sorted;
         for (auto& kv : t_frameInfo.gameObjects) {
@@ -99,7 +97,7 @@ namespace ae {
             if (obj.m_pointLight == nullptr) continue;
 
             // Get the position of the specified camera
-            worldPositionComponentStruct* cameraWorldPosition = worldPositionComponent.getDataPointer(t_frameInfo.m_cameraId);
+            worldPositionComponentStruct* cameraWorldPosition = t_gameComponents->worldPositionComponent.getDataPointer(t_frameInfo.m_cameraId);
             glm::vec3 cameraPosition = {cameraWorldPosition->rho, cameraWorldPosition->theta, cameraWorldPosition->phi};
 
             //calculate distance

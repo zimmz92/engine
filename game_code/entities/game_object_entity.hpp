@@ -1,15 +1,14 @@
 #pragma once
 
 #include "ae_ecs.hpp"
-#include "model_component.hpp"
-#include "world_position_component.hpp"
+#include "game_components.hpp"
 
 namespace ae {
 	class GameObjectEntity : public ae_ecs::AeEntity<GameObjectEntity> {
 
 	public:
 		// Function to create an entity
-		GameObjectEntity();
+		explicit GameObjectEntity(GameComponents* t_gameComponents);
 
 		// Function to destroy an entity
 		~GameObjectEntity();
