@@ -32,7 +32,11 @@ namespace ae_ecs {
 			// TODO: Allow the use of different memory architectures
             // TODO: Allow for a stack instead of allocating memory for every entity even if every entity will never
             //  have a component, for instance there will not be a ton of cameras.
-			m_componentData = (T*)malloc(MAX_NUM_ENTITIES * sizeof(T));
+			m_componentData = new T[MAX_NUM_ENTITIES];
+            for(int i = 1; i<MAX_NUM_ENTITIES; i++){
+                T templateComponentData;
+                m_componentData[i] = templateComponentData;
+            };
 		};
 
         /// Component destructor. Ensures that the component ID and the memory of the component are released.
