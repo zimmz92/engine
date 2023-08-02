@@ -5,6 +5,7 @@
 
 // lib
 #include <vulkan/vulkan.h>
+#include "ae_ecs.hpp"
 
 namespace ae {
 
@@ -16,7 +17,7 @@ namespace ae {
 	};
 
 	struct GlobalUbo {
-		// Remember alignment always either use alignment or use only 4d!!!
+		// Remember alignment! Always ensure to align data properly or use only 4d!!!
 		glm::mat4 projection{ 1.0f };
 		glm::mat4 view{ 1.0f };
 		glm::mat4 inverseView{ 1.0f };
@@ -29,7 +30,7 @@ namespace ae {
 		int m_frameIndex;
 		float m_frameTime;
 		VkCommandBuffer m_commandBuffer;
-		AeCamera& m_camera;
+		ecs_id m_cameraId;
 		VkDescriptorSet m_globalDescriptorSet;
 		AeGameObject::Map &gameObjects;
 	};

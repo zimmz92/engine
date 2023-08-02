@@ -11,6 +11,8 @@
 #include <array>
 #include <map>
 
+#include "world_position_component.hpp"
+
 namespace ae {
 
     struct PointLightPushConstants {
@@ -96,8 +98,12 @@ namespace ae {
             auto& obj = kv.second;
             if (obj.m_pointLight == nullptr) continue;
 
+            // Get the position of the specified camera
+            worldPositionComponentStruct* cameraWorldPosition = worldPositionComponent.getDataPointer(t_frameInfo.m_cameraId);
+            glm::vec3 cameraPosition = {cameraWorldPosition->rho, cameraWorldPosition->theta, cameraWorldPosition->phi};
+
             //calculate distance
-            auto offset = t_frameInfo.m_camera.getPosition() - obj.m_transform.translation;
+            auto offset = cameraPosition - obj.m_transform.translation;
             float disSquared = glm::dot(offset, offset);
             sorted[disSquared] = obj.getID();
         }

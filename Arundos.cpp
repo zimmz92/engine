@@ -1,7 +1,6 @@
 ﻿#include "Arundos.hpp"
 #include "ae_rs_simple.hpp"
 #include "ae_rs_point_light.hpp"
-#include "ae_camera.hpp"
 #include "keyboard_movement_controller.hpp"
 #include "ae_buffer.hpp"
 #include "game_object_entity.hpp"
@@ -63,7 +62,6 @@ namespace ae {
 
         AeRsSimple simpleRenderSystem(m_aeDevice, m_aeRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout());
         AeRsPointLight pointLightSystem(m_aeDevice, m_aeRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout());
-        AeCamera camera{};
 
         // Try to make a camera with the ECS
         PlayerInputSystem playerInputSystem(m_aeWindow.getGLFWwindow()); // Need to do this here for now since the window itself is not yet a defined entity that this system can work on and must be initilized with that information.
@@ -74,10 +72,6 @@ namespace ae {
         cameraECS.m_cameraData->usePerspectiveProjection = true;
         cameraECS.enableEntity();
 
-        auto viewerObject = AeGameObject::createGameObject();
-        viewerObject.m_transform.translation.z = -2.5f;
-        KeyboardMovementController cameraController{};
-
         auto currentTime = std::chrono::high_resolution_clock::now();
         
         while (!m_aeWindow.shouldClose()) {
@@ -85,19 +79,9 @@ namespace ae {
 
             ae_ecs::ecsSystemManager.runSystems();
 
-            // Test the ECS Camera to see if it is working
-            camera.setProjectionMatrix(cameraECS.m_cameraData->m_projectionMatrix);
-            camera.setViewMatrix(cameraECS.m_cameraData->m_viewMatrix);
-            camera.setInverseMatrix(cameraECS.m_cameraData->m_inverseViewMatrix);
-
             // TODO allow for option to limit frame timing, aka lock FPS, if desired but allow other systems to continue to run
             //time_delta = glm::min(time_delta, MAX_FRAME_TIME);
 
-            // Original Camera Code
-            //cameraController.moveInPlaneXZ(m_aeWindow.getGLFWwindow(), timingSystem.getDt(), viewerObject);
-            //camera.setViewYXZ(viewerObject.m_transform.translation, viewerObject.m_transform.rotation);
-            //float aspect = m_aeRenderer.getAspectRatio();
-            //camera.setPerspectiveProjection(glm::radians(50.0f), aspect, 0.1f, 100.0f);
 
             if (auto commandBuffer = m_aeRenderer.beginFrame()) {
                 int frameIndex = m_aeRenderer.getFrameIndex();
@@ -105,16 +89,16 @@ namespace ae {
                         frameIndex,
                         timingSystem.getDt(),
                         commandBuffer,
-                        camera,
+                        cameraECS.getEntityId(),
                         globalDescriptorSets[frameIndex],
                         m_gameObjects
                 };
 
                 // update
                 GlobalUbo ubo{};
-                ubo.projection = camera.getProjection();
-                ubo.view = camera.getView();
-                ubo.inverseView = camera.getInverseView();
+                ubo.projection = cameraECS.m_cameraData->m_projectionMatrix;
+                ubo.view = cameraECS.m_cameraData->m_viewMatrix;
+                ubo.inverseView = cameraECS.m_cameraData->m_inverseViewMatrix;
                 pointLightSystem.update(frameInfo, ubo);
                 uboBuffers[frameIndex]->writeToBuffer(&ubo);
                 uboBuffers[frameIndex]->flush();
