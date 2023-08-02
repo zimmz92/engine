@@ -71,7 +71,6 @@ namespace ae {
         CameraEntity cameraECS{};
         cameraECS.m_playerControlledData->isCurrentlyControlled = true;
         cameraECS.m_worldPosition->phi = -2.5f;
-        cameraECS.m_model->rotation = { 0.0f, -1.0f, 0.0f };
         cameraECS.m_cameraData->usePerspectiveProjection = true;
         cameraECS.enableEntity();
 
