@@ -43,7 +43,7 @@ namespace ae_ecs {
 		~AeComponent() {
             m_componentManager.releaseComponentId(m_componentId);
 			delete[] m_componentData;
-            m_componentData = NULL;
+            m_componentData = nullptr;
 		};
 
         /// Gets the ID of the component.
