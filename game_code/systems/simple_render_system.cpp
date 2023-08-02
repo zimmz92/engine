@@ -76,6 +76,8 @@ namespace ae {
 
         for (auto& kv : t_frameInfo.gameObjects) {
             auto& obj = kv.second;
+
+            // If the object does not have a model do not attempt to render it.
             if (obj.m_model == nullptr) continue;
             SimplePushConstantData push{};
             auto modelMatrix = obj.m_transform.mat4();

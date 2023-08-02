@@ -1,6 +1,5 @@
 #pragma once
 
-#include "ae_camera.hpp"
 #include "ae_game_object.hpp"
 
 // lib
