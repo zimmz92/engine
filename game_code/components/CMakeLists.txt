@@ -4,6 +4,7 @@ target_sources(mySrcFiles
         world_position_component.hpp
         player_controlled_component.hpp
         camera_component.hpp
+        game_components.hpp
     PUBLIC
 )
 

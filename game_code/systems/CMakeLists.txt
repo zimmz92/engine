@@ -8,6 +8,7 @@ target_sources(mySrcFiles
         player_input_system.hpp
         camera_update_system.cpp
         camera_update_system.hpp
+        game_systems.hpp
     PUBLIC
 )
 
