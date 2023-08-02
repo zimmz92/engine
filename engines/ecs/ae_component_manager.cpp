@@ -168,9 +168,13 @@ namespace ae_ecs {
             // Loop through the entity component signatures
             for(ecs_id entityId=0; entityId < MAX_NUM_ENTITIES ; entityId++){
 
+                // Need to isolate the entity component signature since the &= operator puts the result back into the
+                // left hand variable.
+                std::bitset<MAX_NUM_COMPONENTS + 1> entityComponentSignature = m_entityComponentSignatures[entityId];
+
                 // If the entities component signature matches the system's component signature add it to the list of entity
                 // indexes being returned.
-                if( m_systemComponentSignatures[t_systemId].operator==(m_entityComponentSignatures[entityId].operator&=(systemSignaturePair->second))){
+                if( m_systemComponentSignatures[t_systemId].operator==(entityComponentSignature.operator&=(systemSignaturePair->second))){
                     valid_entities.push_back(entityId);
                 };
             };
