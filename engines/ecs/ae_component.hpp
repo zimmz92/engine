@@ -42,7 +42,8 @@ namespace ae_ecs {
         /// Component destructor. Ensures that the component ID and the memory of the component are released.
 		~AeComponent() {
             m_componentManager.releaseComponentId(m_componentId);
-			delete(m_componentData);
+			delete[] m_componentData;
+            m_componentData = NULL;
 		};
 
         /// Gets the ID of the component.
