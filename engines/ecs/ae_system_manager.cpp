@@ -217,7 +217,7 @@ namespace ae_ecs {
     // at that location.
     void AeSystemManager::releaseSystemId(ecs_id t_systemId) {
         if (m_systemIdStackTop >= MAX_NUM_SYSTEMS - 1) {
-            throw std::runtime_error("Entity ID Stack Overflow!");
+            throw std::runtime_error("System ID Stack Overflow!");
         }
         else {
             m_systemIdStackTop++;
@@ -231,7 +231,7 @@ namespace ae_ecs {
     // decrementing the top of stack pointer to point to the next available system ID.
     ecs_id AeSystemManager::allocateSystemId() {
         if (m_systemIdStackTop <= -1) {
-            throw std::runtime_error("Entity ID Stack Underflow! No more system IDs to give out!");
+            throw std::runtime_error("System ID Stack Underflow! No more system IDs to give out!");
         }
         else {
             return m_systemIdStack[m_systemIdStackTop--];

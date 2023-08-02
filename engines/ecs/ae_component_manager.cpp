@@ -24,7 +24,7 @@ namespace ae_ecs {
 	// at that location.
 	void AeComponentManager::releaseComponentId(ecs_id t_componentId) {
 		if (m_componentIdStackTop >= MAX_NUM_COMPONENTS - 1) {
-			throw std::runtime_error("Entity ID Stack Overflow!");
+			throw std::runtime_error("Component ID Stack Overflow!");
 		}
 		else {
 			m_componentIdStackTop++;
@@ -38,7 +38,7 @@ namespace ae_ecs {
 	// decrementing the top of stack pointer to point to the next available component ID.
 	ecs_id AeComponentManager::allocateComponentId() {
 		if (m_componentIdStackTop <= -1) {
-			throw std::runtime_error("Entity ID Stack Underflow! No more component IDs to give out!");
+			throw std::runtime_error("Component ID Stack Underflow! No more component IDs to give out!");
 		}
 		else {
 			return m_componentIdStack[m_componentIdStackTop--];
