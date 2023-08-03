@@ -71,6 +71,13 @@ namespace ae_ecs {
 			// TODO: Alert system manager that this entity no longer uses this component.
 		};
 
+        /// Checks with the component manager if an entity uses this component.
+        /// \param t_entityId The ID of the entity that may use this component
+        /// \return True if the entity uses this component.
+        bool doesEntityUseThis(ecs_id t_entityId){
+            return m_componentManager.isComponentUsed(t_entityId, this->m_componentId);
+        };
+
         /// Alerts the component manager that a system requires this component to operate.
         /// \param t_systemId The ID of the system that requires this component to operate.
         void requiredBySystem(ecs_id t_systemId) {

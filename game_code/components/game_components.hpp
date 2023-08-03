@@ -10,6 +10,8 @@
 #include "model_component.hpp"
 #include "player_controlled_component.hpp"
 #include "world_position_component.hpp"
+#include "ubo_data_component.hpp"
+#include "point_light_component.hpp"
 
 namespace ae {
     struct GameComponents{
@@ -17,5 +19,7 @@ namespace ae {
         modelComponentClass modelComponent{};
         playerControlledComponentClass playerControlledComponent{};
         worldPositionComponentClass worldPositionComponent{};
+        uboDataFlagsComponentClass uboDataFlagsComponent{};
+        PointLightComponentClass pointLightComponent{};
     };
 }

@@ -11,6 +11,8 @@
 #include "camera_update_system.hpp"
 #include "player_input_system.hpp"
 #include "timing_system.hpp"
+#include "cycle_point_lights_system.hpp"
+#include "update_ubo_system.hpp"
 
 namespace ae {
     struct GameSystems{
@@ -18,6 +20,8 @@ namespace ae {
         GameSystems(GameComponents* t_game_components, GLFWwindow* t_window, AeRenderer* t_renderer){
             playerInputSystem = new PlayerInputSystem(t_game_components,&timingSystem,t_window);
             cameraUpdateSystem = new CameraUpdateSystemClass(t_game_components,playerInputSystem,t_renderer);
+            cyclePointLightsSystem = new CyclePointLightsSystem(t_game_components,&timingSystem);
+            updateUboSystem = new UpdateUboSystem(t_game_components, cameraUpdateSystem, cyclePointLightsSystem);
         }
 
         ~GameSystems(){
@@ -32,5 +36,9 @@ namespace ae {
         TimingSystem timingSystem;
         PlayerInputSystem* playerInputSystem;
         CameraUpdateSystemClass* cameraUpdateSystem;
+        UpdateUboSystem* updateUboSystem;
+
+        // Temporary Systems
+        CyclePointLightsSystem* cyclePointLightsSystem;
     };
 }

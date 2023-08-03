@@ -34,8 +34,10 @@ namespace ae {
     private:
         void loadGameObjects();
 
-        
-        AeWindow m_aeWindow{ WIDTH, HEIGHT, "Hello Vulkan!" };
+        /// Application window.
+        AeWindow m_aeWindow{ WIDTH, HEIGHT, "Arundos" };
+
+
         AeDevice m_aeDevice{ m_aeWindow };
         AeRenderer m_aeRenderer{m_aeWindow, m_aeDevice };
 

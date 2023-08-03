@@ -4,17 +4,16 @@
 #include "game_components.hpp"
 
 namespace ae {
-	class CameraEntity : public GameObjectEntity {
+	class PointLightEntity : public GameObjectEntity {
 
 	public:
 		// Function to create an entity
-        explicit CameraEntity(GameComponents* t_gameComponents);
+        explicit PointLightEntity(GameComponents* t_gameComponents);
 
 		// Function to destroy an entity
-		~CameraEntity();
+		~PointLightEntity();
 
-        cameraComponentStructure* m_cameraData;
-        playerControlledComponentStructure* m_playerControlledData;
+        PointLightComponentStructure* m_pointLightData;
         uboDataFlagsComponentStructure* m_uboDataFlags;
 
 	private:

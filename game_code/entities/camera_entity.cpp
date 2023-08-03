@@ -6,6 +6,9 @@ namespace ae {
 
         m_cameraData = t_gameComponents->cameraComponent.requiredByEntity(this->m_entityId);
         m_playerControlledData = t_gameComponents->playerControlledComponent.requiredByEntity(this->m_entityId);
+        m_uboDataFlags = t_gameComponents->uboDataFlagsComponent.requiredByEntity(this->m_entityId);
+
+        m_uboDataFlags->hasUboCameraData = true;
 
 	};
 

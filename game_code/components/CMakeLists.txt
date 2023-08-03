@@ -5,6 +5,8 @@ target_sources(mySrcFiles
         player_controlled_component.hpp
         camera_component.hpp
         game_components.hpp
+        ubo_data_component.hpp
+        point_light_component.hpp
     PUBLIC
 )
 

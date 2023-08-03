@@ -1,5 +1,4 @@
 #include "Arundos.hpp"
-#include "ae_ecs.hpp"
 
 // Test ECS
 #ifdef DECS_DEBUG

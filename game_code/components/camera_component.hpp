@@ -57,6 +57,9 @@ namespace ae {
         /// This is a xyz vector representing the direction that the camera is looking
         glm::vec3 cameraLockDirection = {0.0f, 0.0f, 0.0f};
 
+        /// This indicates if this camera is the main camera of the application
+        bool isMainCamera = false;
+
         /// TODO: Implement camera offset from model center.
     };
 

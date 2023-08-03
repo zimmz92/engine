@@ -4,6 +4,8 @@ target_sources(mySrcFiles
         game_object_entity.cpp
         camera_entity.hpp
         camera_entity.cpp
+        point_light_entity.cpp
+        point_light_entity.hpp
     PUBLIC
 )
 

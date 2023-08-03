@@ -5,6 +5,7 @@
 
 #include "game_object_entity.hpp"
 #include "camera_entity.hpp"
+#include "point_light_entity.hpp"
 
 // libraries
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -59,16 +60,56 @@ namespace ae {
         AeRsSimple simpleRenderSystem(m_aeDevice, m_aeRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout());
         AeRsPointLight pointLightSystem(m_aeDevice, m_aeRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout());
 
+        //==============================================================================================================
         // Make the game camera using ECS
+        // TODO: In ECS need to make entity manager keep a shared pointer to an entity (or malloc one) to keep it from
+        //  being destroyed when scope changes. Should need to specify that an entity be destroyed if need be.
         CameraEntity cameraECS{&m_gameComponents};
         cameraECS.m_playerControlledData->isCurrentlyControlled = true;
         cameraECS.m_worldPosition->phi = -2.5f;
         cameraECS.m_cameraData->usePerspectiveProjection = true;
+        cameraECS.m_cameraData->isMainCamera = true;
         cameraECS.enableEntity();
+        //==============================================================================================================
+
+
+        //==============================================================================================================
+        // Make the point lights using the ECS for testing
+        // Create Point Lights
+        std::vector<glm::vec3> lightColors{
+                {1.f, .1f, .1f},
+                {.1f, .1f, 1.f},
+                {.1f, 1.f, .1f},
+                {1.f, 1.f, .1f},
+                {.1f, 1.f, 1.f},
+                {1.f, 1.f, 1.f}  //
+        };
+
+        std::vector<PointLightEntity*> testPointLights;
+        for (int i = 0; i < lightColors.size(); i++) {
+            testPointLights.push_back(new PointLightEntity(&m_gameComponents));
+
+            auto pointLight = testPointLights.back();
+            pointLight->m_pointLightData->lightIntensity = 0.2f;
+            pointLight->m_pointLightData->m_color = lightColors[i];
+            auto rotateLight = glm::rotate(
+                    glm::mat4(1.0f),
+                    (i * glm::two_pi<float>()) / lightColors.size(),
+                    {0.0f, -1.0f, 0.0f});
+            glm::vec3 worldPosition = glm::vec3(rotateLight * glm::vec4(-1.0f, -1.0f, -1.0f, 1.0f));
+            pointLight->m_worldPosition->rho = worldPosition.x;
+            pointLight->m_worldPosition->theta = worldPosition.y;
+            pointLight->m_worldPosition->phi = worldPosition.z;
+            pointLight->enableEntity();
+        }
+        //==============================================================================================================
+
+
 
         auto currentTime = std::chrono::high_resolution_clock::now();
         
         while (!m_aeWindow.shouldClose()) {
+            // Check to see if there are any user input events.
             glfwPollEvents();
 
             ae_ecs::ecsSystemManager.runSystems();
@@ -78,6 +119,8 @@ namespace ae {
 
 
             if (auto commandBuffer = m_aeRenderer.beginFrame()) {
+
+                // update
                 int frameIndex = m_aeRenderer.getFrameIndex();
                 FrameInfo frameInfo{
                         frameIndex,
@@ -87,17 +130,15 @@ namespace ae {
                         globalDescriptorSets[frameIndex],
                         m_gameObjects
                 };
-
-                // update
                 GlobalUbo ubo{};
                 ubo.projection = cameraECS.m_cameraData->m_projectionMatrix;
                 ubo.view = cameraECS.m_cameraData->m_viewMatrix;
                 ubo.inverseView = cameraECS.m_cameraData->m_inverseViewMatrix;
                 pointLightSystem.update(frameInfo, ubo);
-                uboBuffers[frameIndex]->writeToBuffer(&ubo);
-                uboBuffers[frameIndex]->flush();
 
                 // render
+                uboBuffers[frameIndex]->writeToBuffer(&ubo);
+                uboBuffers[frameIndex]->flush();
                 m_aeRenderer.beginSwapChainRenderPass(commandBuffer);
 
                 // order here matters for transparency
@@ -108,6 +149,12 @@ namespace ae {
                 m_aeRenderer.endFrame();
             }
         }
+
+        // Destroy the test ECS point lights
+        for (auto pointLight : testPointLights) {
+            delete pointLight;
+        }
+
 
         vkDeviceWaitIdle(m_aeDevice.device());
     }
