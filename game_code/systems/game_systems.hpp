@@ -17,15 +17,21 @@
 namespace ae {
     struct GameSystems{
 
-        GameSystems(GameComponents* t_game_components, GLFWwindow* t_window, AeRenderer* t_renderer){
-            playerInputSystem = new PlayerInputSystem(t_game_components,&timingSystem,t_window);
+        GameSystems(GameComponentsStruct& t_game_components, GLFWwindow* t_window, AeRenderer* t_renderer){
+            playerInputSystem = new PlayerInputSystemClass(t_game_components, timingSystem, t_window);
             cameraUpdateSystem = new CameraUpdateSystemClass(t_game_components,playerInputSystem,t_renderer);
-            cyclePointLightsSystem = new CyclePointLightsSystem(t_game_components,&timingSystem);
+            cyclePointLightsSystem = new CyclePointLightsSystemClass(t_game_components, &timingSystem);
             updateUboSystem = new UpdateUboSystem(t_game_components, cameraUpdateSystem, cyclePointLightsSystem);
         }
 
         ~GameSystems(){
             // Delete systems in the reverse order of how they were declared.
+            delete updateUboSystem;
+            updateUboSystem = nullptr;
+
+            delete cyclePointLightsSystem;
+            cyclePointLightsSystem = nullptr;
+
             delete cameraUpdateSystem;
             cameraUpdateSystem = nullptr;
 
@@ -33,12 +39,20 @@ namespace ae {
             playerInputSystem = nullptr;
         }
 
-        TimingSystem timingSystem;
-        PlayerInputSystem* playerInputSystem;
+        /// The TimingSystemClass instance for the game.
+        TimingSystemClass timingSystem;
+
+        /// The PlayerInputSystemClass instance for the game.
+        PlayerInputSystemClass* playerInputSystem;
+
+        /// The CameraUpdateSystemClass instance for the game.
         CameraUpdateSystemClass* cameraUpdateSystem;
+
+        /// The UpdateUboSystem instance for the game.
         UpdateUboSystem* updateUboSystem;
 
         // Temporary Systems
-        CyclePointLightsSystem* cyclePointLightsSystem;
+        /// The CyclePointLightsSystemClass instance for the game.
+        CyclePointLightsSystemClass* cyclePointLightsSystem;
     };
 }

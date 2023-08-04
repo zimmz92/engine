@@ -104,8 +104,8 @@ namespace ae_ecs {
 
 		/// Get data for a specific entity.
 		/// \param t_entityID The ID of the entity to return the component data for.
-		T* getDataPointer(ecs_id t_entityID) {
-			return &m_componentData[t_entityID];
+		T& getDataPointer(ecs_id t_entityID) {
+			return m_componentData[t_entityID];
 		};
 
 	private:

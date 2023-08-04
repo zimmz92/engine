@@ -15,7 +15,7 @@
 namespace ae {
 
     /// This structure defines the data stored for each entity using the player component.
-    struct cameraComponentStructure {
+    struct CameraComponentStructure {
 
         /// The matrix describing the mapping of a pinhole camera from 3D world space to the 2D screen.
         glm::mat4 m_projectionMatrix{ 1.0f };
@@ -43,7 +43,7 @@ namespace ae {
         bool cameraLockedOnWorldPosition = false;
 
         /// The coordinates of the target the camera is locked onto, this is the default behavior.
-        worldPositionComponentStruct cameraLockWorldPosition {0.0f, 0.0f, 0.0f};
+        WorldPositionComponentStruct cameraLockWorldPosition {0.0f, 0.0f, 0.0f};
 
         /// Specifies that the camera is locked onto an entity.
         bool cameraLockedOnEntity = false;
@@ -66,14 +66,14 @@ namespace ae {
 
     /// The player controlled component class is derived from the AeComponent template class using the player controlled
     /// component structure.
-    class cameraComponentClass : public ae_ecs::AeComponent<cameraComponentStructure> {
+    class CameraComponentClass : public ae_ecs::AeComponent<CameraComponentStructure> {
     public:
-        /// The playerControlledComponentClass constructor uses the AeComponent constructor with no additions.
-        cameraComponentClass() : AeComponent() {};
+        /// The PlayerControlledComponentClass constructor uses the AeComponent constructor with no additions.
+        CameraComponentClass() : AeComponent() {};
 
-        /// The destructor of the playerControlledComponentClass class. The playerControlledComponentClass destructor
+        /// The destructor of the PlayerControlledComponentClass class. The PlayerControlledComponentClass destructor
         /// uses the AeComponent constructor with no additions.
-        ~cameraComponentClass() {};
+        ~CameraComponentClass() {};
 
     private:
 

@@ -8,13 +8,13 @@ namespace ae {
 
 	public:
 		// Function to create an entity
-        explicit PointLightEntity(GameComponents* t_gameComponents);
+        explicit PointLightEntity(GameComponentsStruct* t_gameComponents);
 
 		// Function to destroy an entity
 		~PointLightEntity();
 
-        PointLightComponentStructure* m_pointLightData;
-        uboDataFlagsComponentStructure* m_uboDataFlags;
+        PointLightComponentStruct* m_pointLightData;
+        UboDataFlagsComponentStruct* m_uboDataFlags;
 
 	private:
 

@@ -7,13 +7,19 @@
 #include <string>
 
 namespace ae {
-    UpdateUboSystem::UpdateUboSystem(GameComponents* t_game_components,
+    UpdateUboSystem::UpdateUboSystem(GameComponentsStruct* t_game_components,
                                      CameraUpdateSystemClass* t_cameraUpdateSystem,
-                                     CyclePointLightsSystem* t_cyclePointLightsSystem)
+                                     CyclePointLightsSystemClass* t_cyclePointLightsSystem)
                                      : ae_ecs::AeSystem<UpdateUboSystem>() {
 
+        // Save pointers to the game components this system may access
         m_game_components = t_game_components;
+        // This system will attempt to access data from optional components that this system does not depend on existing
+        // but will make sure exists before attempting to access.
+
+        // Save pointer(s) to the other systems this system may need to access
         m_cyclePointLightsSystem = t_cyclePointLightsSystem;
+
 
         // Register component dependencies
         m_game_components->worldPositionComponent.requiredBySystem(this->getSystemId());
@@ -107,7 +113,7 @@ namespace ae {
             // Error if the entity does not contain the point light data it claims to have in the uboDataFlagsComponent.
             std::string errorMessage = std::string("The number of point lights handled by the UpdateUboSystem, ") +
                                        std::to_string(m_numPointLights) +
-                                       std::string(", does not match the number of lights handled in the CyclePointLightsSystem, ") +
+                                       std::string(", does not match the number of lights handled in the CyclePointLightsSystemClass, ") +
                                        std::to_string(m_cyclePointLightsSystem->getNumPointLights()) +
                                        std::string("!");
             throw std::runtime_error(errorMessage);

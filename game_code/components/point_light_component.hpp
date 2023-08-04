@@ -14,7 +14,7 @@
 namespace ae {
 
     /// This structure defines the data stored for each entity using the player component.
-    struct PointLightComponentStructure {
+    struct PointLightComponentStruct {
         glm::vec3 m_color = glm::vec3(1.0f);
         float lightIntensity = 10.0f;
         float radius = 0.1f;
@@ -23,12 +23,12 @@ namespace ae {
 
     /// The player controlled component class is derived from the AeComponent template class using the player controlled
     /// component structure.
-    class PointLightComponentClass : public ae_ecs::AeComponent<PointLightComponentStructure> {
+    class PointLightComponentClass : public ae_ecs::AeComponent<PointLightComponentStruct> {
     public:
-        /// The playerControlledComponentClass constructor uses the AeComponent constructor with no additions.
+        /// The PlayerControlledComponentClass constructor uses the AeComponent constructor with no additions.
         PointLightComponentClass() : AeComponent() {};
 
-        /// The destructor of the playerControlledComponentClass class. The playerControlledComponentClass destructor
+        /// The destructor of the PlayerControlledComponentClass class. The PlayerControlledComponentClass destructor
         /// uses the AeComponent constructor with no additions.
         ~PointLightComponentClass() {};
 

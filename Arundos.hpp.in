@@ -41,7 +41,7 @@ namespace ae {
         AeDevice m_aeDevice{ m_aeWindow };
         AeRenderer m_aeRenderer{m_aeWindow, m_aeDevice };
 
-        GameComponents m_gameComponents{};
+        GameComponentsStruct m_gameComponents{};
         GameSystems* m_gameSystems;
 
         // note: order of declarations matters

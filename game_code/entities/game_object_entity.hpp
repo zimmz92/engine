@@ -8,13 +8,13 @@ namespace ae {
 
 	public:
 		// Function to create an entity
-		explicit GameObjectEntity(GameComponents* t_gameComponents);
+		explicit GameObjectEntity(GameComponentsStruct* t_gameComponents);
 
 		// Function to destroy an entity
 		~GameObjectEntity();
 
-        modelComponentStruct* m_model;
-        worldPositionComponentStruct* m_worldPosition;
+        ModelComponentStruct* m_model;
+        WorldPositionComponentStruct* m_worldPosition;
 
 	private:
 

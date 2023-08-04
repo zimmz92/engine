@@ -1,4 +1,4 @@
-/*! \file GameComponents.hpp
+/*! \file GameComponentsStruct.hpp
     \brief The script that declares the components of the game.
 
     The game components are declared.
@@ -14,12 +14,12 @@
 #include "point_light_component.hpp"
 
 namespace ae {
-    struct GameComponents{
-        cameraComponentClass cameraComponent{};
-        modelComponentClass modelComponent{};
-        playerControlledComponentClass playerControlledComponent{};
-        worldPositionComponentClass worldPositionComponent{};
-        uboDataFlagsComponentClass uboDataFlagsComponent{};
+    struct GameComponentsStruct{
+        CameraComponentClass cameraComponent{};
+        ModelComponentClass modelComponent{};
+        PlayerControlledComponentClass playerControlledComponent{};
+        WorldPositionComponentClass worldPositionComponent{};
+        UboDataFlagsComponentClass uboDataFlagsComponent{};
         PointLightComponentClass pointLightComponent{};
     };
 }

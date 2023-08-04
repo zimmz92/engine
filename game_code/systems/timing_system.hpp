@@ -1,7 +1,7 @@
 /*! \file timing_system.hpp
     \brief The script defining the timing system.
 
-    The timing system is defined and the instance for the game is declared.
+    The timing system is defined.
 
 */
 #pragma once
@@ -9,10 +9,11 @@
 #include "ae_ecs.hpp"
 #include <chrono>
 
-class TimingSystem : public ae_ecs::AeSystem<TimingSystem> {
+
+class TimingSystemClass : public ae_ecs::AeSystem<TimingSystemClass> {
 public:
-    TimingSystem();
-    ~TimingSystem();
+    TimingSystemClass();
+    ~TimingSystemClass();
 
     void setupSystem() override{};
     void executeSystem() override;

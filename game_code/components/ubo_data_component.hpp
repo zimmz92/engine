@@ -13,7 +13,7 @@
 namespace ae {
 
     /// This structure defines the data stored for each entity using the player component.
-    struct uboDataFlagsComponentStructure {
+    struct UboDataFlagsComponentStruct {
         bool hasUboCameraData = false;
         bool hasUboPointLightData = false;
     };
@@ -21,14 +21,14 @@ namespace ae {
 
     /// The player controlled component class is derived from the AeComponent template class using the player controlled
     /// component structure.
-    class uboDataFlagsComponentClass : public ae_ecs::AeComponent<uboDataFlagsComponentStructure> {
+    class UboDataFlagsComponentClass : public ae_ecs::AeComponent<UboDataFlagsComponentStruct> {
     public:
-        /// The playerControlledComponentClass constructor uses the AeComponent constructor with no additions.
-        uboDataFlagsComponentClass() : AeComponent() {};
+        /// The PlayerControlledComponentClass constructor uses the AeComponent constructor with no additions.
+        UboDataFlagsComponentClass() : AeComponent() {};
 
-        /// The destructor of the playerControlledComponentClass class. The playerControlledComponentClass destructor
+        /// The destructor of the PlayerControlledComponentClass class. The PlayerControlledComponentClass destructor
         /// uses the AeComponent constructor with no additions.
-        ~uboDataFlagsComponentClass() {};
+        ~UboDataFlagsComponentClass() {};
 
     private:
 

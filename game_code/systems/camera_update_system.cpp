@@ -6,20 +6,23 @@
 
 namespace ae {
     // Constructor of the CameraUpdateSystemClass
-    CameraUpdateSystemClass::CameraUpdateSystemClass(GameComponents* t_game_components,
-                                                     PlayerInputSystem* t_playerInputSystem,
-                                                     AeRenderer* t_renderer)
-                                                     : ae_ecs::AeSystem<CameraUpdateSystemClass>()  {
-        m_renderer = t_renderer;
-        m_game_components = t_game_components;
+    CameraUpdateSystemClass::CameraUpdateSystemClass(GameComponentsStruct& t_game_components,
+                                                     PlayerInputSystemClass& t_playerInputSystem,
+                                                     AeRenderer& t_renderer)
+                                                     : m_worldPositionComponent{t_game_components.worldPositionComponent},
+                                                     m_modelComponent{t_game_components.modelComponent},
+                                                     m_cameraComponent{t_game_components.cameraComponent},
+                                                     m_playerInputSystem{t_playerInputSystem},
+                                                     m_renderer{t_renderer},
+                                                     ae_ecs::AeSystem<CameraUpdateSystemClass>()  {
 
         // Register component dependencies
-        m_game_components->worldPositionComponent.requiredBySystem(this->getSystemId());
-        m_game_components->modelComponent.requiredBySystem(this->getSystemId());
-        m_game_components->cameraComponent.requiredBySystem(this->getSystemId());
+        m_worldPositionComponent.requiredBySystem(this->getSystemId());
+        m_modelComponent.requiredBySystem(this->getSystemId());
+        m_cameraComponent.requiredBySystem(this->getSystemId());
 
         // Register system dependencies
-        this->dependsOnSystem(t_playerInputSystem->getSystemId());
+        this->dependsOnSystem(m_playerInputSystem.getSystemId());
 
         // Enable the system
         this->enableSystem();
@@ -44,9 +47,9 @@ namespace ae {
         std::vector<ecs_id> validEntityIds = m_systemManager.getValidEntities(this->getSystemId());
 
         for (ecs_id entityId : validEntityIds){
-            cameraComponentStructure* entityCameraData = m_game_components->cameraComponent.getDataPointer(entityId);
-            worldPositionComponentStruct* entityWorldPosition = m_game_components->worldPositionComponent.getDataPointer(entityId);
-            modelComponentStruct* entityModel = m_game_components->modelComponent.getDataPointer(entityId);
+            CameraComponentStructure* entityCameraData = m_game_components->cameraComponent.getDataPointer(entityId);
+            WorldPositionComponentStruct* entityWorldPosition = m_game_components->worldPositionComponent.getDataPointer(entityId);
+            ModelComponentStruct* entityModel = m_game_components->modelComponent.getDataPointer(entityId);
 
             // Set the view based upon the updated position of the camera, and potentially it's target.
             if(entityCameraData->cameraLockedOnDirection){
@@ -55,7 +58,7 @@ namespace ae {
                               entityWorldPosition,
                               entityCameraData->cameraLockDirection);
             }else if(entityCameraData->cameraLockedOnEntity){
-                worldPositionComponentStruct* targetEntityWorldPosition = m_game_components->worldPositionComponent.getDataPointer(entityCameraData->lockOnEntityId);
+                WorldPositionComponentStruct* targetEntityWorldPosition = m_game_components->worldPositionComponent.getDataPointer(entityCameraData->lockOnEntityId);
                 setViewTarget(entityCameraData,
                               entityModel,
                               entityWorldPosition,
@@ -86,7 +89,7 @@ namespace ae {
 
 
 
-    void CameraUpdateSystemClass::setOrthographicProjection(cameraComponentStructure* t_entityCameraData, float  t_left, float t_right, float t_top, float t_bottom, float t_near, float t_far) {
+    void CameraUpdateSystemClass::setOrthographicProjection(CameraComponentStructure* t_entityCameraData, float  t_left, float t_right, float t_top, float t_bottom, float t_near, float t_far) {
         t_entityCameraData->m_projectionMatrix = glm::mat4{ 1.0f };
         t_entityCameraData->m_projectionMatrix[0][0] = 2.f / (t_right - t_left);
         t_entityCameraData->m_projectionMatrix[1][1] = 2.f / (t_bottom - t_top);
@@ -96,7 +99,7 @@ namespace ae {
         t_entityCameraData->m_projectionMatrix[3][2] = -t_near / (t_far - t_near);
     }
 
-    void CameraUpdateSystemClass::setPerspectiveProjection(cameraComponentStructure* t_entityCameraData, float t_aspect) {
+    void CameraUpdateSystemClass::setPerspectiveProjection(CameraComponentStructure* t_entityCameraData, float t_aspect) {
         assert(glm::abs(t_aspect - std::numeric_limits<float>::epsilon()) > 0.0f);
         const float tanHalfFovy = tan(t_entityCameraData->m_fovY / 2.f);
         t_entityCameraData->m_projectionMatrix = glm::mat4{ 0.0f };
@@ -107,7 +110,7 @@ namespace ae {
         t_entityCameraData->m_projectionMatrix[3][2] = -(t_entityCameraData->m_farDistance * t_entityCameraData->m_nearDistance) / (t_entityCameraData->m_farDistance - t_entityCameraData->m_nearDistance);
     }
 
-    void CameraUpdateSystemClass::setViewDirection(cameraComponentStructure* t_entityCameraData, modelComponentStruct* t_entityModelData, worldPositionComponentStruct* t_entityWorldPosition, glm::vec3 t_direction) {
+    void CameraUpdateSystemClass::setViewDirection(CameraComponentStructure* t_entityCameraData, ModelComponentStruct* t_entityModelData, WorldPositionComponentStruct* t_entityWorldPosition, glm::vec3 t_direction) {
         glm::vec3 position = {t_entityWorldPosition->rho, t_entityWorldPosition->theta, t_entityWorldPosition->phi};
 
         // TODO: Assertion that the direction provided is non-zero
@@ -144,12 +147,12 @@ namespace ae {
         t_entityCameraData->m_inverseViewMatrix[3][2] = position.z;
     }
 
-    void CameraUpdateSystemClass::setViewTarget(cameraComponentStructure* t_entityCameraData, modelComponentStruct* t_entityModelData, worldPositionComponentStruct* t_entityWorldPosition, glm::vec3 t_target) {
+    void CameraUpdateSystemClass::setViewTarget(CameraComponentStructure* t_entityCameraData, ModelComponentStruct* t_entityModelData, WorldPositionComponentStruct* t_entityWorldPosition, glm::vec3 t_target) {
         glm::vec3 position = {t_entityWorldPosition->rho, t_entityWorldPosition->theta, t_entityWorldPosition->phi};
         setViewDirection(t_entityCameraData, t_entityModelData, t_entityWorldPosition, t_target - position);
     }
 
-    void CameraUpdateSystemClass::setViewYXZ(cameraComponentStructure* t_entityCameraData, modelComponentStruct* t_entityModelData, worldPositionComponentStruct* t_entityWorldPosition) {
+    void CameraUpdateSystemClass::setViewYXZ(CameraComponentStructure* t_entityCameraData, ModelComponentStruct* t_entityModelData, WorldPositionComponentStruct* t_entityWorldPosition) {
         glm::vec3 position = {t_entityWorldPosition->rho, t_entityWorldPosition->theta, t_entityWorldPosition->phi};
 
         const float c3 = glm::cos(t_entityModelData->rotation.z);

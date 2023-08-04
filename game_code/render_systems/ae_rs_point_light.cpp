@@ -89,7 +89,7 @@ namespace ae {
         t_ubo.numLights = lightIndex;
     }
 
-    void AeRsPointLight::render(FrameInfo& t_frameInfo, GameComponents* t_gameComponents) {
+    void AeRsPointLight::render(FrameInfo& t_frameInfo, GameComponentsStruct* t_gameComponents) {
         //sort lights
         std::map<float, AeGameObject::id_t> sorted;
         for (auto& kv : t_frameInfo.gameObjects) {
@@ -97,7 +97,7 @@ namespace ae {
             if (obj.m_pointLight == nullptr) continue;
 
             // Get the position of the specified camera
-            worldPositionComponentStruct* cameraWorldPosition = t_gameComponents->worldPositionComponent.getDataPointer(t_frameInfo.m_cameraId);
+            WorldPositionComponentStruct* cameraWorldPosition = t_gameComponents->worldPositionComponent.getDataPointer(t_frameInfo.m_cameraId);
             glm::vec3 cameraPosition = {cameraWorldPosition->rho, cameraWorldPosition->theta, cameraWorldPosition->phi};
 
             //calculate distance

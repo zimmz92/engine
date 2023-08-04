@@ -19,9 +19,9 @@
 namespace ae {
     class UpdateUboSystem : public ae_ecs::AeSystem<UpdateUboSystem> {
     public:
-        UpdateUboSystem(GameComponents* t_game_components,
+        UpdateUboSystem(GameComponentsStruct* t_game_components,
                         CameraUpdateSystemClass* t_cameraUpdateSystem,
-                        CyclePointLightsSystem* t_cyclePointLightsSystem);
+                        CyclePointLightsSystemClass* t_cyclePointLightsSystem);
         ~UpdateUboSystem();
 
         void setupSystem() override;
@@ -35,10 +35,10 @@ namespace ae {
     private:
 
         /// The game components this system interacts with
-        GameComponents* m_game_components;
+        GameComponentsStruct* m_game_components;
 
         /// Pointer to the cycle point light system
-        CyclePointLightsSystem* m_cyclePointLightsSystem;
+        CyclePointLightsSystemClass* m_cyclePointLightsSystem;
 
         /// Stores the ubo information
         GlobalUbo m_ubo;

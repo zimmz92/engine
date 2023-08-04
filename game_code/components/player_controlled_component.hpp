@@ -13,7 +13,7 @@
 namespace ae {
 
     /// This structure defines the data stored for each entity using the player component.
-    struct playerControlledComponentStructure {
+    struct PlayerControlledComponentStruct {
 
         /// A flag to indicate if the player is currently controlling the entity with this component.
         bool isCurrentlyControlled = false;
@@ -23,14 +23,14 @@ namespace ae {
 
     /// The player controlled component class is derived from the AeComponent template class using the player controlled
     /// component structure.
-    class playerControlledComponentClass : public ae_ecs::AeComponent<playerControlledComponentStructure> {
+    class PlayerControlledComponentClass : public ae_ecs::AeComponent<PlayerControlledComponentStruct> {
     public:
-        /// The playerControlledComponentClass constructor uses the AeComponent constructor with no additions.
-        playerControlledComponentClass() : AeComponent() {};
+        /// The PlayerControlledComponentClass constructor uses the AeComponent constructor with no additions.
+        PlayerControlledComponentClass() : AeComponent() {};
 
-        /// The destructor of the playerControlledComponentClass class. The playerControlledComponentClass destructor
+        /// The destructor of the PlayerControlledComponentClass class. The PlayerControlledComponentClass destructor
         /// uses the AeComponent constructor with no additions.
-        ~playerControlledComponentClass() {};
+        ~PlayerControlledComponentClass() {};
 
     private:
 

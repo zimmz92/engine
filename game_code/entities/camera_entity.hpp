@@ -8,14 +8,14 @@ namespace ae {
 
 	public:
 		// Function to create an entity
-        explicit CameraEntity(GameComponents* t_gameComponents);
+        explicit CameraEntity(GameComponentsStruct* t_gameComponents);
 
 		// Function to destroy an entity
 		~CameraEntity();
 
-        cameraComponentStructure* m_cameraData;
-        playerControlledComponentStructure* m_playerControlledData;
-        uboDataFlagsComponentStructure* m_uboDataFlags;
+        CameraComponentStructure* m_cameraData;
+        PlayerControlledComponentStruct* m_playerControlledData;
+        UboDataFlagsComponentStruct* m_uboDataFlags;
 
 	private:
 
