@@ -59,7 +59,7 @@ namespace ae_ecs {
         /// \param t_entityId The ID of the entity using the component.
         T* requiredByEntity(ecs_id t_entityId) {
             m_componentManager.setEntityComponentSignature(t_entityId, m_componentId);
-            return getDataPointer(t_entityId);
+            return getDataReference(t_entityId);
             // TODO: If stack type component allocate additional memory for the entity on the stack.
         };
 
@@ -104,7 +104,7 @@ namespace ae_ecs {
 
 		/// Get data for a specific entity.
 		/// \param t_entityID The ID of the entity to return the component data for.
-		T& getDataPointer(ecs_id t_entityID) {
+		T& getDataReference(ecs_id t_entityID) {
 			return m_componentData[t_entityID];
 		};
 

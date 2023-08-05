@@ -44,9 +44,9 @@ namespace ae {
         std::vector<ecs_id> validEntityIds = m_systemManager.getValidEntities(this->getSystemId());
 
         for (ecs_id entityId : validEntityIds){
-            if(m_playerControlledComponent.getDataPointer(entityId).isCurrentlyControlled){
-                moveInPlaneYXZ(m_worldPositionComponent.getDataPointer(entityId),
-                               m_modelComponent.getDataPointer(entityId));
+            if(m_playerControlledComponent.getDataReference(entityId).isCurrentlyControlled){
+                moveInPlaneYXZ(m_worldPositionComponent.getDataReference(entityId),
+                               m_modelComponent.getDataReference(entityId));
             };
         };
     };

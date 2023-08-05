@@ -48,12 +48,12 @@ namespace ae {
 
 
             // Check if this entity has camera data for the ubo
-            if(m_game_components->uboDataFlagsComponent.getDataPointer(entityId)->hasUboCameraData){
+            if(m_game_components->uboDataFlagsComponent.getDataReference(entityId)->hasUboCameraData){
                 // Check that the entity actually uses the cameraComponent. If not we have some sort of error going on
                 // so throw one!
                 if(m_game_components->cameraComponent.doesEntityUseThis(entityId)) {
                     // Get a pointer to entity's camera data
-                    auto entityCameraData = m_game_components->cameraComponent.getDataPointer(entityId);
+                    auto entityCameraData = m_game_components->cameraComponent.getDataReference(entityId);
 
                     // Only the main camera should be fed to the ubo since all buffers will require that data
                     if (entityCameraData->isMainCamera) {
@@ -77,7 +77,7 @@ namespace ae {
 
 
             // Check if the entity has point light data for the ubo
-            if(m_game_components->uboDataFlagsComponent.getDataPointer(entityId)->hasUboPointLightData){
+            if(m_game_components->uboDataFlagsComponent.getDataReference(entityId)->hasUboPointLightData){
                 // Check that the entity actually uses the pointLightComponent. If not we have some sort of error going on
                 // so throw one!
                 if(m_game_components->pointLightComponent.doesEntityUseThis(entityId)) {
@@ -85,7 +85,7 @@ namespace ae {
                     assert(m_numPointLights < MAX_LIGHTS && "Number of point lights exceed MAX_LIGHTS!");
 
                     // Get a pointer to entity's point light data
-                    auto entityPointLightData = m_game_components->pointLightComponent.getDataPointer(entityId);
+                    auto entityPointLightData = m_game_components->pointLightComponent.getDataReference(entityId);
 
                     // Put the entity's point light data into the ubo.
                     m_ubo.pointLights[m_numPointLights].position = glm::vec4(m_game_components->worldPositionComponent.getWorldPositionVec3(entityId), 1.0f);

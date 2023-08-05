@@ -27,7 +27,7 @@ namespace ae {
         ~WorldPositionComponentClass() {};
 
         glm::vec3 getWorldPositionVec3(ecs_id t_entityId) {
-            auto worldPosition = this->getDataPointer(t_entityId);
+            auto worldPosition = this->getDataReference(t_entityId);
             glm::vec3 position = {worldPosition.rho,
                                   worldPosition.theta,
                                   worldPosition.phi};
@@ -35,7 +35,7 @@ namespace ae {
         };
 
         void setWorldPositionVec3(ecs_id t_entityId, glm::vec3 t_vec3WorldPosition) {
-            auto worldPosition = this->getDataPointer(t_entityId);
+            auto worldPosition = this->getDataReference(t_entityId);
             worldPosition.rho = t_vec3WorldPosition.x;
             worldPosition.theta = t_vec3WorldPosition.y;
             worldPosition.phi = t_vec3WorldPosition.z;
