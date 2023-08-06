@@ -4,17 +4,22 @@
 #include "game_components.hpp"
 
 namespace ae {
+
+    /// Defines entities that will, or could be, physical objects in the game world.
 	class GameObjectEntity : public ae_ecs::AeEntity<GameObjectEntity> {
 
 	public:
-		// Function to create an entity
-		explicit GameObjectEntity(GameComponentsStruct* t_gameComponents);
+        /// Creates the GameObjectEntity using the specified game components.
+		explicit GameObjectEntity(GameComponentsStruct& t_gameComponents);
 
-		// Function to destroy an entity
+        /// The destructor of the GameObjectEntity.
 		~GameObjectEntity();
 
-        ModelComponentStruct* m_model;
-        WorldPositionComponentStruct* m_worldPosition;
+        /// A reference to the model data of the entity.
+        ModelComponentStruct& m_model;
+
+        /// A reference to the world position of the entity.
+        WorldPositionComponentStruct& m_worldPosition;
 
 	private:
 

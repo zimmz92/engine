@@ -97,9 +97,9 @@ namespace ae {
             if (obj.m_pointLight == nullptr) continue;
 
             // Get the position of the specified camera
-            WorldPositionComponentStruct* cameraWorldPosition = t_gameComponents->worldPositionComponent.getDataReference(
+            WorldPositionComponentStruct& cameraWorldPosition = t_gameComponents->worldPositionComponent.getDataReference(
                     t_frameInfo.m_cameraId);
-            glm::vec3 cameraPosition = {cameraWorldPosition->rho, cameraWorldPosition->theta, cameraWorldPosition->phi};
+            glm::vec3 cameraPosition = {cameraWorldPosition.rho, cameraWorldPosition.theta, cameraWorldPosition.phi};
 
             //calculate distance
             auto offset = cameraPosition - obj.m_transform.translation;

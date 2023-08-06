@@ -1,9 +1,7 @@
 /*! \file camera_component.hpp
     \brief The script defining the camera component.
-
-    The camera component is defined and the instance for the game is declared. This component defines
-    relevant properties to objects that are cameras or have cameras attached to them, such as player characters.
-
+    The camera component is defined. This component defines relevant properties to objects that are cameras or have
+    cameras attached to them, such as player characters.
 */
 #pragma once
 
@@ -64,14 +62,13 @@ namespace ae {
     };
 
 
-    /// The player controlled component class is derived from the AeComponent template class using the player controlled
-    /// component structure.
+    /// The CameraComponentClass is derived from the AeComponent template class using the CameraComponentStructure.
     class CameraComponentClass : public ae_ecs::AeComponent<CameraComponentStructure> {
     public:
-        /// The PlayerControlledComponentClass constructor uses the AeComponent constructor with no additions.
+        /// The CameraComponentClass constructor uses the AeComponent constructor with no additions.
         CameraComponentClass() : AeComponent() {};
 
-        /// The destructor of the PlayerControlledComponentClass class. The PlayerControlledComponentClass destructor
+        /// The destructor of the CameraComponentClass class. The CameraComponentClass destructor
         /// uses the AeComponent constructor with no additions.
         ~CameraComponentClass() {};
 

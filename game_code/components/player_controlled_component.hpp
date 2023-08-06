@@ -1,10 +1,8 @@
 /*! \file player_controlled_component.hpp
     \brief The script defining the player controlled component.
-
     The player controlled component is defined and the instance for the game is declared. This component defines
     relevant properties to objects that may be controlled by a player such as a camera, a player character, or a
     vehicle.
-
 */
 #pragma once
 

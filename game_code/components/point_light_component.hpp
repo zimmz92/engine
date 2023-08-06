@@ -1,10 +1,6 @@
-/*! \file player_controlled_component.hpp
-    \brief The script defining the player controlled component.
-
-    The player controlled component is defined and the instance for the game is declared. This component defines
-    relevant properties to objects that may be controlled by a player such as a camera, a player character, or a
-    vehicle.
-
+/*! \file point_light_component.hpp
+    \brief The script defining the point light component.
+    The point light component is defined. This component provides point light properties to game entities.
 */
 #pragma once
 
@@ -13,7 +9,7 @@
 
 namespace ae {
 
-    /// This structure defines the data stored for each entity using the player component.
+    /// This structure defines the data stored for each entity using the point light component.
     struct PointLightComponentStruct {
         glm::vec3 m_color = glm::vec3(1.0f);
         float lightIntensity = 10.0f;
@@ -21,14 +17,14 @@ namespace ae {
     };
 
 
-    /// The player controlled component class is derived from the AeComponent template class using the player controlled
-    /// component structure.
+    /// The PointLightComponentClass class is derived from the AeComponent template class using the
+    /// PointLightComponentStruct structure.
     class PointLightComponentClass : public ae_ecs::AeComponent<PointLightComponentStruct> {
     public:
-        /// The PlayerControlledComponentClass constructor uses the AeComponent constructor with no additions.
+        /// The PointLightComponentClass constructor uses the AeComponent constructor with no additions.
         PointLightComponentClass() : AeComponent() {};
 
-        /// The destructor of the PlayerControlledComponentClass class. The PlayerControlledComponentClass destructor
+        /// The destructor of the PointLightComponentClass class. The PointLightComponentClass destructor
         /// uses the AeComponent constructor with no additions.
         ~PointLightComponentClass() {};
 

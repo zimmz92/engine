@@ -54,12 +54,11 @@ namespace ae_ecs {
         /// \return The type ID of the component.
         ecs_id getComponentTypeId() const { return m_componentTypeId; }
 
-        /// Alerts the component manager that a specific entity uses a component and returns the location allocated in
-        /// memory for the storage of the entities data.
+        /// Alerts the component manager that a specific entity uses a component and returns a reference to the location
+        /// allocated in memory for the storage of the entities data.
         /// \param t_entityId The ID of the entity using the component.
-        T* requiredByEntity(ecs_id t_entityId) {
+        void requiredByEntity(ecs_id t_entityId) {
             m_componentManager.setEntityComponentSignature(t_entityId, m_componentId);
-            return getDataReference(t_entityId);
             // TODO: If stack type component allocate additional memory for the entity on the stack.
         };
 

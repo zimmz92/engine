@@ -1,8 +1,6 @@
 /*! \file model_component.hpp
     \brief The script defining the model component.
-
     The model component is defined and the instance for the game is declared.
-
 */
 #pragma once
 

@@ -1,8 +1,6 @@
 /*! \file world_position_component.hpp
     \brief The script defining the world position component.
-
     The world position component is defined and the instance for the game is declared.
-
 */
 #pragma once
 
@@ -23,19 +21,38 @@ namespace ae {
     /// data to improve performance of the system(s) that use this component.
     class WorldPositionComponentClass : public ae_ecs::AeComponent<WorldPositionComponentStruct> {
     public:
+        /// The WorldPositionComponentClass constructor uses the AeComponent constructor with no additions.
         WorldPositionComponentClass() : AeComponent() {};
+
+        /// The destructor of the WorldPositionComponentClass. The WorldPositionComponentClass destructor
+        /// uses the AeComponent constructor with no additions.
         ~WorldPositionComponentClass() {};
 
+        /// Gets the world position structure and returns it as a glm::vec3.
+        /// \param t_entityId The entity ID to get the world position for.
+        /// \return The world position as a glm::vec3 where x = rho, y = theta, and z = phi.
         glm::vec3 getWorldPositionVec3(ecs_id t_entityId) {
+            // Get a references to the world position of the entity.
             auto worldPosition = this->getDataReference(t_entityId);
+
+            // Convert the world position from the world position struct to a glm::vec3.
             glm::vec3 position = {worldPosition.rho,
                                   worldPosition.theta,
                                   worldPosition.phi};
+
+            // Return the glm::vec3
             return position;
         };
 
+        /// Sets the world position of an entity from a glm::vec3.
+        /// \param t_entityId The entity ID for which the world position is to be set.
+        /// \param t_vec3WorldPosition The new world position of the entity as a glm::vec3 where x = rho, y = theta, and
+        /// z = phi.
         void setWorldPositionVec3(ecs_id t_entityId, glm::vec3 t_vec3WorldPosition) {
+            // Get a reference to the world position of the entity.
             auto worldPosition = this->getDataReference(t_entityId);
+
+            // Set the world position of the entity based on the given glm::vec3.
             worldPosition.rho = t_vec3WorldPosition.x;
             worldPosition.theta = t_vec3WorldPosition.y;
             worldPosition.phi = t_vec3WorldPosition.z;

@@ -1,8 +1,6 @@
 /*! \file GameSystems.hpp
     \brief The script that declares the systems of the game.
-
     The game systems are declared.
-
 */
 #pragma once
 
@@ -15,8 +13,11 @@
 #include "update_ubo_system.hpp"
 
 namespace ae {
+
+    /// A structure to declare the game systems of this game.
     struct GameSystems{
 
+        /// Constructor for this struct.
         GameSystems(GameComponentsStruct& t_game_components, GLFWwindow* t_window, AeRenderer& t_renderer){
             playerInputSystem = new PlayerInputSystemClass(t_game_components, timingSystem, t_window);
             cameraUpdateSystem = new CameraUpdateSystemClass(t_game_components,*playerInputSystem,t_renderer);
@@ -24,6 +25,7 @@ namespace ae {
             updateUboSystem = new UpdateUboSystemClass(t_game_components, *cameraUpdateSystem, *cyclePointLightsSystem);
         }
 
+        /// Destructor for this struct.
         ~GameSystems(){
             // Delete systems in the reverse order of how they were declared.
             delete updateUboSystem;

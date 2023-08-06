@@ -4,17 +4,22 @@
 #include "game_components.hpp"
 
 namespace ae {
+
+    /// Defines entities that are point lights.
 	class PointLightEntity : public GameObjectEntity {
 
 	public:
-		// Function to create an entity
-        explicit PointLightEntity(GameComponentsStruct* t_gameComponents);
+        /// Creates the PointLightEntity using the specified game components.
+        explicit PointLightEntity(GameComponentsStruct& t_gameComponents);
 
-		// Function to destroy an entity
+        /// The destructor of the PointLightEntity.
 		~PointLightEntity();
 
-        PointLightComponentStruct* m_pointLightData;
-        UboDataFlagsComponentStruct* m_uboDataFlags;
+        /// A reference to the point light data of the entity.
+        PointLightComponentStruct& m_pointLightData;
+
+        /// Specifies if the point light entity has data for the ubo.
+        UboDataFlagsComponentStruct& m_uboDataFlags;
 
 	private:
 
