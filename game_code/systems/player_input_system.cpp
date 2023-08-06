@@ -39,12 +39,22 @@ namespace ae {
 
 
 
-    // Update the positions of the point lights to make them move in a circle.
+    // Check for player inputs and apply them to controlled entities.
     void PlayerInputSystemClass::executeSystem(){
+
+        // Get the entities that use the components this system depends on.
         std::vector<ecs_id> validEntityIds = m_systemManager.getValidEntities(this->getSystemId());
 
+        // TODO: Need to call a function here that calculates the required change in the controlled entities position
+        //  before looping through all the entities.
+
+        // Loop through the valid entities and update their world position based on the player's inputs.
         for (ecs_id entityId : validEntityIds){
+
+            // Only move the entity if it is currently being controlled by the player.
             if(m_playerControlledComponent.getDataReference(entityId).isCurrentlyControlled){
+
+                // Move the entity based on the player's input.
                 moveInPlaneYXZ(m_worldPositionComponent.getDataReference(entityId),
                                m_modelComponent.getDataReference(entityId));
             };

@@ -17,15 +17,30 @@
 
 
 namespace ae {
-    class UpdateUboSystem : public ae_ecs::AeSystem<UpdateUboSystem> {
-    public:
-        UpdateUboSystem(GameComponentsStruct* t_game_components,
-                        CameraUpdateSystemClass* t_cameraUpdateSystem,
-                        CyclePointLightsSystemClass* t_cyclePointLightsSystem);
-        ~UpdateUboSystem();
 
+    /// Updates the global universal buffer object (UBO) with relevant entity information.
+    class UpdateUboSystemClass : public ae_ecs::AeSystem<UpdateUboSystemClass> {
+    public:
+        /// Constructor of the CyclePointLightSystemClass
+        /// \param t_game_components The game components available that this system may require.
+        /// \param t_cameraUpdateSystem The CameraUpdateSystemClass the UpdateUboSystemClass will depend on executing first
+        /// and require information from.
+        /// \param t_cyclePointLightsSystem The CyclePointLightsSystemClass the UpdateUboSystemClass will depend on executing first
+        /// and require information from.
+        UpdateUboSystemClass(GameComponentsStruct& t_game_components,
+                             CameraUpdateSystemClass& t_cameraUpdateSystem,
+                             CyclePointLightsSystemClass& t_cyclePointLightsSystem);
+
+        /// Destructor of the UpdateUboSystemClass
+        ~UpdateUboSystemClass();
+
+        /// Setup the CyclePointLightSystemClass, this is handled by the ECS.
         void setupSystem() override;
+
+        /// Execute the CyclePointLightSystemClass, this is handled by the ECS.
         void executeSystem() override;
+
+        /// Clean up the CyclePointLightSystemClass, this is handled by the ECS.
         void cleanupSystem() override;
 
         /// Get the ubo managed by this system
@@ -34,17 +49,29 @@ namespace ae {
 
     private:
 
-        /// The game components this system interacts with
-        GameComponentsStruct* m_game_components;
+        // Components this system utilizes.
+        /// The WorldPositionComponent this systems accesses to update the ubo with the position of applicable point
+        /// light entities.
+        WorldPositionComponentClass& m_worldPositionComponent;
+        /// The UboDataFlagsComponent this system accesses to determine what type of ubo data an entity has.
+        UboDataFlagsComponentClass& m_uboDataFlagsComponent;
+        /// The PointLightComponent this system accesses to update the ubo with the point light characteristics.
+        PointLightComponentClass& m_pointLightComponent;
+        /// The CameraComponent this system access to update the ubo with camera perspective and view data.
+        CameraComponentClass& m_cameraComponent;
 
-        /// Pointer to the cycle point light system
-        CyclePointLightsSystemClass* m_cyclePointLightsSystem;
+
+        // Prerequisite systems for the PlayerInputSystemClass.
+        /// The CameraUpdateSystem this system requires to operate prior to it's own operation.
+        CameraUpdateSystemClass& m_cameraUpdateSystem;
+        /// The CyclePointLightSystem this system requires to operate prior to it's own operation.
+        CyclePointLightsSystemClass& m_cyclePointLightsSystem;
 
         /// Stores the ubo information
-        GlobalUbo m_ubo;
+        GlobalUbo m_ubo{};
 
         /// Keeps track of the number of point lights in the ubo
-        int m_numPointLights;
+        int m_numPointLights = 0;
 
     };
 }

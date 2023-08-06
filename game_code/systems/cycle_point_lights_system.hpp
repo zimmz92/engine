@@ -49,7 +49,7 @@ namespace ae {
 
 
         // Prerequisite systems for the PlayerInputSystemClass.
-        /// Points to the TimingSystemClass this system requires to operate prior to it's own operation.
+        /// The TimingSystemClass this system requires to operate prior to it's own operation.
         TimingSystemClass& m_timingSystem;
 
         /// Number of point lights being updated

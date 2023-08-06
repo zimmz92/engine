@@ -17,11 +17,11 @@
 namespace ae {
     struct GameSystems{
 
-        GameSystems(GameComponentsStruct& t_game_components, GLFWwindow* t_window, AeRenderer* t_renderer){
+        GameSystems(GameComponentsStruct& t_game_components, GLFWwindow* t_window, AeRenderer& t_renderer){
             playerInputSystem = new PlayerInputSystemClass(t_game_components, timingSystem, t_window);
-            cameraUpdateSystem = new CameraUpdateSystemClass(t_game_components,playerInputSystem,t_renderer);
-            cyclePointLightsSystem = new CyclePointLightsSystemClass(t_game_components, &timingSystem);
-            updateUboSystem = new UpdateUboSystem(t_game_components, cameraUpdateSystem, cyclePointLightsSystem);
+            cameraUpdateSystem = new CameraUpdateSystemClass(t_game_components,*playerInputSystem,t_renderer);
+            cyclePointLightsSystem = new CyclePointLightsSystemClass(t_game_components, timingSystem);
+            updateUboSystem = new UpdateUboSystemClass(t_game_components, *cameraUpdateSystem, *cyclePointLightsSystem);
         }
 
         ~GameSystems(){
@@ -48,8 +48,8 @@ namespace ae {
         /// The CameraUpdateSystemClass instance for the game.
         CameraUpdateSystemClass* cameraUpdateSystem;
 
-        /// The UpdateUboSystem instance for the game.
-        UpdateUboSystem* updateUboSystem;
+        /// The UpdateUboSystemClass instance for the game.
+        UpdateUboSystemClass* updateUboSystem;
 
         // Temporary Systems
         /// The CyclePointLightsSystemClass instance for the game.

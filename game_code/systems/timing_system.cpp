@@ -4,16 +4,41 @@
 
 #include "timing_system.hpp"
 
-TimingSystemClass::TimingSystemClass() : ae_ecs::AeSystem<TimingSystemClass>()  {
-    m_previousTime = std::chrono::high_resolution_clock::now();
-    this->enableSystem();
-};
+namespace ae {
 
-TimingSystemClass::~TimingSystemClass(){};
+    // Constructor implementation
+    TimingSystemClass::TimingSystemClass() : ae_ecs::AeSystem<TimingSystemClass>() {
+        m_previousTime = std::chrono::high_resolution_clock::now();
+        this->enableSystem();
+    };
 
-void TimingSystemClass::executeSystem(){
-auto currentTime = std::chrono::high_resolution_clock::now();
-m_timeDelta = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - m_previousTime).count();
-m_previousTime = currentTime;
-};
 
+
+    // Destructor implementation
+    TimingSystemClass::~TimingSystemClass() {};
+
+
+
+    // Set up the system prior to execution. Currently not used.
+    void TimingSystemClass::setupSystem() {};
+
+
+
+    // Update the time difference between the current execution and the previous.
+    void TimingSystemClass::executeSystem() {
+        // Get the current time.
+        auto currentTime = std::chrono::high_resolution_clock::now();
+
+        // Calculate the difference between the current time and the last time this system executed.
+        m_timeDelta = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - m_previousTime).count();
+
+        // Store the current execution time for reference during next execution.
+        m_previousTime = currentTime;
+    };
+
+
+
+    // Clean up the system after execution. Currently not used.
+    void TimingSystemClass::cleanupSystem() {};
+
+}
