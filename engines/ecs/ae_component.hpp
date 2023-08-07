@@ -77,6 +77,12 @@ namespace ae_ecs {
             return m_componentManager.isComponentUsed(t_entityId, this->m_componentId);
         };
 
+        /// Fetches the entities that use this component.
+        /// \return A vector of entity IDs that use this component.
+        std::vector<ecs_id> getMyEntities(){
+            return m_componentManager.getComponentEntities(this->m_componentId);
+        };
+
         /// Alerts the component manager that a system requires this component to operate.
         /// \param t_systemId The ID of the system that requires this component to operate.
         void requiredBySystem(ecs_id t_systemId) {

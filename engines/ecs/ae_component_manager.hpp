@@ -93,8 +93,12 @@ namespace ae_ecs {
 
         /// Compares system component signatures to the entity component signatures and returns a list of valid entities
         /// to the systems to act upon.
-        /// TODO: Document the usage of this function
+        /// \param t_systemId The ID of the system to be removed.
         std::vector<ecs_id> getSystemsEntities(ecs_id t_systemId);
+
+        /// Returns the entities that use the specified component;
+        /// \param t_componentId The component ID the list of entities should be returned for.
+        std::vector<ecs_id> getComponentEntities(ecs_id t_componentId);
 
 		/// Function to allocate an ID to a specific component class so every component spawned from that class can be identified.
 		/// \tparam T The component class being allocated an ID.

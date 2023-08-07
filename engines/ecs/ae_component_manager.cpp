@@ -182,4 +182,28 @@ namespace ae_ecs {
 
         return valid_entities;
 	};
+
+
+
+    // Compare the signature of the specified component to the entity signatures.
+    std::vector<ecs_id> AeComponentManager::getComponentEntities(ecs_id t_componentId){
+
+        // The set of entities that use the specified component.
+        std::vector<ecs_id> valid_entities;
+
+        // Create the signature of the component.
+        std::bitset<MAX_NUM_COMPONENTS + 1> evalComponentSignature;
+        evalComponentSignature.set(t_componentId);
+
+        // Loop through the entity component signatures
+        for(ecs_id entityId=0; entityId < MAX_NUM_ENTITIES ; entityId++){
+            auto entityComponentSignature = m_entityComponentSignatures[entityId];
+            if((entityComponentSignature.operator&=(evalComponentSignature)).any()){
+                valid_entities.push_back(entityId);
+            };
+        };
+
+        return  valid_entities;
+    };
+
 }

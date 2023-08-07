@@ -16,6 +16,9 @@
 #include "ae_swap_chain.hpp"
 #include "ae_descriptors.hpp"
 
+#include "simple_render_system.hpp"
+#include "point_light_render_system.hpp"
+
 namespace ae {
 
     /// If the swap chain does not need to be recreated this system will start the render pass, compile the frame
@@ -81,10 +84,17 @@ namespace ae {
         int m_frameIndex;
 
         /// Command buffer for the current render pass
-        VkCommandBuffer_T* m_commandBuffer;
+        VkCommandBuffer m_commandBuffer;
 
         /// The global descriptor set for the current frame
         VkDescriptorSet m_globalDescriptorSet;
 
+
+        // Child render systems
+        /// Pointer to the point light render system
+        PointLightRenderSystem* m_pointLightRenderSystem;
+
+        /// Pointer to the simple render system
+        SimpleRenderSystem* m_simpleRenderSystem;
     };
 }

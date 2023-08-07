@@ -16,14 +16,15 @@
 namespace ae {
 
     Arundos::Arundos() {
-        m_globalPool = AeDescriptorPool::Builder(m_aeDevice)
+        /*m_globalPool = AeDescriptorPool::Builder(m_aeDevice)
             .setMaxSets(AeSwapChain::MAX_FRAMES_IN_FLIGHT)
             .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, AeSwapChain::MAX_FRAMES_IN_FLIGHT)
             .build();
+            */
 
-        m_gameSystems = new GameSystems(m_gameComponents, m_aeWindow.getGLFWwindow(), m_aeRenderer);
+        m_gameSystems = new GameSystems(m_gameComponents, m_aeWindow.getGLFWwindow(), m_aeDevice,m_aeRenderer);
 
-        loadGameObjects();
+        //loadGameObjects();
     }
 
     Arundos::~Arundos() {
@@ -32,7 +33,7 @@ namespace ae {
     }
 
     void Arundos::run() {
-        std::vector<std::unique_ptr<AeBuffer>> uboBuffers(AeSwapChain::MAX_FRAMES_IN_FLIGHT);
+        /*std::vector<std::unique_ptr<AeBuffer>> uboBuffers(AeSwapChain::MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < uboBuffers.size(); i++) {
             uboBuffers[i] = std::make_unique<AeBuffer>(
                 m_aeDevice,
@@ -59,6 +60,7 @@ namespace ae {
 
         AeRsSimple simpleRenderSystem(m_aeDevice, m_aeRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout());
         AeRsPointLight pointLightSystem(m_aeDevice, m_aeRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout());
+         */
 
         //==============================================================================================================
         // Make the game camera using ECS
@@ -72,6 +74,41 @@ namespace ae {
         cameraECS.m_uboDataFlags.hasUboCameraData = true;
         cameraECS.enableEntity();
         //==============================================================================================================
+
+
+
+        //==============================================================================================================
+        // Load the flat vase object model from the file
+        std::shared_ptr<AeModel> aeModel = AeModel::createModelFromFile(m_aeDevice, "models/flat_vase.obj");
+        // ECS version of flatVase
+        auto testFlatVase = GameObjectEntity(m_gameComponents);
+        testFlatVase.m_worldPosition = {-0.5f, 0.5f, 0.0f };
+        testFlatVase.m_model.m_model = aeModel;
+        testFlatVase.m_model.scale = {3.0f, 1.5f, 3.0f };
+        testFlatVase.enableEntity();
+
+
+        // Load the smooth vase object model from the file
+        aeModel = AeModel::createModelFromFile(m_aeDevice, "models/smooth_vase.obj");
+        // ECS version of smoothVase
+        auto testSmoothVase = GameObjectEntity(m_gameComponents);
+        testSmoothVase.m_worldPosition = {0.5f, 0.5f, 0.0f };
+        testSmoothVase.m_model.m_model = aeModel;
+        testSmoothVase.m_model.scale = {3.0f, 1.5f, 3.0f };
+        testSmoothVase.enableEntity();
+
+        // Load the floor object model from the file
+        aeModel = AeModel::createModelFromFile(m_aeDevice, "models/quad.obj");
+        // ECS version of the floor
+        auto testFloor = GameObjectEntity(m_gameComponents);
+        testFloor.m_worldPosition = {0.0f, 0.5f, 0.0f };
+        testFloor.m_model.m_model = aeModel;
+        testFloor.m_model.scale = {3.0f, 1.0f, 3.0f };
+        testFloor.enableEntity();
+
+
+        //==============================================================================================================
+
 
 
         //==============================================================================================================
@@ -106,20 +143,20 @@ namespace ae {
         }
         //==============================================================================================================
 
-
-
-        auto currentTime = std::chrono::high_resolution_clock::now();
         
         while (!m_aeWindow.shouldClose()) {
             // Check to see if there are any user input events.
             glfwPollEvents();
 
+            // TODO: Update the components so that direction is with the entities world position data. Knowing which way
+            //  an entity is facing in the world is a requirement!
             ae_ecs::ecsSystemManager.runSystems();
 
             // TODO allow for option to limit frame timing, aka lock FPS, if desired but allow other systems to continue to run
             //time_delta = glm::min(time_delta, MAX_FRAME_TIME);
 
 
+            /*
             if (VkCommandBuffer_T* commandBuffer = m_aeRenderer.beginFrame()) {
 
                 // update
@@ -150,6 +187,7 @@ namespace ae {
                 m_aeRenderer.endSwapChainRenderPass(commandBuffer);
                 m_aeRenderer.endFrame();
             }
+             */
         }
 
         // Destroy the test ECS point lights

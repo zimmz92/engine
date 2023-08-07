@@ -54,6 +54,7 @@ add_subdirectory(game_code)
 add_subdirectory(game_code/entities)
 add_subdirectory(game_code/components)
 add_subdirectory(game_code/systems)
+add_subdirectory(game_code/systems/render_systems)
 add_subdirectory(game_code/objects)
 add_subdirectory(game_code/render_systems)
 

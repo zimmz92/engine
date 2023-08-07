@@ -2,7 +2,7 @@
 /// \brief The script implementing the renderer start pass system class.
 /// The renderer start pass system class is implemented.
 
-#include "renderer_start_pass_system.hpp"
+#include "renderer_system.hpp"
 
 namespace ae {
     // Constructor of the RendererStartPassSystem
@@ -64,6 +64,18 @@ namespace ae {
                     .build(m_globalDescriptorSets[i]);
         }
 
+
+        // Setup child render systems
+        m_simpleRenderSystem = new SimpleRenderSystem(t_game_components,
+                                                      m_aeDevice,
+                                                      m_renderer.getSwapChainRenderPass(),
+                                                      globalSetLayout->getDescriptorSetLayout());
+        m_pointLightRenderSystem = new PointLightRenderSystem(t_game_components,
+                                                              m_aeDevice,
+                                                              m_renderer.getSwapChainRenderPass(),
+                                                              globalSetLayout->getDescriptorSetLayout());
+
+
         // Enable the system
         this->enableSystem();
 
@@ -72,7 +84,14 @@ namespace ae {
 
 
     // Destructor class of the RendererStartPassSystem
-    RendererStartPassSystem::~RendererStartPassSystem(){};
+    RendererStartPassSystem::~RendererStartPassSystem(){
+        delete m_simpleRenderSystem;
+        m_simpleRenderSystem = nullptr;
+
+        delete m_pointLightRenderSystem;
+        m_pointLightRenderSystem = nullptr;
+
+    };
 
 
 
@@ -93,12 +112,20 @@ namespace ae {
             // Get the global descriptor set for this frame.
             m_globalDescriptorSet = m_globalDescriptorSets[m_frameIndex];
 
-            // Write the ubo data for the shaders for this frame
+            // Write the ubo data for the shaders for this frame.
             m_uboBuffers[m_frameIndex]->writeToBuffer(m_updateUboSystem.getUbo());
             m_uboBuffers[m_frameIndex]->flush();
 
-            // Start the render pass
+            // Start the render pass.
             m_renderer.beginSwapChainRenderPass(m_commandBuffer);
+
+            // Call subservient render systems. Order matters here to maintain object transparencies.
+            m_simpleRenderSystem->executeSystem(m_commandBuffer,m_globalDescriptorSets[m_frameIndex]);
+            m_pointLightRenderSystem->executeSystem(m_commandBuffer,m_globalDescriptorSets[m_frameIndex]);
+
+            // End the render pass and the frame.
+            m_renderer.endSwapChainRenderPass(m_commandBuffer);
+            m_renderer.endFrame();
         };
     };
 

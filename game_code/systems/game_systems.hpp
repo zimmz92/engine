@@ -11,7 +11,7 @@
 #include "timing_system.hpp"
 #include "cycle_point_lights_system.hpp"
 #include "update_ubo_system.hpp"
-#include "renderer_start_pass_system.hpp"
+#include "renderer_system.hpp"
 
 namespace ae {
 
@@ -19,12 +19,12 @@ namespace ae {
     struct GameSystems{
 
         /// Constructor for this struct.
-        GameSystems(GameComponentsStruct& t_game_components, GLFWwindow* t_window, AeRenderer& t_renderer){
+        GameSystems(GameComponentsStruct& t_game_components, GLFWwindow* t_window, AeDevice& t_device, AeRenderer& t_renderer){
             playerInputSystem = new PlayerInputSystem(t_game_components, timingSystem, t_window);
             cameraUpdateSystem = new CameraUpdateSystem(t_game_components, *playerInputSystem, t_renderer);
             cyclePointLightsSystem = new CyclePointLightsSystem(t_game_components, timingSystem);
             updateUboSystem = new UpdateUboSystem(t_game_components, *cameraUpdateSystem, *cyclePointLightsSystem);
-            rendererStartPassSystem = new RendererStartPassSystem(t_game_components,);
+            rendererStartPassSystem = new RendererStartPassSystem(t_game_components,*updateUboSystem,timingSystem,t_renderer,t_device);
         }
 
         /// Destructor for this struct.
