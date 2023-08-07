@@ -2,8 +2,6 @@ target_sources(mySrcFiles
     PRIVATE
         timing_system.cpp
         timing_system.hpp
-        simple_render_system.cpp
-        simple_render_system.hpp
         player_input_system.cpp
         player_input_system.hpp
         camera_update_system.cpp
@@ -13,6 +11,8 @@ target_sources(mySrcFiles
         update_ubo_system.hpp
         cycle_point_lights_system.cpp
         cycle_point_lights_system.hpp
+        renderer_start_pass_system.hpp
+        renderer_start_pass_system.cpp
     PUBLIC
 )
 

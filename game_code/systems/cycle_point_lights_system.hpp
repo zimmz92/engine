@@ -1,8 +1,6 @@
 /*! \file cycle_point_lights_system.hpp
     \brief The script defining the system that cycles the point lights.
-
     The cycle point light system is defined.
-
 */
 #pragma once
 

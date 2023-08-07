@@ -11,6 +11,7 @@
 #include "timing_system.hpp"
 #include "cycle_point_lights_system.hpp"
 #include "update_ubo_system.hpp"
+#include "renderer_start_pass_system.hpp"
 
 namespace ae {
 
@@ -23,6 +24,7 @@ namespace ae {
             cameraUpdateSystem = new CameraUpdateSystem(t_game_components, *playerInputSystem, t_renderer);
             cyclePointLightsSystem = new CyclePointLightsSystem(t_game_components, timingSystem);
             updateUboSystem = new UpdateUboSystem(t_game_components, *cameraUpdateSystem, *cyclePointLightsSystem);
+            rendererStartPassSystem = new RendererStartPassSystem(t_game_components,);
         }
 
         /// Destructor for this struct.
@@ -52,6 +54,10 @@ namespace ae {
 
         /// The UpdateUboSystem instance for the game.
         UpdateUboSystem* updateUboSystem;
+
+        /// The RendererStartPassSystem instance for the game.
+        RendererStartPassSystem* rendererStartPassSystem;
+
 
         // Temporary Systems
         /// The CyclePointLightsSystem instance for the game.

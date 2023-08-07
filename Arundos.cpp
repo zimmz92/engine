@@ -120,7 +120,7 @@ namespace ae {
             //time_delta = glm::min(time_delta, MAX_FRAME_TIME);
 
 
-            if (auto commandBuffer = m_aeRenderer.beginFrame()) {
+            if (VkCommandBuffer_T* commandBuffer = m_aeRenderer.beginFrame()) {
 
                 // update
                 int frameIndex = m_aeRenderer.getFrameIndex();
