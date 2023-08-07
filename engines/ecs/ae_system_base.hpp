@@ -96,6 +96,10 @@ namespace ae_ecs {
         /// Counter that keeps track of how many cycles have past since it was last run.
         ecs_systemInterval m_cyclesSinceExecution = 0;
 
+        /// Flag that indicates that the system should not be executed by the system manager and will be handled by a
+        /// parent system.
+        bool isChildSystem = false;
+
         /// Pointer to the system manager
         AeSystemManager& m_systemManager;
     };

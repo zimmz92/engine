@@ -200,13 +200,18 @@ namespace ae_ecs {
         // Loop through the enabled systems and if they are supposed to be run again reset their m_cyclesSinceExecution
         // counter and execute. If not then increment their cyclesSinceExecution counter.
         for(auto & m_System : m_systemExecutionOrder){
-            if(m_System->m_cyclesSinceExecution >= m_System->m_executionInterval){
-                m_System->setupSystem();
-                m_System->executeSystem();
-                m_System->cleanupSystem();
-                m_System->m_cyclesSinceExecution = 0;
-            } else{
-                m_System->m_cyclesSinceExecution++;
+            // If the system is a child system do not execute here since the parent system will be handling the
+            // execution of this system.
+            if(!m_System->isChildSystem) {
+                // Check to see if this system is ready to be run again.
+                if (m_System->m_cyclesSinceExecution >= m_System->m_executionInterval) {
+                    m_System->setupSystem();
+                    m_System->executeSystem();
+                    m_System->cleanupSystem();
+                    m_System->m_cyclesSinceExecution = 0;
+                } else {
+                    m_System->m_cyclesSinceExecution++;
+                };
             };
         };
     };
