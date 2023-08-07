@@ -18,14 +18,14 @@ namespace ae {
 
     /// The ubo data flags component class is derived from the AeComponent template class using the ubo data component
     /// structure.
-    class UboDataFlagsComponentClass : public ae_ecs::AeComponent<UboDataFlagsComponentStruct> {
+    class UboDataFlagsComponent : public ae_ecs::AeComponent<UboDataFlagsComponentStruct> {
     public:
         /// The UboDataFlags constructor uses the AeComponent constructor with no additions.
-        UboDataFlagsComponentClass() : AeComponent() {};
+        UboDataFlagsComponent() : AeComponent() {};
 
         /// The destructor of the UboDataFlagsClass. The UboDataFlagsClass destructor
         /// uses the AeComponent constructor with no additions.
-        ~UboDataFlagsComponentClass() {};
+        ~UboDataFlagsComponent() {};
 
     private:
 

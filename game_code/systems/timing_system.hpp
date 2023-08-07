@@ -10,21 +10,21 @@
 namespace ae {
 
 /// Tracks the time between runs.
-    class TimingSystemClass : public ae_ecs::AeSystem<TimingSystemClass> {
+    class TimingSystem : public ae_ecs::AeSystem<TimingSystem> {
     public:
-        /// Constructor of the TimingSystemClass
-        TimingSystemClass();
+        /// Constructor of the TimingSystem
+        TimingSystem();
 
-        /// Destructor of the TimingSystemClass
-        ~TimingSystemClass();
+        /// Destructor of the TimingSystem
+        ~TimingSystem();
 
-        /// Setup the TimingSystemClass, this is handled by the ECS.
+        /// Setup the TimingSystem, this is handled by the ECS.
         void setupSystem() override;
 
-        /// Execute the TimingSystemClass, this is handled by the ECS.
+        /// Execute the TimingSystem, this is handled by the ECS.
         void executeSystem() override;
 
-        /// Clean up the TimingSystemClass, this is handled by the ECS.
+        /// Clean up the TimingSystem, this is handled by the ECS.
         void cleanupSystem() override;
 
         /// Get the change in time since the system last ran.

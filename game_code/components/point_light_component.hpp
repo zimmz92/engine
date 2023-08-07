@@ -17,16 +17,16 @@ namespace ae {
     };
 
 
-    /// The PointLightComponentClass class is derived from the AeComponent template class using the
+    /// The PointLightComponent class is derived from the AeComponent template class using the
     /// PointLightComponentStruct structure.
-    class PointLightComponentClass : public ae_ecs::AeComponent<PointLightComponentStruct> {
+    class PointLightComponent : public ae_ecs::AeComponent<PointLightComponentStruct> {
     public:
-        /// The PointLightComponentClass constructor uses the AeComponent constructor with no additions.
-        PointLightComponentClass() : AeComponent() {};
+        /// The PointLightComponent constructor uses the AeComponent constructor with no additions.
+        PointLightComponent() : AeComponent() {};
 
-        /// The destructor of the PointLightComponentClass class. The PointLightComponentClass destructor
+        /// The destructor of the PointLightComponent class. The PointLightComponent destructor
         /// uses the AeComponent constructor with no additions.
-        ~PointLightComponentClass() {};
+        ~PointLightComponent() {};
 
     private:
 

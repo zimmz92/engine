@@ -7,16 +7,16 @@
 #include <cmath>
 
 namespace ae {
-    // Constructor of the CameraUpdateSystemClass
-    CameraUpdateSystemClass::CameraUpdateSystemClass(GameComponentsStruct& t_game_components,
-                                                     PlayerInputSystemClass& t_playerInputSystem,
-                                                     AeRenderer& t_renderer)
+    // Constructor of the CameraUpdateSystem
+    CameraUpdateSystem::CameraUpdateSystem(GameComponentsStruct& t_game_components,
+                                           PlayerInputSystem& t_playerInputSystem,
+                                           AeRenderer& t_renderer)
                                                      : m_worldPositionComponent{t_game_components.worldPositionComponent},
                                                      m_modelComponent{t_game_components.modelComponent},
                                                      m_cameraComponent{t_game_components.cameraComponent},
                                                      m_playerInputSystem{t_playerInputSystem},
                                                      m_renderer{t_renderer},
-                                                     ae_ecs::AeSystem<CameraUpdateSystemClass>()  {
+                                                     ae_ecs::AeSystem<CameraUpdateSystem>()  {
 
         // Register component dependencies
         m_worldPositionComponent.requiredBySystem(this->getSystemId());
@@ -33,19 +33,19 @@ namespace ae {
 
 
 
-    // Destructor class of the CameraUpdateSystemClass
-    CameraUpdateSystemClass::~CameraUpdateSystemClass(){};
+    // Destructor class of the CameraUpdateSystem
+    CameraUpdateSystem::~CameraUpdateSystem(){};
 
 
 
     // There is no setup required for this system to execute.
-    void CameraUpdateSystemClass::setupSystem(){};
+    void CameraUpdateSystem::setupSystem(){};
 
 
 
     // Updates the camera's view properties based upon its position in the world, the properties of the camera, and the
     // desired projection.
-    void CameraUpdateSystemClass::executeSystem(){
+    void CameraUpdateSystem::executeSystem(){
 
         // Get the entities that use the components this system depends on.
         std::vector<ecs_id> validEntityIds = m_systemManager.getValidEntities(this->getSystemId());
@@ -54,7 +54,7 @@ namespace ae {
         for (ecs_id entityId : validEntityIds){
 
             // Get references to the component data for the specific entity being worked on.
-            CameraComponentStructure& entityCameraData = m_cameraComponent.getDataReference(entityId);
+            CameraComponentStruct& entityCameraData = m_cameraComponent.getDataReference(entityId);
             WorldPositionComponentStruct& entityWorldPosition = m_worldPositionComponent.getDataReference(entityId);
             ModelComponentStruct& entityModel = m_modelComponent.getDataReference(entityId);
 
@@ -103,14 +103,14 @@ namespace ae {
 
 
     // There is no clean up required after this system executes.
-    void CameraUpdateSystemClass::cleanupSystem(){};
+    void CameraUpdateSystem::cleanupSystem(){};
 
 
 
     // Set the projection matrix based on an orthographic view volume.
-    void CameraUpdateSystemClass::setOrthographicProjection(CameraComponentStructure& t_entityCameraData, float  t_left,
-                                                            float t_right, float t_top, float t_bottom, float t_near,
-                                                            float t_far) {
+    void CameraUpdateSystem::setOrthographicProjection(CameraComponentStruct& t_entityCameraData, float  t_left,
+                                                       float t_right, float t_top, float t_bottom, float t_near,
+                                                       float t_far) {
 
         t_entityCameraData.m_projectionMatrix = glm::mat4{ 1.0f };
 
@@ -127,7 +127,7 @@ namespace ae {
 
 
     // Set the projection matrix based on a frustum providing a perspective projection.
-    void CameraUpdateSystemClass::setPerspectiveProjection(CameraComponentStructure& t_entityCameraData, float t_aspect) {
+    void CameraUpdateSystem::setPerspectiveProjection(CameraComponentStruct& t_entityCameraData, float t_aspect) {
 
         // Ensure that the aspect ratio is within realizable limits.
         assert(glm::abs(t_aspect - std::numeric_limits<float>::epsilon()) > 0.0f);
@@ -150,10 +150,10 @@ namespace ae {
 
 
     // Set the direction which the camera is facing based on the world position and rotation of the camera.
-    void CameraUpdateSystemClass::setViewDirection(CameraComponentStructure& t_entityCameraData,
-                                                   ModelComponentStruct& t_entityModelData,
-                                                   WorldPositionComponentStruct& t_entityWorldPosition,
-                                                   glm::vec3 t_direction) {
+    void CameraUpdateSystem::setViewDirection(CameraComponentStruct& t_entityCameraData,
+                                              ModelComponentStruct& t_entityModelData,
+                                              WorldPositionComponentStruct& t_entityWorldPosition,
+                                              glm::vec3 t_direction) {
 
         // Get the position of the camera.
         glm::vec3 position = {t_entityWorldPosition.rho, t_entityWorldPosition.theta, t_entityWorldPosition.phi};
@@ -202,10 +202,10 @@ namespace ae {
 
 
     // Use the setViewDirection function to lock the camera onto the specified world position.
-    void CameraUpdateSystemClass::setViewTarget(CameraComponentStructure& t_entityCameraData,
-                                                ModelComponentStruct& t_entityModelData,
-                                                WorldPositionComponentStruct& t_entityWorldPosition,
-                                                glm::vec3 t_target) {
+    void CameraUpdateSystem::setViewTarget(CameraComponentStruct& t_entityCameraData,
+                                           ModelComponentStruct& t_entityModelData,
+                                           WorldPositionComponentStruct& t_entityWorldPosition,
+                                           glm::vec3 t_target) {
 
         // Convert the world position of the camera to a glm::vec3
         glm::vec3 position = {t_entityWorldPosition.rho, t_entityWorldPosition.theta, t_entityWorldPosition.phi};
@@ -218,9 +218,9 @@ namespace ae {
 
 
     // Set the camera view based on the world position and rotation of the camera entity.
-    void CameraUpdateSystemClass::setViewYXZ(CameraComponentStructure& t_entityCameraData,
-                                             ModelComponentStruct& t_entityModelData,
-                                             WorldPositionComponentStruct& t_entityWorldPosition) {
+    void CameraUpdateSystem::setViewYXZ(CameraComponentStruct& t_entityCameraData,
+                                        ModelComponentStruct& t_entityModelData,
+                                        WorldPositionComponentStruct& t_entityWorldPosition) {
 
         // Convert the world position of the camera to a glm::vec3
         glm::vec3 position = {t_entityWorldPosition.rho, t_entityWorldPosition.theta, t_entityWorldPosition.phi};

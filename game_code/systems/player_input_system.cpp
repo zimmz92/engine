@@ -7,13 +7,13 @@
 namespace ae {
 
     // Constructor implementation
-    PlayerInputSystemClass::PlayerInputSystemClass(GameComponentsStruct& t_game_components, TimingSystemClass& t_timingSystem, GLFWwindow* t_window) :
+    PlayerInputSystem::PlayerInputSystem(GameComponentsStruct& t_game_components, TimingSystem& t_timingSystem, GLFWwindow* t_window) :
     m_window{t_window},
     m_worldPositionComponent{t_game_components.worldPositionComponent},
     m_modelComponent{t_game_components.modelComponent},
     m_playerControlledComponent{t_game_components.playerControlledComponent},
     m_timingSystem{t_timingSystem},
-    ae_ecs::AeSystem<PlayerInputSystemClass>() {
+    ae_ecs::AeSystem<PlayerInputSystem>() {
 
         // Register component dependencies
         m_worldPositionComponent.requiredBySystem(this->getSystemId());
@@ -30,17 +30,17 @@ namespace ae {
 
 
     // Destructor implementation
-    PlayerInputSystemClass::~PlayerInputSystemClass(){};
+    PlayerInputSystem::~PlayerInputSystem(){};
 
 
 
     // Set up the system prior to execution. Currently not used.
-    void PlayerInputSystemClass::setupSystem() {};
+    void PlayerInputSystem::setupSystem() {};
 
 
 
     // Check for player inputs and apply them to controlled entities.
-    void PlayerInputSystemClass::executeSystem(){
+    void PlayerInputSystem::executeSystem(){
 
         // Get the entities that use the components this system depends on.
         std::vector<ecs_id> validEntityIds = m_systemManager.getValidEntities(this->getSystemId());
@@ -64,12 +64,12 @@ namespace ae {
 
 
     // Clean up the system after execution. Currently not used.
-    void PlayerInputSystemClass::cleanupSystem() {};
+    void PlayerInputSystem::cleanupSystem() {};
 
 
 
     // Helper function that translates the users inputs to desired entity position and rotation updates.
-    void PlayerInputSystemClass::moveInPlaneYXZ(WorldPositionComponentStruct& t_worldPosition, ModelComponentStruct& t_modelData){
+    void PlayerInputSystem::moveInPlaneYXZ(WorldPositionComponentStruct& t_worldPosition, ModelComponentStruct& t_modelData){
 
         // Initialize the rotation transform matrix.
         glm::vec3 rotate{ 0 };

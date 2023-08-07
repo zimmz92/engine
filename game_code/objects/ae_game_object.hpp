@@ -23,7 +23,7 @@ namespace ae {
 		glm::mat3 normalMatrix();
 	};
 
-	struct PointLightComponent {
+	struct PointLightComponentOld {
 		float lightIntensity = 1.0f;
 	};
 
@@ -54,7 +54,7 @@ namespace ae {
 
 		// Optional pointer components
 		std::shared_ptr<AeModel> m_model{};
-		std::unique_ptr<PointLightComponent> m_pointLight = nullptr;
+		std::unique_ptr<PointLightComponentOld> m_pointLight = nullptr;
 
 	private:
 		AeGameObject(id_t t_objId) : m_id{ t_objId } {}

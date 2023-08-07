@@ -21,14 +21,14 @@ namespace ae {
 
     /// The player controlled component class is derived from the AeComponent template class using the player controlled
     /// component structure.
-    class PlayerControlledComponentClass : public ae_ecs::AeComponent<PlayerControlledComponentStruct> {
+    class PlayerControlledComponent : public ae_ecs::AeComponent<PlayerControlledComponentStruct> {
     public:
-        /// The PlayerControlledComponentClass constructor uses the AeComponent constructor with no additions.
-        PlayerControlledComponentClass() : AeComponent() {};
+        /// The PlayerControlledComponent constructor uses the AeComponent constructor with no additions.
+        PlayerControlledComponent() : AeComponent() {};
 
-        /// The destructor of the PlayerControlledComponentClass class. The PlayerControlledComponentClass destructor
+        /// The destructor of the PlayerControlledComponent class. The PlayerControlledComponent destructor
         /// uses the AeComponent constructor with no additions.
-        ~PlayerControlledComponentClass() {};
+        ~PlayerControlledComponent() {};
 
     private:
 

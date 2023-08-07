@@ -19,10 +19,10 @@ namespace ae {
 
         /// Constructor for this struct.
         GameSystems(GameComponentsStruct& t_game_components, GLFWwindow* t_window, AeRenderer& t_renderer){
-            playerInputSystem = new PlayerInputSystemClass(t_game_components, timingSystem, t_window);
-            cameraUpdateSystem = new CameraUpdateSystemClass(t_game_components,*playerInputSystem,t_renderer);
-            cyclePointLightsSystem = new CyclePointLightsSystemClass(t_game_components, timingSystem);
-            updateUboSystem = new UpdateUboSystemClass(t_game_components, *cameraUpdateSystem, *cyclePointLightsSystem);
+            playerInputSystem = new PlayerInputSystem(t_game_components, timingSystem, t_window);
+            cameraUpdateSystem = new CameraUpdateSystem(t_game_components, *playerInputSystem, t_renderer);
+            cyclePointLightsSystem = new CyclePointLightsSystem(t_game_components, timingSystem);
+            updateUboSystem = new UpdateUboSystem(t_game_components, *cameraUpdateSystem, *cyclePointLightsSystem);
         }
 
         /// Destructor for this struct.
@@ -41,20 +41,20 @@ namespace ae {
             playerInputSystem = nullptr;
         }
 
-        /// The TimingSystemClass instance for the game.
-        TimingSystemClass timingSystem;
+        /// The TimingSystem instance for the game.
+        TimingSystem timingSystem;
 
-        /// The PlayerInputSystemClass instance for the game.
-        PlayerInputSystemClass* playerInputSystem;
+        /// The PlayerInputSystem instance for the game.
+        PlayerInputSystem* playerInputSystem;
 
-        /// The CameraUpdateSystemClass instance for the game.
-        CameraUpdateSystemClass* cameraUpdateSystem;
+        /// The CameraUpdateSystem instance for the game.
+        CameraUpdateSystem* cameraUpdateSystem;
 
-        /// The UpdateUboSystemClass instance for the game.
-        UpdateUboSystemClass* updateUboSystem;
+        /// The UpdateUboSystem instance for the game.
+        UpdateUboSystem* updateUboSystem;
 
         // Temporary Systems
-        /// The CyclePointLightsSystemClass instance for the game.
-        CyclePointLightsSystemClass* cyclePointLightsSystem;
+        /// The CyclePointLightsSystem instance for the game.
+        CyclePointLightsSystem* cyclePointLightsSystem;
     };
 }

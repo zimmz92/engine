@@ -16,7 +16,7 @@ namespace ae {
 		~CameraEntity();
 
         /// Holds the camera specific data for the entity.
-        CameraComponentStructure& m_cameraData;
+        CameraComponentStruct& m_cameraData;
 
         /// Specifies if the camera entity is currently controlled by the player.
         PlayerControlledComponentStruct& m_playerControlledData;

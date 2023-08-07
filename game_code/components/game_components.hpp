@@ -15,11 +15,11 @@ namespace ae {
 
     /// A structure to declare the game components of this game.
     struct GameComponentsStruct{
-        CameraComponentClass cameraComponent{};
-        ModelComponentClass modelComponent{};
-        PlayerControlledComponentClass playerControlledComponent{};
-        WorldPositionComponentClass worldPositionComponent{};
-        UboDataFlagsComponentClass uboDataFlagsComponent{};
-        PointLightComponentClass pointLightComponent{};
+        CameraComponent cameraComponent{};
+        ModelComponent modelComponent{};
+        PlayerControlledComponent playerControlledComponent{};
+        WorldPositionComponent worldPositionComponent{};
+        UboDataFlagsComponent uboDataFlagsComponent{};
+        PointLightComponent pointLightComponent{};
     };
 }

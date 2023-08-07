@@ -19,14 +19,14 @@ namespace ae {
 
     /// A component that specifies the world position of an entity in spherical coordinates. Using vec3 for storing the
     /// data to improve performance of the system(s) that use this component.
-    class WorldPositionComponentClass : public ae_ecs::AeComponent<WorldPositionComponentStruct> {
+    class WorldPositionComponent : public ae_ecs::AeComponent<WorldPositionComponentStruct> {
     public:
-        /// The WorldPositionComponentClass constructor uses the AeComponent constructor with no additions.
-        WorldPositionComponentClass() : AeComponent() {};
+        /// The WorldPositionComponent constructor uses the AeComponent constructor with no additions.
+        WorldPositionComponent() : AeComponent() {};
 
-        /// The destructor of the WorldPositionComponentClass. The WorldPositionComponentClass destructor
+        /// The destructor of the WorldPositionComponent. The WorldPositionComponent destructor
         /// uses the AeComponent constructor with no additions.
-        ~WorldPositionComponentClass() {};
+        ~WorldPositionComponent() {};
 
         /// Gets the world position structure and returns it as a glm::vec3.
         /// \param t_entityId The entity ID to get the world position for.

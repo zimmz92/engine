@@ -7,11 +7,11 @@
 namespace ae {
 
     // Constructor implementation
-    CyclePointLightsSystemClass::CyclePointLightsSystemClass(GameComponentsStruct& t_game_components, TimingSystemClass& t_timingSystem)
+    CyclePointLightsSystem::CyclePointLightsSystem(GameComponentsStruct& t_game_components, TimingSystem& t_timingSystem)
     : m_worldPositionComponent{t_game_components.worldPositionComponent},
     m_PointLightComponent{t_game_components.pointLightComponent},
     m_timingSystem{t_timingSystem},
-    ae_ecs::AeSystem<CyclePointLightsSystemClass>() {
+    ae_ecs::AeSystem<CyclePointLightsSystem>() {
 
         // Register component dependencies
         m_worldPositionComponent.requiredBySystem(this->getSystemId());
@@ -27,17 +27,17 @@ namespace ae {
 
 
     // Destructor implementation
-    CyclePointLightsSystemClass::~CyclePointLightsSystemClass(){};
+    CyclePointLightsSystem::~CyclePointLightsSystem(){};
 
 
 
     // Set up the system prior to execution. Currently not used.
-    void CyclePointLightsSystemClass::setupSystem(){};
+    void CyclePointLightsSystem::setupSystem(){};
 
 
 
     // Update the positions of the point lights to make them move in a circle.
-    void CyclePointLightsSystemClass::executeSystem(){
+    void CyclePointLightsSystem::executeSystem(){
 
         // Get the entities that use the components this system depends on.
         std::vector<ecs_id> validEntityIds = m_systemManager.getValidEntities(this->getSystemId());
@@ -72,5 +72,5 @@ namespace ae {
 
 
     // Clean up the system after execution. Currently not used.
-    void CyclePointLightsSystemClass::cleanupSystem(){};
+    void CyclePointLightsSystem::cleanupSystem(){};
 }

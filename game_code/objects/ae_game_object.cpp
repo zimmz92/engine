@@ -63,7 +63,7 @@ namespace ae {
 		AeGameObject gameObj = AeGameObject::createGameObject();
 		gameObj.m_color = t_color;
 		gameObj.m_transform.scale.x = t_radius;
-		gameObj.m_pointLight = std::make_unique<PointLightComponent>();
+		gameObj.m_pointLight = std::make_unique<PointLightComponentOld>();
 		gameObj.m_pointLight->lightIntensity = t_intensity;
 		return gameObj;
 	}

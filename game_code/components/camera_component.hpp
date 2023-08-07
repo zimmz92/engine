@@ -13,7 +13,7 @@
 namespace ae {
 
     /// This structure defines the data stored for each entity using the player component.
-    struct CameraComponentStructure {
+    struct CameraComponentStruct {
 
         /// The matrix describing the mapping of a pinhole camera from 3D world space to the 2D screen.
         glm::mat4 m_projectionMatrix{ 1.0f };
@@ -62,15 +62,15 @@ namespace ae {
     };
 
 
-    /// The CameraComponentClass is derived from the AeComponent template class using the CameraComponentStructure.
-    class CameraComponentClass : public ae_ecs::AeComponent<CameraComponentStructure> {
+    /// The CameraComponent is derived from the AeComponent template class using the CameraComponentStruct.
+    class CameraComponent : public ae_ecs::AeComponent<CameraComponentStruct> {
     public:
-        /// The CameraComponentClass constructor uses the AeComponent constructor with no additions.
-        CameraComponentClass() : AeComponent() {};
+        /// The CameraComponent constructor uses the AeComponent constructor with no additions.
+        CameraComponent() : AeComponent() {};
 
-        /// The destructor of the CameraComponentClass class. The CameraComponentClass destructor
+        /// The destructor of the CameraComponent class. The CameraComponent destructor
         /// uses the AeComponent constructor with no additions.
-        ~CameraComponentClass() {};
+        ~CameraComponent() {};
 
     private:
 

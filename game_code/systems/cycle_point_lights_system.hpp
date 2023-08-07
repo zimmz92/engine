@@ -16,16 +16,16 @@
 namespace ae {
 
     /// A temporary system that cycles the point lights in the world for fun.
-    class CyclePointLightsSystemClass : public ae_ecs::AeSystem<CyclePointLightsSystemClass> {
+    class CyclePointLightsSystem : public ae_ecs::AeSystem<CyclePointLightsSystem> {
     public:
         /// Constructor of the CyclePointLightSystemClass
         /// \param t_game_components The game components available that this system may require.
-        /// \param t_timingSystem The TimingSystemClass the CyclePointLightSystemClass will depend on executing first
+        /// \param t_timingSystem The TimingSystem the CyclePointLightSystemClass will depend on executing first
         /// and require information from.
-        CyclePointLightsSystemClass(GameComponentsStruct& t_game_components, TimingSystemClass& t_timingSystem);
+        CyclePointLightsSystem(GameComponentsStruct& t_game_components, TimingSystem& t_timingSystem);
 
         /// Destructor of the CyclePointLightSystemClass
-        ~CyclePointLightsSystemClass();
+        ~CyclePointLightsSystem();
 
         /// Setup the CyclePointLightSystemClass, this is handled by the ECS.
         void setupSystem() override;
@@ -43,14 +43,14 @@ namespace ae {
 
         // Components this system utilizes.
         /// The WorldPositionComponent this systems accesses to update the position of applicable point light entities.
-        WorldPositionComponentClass& m_worldPositionComponent;
-        /// The PointLightComponent this systems accesses to update the position of applicable point light entities.
-        PointLightComponentClass& m_PointLightComponent;
+        WorldPositionComponent& m_worldPositionComponent;
+        /// The PointLightComponentOld this systems accesses to update the position of applicable point light entities.
+        PointLightComponent& m_PointLightComponent;
 
 
-        // Prerequisite systems for the PlayerInputSystemClass.
-        /// The TimingSystemClass this system requires to operate prior to it's own operation.
-        TimingSystemClass& m_timingSystem;
+        // Prerequisite systems for the PlayerInputSystem.
+        /// The TimingSystem this system requires to operate prior to it's own operation.
+        TimingSystem& m_timingSystem;
 
         /// Number of point lights being updated
         int m_numPointLights;

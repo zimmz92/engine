@@ -27,14 +27,14 @@ namespace ae {
 
 
     /// The model component class is derived from the AeComponent template class using the model component structure.
-    class ModelComponentClass : public ae_ecs::AeComponent<ModelComponentStruct> {
+    class ModelComponent : public ae_ecs::AeComponent<ModelComponentStruct> {
     public:
-        /// The ModelComponentClass constructor uses the AeComponent constructor with no additions.
-        ModelComponentClass() : AeComponent() {};
+        /// The ModelComponent constructor uses the AeComponent constructor with no additions.
+        ModelComponent() : AeComponent() {};
 
-        /// The destructor of the modelComponent class. The ModelComponentClass destructor uses the AeComponent
+        /// The destructor of the modelComponent class. The ModelComponent destructor uses the AeComponent
         /// constructor with no additions.
-        ~ModelComponentClass() {};
+        ~ModelComponent() {};
 
     private:
 

@@ -7,7 +7,7 @@
 namespace ae {
 
     // Constructor implementation
-    TimingSystemClass::TimingSystemClass() : ae_ecs::AeSystem<TimingSystemClass>() {
+    TimingSystem::TimingSystem() : ae_ecs::AeSystem<TimingSystem>() {
         m_previousTime = std::chrono::high_resolution_clock::now();
         this->enableSystem();
     };
@@ -15,17 +15,17 @@ namespace ae {
 
 
     // Destructor implementation
-    TimingSystemClass::~TimingSystemClass() {};
+    TimingSystem::~TimingSystem() {};
 
 
 
     // Set up the system prior to execution. Currently not used.
-    void TimingSystemClass::setupSystem() {};
+    void TimingSystem::setupSystem() {};
 
 
 
     // Update the time difference between the current execution and the previous.
-    void TimingSystemClass::executeSystem() {
+    void TimingSystem::executeSystem() {
         // Get the current time.
         auto currentTime = std::chrono::high_resolution_clock::now();
 
@@ -39,6 +39,6 @@ namespace ae {
 
 
     // Clean up the system after execution. Currently not used.
-    void TimingSystemClass::cleanupSystem() {};
+    void TimingSystem::cleanupSystem() {};
 
 }

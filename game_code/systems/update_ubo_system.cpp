@@ -9,16 +9,16 @@
 namespace ae {
 
     // Constructor implementation.
-    UpdateUboSystemClass::UpdateUboSystemClass(GameComponentsStruct& t_game_components,
-                                               CameraUpdateSystemClass& t_cameraUpdateSystem,
-                                               CyclePointLightsSystemClass& t_cyclePointLightsSystem)
+    UpdateUboSystem::UpdateUboSystem(GameComponentsStruct& t_game_components,
+                                     CameraUpdateSystem& t_cameraUpdateSystem,
+                                     CyclePointLightsSystem& t_cyclePointLightsSystem)
                                                : m_worldPositionComponent{t_game_components.worldPositionComponent},
                                                m_cameraComponent{t_game_components.cameraComponent},
                                                m_pointLightComponent{t_game_components.pointLightComponent},
                                                m_uboDataFlagsComponent{t_game_components.uboDataFlagsComponent},
                                                m_cameraUpdateSystem{t_cameraUpdateSystem},
                                                m_cyclePointLightsSystem{t_cyclePointLightsSystem},
-                                               ae_ecs::AeSystem<UpdateUboSystemClass>() {
+                                               ae_ecs::AeSystem<UpdateUboSystem>() {
 
         // Register component dependencies
         // This system will attempt to access data from optional components that this system does not depend on existing
@@ -39,15 +39,15 @@ namespace ae {
 
 
     // Destructor Implementation
-    UpdateUboSystemClass::~UpdateUboSystemClass(){};
+    UpdateUboSystem::~UpdateUboSystem(){};
 
 
 
 
     // Set up the system prior to execution. Currently not used.
-    void UpdateUboSystemClass::setupSystem(){};
+    void UpdateUboSystem::setupSystem(){};
 
-    void UpdateUboSystemClass::executeSystem(){
+    void UpdateUboSystem::executeSystem(){
 
         // Get the entities that use the components this system depends on.
         std::vector<ecs_id> validEntityIds = m_systemManager.getValidEntities(this->getSystemId());
@@ -57,7 +57,7 @@ namespace ae {
         // number of point lights handled by other systems.
         m_numPointLights = 0;
 
-        // Loop through all the valid entities with the required components with the UpdateUboSystemClass
+        // Loop through all the valid entities with the required components with the UpdateUboSystem
         for (ecs_id entityId : validEntityIds){
 
 
@@ -82,7 +82,7 @@ namespace ae {
                                                std::string(typeid(entityId).name()) +
                                                std::string("\" entity with ID, ") +
                                                std::to_string(entityId) +
-                                               std::string(", is using the UpdateUboSystemClass claims to have camera "
+                                               std::string(", is using the UpdateUboSystem claims to have camera "
                                                            "data for the ubo, however, does not use the "
                                                            "cameraComponent!");
                     throw std::runtime_error(errorMessage);
@@ -113,7 +113,7 @@ namespace ae {
                                                std::string(typeid(entityId).name()) +
                                                std::string("\" entity with ID, ") +
                                                std::to_string(entityId) +
-                                               std::string(", is using the UpdateUboSystemClass claims to have point"
+                                               std::string(", is using the UpdateUboSystem claims to have point"
                                                            " light ubo data, however, does not use the "
                                                            "pointLightComponent!");
                     throw std::runtime_error(errorMessage);
@@ -125,9 +125,9 @@ namespace ae {
         // other point light related systems.
         if(m_numPointLights != m_cyclePointLightsSystem.getNumPointLights()){
             // Error if the entity does not contain the point light data it claims to have in the uboDataFlagsComponent.
-            std::string errorMessage = std::string("The number of point lights handled by the UpdateUboSystemClass, ") +
+            std::string errorMessage = std::string("The number of point lights handled by the UpdateUboSystem, ") +
                                        std::to_string(m_numPointLights) +
-                                       std::string(", does not match the number of lights handled in the CyclePointLightsSystemClass, ") +
+                                       std::string(", does not match the number of lights handled in the CyclePointLightsSystem, ") +
                                        std::to_string(m_cyclePointLightsSystem.getNumPointLights()) +
                                        std::string("!");
             throw std::runtime_error(errorMessage);
@@ -135,5 +135,5 @@ namespace ae {
     };
 
     // Clean up the system after execution. Currently not used.
-    void UpdateUboSystemClass::cleanupSystem(){};
+    void UpdateUboSystem::cleanupSystem(){};
 }

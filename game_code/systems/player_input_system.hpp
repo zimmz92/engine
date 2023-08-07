@@ -16,25 +16,25 @@
 namespace ae {
 
     /// A system that retrieves the player's inputs and moves/rotates the currently controlled entity.
-    class PlayerInputSystemClass : public ae_ecs::AeSystem<PlayerInputSystemClass> {
+    class PlayerInputSystem : public ae_ecs::AeSystem<PlayerInputSystem> {
     public:
-        /// Constructor of the PlayerInputSystemClass
+        /// Constructor of the PlayerInputSystem
         /// \param t_game_components The game components available that this system may require.
-        /// \param t_timingSystem The TimingSystemClass the PlayerInputSystemClass will depend on executing first
+        /// \param t_timingSystem The TimingSystem the PlayerInputSystem will depend on executing first
         /// and require information from.
         /// \param t_window A pointer to the GLFW window that will be polling the player's inputs.
-        PlayerInputSystemClass(GameComponentsStruct& t_game_components, TimingSystemClass& t_timingSystem, GLFWwindow* t_window);
+        PlayerInputSystem(GameComponentsStruct& t_game_components, TimingSystem& t_timingSystem, GLFWwindow* t_window);
 
-        /// Destructor of the PlayerInputSystemClass
-        ~PlayerInputSystemClass();
+        /// Destructor of the PlayerInputSystem
+        ~PlayerInputSystem();
 
-        /// Setup the PlayerInputSystemClass, this is handled by the ECS.
+        /// Setup the PlayerInputSystem, this is handled by the ECS.
         void setupSystem() override;
 
-        /// Execute the PlayerInputSystemClass, this is handled by the ECS.
+        /// Execute the PlayerInputSystem, this is handled by the ECS.
         void executeSystem() override;
 
-        /// Clean up the PlayerInputSystemClass, this is handled by the ECS.
+        /// Clean up the PlayerInputSystem, this is handled by the ECS.
         void cleanupSystem() override;
 
         /// Define structure that sets the key mapping of the keyboard keys to player controlled entity movement.
@@ -68,16 +68,16 @@ namespace ae {
 
         // Components this system utilizes.
         /// The WorldPositionComponent this systems accesses to update the position of player controlled entities.
-        WorldPositionComponentClass& m_worldPositionComponent;
+        WorldPositionComponent& m_worldPositionComponent;
         /// The component this systems interacts with.
-        ModelComponentClass& m_modelComponent;
+        ModelComponent& m_modelComponent;
         ///T he world position component this systems interacts with.
-        PlayerControlledComponentClass& m_playerControlledComponent;
+        PlayerControlledComponent& m_playerControlledComponent;
 
 
-        // Prerequisite systems for the PlayerInputSystemClass.
-        /// Points to the TimingSystemClass this system requires to operate prior to it's own operation.
-        TimingSystemClass& m_timingSystem;
+        // Prerequisite systems for the PlayerInputSystem.
+        /// Points to the TimingSystem this system requires to operate prior to it's own operation.
+        TimingSystem& m_timingSystem;
 
 
         /// Update the passed components based on the
