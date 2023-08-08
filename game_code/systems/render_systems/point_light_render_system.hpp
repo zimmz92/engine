@@ -4,7 +4,7 @@
 */
 #pragma once
 
-#include "ae_ecs.hpp"
+#include "ae_ecs_include.hpp"
 
 #include "game_components.hpp"
 
@@ -19,7 +19,7 @@ namespace ae {
     public:
         /// Constructor of the PointLightRenderSystem
         /// \param t_game_components The game components available that this system may require.
-        PointLightRenderSystem(GameComponentsStruct& t_game_components, AeDevice& t_aeDevice, VkRenderPass t_renderPass, VkDescriptorSetLayout t_globalSetLayout);
+        PointLightRenderSystem(ae_ecs::AeECS& t_ecs, GameComponents& t_game_components, AeDevice& t_aeDevice, VkRenderPass t_renderPass, VkDescriptorSetLayout t_globalSetLayout);
 
         /// Destructor of the PointLightRenderSystem
         ~PointLightRenderSystem();

@@ -4,7 +4,7 @@
 */
 #pragma once
 
-#include "ae_ecs.hpp"
+#include "ae_ecs_include.hpp"
 
 #include "game_components.hpp"
 
@@ -20,7 +20,7 @@ namespace ae {
         /// \param t_game_components The game components available that this system may require.
         /// \param t_timingSystem The TimingSystem the CyclePointLightSystemClass will depend on executing first
         /// and require information from.
-        CyclePointLightsSystem(GameComponentsStruct& t_game_components, TimingSystem& t_timingSystem);
+        CyclePointLightsSystem(ae_ecs::AeECS& t_ecs, GameComponents& t_game_components, TimingSystem& t_timingSystem);
 
         /// Destructor of the CyclePointLightSystemClass
         ~CyclePointLightsSystem();
@@ -51,7 +51,7 @@ namespace ae {
         TimingSystem& m_timingSystem;
 
         /// Number of point lights being updated
-        int m_numPointLights;
+        int m_numPointLights = 0;
     };
 }
 

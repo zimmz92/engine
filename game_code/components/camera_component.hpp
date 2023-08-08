@@ -66,7 +66,7 @@ namespace ae {
     class CameraComponent : public ae_ecs::AeComponent<CameraComponentStruct> {
     public:
         /// The CameraComponent constructor uses the AeComponent constructor with no additions.
-        CameraComponent() : AeComponent() {};
+        CameraComponent(ae_ecs::AeECS& t_ecs) : AeComponent(t_ecs) {};
 
         /// The destructor of the CameraComponent class. The CameraComponent destructor
         /// uses the AeComponent constructor with no additions.

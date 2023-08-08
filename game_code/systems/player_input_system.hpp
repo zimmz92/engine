@@ -23,7 +23,7 @@ namespace ae {
         /// \param t_timingSystem The TimingSystem the PlayerInputSystem will depend on executing first
         /// and require information from.
         /// \param t_window A pointer to the GLFW window that will be polling the player's inputs.
-        PlayerInputSystem(GameComponentsStruct& t_game_components, TimingSystem& t_timingSystem, GLFWwindow* t_window);
+        PlayerInputSystem(ae_ecs::AeECS& t_ecs, GameComponents& t_game_components, TimingSystem& t_timingSystem, GLFWwindow* t_window);
 
         /// Destructor of the PlayerInputSystem
         ~PlayerInputSystem();

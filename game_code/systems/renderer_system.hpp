@@ -4,7 +4,7 @@
 */
 #pragma once
 
-#include "ae_ecs.hpp"
+#include "ae_ecs_include.hpp"
 
 #include "game_components.hpp"
 #include "update_ubo_system.hpp"
@@ -34,7 +34,8 @@ namespace ae {
         /// \param t_renderer The Ae_Renderer that this system will interact with to initiate the render pass.
         /// \param t_globalDescriptorSets The global descriptor sets for this class to utilize.
         /// \param t_uboBuffers The ubo buffers this class utilizes.
-        RendererStartPassSystem(GameComponentsStruct& t_game_components,
+        RendererStartPassSystem(ae_ecs::AeECS& t_ecs,
+                                GameComponents& t_game_components,
                                 UpdateUboSystem& t_updateUboSystem,
                                 TimingSystem& t_timingSystem,
                                 AeRenderer& t_renderer,

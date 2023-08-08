@@ -89,7 +89,7 @@ namespace ae {
         t_ubo.numLights = lightIndex;
     }
 
-    void AeRsPointLight::render(FrameInfo& t_frameInfo, GameComponentsStruct* t_gameComponents) {
+    void AeRsPointLight::render(FrameInfo& t_frameInfo, GameComponents* t_gameComponents) {
         //sort lights
         std::map<float, AeGameObject::id_t> sorted;
         for (auto& kv : t_frameInfo.gameObjects) {

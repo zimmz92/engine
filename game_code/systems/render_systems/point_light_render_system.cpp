@@ -17,12 +17,12 @@ namespace ae {
     };
 
     // Constructor implementation
-    PointLightRenderSystem::PointLightRenderSystem(GameComponentsStruct& t_game_components, AeDevice& t_aeDevice, VkRenderPass t_renderPass, VkDescriptorSetLayout t_globalSetLayout)
+    PointLightRenderSystem::PointLightRenderSystem(ae_ecs::AeECS& t_ecs, GameComponents& t_game_components, AeDevice& t_aeDevice, VkRenderPass t_renderPass, VkDescriptorSetLayout t_globalSetLayout)
     : m_worldPositionComponent{t_game_components.worldPositionComponent},
       m_pointLightComponent{t_game_components.pointLightComponent},
       m_cameraComponent{t_game_components.cameraComponent},
       m_aeDevice{t_aeDevice},
-      ae_ecs::AeSystem<PointLightRenderSystem>() {
+      ae_ecs::AeSystem<PointLightRenderSystem>(t_ecs) {
 
         // Register component dependencies
         m_worldPositionComponent.requiredBySystem(this->getSystemId());

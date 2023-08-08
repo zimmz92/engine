@@ -4,7 +4,7 @@
 */
 #pragma once
 
-#include "ae_ecs.hpp"
+#include "ae_ecs_include.hpp"
 #include <chrono>
 
 namespace ae {
@@ -13,7 +13,7 @@ namespace ae {
     class TimingSystem : public ae_ecs::AeSystem<TimingSystem> {
     public:
         /// Constructor of the TimingSystem
-        TimingSystem();
+        TimingSystem(ae_ecs::AeECS& t_ecs);
 
         /// Destructor of the TimingSystem
         ~TimingSystem();

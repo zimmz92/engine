@@ -10,7 +10,7 @@ namespace ae {
 
 	public:
         /// Creates the PointLightEntity using the specified game components.
-        explicit PointLightEntity(GameComponentsStruct& t_gameComponents);
+        explicit PointLightEntity(ae_ecs::AeECS& t_ecs, GameComponents& t_gameComponents);
 
         /// The destructor of the PointLightEntity.
 		~PointLightEntity();

@@ -6,7 +6,7 @@
 */
 #pragma once
 
-#include "ae_ecs.hpp"
+#include "ae_ecs_include.hpp"
 
 #include "game_components.hpp"
 #include "player_input_system.hpp"
@@ -24,7 +24,8 @@ namespace ae {
         /// first and require information from.
         /// \param t_renderer The renderer that the cameras being processed are associated with to obtain the aspect
         /// ratio.
-        CameraUpdateSystem(GameComponentsStruct& t_game_components,
+        CameraUpdateSystem(ae_ecs::AeECS& t_ecs,
+                           GameComponents& t_game_components,
                            PlayerInputSystem& t_playerInputSystem,
                            AeRenderer& t_renderer);
 

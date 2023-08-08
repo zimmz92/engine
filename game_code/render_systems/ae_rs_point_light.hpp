@@ -22,7 +22,7 @@ namespace ae {
         AeRsPointLight& operator=(const AeRsPointLight&) = delete;
 
         void update(FrameInfo& t_frameInfo, GlobalUbo& t_ubo);
-        void render(FrameInfo& t_frameInfo, GameComponentsStruct* t_gameComponents);
+        void render(FrameInfo& t_frameInfo, GameComponents* t_gameComponents);
 
     private:
         void createPipelineLayout(VkDescriptorSetLayout t_globalSetLayout);

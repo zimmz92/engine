@@ -10,7 +10,7 @@ namespace ae {
 
 	public:
         /// Creates the CameraEntity using the specified game components.
-        explicit CameraEntity(GameComponentsStruct& t_gameComponents);
+        explicit CameraEntity(ae_ecs::AeECS& t_ecs, GameComponents& t_gameComponents);
 
         /// The destructor of the CameraEntity.
 		~CameraEntity();

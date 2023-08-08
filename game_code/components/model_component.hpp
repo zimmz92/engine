@@ -30,7 +30,7 @@ namespace ae {
     class ModelComponent : public ae_ecs::AeComponent<ModelComponentStruct> {
     public:
         /// The ModelComponent constructor uses the AeComponent constructor with no additions.
-        ModelComponent() : AeComponent() {};
+        ModelComponent(ae_ecs::AeECS& t_ecs) : AeComponent(t_ecs) {};
 
         /// The destructor of the modelComponent class. The ModelComponent destructor uses the AeComponent
         /// constructor with no additions.

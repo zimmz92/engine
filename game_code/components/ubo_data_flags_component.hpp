@@ -5,7 +5,7 @@
 */
 #pragma once
 
-#include "ae_ecs.hpp"
+#include "ae_ecs_include.hpp"
 
 namespace ae {
 
@@ -21,7 +21,7 @@ namespace ae {
     class UboDataFlagsComponent : public ae_ecs::AeComponent<UboDataFlagsComponentStruct> {
     public:
         /// The UboDataFlags constructor uses the AeComponent constructor with no additions.
-        UboDataFlagsComponent() : AeComponent() {};
+        UboDataFlagsComponent(ae_ecs::AeECS& t_ecs) : AeComponent(t_ecs) {};
 
         /// The destructor of the UboDataFlagsClass. The UboDataFlagsClass destructor
         /// uses the AeComponent constructor with no additions.

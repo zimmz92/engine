@@ -1,9 +1,10 @@
-/*! \file GameComponentsStruct.hpp
+/*! \file GameComponents.hpp
     \brief The script that declares the components of the game.
     The game components are declared.
 */
 #pragma once
 
+#include "ae_ecs_include.hpp"
 #include "camera_component.hpp"
 #include "model_component.hpp"
 #include "player_controlled_component.hpp"
@@ -14,12 +15,18 @@
 namespace ae {
 
     /// A structure to declare the game components of this game.
-    struct GameComponentsStruct{
-        CameraComponent cameraComponent{};
-        ModelComponent modelComponent{};
-        PlayerControlledComponent playerControlledComponent{};
-        WorldPositionComponent worldPositionComponent{};
-        UboDataFlagsComponent uboDataFlagsComponent{};
-        PointLightComponent pointLightComponent{};
+    struct GameComponents{
+
+        GameComponents(ae_ecs::AeECS& t_ecs) : ecs{t_ecs} {};
+
+        ~GameComponents(){};
+
+        ae_ecs::AeECS& ecs;
+        CameraComponent cameraComponent{ecs};
+        ModelComponent modelComponent{ecs};
+        PlayerControlledComponent playerControlledComponent{ecs};
+        WorldPositionComponent worldPositionComponent{ecs};
+        UboDataFlagsComponent uboDataFlagsComponent{ecs};
+        PointLightComponent pointLightComponent{ecs};
     };
 }

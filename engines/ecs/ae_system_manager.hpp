@@ -100,7 +100,4 @@ namespace ae_ecs {
     protected:
 
     };
-
-    /// Declare the default system manager for the ecs.
-    inline AeSystemManager ecsSystemManager(ecsComponentManager);
 }

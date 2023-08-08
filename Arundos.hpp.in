@@ -4,11 +4,11 @@
 
 #pragma once
 
-#include "ae_descriptors.hpp"
 #include "ae_device.hpp"
-#include "ae_game_object.hpp"
 #include "ae_window.hpp"
 #include "ae_renderer.hpp"
+
+#include "ae_ecs_include.hpp"
 
 #include "game_components.hpp"
 #include "game_systems.hpp"
@@ -37,11 +37,16 @@ namespace ae {
         /// Declare the application window.
         AeWindow m_aeWindow{ WIDTH, HEIGHT, "Arundos" };
 
-
         AeDevice m_aeDevice{ m_aeWindow };
         AeRenderer m_aeRenderer{m_aeWindow, m_aeDevice };
 
-        GameComponentsStruct m_gameComponents{};
-        GameSystems* m_gameSystems;
+        /// Declare the ECS of the game.
+        ae_ecs::AeECS m_aeECS{};
+        GameComponents m_gameComponents{m_aeECS};
+        GameSystems m_gameSystems{m_aeECS, m_gameComponents, m_aeWindow.getGLFWwindow(), m_aeDevice, m_aeRenderer};
+
+
+
+
     };
 }  // namespace ae

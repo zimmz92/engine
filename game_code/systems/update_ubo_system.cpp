@@ -9,7 +9,8 @@
 namespace ae {
 
     // Constructor implementation.
-    UpdateUboSystem::UpdateUboSystem(GameComponentsStruct& t_game_components,
+    UpdateUboSystem::UpdateUboSystem(ae_ecs::AeECS& t_ecs,
+                                     GameComponents& t_game_components,
                                      CameraUpdateSystem& t_cameraUpdateSystem,
                                      CyclePointLightsSystem& t_cyclePointLightsSystem)
                                                : m_worldPositionComponent{t_game_components.worldPositionComponent},
@@ -18,7 +19,7 @@ namespace ae {
                                                m_uboDataFlagsComponent{t_game_components.uboDataFlagsComponent},
                                                m_cameraUpdateSystem{t_cameraUpdateSystem},
                                                m_cyclePointLightsSystem{t_cyclePointLightsSystem},
-                                               ae_ecs::AeSystem<UpdateUboSystem>() {
+                                               ae_ecs::AeSystem<UpdateUboSystem>(t_ecs) {
 
         // Register component dependencies
         // This system will attempt to access data from optional components that this system does not depend on existing

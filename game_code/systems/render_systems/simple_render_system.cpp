@@ -10,12 +10,12 @@
 namespace ae {
 
     // Constructor implementation
-    SimpleRenderSystem::SimpleRenderSystem(GameComponentsStruct &t_game_components, AeDevice &t_aeDevice,
+    SimpleRenderSystem::SimpleRenderSystem(ae_ecs::AeECS& t_ecs, GameComponents &t_game_components, AeDevice &t_aeDevice,
                                            VkRenderPass t_renderPass, VkDescriptorSetLayout t_globalSetLayout)
             : m_worldPositionComponent{t_game_components.worldPositionComponent},
               m_modelComponent{t_game_components.modelComponent},
               m_aeDevice{t_aeDevice},
-              ae_ecs::AeSystem<SimpleRenderSystem>() {
+              ae_ecs::AeSystem<SimpleRenderSystem>(t_ecs) {
 
         // Register component dependencies
         m_worldPositionComponent.requiredBySystem(this->getSystemId());

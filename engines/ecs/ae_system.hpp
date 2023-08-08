@@ -3,9 +3,8 @@
 /// The template system class is defined.
 #pragma once
 
-#include "ae_ecs_constants.hpp"
+#include "ae_ecs.hpp"
 #include "ae_system_base.hpp"
-#include "ae_system_manager.hpp"
 
 #include <cstdint>
 #include <vector>
@@ -20,12 +19,9 @@ namespace ae_ecs {
 
     public:
 
-        /// Function to create the system using the default system and component managers of the ecs engine
-        AeSystem() : AeSystem(ecsSystemManager) {};
-
         /// Function to create the system defining a specific system manager
         /// \param t_systemManager The system manager that will manage this system.
-        explicit AeSystem(AeSystemManager& t_systemManager) : AeSystemBase(t_systemManager) {};
+        explicit AeSystem(AeECS& t_ecs) : AeSystemBase(t_ecs.m_ecsSystemManager) {};
 
         /// Function to destroy the system
         ~AeSystem() {};

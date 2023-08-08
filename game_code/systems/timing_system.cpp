@@ -7,7 +7,7 @@
 namespace ae {
 
     // Constructor implementation
-    TimingSystem::TimingSystem() : ae_ecs::AeSystem<TimingSystem>() {
+    TimingSystem::TimingSystem(ae_ecs::AeECS& t_ecs) : ae_ecs::AeSystem<TimingSystem>(t_ecs) {
         m_previousTime = std::chrono::high_resolution_clock::now();
         this->enableSystem();
     };

@@ -2,10 +2,10 @@
 
 namespace ae {
 
-    PointLightEntity::PointLightEntity(GameComponentsStruct& t_gameComponents) :
+    PointLightEntity::PointLightEntity(ae_ecs::AeECS& t_ecs, GameComponents& t_gameComponents) :
             m_pointLightData{ t_gameComponents.pointLightComponent.getDataReference(this->m_entityId) },
             m_uboDataFlags{ t_gameComponents.uboDataFlagsComponent.getDataReference(this->m_entityId) },
-            GameObjectEntity(t_gameComponents) {
+            GameObjectEntity(t_ecs, t_gameComponents) {
 
         // Specify the components that define this entity and where this entity will store data.
         t_gameComponents.pointLightComponent.requiredByEntity(this->m_entityId);

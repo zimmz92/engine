@@ -6,7 +6,7 @@
 
 // libs
 #include <glm/gtc/matrix_transform.hpp>
-#include "ae_ecs.hpp"
+#include "ae_ecs_include.hpp"
 
 namespace ae {
 
@@ -22,7 +22,7 @@ namespace ae {
     class WorldPositionComponent : public ae_ecs::AeComponent<WorldPositionComponentStruct> {
     public:
         /// The WorldPositionComponent constructor uses the AeComponent constructor with no additions.
-        WorldPositionComponent() : AeComponent() {};
+        WorldPositionComponent(ae_ecs::AeECS& t_ecs) : AeComponent(t_ecs) {};
 
         /// The destructor of the WorldPositionComponent. The WorldPositionComponent destructor
         /// uses the AeComponent constructor with no additions.

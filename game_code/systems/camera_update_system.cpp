@@ -8,7 +8,8 @@
 
 namespace ae {
     // Constructor of the CameraUpdateSystem
-    CameraUpdateSystem::CameraUpdateSystem(GameComponentsStruct& t_game_components,
+    CameraUpdateSystem::CameraUpdateSystem(ae_ecs::AeECS& t_ecs,
+                                           GameComponents& t_game_components,
                                            PlayerInputSystem& t_playerInputSystem,
                                            AeRenderer& t_renderer)
                                                      : m_worldPositionComponent{t_game_components.worldPositionComponent},
@@ -16,7 +17,7 @@ namespace ae {
                                                      m_cameraComponent{t_game_components.cameraComponent},
                                                      m_playerInputSystem{t_playerInputSystem},
                                                      m_renderer{t_renderer},
-                                                     ae_ecs::AeSystem<CameraUpdateSystem>()  {
+                                                     ae_ecs::AeSystem<CameraUpdateSystem>(t_ecs)  {
 
         // Register component dependencies
         m_worldPositionComponent.requiredBySystem(this->getSystemId());

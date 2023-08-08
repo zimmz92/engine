@@ -3,8 +3,7 @@
 /// The template entity class is defined.
 #pragma once
 
-#include "ae_ecs_constants.hpp"
-#include "ae_entity_manager.hpp"
+#include "ae_ecs.hpp"
 
 #include <cstdint>
 #include <vector>
@@ -22,20 +21,15 @@ namespace ae_ecs {
 
 	public:
 
-        /// Function to create the entity using the default entity and component managers of the ecs engine
-        AeEntity() : AeEntity(ecsEntityManager) {};
-
 		/// Function to create an entity and specify the specific manager for the entity
 		/// \param t_entityManager The entity manager that will manage this entity.
-        explicit AeEntity( AeEntityManager& t_entityManager) : m_entityManager{ t_entityManager } {
-			m_entityId = m_entityManager.allocateEntityId();
+        explicit AeEntity( AeECS& t_ecs) : m_entityManager{ t_ecs.m_ecsEntityManager } {
+			m_entityId = m_entityManager.registerEntity();
 		};
 
-		/// Function to destroy an entity. Alerts the component manager that an entity is being destroyed to ensure the
-		/// component signature is properly reset.
-		~AeEntity() {
-            m_entityManager.destroyEntity(m_entityId);
-        };
+		/// Function to destroy an entity. Only destroys this class, entity data must be destroyed through the ECS
+		/// class.
+		~AeEntity() {};
 
 		/// Do not allow this class to be copied (2 lines below)
 		AeEntity(const AeEntity&) = delete;

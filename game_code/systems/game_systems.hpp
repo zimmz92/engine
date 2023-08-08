@@ -4,6 +4,7 @@
 */
 #pragma once
 
+#include "ae_ecs_include.hpp"
 #include "game_components.hpp"
 
 #include "camera_update_system.hpp"
@@ -19,17 +20,21 @@ namespace ae {
     struct GameSystems{
 
         /// Constructor for this struct.
-        GameSystems(GameComponentsStruct& t_game_components, GLFWwindow* t_window, AeDevice& t_device, AeRenderer& t_renderer){
-            playerInputSystem = new PlayerInputSystem(t_game_components, timingSystem, t_window);
-            cameraUpdateSystem = new CameraUpdateSystem(t_game_components, *playerInputSystem, t_renderer);
-            cyclePointLightsSystem = new CyclePointLightsSystem(t_game_components, timingSystem);
-            updateUboSystem = new UpdateUboSystem(t_game_components, *cameraUpdateSystem, *cyclePointLightsSystem);
-            rendererStartPassSystem = new RendererStartPassSystem(t_game_components,*updateUboSystem,timingSystem,t_renderer,t_device);
-        }
+        GameSystems(ae_ecs::AeECS& t_ecs, GameComponents& t_game_components, GLFWwindow* t_window, AeDevice& t_device, AeRenderer& t_renderer) {
+            timingSystem = new TimingSystem(t_ecs);
+            playerInputSystem = new PlayerInputSystem(t_ecs, t_game_components, *timingSystem, t_window);
+            cameraUpdateSystem = new CameraUpdateSystem(t_ecs, t_game_components, *playerInputSystem, t_renderer);
+            cyclePointLightsSystem = new CyclePointLightsSystem(t_ecs, t_game_components, *timingSystem);
+            updateUboSystem = new UpdateUboSystem(t_ecs, t_game_components, *cameraUpdateSystem, *cyclePointLightsSystem);
+            rendererSystem = new RendererStartPassSystem(t_ecs, t_game_components, *updateUboSystem, *timingSystem, t_renderer, t_device);
+        };
 
         /// Destructor for this struct.
         ~GameSystems(){
             // Delete systems in the reverse order of how they were declared.
+            delete rendererSystem;
+            rendererSystem = nullptr;
+
             delete updateUboSystem;
             updateUboSystem = nullptr;
 
@@ -41,10 +46,10 @@ namespace ae {
 
             delete playerInputSystem;
             playerInputSystem = nullptr;
-        }
+        };
 
         /// The TimingSystem instance for the game.
-        TimingSystem timingSystem;
+        TimingSystem* timingSystem;
 
         /// The PlayerInputSystem instance for the game.
         PlayerInputSystem* playerInputSystem;
@@ -56,7 +61,7 @@ namespace ae {
         UpdateUboSystem* updateUboSystem;
 
         /// The RendererStartPassSystem instance for the game.
-        RendererStartPassSystem* rendererStartPassSystem;
+        RendererStartPassSystem* rendererSystem;
 
 
         // Temporary Systems

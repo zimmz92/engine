@@ -3,8 +3,7 @@
 /// The template component class is defined.
 #pragma once
 
-#include "ae_ecs_constants.hpp"
-#include "ae_component_manager.hpp"
+#include "ae_ecs.hpp"
 
 #include <cstdint>
 
@@ -19,13 +18,10 @@ namespace ae_ecs {
 
 	public:
 
-        /// Function to create the entity using the default entity, component, and system managers of the ecs engine
-        AeComponent() : AeComponent(ecsComponentManager) {};
-
         /// Function to create a component, specify the specific manager for the component, and allocate memory for the
         /// component data.
         /// \param t_componentManager The component manager that will manage this component.
-		explicit AeComponent(AeComponentManager& t_componentManager) : m_componentManager{ t_componentManager } {
+		explicit AeComponent(AeECS& t_ecs) : m_componentManager{ t_ecs.m_ecsComponentManager } {
             // Get an ID for the component from the component manager
 			m_componentId = m_componentManager.allocateComponentId();
 

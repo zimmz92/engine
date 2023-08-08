@@ -6,7 +6,8 @@
 
 namespace ae {
     // Constructor of the RendererStartPassSystem
-    RendererStartPassSystem::RendererStartPassSystem(GameComponentsStruct& t_game_components,
+    RendererStartPassSystem::RendererStartPassSystem(ae_ecs::AeECS& t_ecs,
+                                                     GameComponents& t_game_components,
                                                      UpdateUboSystem& t_updateUboSystem,
                                                      TimingSystem& t_timingSystem,
                                                      AeRenderer& t_renderer,
@@ -15,7 +16,7 @@ namespace ae {
                                                      m_timingSystem{t_timingSystem},
                                                      m_renderer{t_renderer},
                                                      m_aeDevice{t_aeDevice},
-                                                     ae_ecs::AeSystem<RendererStartPassSystem>()  {
+                                                     ae_ecs::AeSystem<RendererStartPassSystem>(t_ecs)  {
 
         // Register component dependencies
         // None currently.
@@ -67,11 +68,13 @@ namespace ae {
 
 
         // Setup child render systems
-        m_simpleRenderSystem = new SimpleRenderSystem(t_game_components,
+        m_simpleRenderSystem = new SimpleRenderSystem(t_ecs,
+                                                      t_game_components,
                                                       m_aeDevice,
                                                       m_renderer.getSwapChainRenderPass(),
                                                       globalSetLayout->getDescriptorSetLayout());
-        m_pointLightRenderSystem = new PointLightRenderSystem(t_game_components,
+        m_pointLightRenderSystem = new PointLightRenderSystem(t_ecs,
+                                                              t_game_components,
                                                               m_aeDevice,
                                                               m_renderer.getSwapChainRenderPass(),
                                                               globalSetLayout->getDescriptorSetLayout());

@@ -29,11 +29,11 @@ namespace ae_ecs {
 
         /// Retract the ID from an entity and put it back on top of the stack.
         /// \param t_entityId The entity ID to be released.
-		void releaseEntityId(ecs_id t_entityId);
+		void unRegisterEntity(ecs_id t_entityId);
 
         /// Assign an entity ID by taking the next available off the stack.
         /// \return A entity ID.
-		ecs_id allocateEntityId();
+		ecs_id registerEntity();
 
         /// Enables entity allowing it to be acted upon by systems
         /// \param t_entityId The entity ID to be enabled.
@@ -83,7 +83,4 @@ namespace ae_ecs {
 	protected:
 
 	};
-
-    /// Declare the default entity manager for the ecs.
-    inline AeEntityManager ecsEntityManager(ecsComponentManager);
 }

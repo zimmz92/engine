@@ -129,6 +129,4 @@ namespace ae_ecs {
 	protected:
 
 	};
-
-    inline AeComponentManager ecsComponentManager;
 }

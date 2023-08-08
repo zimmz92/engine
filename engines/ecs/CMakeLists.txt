@@ -13,6 +13,7 @@ target_sources(mySrcFiles
         ae_system_base.cpp
         ae_system_base.hpp
         ae_system.hpp
+        ae_ecs_include.hpp
     PUBLIC
 )
 

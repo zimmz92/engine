@@ -6,7 +6,7 @@
 */
 #pragma once
 
-#include "ae_ecs.hpp"
+#include "ae_ecs_include.hpp"
 
 #include "game_components.hpp"
 
@@ -27,7 +27,8 @@ namespace ae {
         /// and require information from.
         /// \param t_cyclePointLightsSystem The CyclePointLightsSystem the UpdateUboSystem will depend on executing first
         /// and require information from.
-        UpdateUboSystem(GameComponentsStruct& t_game_components,
+        UpdateUboSystem(ae_ecs::AeECS& t_ecs,
+                        GameComponents& t_game_components,
                         CameraUpdateSystem& t_cameraUpdateSystem,
                         CyclePointLightsSystem& t_cyclePointLightsSystem);
 

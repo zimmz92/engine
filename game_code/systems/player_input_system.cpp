@@ -7,13 +7,13 @@
 namespace ae {
 
     // Constructor implementation
-    PlayerInputSystem::PlayerInputSystem(GameComponentsStruct& t_game_components, TimingSystem& t_timingSystem, GLFWwindow* t_window) :
+    PlayerInputSystem::PlayerInputSystem(ae_ecs::AeECS& t_ecs, GameComponents& t_game_components, TimingSystem& t_timingSystem, GLFWwindow* t_window) :
     m_window{t_window},
     m_worldPositionComponent{t_game_components.worldPositionComponent},
     m_modelComponent{t_game_components.modelComponent},
     m_playerControlledComponent{t_game_components.playerControlledComponent},
     m_timingSystem{t_timingSystem},
-    ae_ecs::AeSystem<PlayerInputSystem>() {
+    ae_ecs::AeSystem<PlayerInputSystem>(t_ecs) {
 
         // Register component dependencies
         m_worldPositionComponent.requiredBySystem(this->getSystemId());

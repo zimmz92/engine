@@ -7,11 +7,11 @@
 namespace ae {
 
     // Constructor implementation
-    CyclePointLightsSystem::CyclePointLightsSystem(GameComponentsStruct& t_game_components, TimingSystem& t_timingSystem)
+    CyclePointLightsSystem::CyclePointLightsSystem(ae_ecs::AeECS& t_ecs, GameComponents& t_game_components, TimingSystem& t_timingSystem)
     : m_worldPositionComponent{t_game_components.worldPositionComponent},
     m_PointLightComponent{t_game_components.pointLightComponent},
     m_timingSystem{t_timingSystem},
-    ae_ecs::AeSystem<CyclePointLightsSystem>() {
+    ae_ecs::AeSystem<CyclePointLightsSystem>(t_ecs) {
 
         // Register component dependencies
         m_worldPositionComponent.requiredBySystem(this->getSystemId());
