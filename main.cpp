@@ -19,12 +19,15 @@ int main() {
 #endif
 
 
+    // Create an instance of this application.
     ae::Arundos app{};
 
     try {
+        // Run the application.
         app.run();
     }
     catch (const std::exception& e) {
+        // Print out the errors that did not let the application run.
         std::cerr << e.what() << '\n';
         return EXIT_FAILURE;
     }

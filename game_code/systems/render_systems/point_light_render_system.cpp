@@ -58,7 +58,7 @@ namespace ae {
 
 
     // Renders the point lights.
-    void PointLightRenderSystem::executeSystem(VkCommandBuffer& t_commandBuffer, VkDescriptorSet& t_globalDescriptorSet){
+    void PointLightRenderSystem::executeSystem(VkCommandBuffer& t_commandBuffer, VkDescriptorSet t_globalDescriptorSet){
 
         // Get the entities that use the components this system depends on.
         std::vector<ecs_id> validEntityIds = m_systemManager.getValidEntities(this->getSystemId());

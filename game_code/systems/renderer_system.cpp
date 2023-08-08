@@ -42,9 +42,10 @@ namespace ae {
                     VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
                     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT));
 
-            // Map this buffer to memory on the devices.
-            m_uboBuffers.back()->map();
-            //TODO: Check if the mapping was successful
+            // Attempt to create the pipeline layout, if it cannot error out.
+            if ( m_uboBuffers.back()->map() != VK_SUCCESS) {
+                throw std::runtime_error("Failed to map the ubo buffer to memory!");
+            };
         };
 
         // Get the layout of the device and specify some general rendering options for all render systems.
@@ -108,9 +109,6 @@ namespace ae {
 
             // Get the frame index for the frame the render pass is starting for.
             m_frameIndex = m_renderer.getFrameIndex();
-
-            // Get the global descriptor set for this frame.
-            m_globalDescriptorSet = m_globalDescriptorSets[m_frameIndex];
 
             // Write the ubo data for the shaders for this frame.
             m_uboBuffers[m_frameIndex]->writeToBuffer(m_updateUboSystem.getUbo());

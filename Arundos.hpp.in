@@ -34,7 +34,7 @@ namespace ae {
     private:
         void loadGameObjects();
 
-        /// Application window.
+        /// Declare the application window.
         AeWindow m_aeWindow{ WIDTH, HEIGHT, "Arundos" };
 
 
@@ -43,10 +43,5 @@ namespace ae {
 
         GameComponentsStruct m_gameComponents{};
         GameSystems* m_gameSystems;
-
-        // note: order of declarations matters
-        // TODO to prevent order from mattering in app destructor make m_globalPool a null pointer to make sure it is destroyed before device is
-        std::unique_ptr<AeDescriptorPool> m_globalPool{};
-        AeGameObject::Map m_gameObjects;
     };
 }  // namespace ae

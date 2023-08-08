@@ -30,7 +30,7 @@ namespace ae {
         /// Execute the PointLightRenderSystem, this is handled by the RendererSystem.
         /// \param t_commandBuffer The command buffer for the current frame being rendered.
         /// \param t_globalDescriptorSet The global descriptor set for the current frame being rendered.
-        void executeSystem(VkCommandBuffer& t_commandBuffer, VkDescriptorSet& t_globalDescriptorSet);
+        void executeSystem(VkCommandBuffer& t_commandBuffer, VkDescriptorSet t_globalDescriptorSet);
 
         /// DO NOT CALL! This is not used by this system.
         void executeSystem() override {

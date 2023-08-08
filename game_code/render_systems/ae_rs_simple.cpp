@@ -82,7 +82,9 @@ namespace ae {
             push.modelMatrix = obj.m_transform.mat4();
             push.normalMatrix = obj.m_transform.normalMatrix();
 
-            vkCmdPushConstants(t_frameInfo.m_commandBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);
+            vkCmdPushConstants(t_frameInfo.m_commandBuffer, m_pipelineLayout,
+                               VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
+                               sizeof(SimplePushConstantData), &push);
 
             obj.m_model->bind(t_frameInfo.m_commandBuffer);
             obj.m_model->draw(t_frameInfo.m_commandBuffer);

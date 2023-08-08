@@ -49,7 +49,7 @@ namespace ae {
 
 
     // Renders the point lights.
-    void SimpleRenderSystem::executeSystem(VkCommandBuffer &t_commandBuffer, VkDescriptorSet &t_globalDescriptorSet) {
+    void SimpleRenderSystem::executeSystem(VkCommandBuffer &t_commandBuffer, VkDescriptorSet t_globalDescriptorSet) {
 
         // Tell the pipeline what the current command buffer being worked on is.
         m_aePipeline->bind(t_commandBuffer);
@@ -79,7 +79,7 @@ namespace ae {
             // Make sure the entity actually has a model to render.
             if (entityModelData.m_model == nullptr) continue;
 
-            // Initialize the simple render system push constants.
+            // Get the simple render system push constants for the current entity.
             SimplePushConstantData push{calculatePushConstantData(entityWorldPosition,
                                                                   entityModelData.rotation,
                                                                   entityModelData.scale)};
@@ -88,8 +88,8 @@ namespace ae {
                                VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
                                sizeof(SimplePushConstantData), &push);
 
-            m_modelComponent.getDataReference(entityId).m_model->bind(t_commandBuffer);
-            m_modelComponent.getDataReference(entityId).m_model->draw(t_commandBuffer);
+            entityModelData.m_model->bind(t_commandBuffer);
+            entityModelData.m_model->draw(t_commandBuffer);
         };
     };
 
@@ -119,8 +119,11 @@ namespace ae {
         pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange; // Send a small amount of data to shader program
 
         // Attempt to create the pipeline layout, if it cannot error out.
-        if (vkCreatePipelineLayout(m_aeDevice.device(), &pipelineLayoutInfo, nullptr, &m_pipelineLayout) !=
-            VK_SUCCESS) {
+        if (vkCreatePipelineLayout(m_aeDevice.device(),
+                                   &pipelineLayoutInfo,
+                                   nullptr,
+                                   &m_pipelineLayout)
+                                   != VK_SUCCESS) {
             throw std::runtime_error("Failed to create the simple render system's pipeline layout!");
         }
 

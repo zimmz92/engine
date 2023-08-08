@@ -40,7 +40,7 @@ namespace ae {
         void setupSystem() override;
 
         /// Execute the SimpleRenderSystem, this is handled by the RendererSystem.
-        void executeSystem(VkCommandBuffer& t_commandBuffer, VkDescriptorSet& t_globalDescriptorSet);
+        void executeSystem(VkCommandBuffer& t_commandBuffer, VkDescriptorSet t_globalDescriptorSet);
 
         /// DO NOT CALL! This is not used by this system.
         void executeSystem() override {
