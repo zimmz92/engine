@@ -131,7 +131,9 @@ namespace ae {
                                        std::to_string(m_cyclePointLightsSystem.getNumPointLights()) +
                                        std::string("!");
             throw std::runtime_error(errorMessage);
-        }
+        } else{
+            m_ubo.numLights = m_numPointLights;
+        };
     };
 
     // Clean up the system after execution. Currently not used.
