@@ -67,7 +67,7 @@ namespace ae {
                 // so throw one!
                 if(m_cameraComponent.doesEntityUseThis(entityId)) {
                     // Get a pointer to entity's camera data
-                    auto entityCameraData = m_cameraComponent.getDataReference(entityId);
+                    CameraComponentStruct& entityCameraData = m_cameraComponent.getDataReference(entityId);
 
                     // Only the main camera should be fed to the ubo since all buffers will require that data
                     if (entityCameraData.isMainCamera) {
@@ -99,7 +99,7 @@ namespace ae {
                     assert(m_numPointLights < MAX_LIGHTS && "Number of point lights exceed MAX_LIGHTS!");
 
                     // Get a pointer to entity's point light data
-                    auto entityPointLightData = m_pointLightComponent.getDataReference(entityId);
+                    PointLightComponentStruct& entityPointLightData = m_pointLightComponent.getDataReference(entityId);
 
                     // Put the entity's point light data into the ubo.
                     m_ubo.pointLights[m_numPointLights].position = glm::vec4(m_worldPositionComponent.getWorldPositionVec3(entityId), 1.0f);

@@ -73,8 +73,8 @@ namespace ae {
         // Loop through the entities if they have models render them.
         for (ecs_id entityId: validEntityIds) {
             // Get the world position and model of the entity
-            auto entityWorldPosition = m_worldPositionComponent.getWorldPositionVec3(entityId);
-            auto entityModelData = m_modelComponent.getDataReference(entityId);
+            glm::vec3 entityWorldPosition = m_worldPositionComponent.getWorldPositionVec3(entityId);
+            ModelComponentStruct& entityModelData = m_modelComponent.getDataReference(entityId);
 
             // Make sure the entity actually has a model to render.
             if (entityModelData.m_model == nullptr) continue;
