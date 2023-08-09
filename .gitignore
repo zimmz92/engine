@@ -3,3 +3,4 @@
 /engines/graphics/shaders/vert.spv
 /engines/graphics/shaders/point_light_frag.spv
 /engines/graphics/shaders/point_light_vert.spv
+/.idea
