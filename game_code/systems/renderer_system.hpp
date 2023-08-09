@@ -72,7 +72,7 @@ namespace ae {
         /// Reference to the game graphics device
         AeDevice& m_aeDevice;
 
-        /// The global poo;
+        /// The global pool;
         std::unique_ptr<AeDescriptorPool> m_globalPool;
 
         /// The global descriptor sets used for each of the allowed frames in flight.
