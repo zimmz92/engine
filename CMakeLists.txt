@@ -11,24 +11,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DMY_DEBUG")
 #set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DECS_DEBUG")
 
-# Specific File Paths
-file (TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/engines/graphics/shaders" SHADERPATH)
-
+# Attempt to specify where the Vulkan is before trying to find it.
 if(WIN32)
     file (TO_NATIVE_PATH "C:/VulkanSDK/1.2.182.0/Bin32" VULKANDIR)
-    file (TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/engines/graphics/shaders/compile.bat" BATFILE)
 else()
     file (TO_NATIVE_PATH "/home/jzimmermann/my_programs/vulkan_sdk/1.3.243.0/x86_64/bin" VULKANDIR)
-    file (TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/engines/graphics/shaders/compile.sh" BATFILE)
 endif()
-
-add_executable (Arundos main.cpp)
-
-# add the binary tree to the search path for include files
-# so that we will find TutorialConfig.h
-target_include_directories(Arundos PUBLIC
-                          "${PROJECT_BINARY_DIR}"
-                          )
 
 # Add Vulkan and dependant libraries to the project
 find_package(Vulkan REQUIRED)
@@ -38,6 +26,31 @@ set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
+# Compile Shaders
+set(SHADER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/engines/graphics/shaders)
+set(SHADER_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/engines/graphics/shaders)
+file(GLOB SHADERS ${SHADER_DIR}/*.vert ${SHADER_DIR}/*.frag ${SHADER_DIR}/*.comp ${SHADER_DIR}/*.geom ${SHADER_DIR}/*.tesc ${SHADER_DIR}/*.tese ${SHADER_DIR}/*.mesh ${SHADER_DIR}/*.task ${SHADER_DIR}/*.rgen ${SHADER_DIR}/*.rchit ${SHADER_DIR}/*.rmiss)
+
+foreach(SHADER IN LISTS SHADERS)
+    get_filename_component(FILENAME ${SHADER} NAME)
+    add_custom_command(OUTPUT ${SHADER_BUILD_DIR}/${FILENAME}.spv
+            COMMAND ${Vulkan_GLSLC_EXECUTABLE} ${SHADER} -o ${SHADER_BUILD_DIR}/${FILENAME}.spv
+            DEPENDS ${SHADER}
+            COMMENT "Compiling ${FILENAME}")
+    list(APPEND SPV_SHADERS ${SHADER_BUILD_DIR}/${FILENAME}.spv)
+endForeach()
+
+add_custom_target(shaders ALL DEPENDS ${SPV_SHADERS})
+
+add_executable (Arundos main.cpp)
+
+# add the binary tree to the search path for include files
+# so that we will find TutorialConfig.h
+target_include_directories(Arundos PUBLIC
+                          "${PROJECT_BINARY_DIR}"
+                          )
+
+
 add_subdirectory(Libraries/glfw3)
 add_subdirectory(Libraries/glm)
 
@@ -45,7 +58,6 @@ add_subdirectory(Libraries/glm)
 add_library(mySrcFiles "")
 
 add_subdirectory(engines/graphics)
-add_subdirectory(engines/graphics/shaders)
 
 add_subdirectory(engines/ecs)
 add_subdirectory(engines/ecs/test_code)
@@ -77,16 +89,5 @@ configure_file(Arundos.hpp.in Arundos.hpp)
 # Include the binary files so the configured .hpp can be found
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-
-if(WIN32)
-add_custom_target(GenerateShaders ALL
-                  COMMAND CMD /D /C "${BATFILE}" "${CMAKE_CURRENT_SOURCE_DIR}" "${VULKANDIR}"
-                  DEPENDS ${SHADERPATH})
-else()
-    add_custom_target(GenerateShaders ALL
-            COMMAND /usr/bin/bash ${BATFILE} ${CMAKE_CURRENT_SOURCE_DIR} "${VULKANDIR}"
-            DEPENDS ${SHADERPATH})
-endif()
-
-ADD_DEPENDENCIES(mySrcFiles GenerateShaders)
-ADD_DEPENDENCIES(Arundos GenerateShaders)
+ADD_DEPENDENCIES(mySrcFiles shaders)
+ADD_DEPENDENCIES(Arundos shaders)

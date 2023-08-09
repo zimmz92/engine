@@ -192,8 +192,8 @@ namespace ae {
         // Create the point light render system pipeline.
         m_aePipeline = std::make_unique<AePipeline>(
                 m_aeDevice,
-                "engines/graphics/shaders/point_light_vert.spv",
-                "engines/graphics/shaders/point_light_frag.spv",
+                "engines/graphics/shaders/point_light.vert.spv",
+                "engines/graphics/shaders/point_light.frag.spv",
                 pipelineConfig);
     };
 }
