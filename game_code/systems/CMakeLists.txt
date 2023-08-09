@@ -6,7 +6,6 @@ target_sources(mySrcFiles
         player_input_system.hpp
         camera_update_system.cpp
         camera_update_system.hpp
-        game_systems.hpp
         update_ubo_system.cpp
         update_ubo_system.hpp
         cycle_point_lights_system.cpp

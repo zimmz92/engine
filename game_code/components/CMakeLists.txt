@@ -4,7 +4,6 @@ target_sources(mySrcFiles
         world_position_component.hpp
         player_controlled_component.hpp
         camera_component.hpp
-        game_components.hpp
         ubo_data_flags_component.hpp
         point_light_component.hpp
     PUBLIC

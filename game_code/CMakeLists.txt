@@ -1,7 +1,7 @@
 target_sources(mySrcFiles
     PRIVATE
-        keyboard_movement_controller.hpp
-        keyboard_movement_controller.cpp
+        game_components.hpp
+        game_systems.hpp
     PUBLIC
 )
 
