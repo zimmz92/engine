@@ -1,8 +1,6 @@
-/*! \file player_input_system.hpp
-    \brief The script defining the player input system.
-
-    The player input system is defined and the instance for the game is declared.
-
+/*! \file update_ubo_system.hpp
+    \brief The script defining the update ubo system.
+    Updates the ubo information that would be required to render each frame.
 */
 #pragma once
 
@@ -13,10 +11,33 @@
 #include "camera_update_system.hpp"
 #include "cycle_point_lights_system.hpp"
 
-#include "ae_frame_info.hpp"
-
-
 namespace ae {
+
+    #define MAX_LIGHTS 10
+
+    /// Structure to hold the point light ubo/push constant data.
+    struct PointLight {
+        glm::vec4 position{}; // ignore w
+        glm::vec4 color{}; // w is intensity
+    };
+
+    /// Structure to hold the Ubo data.
+    struct GlobalUbo {
+        // Remember alignment! Always ensure to align data properly or use only 4d!!!
+
+        // Main Camera information
+        glm::mat4 projection{ 1.0f };
+        glm::mat4 view{ 1.0f };
+        glm::mat4 inverseView{ 1.0f };
+
+        // Ambient light, last field, w,  is the light intensity.
+        glm::vec4 ambientLightColor{ 1.0f, 1.0f, 1.0f, 0.02f };
+
+        // Point light data.
+        PointLight pointLights[MAX_LIGHTS];
+        int numLights = 0;
+    };
+
 
     /// Updates the global universal buffer object (UBO) with relevant entity information.
     class UpdateUboSystem : public ae_ecs::AeSystem<UpdateUboSystem> {
