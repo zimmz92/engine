@@ -1,6 +1,4 @@
 ﻿#include "Arundos.hpp"
-#include "ae_rs_simple.hpp"
-#include "ae_rs_point_light.hpp"
 #include "ae_buffer.hpp"
 
 #include "game_object_entity.hpp"
