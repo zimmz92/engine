@@ -1,3 +1,7 @@
+/*! \file camera_entity.hpp
+    \brief The script defining the camera entity.
+    The camera entity is defined.
+*/
 #pragma once
 
 #include "game_object_entity.hpp"

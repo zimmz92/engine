@@ -1,3 +1,6 @@
+/// \file camera_entity.cpp
+/// \brief Implements the camera entity.
+/// The camera entity is implemented.
 #include "camera_entity.hpp"
 
 namespace ae {

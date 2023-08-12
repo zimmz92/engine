@@ -1,3 +1,7 @@
+/*! \file point_light_entity.hpp
+    \brief The script defining the point light entity.
+    The point light entity is defined.
+*/
 #pragma once
 
 #include "game_object_entity.hpp"
@@ -5,7 +9,7 @@
 
 namespace ae {
 
-    /// Defines entities that are point lights.
+    /// Defines entities that are point lights which are derivatives of game object entities.
 	class PointLightEntity : public GameObjectEntity {
 
 	public:

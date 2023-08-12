@@ -1,8 +1,6 @@
 /*! \file camera_update_system.hpp
     \brief The script defining the camera update system.
-
     The camera update system is defined.
-
 */
 #pragma once
 

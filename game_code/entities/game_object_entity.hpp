@@ -1,3 +1,7 @@
+/*! \file game_object_entity.hpp
+    \brief The script defining the game object entity.
+    The game object entity is defined.
+*/
 #pragma once
 
 #include "ae_ecs_include.hpp"

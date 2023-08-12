@@ -1,4 +1,9 @@
-// the configured options and settings for Arundos
+/*! \file Arundos.hpp
+    \brief The script defining the Arundos application.
+    The Arundos application is defined.
+*/
+
+/// The version of the Arundos application being run.
 #define Arundos_VERSION_MAJOR @Arundos_VERSION_MAJOR@
 #define Arundos_VERSION_MINOR @Arundos_VERSION_MINOR@
 
@@ -19,34 +24,47 @@ namespace ae {
     class Arundos {
     public:
         // TODO Get ride of these public variables....
+
+        /// Default window width.
         static constexpr int WIDTH = 800;
+        /// Default window height.
         static constexpr int HEIGHT = 600;
 
+        /// Application Constructor
         Arundos();
+
+        /// Application Destructor
         ~Arundos();
 
-        // Do not allow this class to be copied (2 lines below)
+        /// Do not allow this class to be copied (2 lines below)
         Arundos(const Arundos&) = delete;
         Arundos& operator=(const Arundos&) = delete;
 
+        /// Runs the application.
         void run();
 
     private:
+
+        /// Loads game objects into the game.
         void loadGameObjects();
 
         /// Declare the application window.
         AeWindow m_aeWindow{ WIDTH, HEIGHT, "Arundos" };
 
+        /// The vulkan graphics device for the application.
         AeDevice m_aeDevice{ m_aeWindow };
+
+        /// The vulkan renderer for the application.
         AeRenderer m_aeRenderer{m_aeWindow, m_aeDevice };
 
         /// Declare the ECS of the game.
         ae_ecs::AeECS m_aeECS{};
+
+        /// Declare the game components, the "C" in ECS.
         GameComponents m_gameComponents{m_aeECS};
+
+        /// Declare the game systems, the "S" in ECS.
         GameSystems m_gameSystems{m_aeECS, m_gameComponents, m_aeWindow.getGLFWwindow(), m_aeDevice, m_aeRenderer};
-
-
-
 
     };
 }  // namespace ae

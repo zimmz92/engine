@@ -1,3 +1,6 @@
+/// \file game_object_entity.cpp
+/// \brief Implements the game object entity.
+/// The game object entity is implemented.
 #include "game_object_entity.hpp"
 
 namespace ae {
