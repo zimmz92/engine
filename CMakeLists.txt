@@ -58,6 +58,8 @@ add_subdirectory(Libraries/glm)
 add_library(mySrcFiles "")
 
 add_subdirectory(engines/graphics)
+add_subdirectory(engines/graphics/systems)
+add_subdirectory(engines/graphics/systems/render_systems)
 
 add_subdirectory(engines/ecs)
 add_subdirectory(engines/ecs/test_code)
@@ -66,7 +68,6 @@ add_subdirectory(game_code)
 add_subdirectory(game_code/entities)
 add_subdirectory(game_code/components)
 add_subdirectory(game_code/systems)
-add_subdirectory(game_code/systems/render_systems)
 
 add_subdirectory(Libraries/tinyobjectloader)
 

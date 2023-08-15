@@ -10,8 +10,6 @@ target_sources(mySrcFiles
         update_ubo_system.hpp
         cycle_point_lights_system.cpp
         cycle_point_lights_system.hpp
-        renderer_system.hpp
-        renderer_system.cpp
     PUBLIC
 )
 

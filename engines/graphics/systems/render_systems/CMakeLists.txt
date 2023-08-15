@@ -7,4 +7,4 @@ target_sources(mySrcFiles
     PUBLIC
 )
 
-target_include_directories(mySrcFiles PUBLIC ${CMAKE_CURRENT_LIST_DIR})
+target_include_directories(mySrcFiles PUBLIC .)
