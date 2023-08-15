@@ -2,7 +2,7 @@
 /// \brief The script implementing the renderer start pass system class.
 /// The renderer start pass system class is implemented.
 
-#include "renderer_system.hpp"
+#include "ae_renderer_system.hpp"
 
 namespace ae {
     // Constructor of the RendererStartPassSystem

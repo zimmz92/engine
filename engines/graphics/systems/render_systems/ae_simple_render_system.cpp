@@ -2,7 +2,7 @@
 /// \brief The script implementing the system that renders the point lights.
 /// The cycle point light system is implemented.
 
-#include "simple_render_system.hpp"
+#include "ae_simple_render_system.hpp"
 
 // Standard Libraries
 #include <map>

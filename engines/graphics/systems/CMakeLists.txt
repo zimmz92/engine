@@ -1,7 +1,7 @@
 target_sources(mySrcFiles
     PRIVATE
-        renderer_system.hpp
-        renderer_system.cpp
+        ae_renderer_system.hpp
+        ae_renderer_system.cpp
     PUBLIC
 )
 

@@ -16,8 +16,8 @@
 #include "ae_swap_chain.hpp"
 #include "ae_descriptors.hpp"
 
-#include "simple_render_system.hpp"
-#include "point_light_render_system.hpp"
+#include "ae_simple_render_system.hpp"
+#include "ae_point_light_render_system.hpp"
 
 namespace ae {
 

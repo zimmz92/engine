@@ -12,7 +12,7 @@
 #include "timing_system.hpp"
 #include "cycle_point_lights_system.hpp"
 #include "update_ubo_system.hpp"
-#include "systems/renderer_system.hpp"
+#include "systems/ae_renderer_system.hpp"
 
 namespace ae {
 
