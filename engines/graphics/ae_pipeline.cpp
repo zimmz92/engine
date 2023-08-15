@@ -27,21 +27,27 @@ namespace ae {
         vkDestroyPipeline(m_aeDevice.device(), m_graphicsPipeline, nullptr);
     }
 
-    // Function to read a text file into a variable
+    // Function to read a text file into a variable.
     std::vector<char> AePipeline::readFile(const std::string& t_filepath) {
+        // Create an input file stream. Go to the end of the file to start and when reading in the file do so in binary
+        // format.
         std::ifstream file{ t_filepath, std::ios::ate | std::ios::binary };
 
-        // Fail out if file cannot be opened
+        // Fail out if file cannot be opened.
         if (!file.is_open()) {
             throw std::runtime_error("Failed to open file: " + t_filepath);
         }
 
-        // Local variable to store file contents
+        // Since the file was opened and by default seeked the end of file the current position is the size of the file.
         size_t fileSize = static_cast<size_t>(file.tellg());
+
+        // Create a local variable to store file contents.
         std::vector<char> buffer(fileSize);
 
-        // Read file contents into variable
+        // Go to the beginning of the file.
         file.seekg(0);
+
+        // Read file contents into the buffer.
         file.read(buffer.data(), fileSize);
 
         // Close the file and return the file contents
@@ -54,19 +60,25 @@ namespace ae {
         const std::string& t_vertFilepath,
         const std::string& t_fragFilepath,
         const PipelineConfigInfo& t_configInfo) {
+
         assert(
             t_configInfo.pipelineLayout != nullptr &&
             "Cannot create graphics pipeline: no pipelineLayout provided in config info");
+
         assert(
             t_configInfo.renderPass != nullptr &&
             "Cannot create graphics pipeline: no renderPass provided in config info");
 
-        // Read in the vertex and frament shader code
+        // Read in the vertex shader code from the specified file.
         auto vertCode = readFile(t_vertFilepath);
+
+        // Read in the fragment shader code from the specified file.
         auto fragCode = readFile(t_fragFilepath);
 
-        // Create the shader modules from the imported shader code
+        // Create the vertex shader module the imported shader code
         createShaderModule(vertCode, &m_vertShaderModule);
+
+        // Create the fragment shader module the imported shader code
         createShaderModule(fragCode, &m_fragShaderModule);
 
         // Configure the fragment shader

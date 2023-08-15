@@ -117,7 +117,7 @@ namespace ae {
 		int rateDeviceSuitability(VkPhysicalDevice t_device);
 
 		// Function to return the required extentions for glfw
-		std::vector<const char*> getRequiredExtentions();
+		std::vector<const char*> getRequiredGLFWExtensions();
 
 		// Function to check if the instance supports the required validation layers
 		bool checkValidationLayerSupport();
@@ -129,7 +129,7 @@ namespace ae {
 		void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& t_createInfo);
 
 		// Function that returns the extentions required to create a glfw instance
-		void hasGflwRequiredInstanceExtensions(std::vector<const char*>* t_requiredExtensions);
+		void hasGlfwRequiredInstanceExtensions(std::vector<const char*>* t_requiredExtensions);
 
 		// Function to ensure device supports all required extentions
 		bool checkDeviceExtensionSupport(VkPhysicalDevice t_device);
