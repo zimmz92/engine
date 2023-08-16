@@ -27,6 +27,8 @@ namespace std {
 namespace ae {
 
 	AeModel::AeModel(AeDevice &t_device, const AeModel::Builder& t_builder) : m_aeDevice{ t_device } {
+
+        // TODO: Look into creating a memory allocator for vulkan: https://www.youtube.com/redirect?event=video_description&redir_token=QUFFLUhqbm9VSzZadjhDZF9pYnMxV2M4c09Cc25KTUNYQXxBQ3Jtc0ttQTFaTHpWNG1nb29jS3BDY2tSX1pUeUZ5R1RzRGF2ZVdkazA5NDRmUHo4S08wV0xXR0ZMRW55bnR6X0pJZ3REYmU2UlNNNVJWdW1oVnA4Um9aY0ZLZXU3U280QWdUWmY5czBpS3BkN3dHSHF6cGJZTQ&q=http%3A%2F%2Fkylehalladay.com%2Fblog%2Ftutorial%2F2017%2F12%2F13%2FCustom-Allocators-Vulkan.html&v=mnKp501RXDc
 		createVertexBuffers(t_builder.vertices);
 		createIndexBuffers(t_builder.indices);
 	}
@@ -40,11 +42,20 @@ namespace ae {
 	}
 
 	void AeModel::createVertexBuffers(const std::vector<Vertex> &t_vertices) {
+
+        // Get the size of the vertex vector and ensure that we at least have one triangle.
 		m_vertexCount = static_cast<uint32_t>(t_vertices.size());
 		assert(m_vertexCount >= 3 && "Vertex count must be at least 3");
+
+        // Get the required size of the buffer.
 		VkDeviceSize bufferSize = sizeof(t_vertices[0]) * m_vertexCount;
+
+        // Get the size of an individual vertex.
 		uint32_t vertexSize = sizeof(t_vertices[0]);
 
+        // Create a buffer for the model.
+        // Want the host (CPU) to be able to access the GPU's buffer memory and keep the host memory for the buffer
+        // consistent with the GPU memory for the buffer.
 		AeBuffer stagingBuffer{
 			m_aeDevice,
 			vertexSize,

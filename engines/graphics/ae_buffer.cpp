@@ -41,8 +41,14 @@ namespace ae {
         m_instanceCount{ t_instanceCount },
         m_usageFlags{ t_usageFlags },
         m_memoryPropertyFlags{ t_memoryPropertyFlags } {
+
+        // Get the buffer alignment to know how to index the buffer data.
         m_alignmentSize = getAlignment(m_instanceSize, t_minOffsetAlignment);
+
+        // Calculate the total size required for the buffer.
         m_bufferSize = m_alignmentSize * m_instanceCount;
+
+        // Create the buffer.
         m_aeDevice.createBuffer(m_bufferSize, m_usageFlags, m_memoryPropertyFlags, m_buffer, m_memory);
     }
 
