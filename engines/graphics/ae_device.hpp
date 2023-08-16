@@ -1,3 +1,7 @@
+/*! \file ae_device.cpp
+    \brief The script defining the vulkan device interface class.
+    The vulkan device interface class is defined.
+*/
 #pragma once
 
 #include "ae_window.hpp"

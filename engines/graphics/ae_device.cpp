@@ -1,3 +1,7 @@
+/*! \file ae_device.hpp
+    \brief The script implementing the vulkan device interface class.
+    The vulkan device interface class is implemented.
+*/
 #include "ae_device.hpp"
 
 // Libraries
