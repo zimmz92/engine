@@ -48,7 +48,7 @@ namespace ae {
     void SimpleRenderSystem::setupSystem() {};
 
 
-    // Renders the point lights.
+    // Renders the models.
     void SimpleRenderSystem::executeSystem(VkCommandBuffer &t_commandBuffer, VkDescriptorSet t_globalDescriptorSet) {
 
         // Tell the pipeline what the current command buffer being worked on is.

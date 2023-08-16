@@ -1,3 +1,7 @@
+/*! \file ae_pipeline.cpp
+    \brief The script implementing the pipeline class.
+    The pipeline class is implemented.
+*/
 #include "ae_pipeline.hpp"
 #include "ae_model.hpp"
 
@@ -9,7 +13,7 @@
 
 namespace ae {
 
-    // Create a Vulkan pipeline object
+    // Create the Vulkan pipeline object
     AePipeline::AePipeline(
         AeDevice& t_device,
         const std::string& t_vertFilepath,
@@ -20,10 +24,8 @@ namespace ae {
 
     }
 
-    // Destroy a Vulkan pipeline object
+    // Destroy the Vulkan pipeline object
     AePipeline::~AePipeline() {
-        vkDestroyShaderModule(m_aeDevice.device(), m_fragShaderModule, nullptr);
-        vkDestroyShaderModule(m_aeDevice.device(), m_vertShaderModule, nullptr);
         vkDestroyPipeline(m_aeDevice.device(), m_graphicsPipeline, nullptr);
     }
 
@@ -81,7 +83,7 @@ namespace ae {
         // Create the fragment shader module the imported shader code
         createShaderModule(fragCode, &m_fragShaderModule);
 
-        // Configure the fragment shader
+        // Specify the vertex shader
         VkPipelineShaderStageCreateInfo shaderStages[2];
         shaderStages[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
         shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
@@ -90,6 +92,8 @@ namespace ae {
         shaderStages[0].flags = 0;
         shaderStages[0].pNext = nullptr;
         shaderStages[0].pSpecializationInfo = nullptr;
+
+        // Specify the fragment shader
         shaderStages[1].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
         shaderStages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
         shaderStages[1].module = m_fragShaderModule;
@@ -99,15 +103,15 @@ namespace ae {
         shaderStages[1].pSpecializationInfo = nullptr;
 
 
-        // Configure the vertex shader
+        // Configure the vertex shader, how to interpret the vertex buffer input.
         auto& bindingDescriptions = t_configInfo.bindingDescriptions;
-        auto& attributDescriptions = t_configInfo.attributeDescriptions;
+        auto& attributeDescriptions = t_configInfo.attributeDescriptions;
         VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
         vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
         vertexInputInfo.vertexBindingDescriptionCount = static_cast<uint32_t>(bindingDescriptions.size());;
         vertexInputInfo.pVertexBindingDescriptions = bindingDescriptions.data();
-        vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributDescriptions.size());
-        vertexInputInfo.pVertexAttributeDescriptions = attributDescriptions.data();
+        vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+        vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
         // Configure the graphics pipeline
         VkGraphicsPipelineCreateInfo pipelineInfo = {};
@@ -135,7 +139,7 @@ namespace ae {
             throw std::runtime_error("failed to create graphics pipeline!");
         }
 
-        // Clean up the sharder modules now that they have been loaded into the pipeline
+        // Clean up the shader modules now that they have been loaded into the pipeline.
         vkDestroyShaderModule(m_aeDevice.device(), m_fragShaderModule, nullptr);
         vkDestroyShaderModule(m_aeDevice.device(), m_vertShaderModule, nullptr);
         m_fragShaderModule = VK_NULL_HANDLE;
@@ -160,9 +164,12 @@ namespace ae {
 
     void AePipeline::defaultPipelineConfigInfo(PipelineConfigInfo& t_configInfo) {
 
-        // Choose how to interpret indicies, currently list each trianlge individually
         t_configInfo.inputAssemblyInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+
+        // Each group of three vertices are grouped into a triangle.
         t_configInfo.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+
+        // Used to break up line strip type of topology.
         t_configInfo.inputAssemblyInfo.primitiveRestartEnable = VK_FALSE;
 
         // Configure the viewport
@@ -174,10 +181,14 @@ namespace ae {
 
         // Breaks up geometry into fragments for each pixel it overlaps
         t_configInfo.rasterizationInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+
+        // Enabling this will require a GPU setting
         t_configInfo.rasterizationInfo.depthClampEnable = VK_FALSE;
         t_configInfo.rasterizationInfo.rasterizerDiscardEnable = VK_FALSE;
         t_configInfo.rasterizationInfo.polygonMode = VK_POLYGON_MODE_FILL;
         t_configInfo.rasterizationInfo.lineWidth = 1.0f;
+
+        // Will cull triangles depending on which way they are being viewed.
         t_configInfo.rasterizationInfo.cullMode = VK_CULL_MODE_NONE;
         t_configInfo.rasterizationInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;
         t_configInfo.rasterizationInfo.depthBiasEnable = VK_FALSE;
@@ -239,7 +250,7 @@ namespace ae {
     }
 
     void AePipeline::enableAlphaBlending(PipelineConfigInfo& t_configInfo) {
-        // How colors are combined in frame buffer
+        // How colors are combined in the frame buffer
         t_configInfo.colorBlendAttachment.blendEnable = VK_TRUE;
         t_configInfo.colorBlendAttachment.colorWriteMask =
             VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT |

@@ -1,6 +1,6 @@
 /*! \file ae_pipeline.hpp
-    \brief The script defining the camera update system.
-    The camera update system is defined.
+    \brief The script defining the pipeline class.
+    The pipeline class is defined.
 */
 #pragma once
 
@@ -102,10 +102,10 @@ namespace ae {
         /// This graphics pipeline
         VkPipeline m_graphicsPipeline;
 
-        /// The vertex shader module this pipeline uses.
+        /// The vertex shader module this pipeline uses, this is just a placeholder for creating the pipeline.
         VkShaderModule m_vertShaderModule;
 
-        /// The fragment shader module this pipeline uses.
+        /// The fragment shader module this pipeline uses, this is just a placeholder for creating the pipeline.
         VkShaderModule m_fragShaderModule;
     };
 }  // namespace lve

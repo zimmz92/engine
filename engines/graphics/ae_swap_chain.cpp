@@ -53,7 +53,7 @@ namespace ae {
         for (int i = 0; i < m_depthImages.size(); i++) {
             vkDestroyImageView(m_device.device(), m_depthImageViews[i], nullptr);
             vkDestroyImage(m_device.device(), m_depthImages[i], nullptr);
-            vkFreeMemory(m_device.device(), m_depthImageMemorys[i], nullptr);
+            vkFreeMemory(m_device.device(), m_depthImageMemories[i], nullptr);
         }
 
         for (auto framebuffer : m_swapChainFramebuffers) {
@@ -70,7 +70,7 @@ namespace ae {
         }
     }
 
-    // Function to aquire the next image from the swap chain
+    // Function to acquire the next image from the swap chain
     VkResult AeSwapChain::acquireNextImage(uint32_t* t_imageIndex) {
         vkWaitForFences(
             m_device.device(),
@@ -92,9 +92,14 @@ namespace ae {
 
     // Function to submit command buffers to the swap chain
     VkResult AeSwapChain::submitCommandBuffers(const VkCommandBuffer* t_buffers, uint32_t* t_imageIndex) {
+
+        // Ensure that the previously submitted command buffers for the image have finished before submitting new ones.
         if (m_imagesInFlight[*t_imageIndex] != VK_NULL_HANDLE) {
             vkWaitForFences(m_device.device(), 1, &m_imagesInFlight[*t_imageIndex], VK_TRUE, UINT64_MAX);
         }
+
+        // Set the fence tracking if the command buffers corresponding to the image have finished to the fence keeping
+        // track of the frame command buffer status. This is useful when we have more images than frames.
         m_imagesInFlight[*t_imageIndex] = m_inFlightFences[m_currentFrame];
 
         VkSubmitInfo submitInfo = {};
@@ -183,6 +188,7 @@ namespace ae {
         createInfo.presentMode = presentMode;
         createInfo.clipped = VK_TRUE;
 
+        // If the old swap chain exists then ensure that the new swap chain includes the information from the old one.
         createInfo.oldSwapchain = m_oldSwapChain == nullptr ? VK_NULL_HANDLE : m_oldSwapChain->m_swapChain;
 
         if (vkCreateSwapchainKHR(m_device.device(), &createInfo, nullptr, &m_swapChain) != VK_SUCCESS) {
@@ -317,7 +323,7 @@ namespace ae {
         VkExtent2D swapChainExtent = getSwapChainExtent();
 
         m_depthImages.resize(imageCount());
-        m_depthImageMemorys.resize(imageCount());
+        m_depthImageMemories.resize(imageCount());
         m_depthImageViews.resize(imageCount());
 
         for (int i = 0; i < m_depthImages.size(); i++) {
@@ -338,10 +344,10 @@ namespace ae {
             imageInfo.flags = 0;
 
             m_device.createImageWithInfo(
-                imageInfo,
-                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                m_depthImages[i],
-                m_depthImageMemorys[i]);
+                    imageInfo,
+                    VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                    m_depthImages[i],
+                    m_depthImageMemories[i]);
 
             VkImageViewCreateInfo viewInfo{};
             viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
