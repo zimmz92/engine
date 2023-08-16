@@ -451,14 +451,18 @@ namespace ae {
             }
 
             // Once a queue family is found that supports drawing and presentation we no longer need to search.
-            if (indices.isComplete()) {
+            if (indices.isComplete() && (indices.presentFamily == indices.graphicsFamily)) {
                 break;
             }
 
             i++;
 		}
 
-		return indices;
+        if(indices.graphicsFamilyHasValue && indices.presentFamilyHasValue){
+            return indices;
+        } else {
+            throw std::runtime_error("Unable to find indices for all the required queue families!");
+        };
 	}
 
 	// Return the device's swap chain capabilities.
