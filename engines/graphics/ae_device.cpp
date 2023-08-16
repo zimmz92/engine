@@ -494,7 +494,7 @@ namespace ae {
 		return details;
 	}
 
-	// Get the candidate swap chain formats that meet the tiling and feature requirements
+	// Get the candidate image formats that meet the tiling and feature requirements
 	VkFormat AeDevice::findSupportedFormat(
 		const std::vector<VkFormat>& t_candidates, VkImageTiling t_tiling, VkFormatFeatureFlags t_features) {
 
@@ -509,7 +509,7 @@ namespace ae {
 			if (t_tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & t_features) == t_features) {
 				return format;
 			}
-            // A "optimal" tiling option.
+            // An "optimal" tiling option.
 			else if (
 				t_tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & t_features) == t_features) {
 				return format;
@@ -597,7 +597,7 @@ namespace ae {
 		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
-        // Begin recording to ( allowing) the command buffer.
+        // Begin allowing recording to the command buffer.
 		vkBeginCommandBuffer(commandBuffer, &beginInfo);
 		return commandBuffer;
 	}
@@ -643,11 +643,14 @@ namespace ae {
 		endSingleTimeCommands(commandBuffer);
 	}
 
-	// Funciton to copy the command buffer results to an immage
+	// Copy the data from the command buffer to an image object.
 	void AeDevice::copyBufferToImage(
 		VkBuffer t_buffer, VkImage t_image, uint32_t t_width, uint32_t t_height, uint32_t t_layerCount) {
+
+        // Create a new command buffer to facilitate the copy.
 		VkCommandBuffer commandBuffer = beginSingleTimeCommands();
 
+        // Specify how the buffer information should map to the image.
 		VkBufferImageCopy region{};
 		region.bufferOffset = 0;
 		region.bufferRowLength = 0;
@@ -661,6 +664,7 @@ namespace ae {
 		region.imageOffset = { 0, 0, 0 };
 		region.imageExtent = { t_width, t_height, 1 };
 
+        // Submit the copy buffer to image command to the command buffer.
 		vkCmdCopyBufferToImage(
 			commandBuffer,
 			t_buffer,
@@ -668,31 +672,39 @@ namespace ae {
 			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
 			1,
 			&region);
+
+        // Actually execute the copy.
 		endSingleTimeCommands(commandBuffer);
 	}
 
-	// Funciton to create, and allocate memory for, an image
+	// Create, and allocate memory for, an image
 	void AeDevice::createImageWithInfo(
 		const VkImageCreateInfo& t_imageInfo,
 		VkMemoryPropertyFlags t_properties,
 		VkImage& t_image,
 		VkDeviceMemory& t_imageMemory) {
+
+        // Attempt to create a new image object with the provided information.
 		if (vkCreateImage(m_device, &t_imageInfo, nullptr, &t_image) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create image!");
 		}
 
+        // Get the memory requirements for image based on the desired properties of the image.
 		VkMemoryRequirements memRequirements;
 		vkGetImageMemoryRequirements(m_device, t_image, &memRequirements);
 
+        // Specified required image information to allocate memory for the image data.
 		VkMemoryAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 		allocInfo.allocationSize = memRequirements.size;
 		allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, t_properties);
 
+        // Attempt to allocate device memory for the image data.
 		if (vkAllocateMemory(m_device, &allocInfo, nullptr, &t_imageMemory) != VK_SUCCESS) {
 			throw std::runtime_error("failed to allocate image memory!");
 		}
 
+        // Attempt to bind the allocated memory to the image object for image data storage.
 		if (vkBindImageMemory(m_device, t_image, t_imageMemory, 0) != VK_SUCCESS) {
 			throw std::runtime_error("failed to bind image memory!");
 		}
