@@ -28,6 +28,7 @@ namespace ae {
 		const VkAllocationCallbacks* t_allocator,
 		VkDebugUtilsMessengerEXT* t_debugMessenger) {
 
+        // Attempt to create the debug messenger.
 		auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(t_instance, "vkCreateDebugUtilsMessengerEXT");
 		if (func != nullptr) {
 			return func(t_instance, t_createInfo, t_allocator, t_debugMessenger);
@@ -42,6 +43,7 @@ namespace ae {
 		VkDebugUtilsMessengerEXT t_debugMessenger,
 		const VkAllocationCallbacks* t_allocator) {
 
+        // Attempt to destroy the debug messenger.
 		auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(t_instance, "vkDestroyDebugUtilsMessengerEXT");
 		if (func != nullptr) {
 			func(t_instance, t_debugMessenger, t_allocator);
@@ -185,21 +187,25 @@ namespace ae {
 			queueCreateInfos.push_back(queueCreateInfo);
 		}
 
-
+        // Set anisotropy, this helps with tiled texture rendering clarity.
 		VkPhysicalDeviceFeatures deviceFeatures{};
         // TODO: Make this optional
 		deviceFeatures.samplerAnisotropy = VK_TRUE;
 
+        // Create the device creation information.
 		VkDeviceCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 
+        // Add the queue information for the device being created.
 		createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
 		createInfo.pQueueCreateInfos = queueCreateInfos.data();
 
+        // Add the required device extensions.
 		createInfo.pEnabledFeatures = &deviceFeatures;
 		createInfo.enabledExtensionCount = static_cast<uint32_t>(m_deviceExtensions.size());
 		createInfo.ppEnabledExtensionNames = m_deviceExtensions.data();
 
+        // Add the validation layers if enabled.
 		if (m_enableValidationLayers) {
 			createInfo.enabledLayerCount = static_cast<uint32_t>(m_validationLayers.size());
 			createInfo.ppEnabledLayerNames = m_validationLayers.data();
@@ -208,23 +214,29 @@ namespace ae {
 			createInfo.enabledLayerCount = 0;
 		}
 
+        // Attempt to create the device.
 		if (vkCreateDevice(m_physicalDevice, &createInfo, nullptr, &m_device) != VK_SUCCESS) {
-			throw std::runtime_error("Failed to create logicial device");
+			throw std::runtime_error("Failed to create logical device");
 		}
 
+        // Get pointers to the created device queues.
 		vkGetDeviceQueue(m_device, indices.graphicsFamily, 0, &m_graphicsQueue);
 		vkGetDeviceQueue(m_device, indices.presentFamily, 0, &m_presentQueue);
 	}
 
-	// Add required commands from the queue families to the device command pool
+	// Add required commands from the queue families to the device command pool.
 	void AeDevice::createCommandPool() {
+
+        // Get the queue families for the GPU.
 		QueueFamilyIndices queueFamilyIndices = findQueueFamilies(m_physicalDevice);
 
+        // Collect the information for the graphics queue family and add it to the device's command pool.
 		VkCommandPoolCreateInfo poolInfo{};
 		poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 		poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily;
 		poolInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 
+        // Attempt to create the command pool.
 		if (vkCreateCommandPool(m_device, &poolInfo, nullptr, &m_commandPool) != VK_SUCCESS) {
 			throw std::runtime_error("Failed to create command pool!");
 		}
@@ -385,18 +397,23 @@ namespace ae {
 
 	// Function to ensure device supports all required extensions
 	bool AeDevice::checkDeviceExtensionSupport(VkPhysicalDevice t_device) {
+        // Get the number of available extensions for the GPU
 		uint32_t extensionCount;
 		vkEnumerateDeviceExtensionProperties(t_device, nullptr, &extensionCount, nullptr);
 
+        // Get a list of available extensions for the GPU
 		std::vector<VkExtensionProperties> availableExtensions(extensionCount);
 		vkEnumerateDeviceExtensionProperties(t_device, nullptr, &extensionCount, availableExtensions.data());
 
+        // Create a list of the required extensions.
 		std::set<std::string> requiredExtensions(m_deviceExtensions.begin(), m_deviceExtensions.end());
 
 		for (const auto& extension : availableExtensions) {
+            // If the extension is one of the required extensions remove it from the list.
 			requiredExtensions.erase(extension.extensionName);
 		}
 
+        // If the list is empty then we have all the required extension available.
 		return requiredExtensions.empty();
 	}
 
@@ -444,40 +461,55 @@ namespace ae {
 		return indices;
 	}
 
-	// Function to requrn the properties of the swap chain
+	// Return the device's swap chain capabilities.
 	SwapChainSupportDetails AeDevice::querySwapChainSupport(VkPhysicalDevice t_device) {
+
+        // Create a struct to store the details of the device's swap chain capabilities.
 		SwapChainSupportDetails details;
+
+        // Get the basic capabilities of a surface, needed in order to create a swapchain,
 		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(t_device, m_surface, &details.capabilities);
 
+        // Get the number of the supported swapchain format-color space pairs for the surface
 		uint32_t formatCount;
 		vkGetPhysicalDeviceSurfaceFormatsKHR(t_device, m_surface, &formatCount, nullptr);
 
+        //Get the supported swapchain format-color space pairs for the surface.
 		if (formatCount != 0) {
 			details.formats.resize(formatCount);
 			vkGetPhysicalDeviceSurfaceFormatsKHR(t_device, m_surface, &formatCount, details.formats.data());
 		}
 
+        // Get the number of supported presentation modes for a surface.
 		uint32_t presentModeCount;
 		vkGetPhysicalDeviceSurfacePresentModesKHR(t_device, m_surface, &presentModeCount, nullptr);
 
+        // Get the supported presentation modes for a surface.
 		if (presentModeCount != 0) {
 			details.presentModes.resize(presentModeCount);
 			vkGetPhysicalDeviceSurfacePresentModesKHR(t_device, m_surface, &presentModeCount, details.presentModes.data());
 		}
 
+        // Return the device's swap chain capability details.
 		return details;
 	}
 
-	// Function to return the candidate formats that meet the tiling and feature requirements
+	// Get the candidate swap chain formats that meet the tiling and feature requirements
 	VkFormat AeDevice::findSupportedFormat(
 		const std::vector<VkFormat>& t_candidates, VkImageTiling t_tiling, VkFormatFeatureFlags t_features) {
+
+
 		for (VkFormat format : t_candidates) {
+
+            // Get the graphics device's format properties.
 			VkFormatProperties props;
 			vkGetPhysicalDeviceFormatProperties(m_physicalDevice, format, &props);
 
+            // A linear tiling option
 			if (t_tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & t_features) == t_features) {
 				return format;
 			}
+            // A "optimal" tiling option.
 			else if (
 				t_tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & t_features) == t_features) {
 				return format;
@@ -488,8 +520,12 @@ namespace ae {
 
 	// Function to check if the device has memory of a specific type with specific properties
 	uint32_t AeDevice::findMemoryType(uint32_t t_typeFilter, VkMemoryPropertyFlags t_properties) {
+
+        // Get the GPU's memory properties.
 		VkPhysicalDeviceMemoryProperties memProperties;
 		vkGetPhysicalDeviceMemoryProperties(m_physicalDevice, &memProperties);
+
+        // Find the memory type that has the required memory property flags.
 		for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
 			if ((t_typeFilter & (1 << i)) &&
 				(memProperties.memoryTypes[i].propertyFlags & t_properties) == t_properties) {
@@ -507,76 +543,103 @@ namespace ae {
 		VkMemoryPropertyFlags t_properties,
 		VkBuffer& t_buffer,
 		VkDeviceMemory& t_bufferMemory) {
+
+        // Create the base buffer information struct.
 		VkBufferCreateInfo bufferInfo{};
 		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 		bufferInfo.size = t_size;
 		bufferInfo.usage = t_usage;
 		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
+        // Attempt to create the buffer.
 		if (vkCreateBuffer(m_device, &bufferInfo, nullptr, &t_buffer) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create vertex buffer!");
 		}
 
+        // Get the memory requirements for the created buffer.
 		VkMemoryRequirements memRequirements;
 		vkGetBufferMemoryRequirements(m_device, t_buffer, &memRequirements);
 
+        // Create a memory allocation configuration struct.
 		VkMemoryAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 		allocInfo.allocationSize = memRequirements.size;
+
+        // Find the index corresponding to the device memory type that meets the buffer's memory allocation
+        // requirements.
 		allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, t_properties);
 
+        // Attempt to allocate memory for the buffer.
 		if (vkAllocateMemory(m_device, &allocInfo, nullptr, &t_bufferMemory) != VK_SUCCESS) {
 			throw std::runtime_error("failed to allocate vertex buffer memory!");
 		}
 
+        // Attach the allocated memory to the buffer object.
 		vkBindBufferMemory(m_device, t_buffer, t_bufferMemory, 0);
 	}
 
-	// Function to start running the command buffer once
+	// Start a one-shot the command buffer.
 	VkCommandBuffer AeDevice::beginSingleTimeCommands() {
+
+        // Create the struct to specify how to allocate the command buffer.
 		VkCommandBufferAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 		allocInfo.commandPool = m_commandPool;
 		allocInfo.commandBufferCount = 1;
 
+        // Allocate a command buffer from the command buffer pool.
 		VkCommandBuffer commandBuffer;
 		vkAllocateCommandBuffers(m_device, &allocInfo, &commandBuffer);
 
+        // Specify how the command buffer shall be used and be recorded.
 		VkCommandBufferBeginInfo beginInfo{};
 		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
+        // Begin recording to ( allowing) the command buffer.
 		vkBeginCommandBuffer(commandBuffer, &beginInfo);
 		return commandBuffer;
 	}
 
-	// Function to end and clear the singular command buffer run
+	// End and clear a one-shot command buffer.
 	// TODO: implement memory barrier to improve performance
 	void AeDevice::endSingleTimeCommands(VkCommandBuffer t_commandBuffer) {
+
+        // Stop recording to the command buffer
 		vkEndCommandBuffer(t_commandBuffer);
 
+        // Specify the command buffer information for submitting it to the queue.
 		VkSubmitInfo submitInfo{};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 		submitInfo.commandBufferCount = 1;
 		submitInfo.pCommandBuffers = &t_commandBuffer;
 
+        // Submit the command buffer commands to the graphics queue.
 		vkQueueSubmit(m_graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+        // Wait for the commands to be executed.
 		vkQueueWaitIdle(m_graphicsQueue);
 
+        // Free the command buffer back to the pool.
 		vkFreeCommandBuffers(m_device, m_commandPool, 1, &t_commandBuffer);
 	}
 
-	// Function to copy a command buffer
+	// Copies a command buffer.
 	void AeDevice::copyBuffer(VkBuffer t_srcBuffer, VkBuffer t_dstBuffer, VkDeviceSize t_size) {
+
+        // Get a new one-shot command buffer from the pool to execute the copy command.
 		VkCommandBuffer commandBuffer = beginSingleTimeCommands();
 
+        // Specify some information about the formatting of the data to be copied and where it should be copied to.
 		VkBufferCopy copyRegion{};
 		copyRegion.srcOffset = 0;  // Optional
 		copyRegion.dstOffset = 0;  // Optional
 		copyRegion.size = t_size;
+
+        // Submit the copy command to the command buffer.
 		vkCmdCopyBuffer(commandBuffer, t_srcBuffer, t_dstBuffer, 1, &copyRegion);
 
+        // Execute the copy command.
 		endSingleTimeCommands(commandBuffer);
 	}
 
