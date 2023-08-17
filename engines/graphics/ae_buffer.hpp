@@ -88,20 +88,39 @@ namespace ae {
         /// \return VK_SUCCESS of the invalidate call.
         VkResult invalidateIndex(int t_index);
 
+        /// Get the buffer handle.
+        /// \return The buffer handle associated wth this buffer object.
         VkBuffer getBuffer() const { return m_buffer; }
 
+        /// Get the handle of the mapped memory for this buffer object.
+        /// \return The handle to the device memory of this buffer.
         void *getMappedMemory() const { return m_mapped; }
 
+        /// Get the number of unique pieces, or instances, of data in the buffer.
+        /// \return The number of instances as a uint32.
         uint32_t getInstanceCount() const { return m_instanceCount; }
 
+        /// Get the size of each of the unique pieces, or instances, of data in the buffer.
+        /// \return A uint32 representing the size of each instance.
         VkDeviceSize getInstanceSize() const { return m_instanceSize; }
 
-        VkDeviceSize getAlignmentSize() const { return m_instanceSize; }
+        /// Get the alignment of each piece of data in the the buffer.
+        /// \note This may differ from the instance size due to padding requirements.
+        /// \return The alignment required to properly pad the instance data for storage in the memory.
+        VkDeviceSize getAlignmentSize() const { return m_alignmentSize; }
 
+        /// Get the usage flags of the buffer.
+        /// \return The VkBufferUsageFlags for this buffer.
         VkBufferUsageFlags getUsageFlags() const { return m_usageFlags; }
 
+        /// Get the memory property flags used to map the memory for the buffer.
+        /// \return The VkMemoryPropertyFlags object containing the memory property flags for this buffer.
         VkMemoryPropertyFlags getMemoryPropertyFlags() const { return m_memoryPropertyFlags; }
 
+
+        /// Get the size of the buffer data.
+        /// \note Alignment is included in determining the size of the buffer.
+        /// \return A VkDeviceSize with the size of the buffer data.
         VkDeviceSize getBufferSize() const { return m_bufferSize; }
 
     private:
@@ -112,16 +131,34 @@ namespace ae {
         /// \return VkResult of the buffer mapping call.
         static VkDeviceSize getAlignment(VkDeviceSize t_instanceSize, VkDeviceSize t_minOffsetAlignment);
 
+        /// A reference to the device this buffer was created on.
         AeDevice &m_aeDevice;
+
+        /// Host accessible pointer to the beginning of the mapped device memory range.
         void *m_mapped = nullptr;
+
+        /// The vulkan buffer.
         VkBuffer m_buffer = VK_NULL_HANDLE;
+
+        /// The device memory allocated for the buffer.
         VkDeviceMemory m_memory = VK_NULL_HANDLE;
 
+        /// The size of the buffer data.
         VkDeviceSize m_bufferSize;
+
+        /// The number of unique sets of data, or instances, the buffer contains.
         uint32_t m_instanceCount;
+
+        /// The size of each set of data, or instance, in the buffer.
         VkDeviceSize m_instanceSize;
+
+        /// The amount of extra memory required to properly align the sets of data in memory.
         VkDeviceSize m_alignmentSize;
+
+        /// The flags which dictate how the buffer is to be used and therefore handled by the GPU.
         VkBufferUsageFlags m_usageFlags;
+
+        /// The flags which dictate the memory requirements for the buffer memory to be allocated.
         VkMemoryPropertyFlags m_memoryPropertyFlags;
     };
 
