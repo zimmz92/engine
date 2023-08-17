@@ -84,11 +84,15 @@ namespace ae {
                                                                   entityModelData.rotation,
                                                                   entityModelData.scale)};
 
+            // Update the push constant data.
             vkCmdPushConstants(t_commandBuffer, m_pipelineLayout,
                                VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
                                sizeof(SimplePushConstantData), &push);
 
+            // Bind the model buffer(s) to the command buffer.
             entityModelData.m_model->bind(t_commandBuffer);
+
+            // Draw the model.
             entityModelData.m_model->draw(t_commandBuffer);
         };
     };

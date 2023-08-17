@@ -14,15 +14,17 @@ namespace ae {
     // Function that creates a swap chain object
     AeSwapChain::AeSwapChain(AeDevice& t_deviceRef, VkExtent2D t_extent)
         : m_device{ t_deviceRef }, m_windowExtent{ t_extent } {
+
         init();
     }
 
     // Function that creates a swap chain object
     AeSwapChain::AeSwapChain(AeDevice& t_deviceRef, VkExtent2D t_extent, std::shared_ptr<AeSwapChain> t_previous)
         : m_device{ t_deviceRef }, m_windowExtent{ t_extent }, m_oldSwapChain{t_previous} {
+
         init();
 
-        // clean up old swap chain
+        // Clean up the old swap chain and release it from memory if nothing else is using it.
         m_oldSwapChain = nullptr;
     }
 
@@ -145,18 +147,27 @@ namespace ae {
 
     // Function to create a swap chain object
     void AeSwapChain::createSwapChain() {
+
+        // Get the swap chain support details for the GPU.
         SwapChainSupportDetails swapChainSupport = m_device.getSwapChainSupport();
 
+        // Choose an appropriate surface format, present mode, and extent for the swap chain based on what is supported
+        // by the GPU.
         VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
         VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
         VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities);
 
+        // Keep the number of simultaneous images to a minimum at the moment.
         uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
+
+        // Ensure that the chosen image count does not exceed the GPU's capabilities.
         if (swapChainSupport.capabilities.maxImageCount > 0 &&
             imageCount > swapChainSupport.capabilities.maxImageCount) {
             imageCount = swapChainSupport.capabilities.maxImageCount;
         }
 
+
+        // Create and populate the swap chain creation information structure.
         VkSwapchainCreateInfoKHR createInfo = {};
         createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
         createInfo.surface = m_device.surface();
@@ -171,6 +182,7 @@ namespace ae {
         QueueFamilyIndices indices = m_device.findPhysicalQueueFamilies();
         uint32_t queueFamilyIndices[] = { indices.graphicsFamily, indices.presentFamily };
 
+        // Optimize the swap chain if the graphics and present queue families are the same queue family.
         if (indices.graphicsFamily != indices.presentFamily) {
             createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
             createInfo.queueFamilyIndexCount = 2;
@@ -183,26 +195,29 @@ namespace ae {
         }
 
         createInfo.preTransform = swapChainSupport.capabilities.currentTransform;
+
+        // Allow alpha coloring.
         createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
 
         createInfo.presentMode = presentMode;
         createInfo.clipped = VK_TRUE;
 
-        // If the old swap chain exists then ensure that the new swap chain includes the information from the old one.
+        // If the old swap chain exists then ensure that the new swap chain reuses anything it can, this should improve
+        // the creation performance. Depending on the system this can also help with full screen permissions.
         createInfo.oldSwapchain = m_oldSwapChain == nullptr ? VK_NULL_HANDLE : m_oldSwapChain->m_swapChain;
 
         if (vkCreateSwapchainKHR(m_device.device(), &createInfo, nullptr, &m_swapChain) != VK_SUCCESS) {
             throw std::runtime_error("failed to create swap chain!");
         }
 
-        // we only specified a minimum number of images in the swap chain, so the implementation is
-        // allowed to create a swap chain with more. That's why we'll first query the final number of
-        // images with vkGetSwapchainImagesKHR, then resize the container and finally call it again to
-        // retrieve the handles.
+        // Only a minimum number of images in the swap chain was specified upon creation, however, the implementation is
+        // allowed to create a swap chain with more. Query the final number of images with vkGetSwapchainImagesKHR, then
+        // resize the image container and finally call it again to retrieve the image handles.
         vkGetSwapchainImagesKHR(m_device.device(), m_swapChain, &imageCount, nullptr);
         m_swapChainImages.resize(imageCount);
         vkGetSwapchainImagesKHR(m_device.device(), m_swapChain, &imageCount, m_swapChainImages.data());
 
+        // With the swap chain fully created save the properties of the swap chain.
         m_swapChainImageFormat = surfaceFormat.format;
         m_swapChainExtent = extent;
     }
@@ -391,10 +406,11 @@ namespace ae {
         }
     }
 
-    // Function to choose a swap surface format based on set criterias
+    // Function to choose a swap surface format based on set criteria
     VkSurfaceFormatKHR AeSwapChain::chooseSwapSurfaceFormat(
         const std::vector<VkSurfaceFormatKHR>& t_availableFormats) {
         for (const auto& availableFormat : t_availableFormats) {
+            // Choose a color format at applies the proper gamma correction, in this case VK_FORMAT_B8G8R8A8_SRGB.
             if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB &&
                 availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
                 return availableFormat;
@@ -404,7 +420,7 @@ namespace ae {
         return t_availableFormats[0];
     }
 
-    // Function to select the image synchornization with scree refresh
+    // Function to select the image synchronization with screen refresh
     VkPresentModeKHR AeSwapChain::chooseSwapPresentMode(
         const std::vector<VkPresentModeKHR>& t_availablePresentModes) {
 
@@ -429,7 +445,7 @@ namespace ae {
         return VK_PRESENT_MODE_FIFO_KHR;
     }
 
-    // Function to set the image extend baesd on the size of the given surface capabilities
+    // Function to set the image extend based on the size of the given surface capabilities
     VkExtent2D AeSwapChain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& t_capabilities) {
         if (t_capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
             return t_capabilities.currentExtent;

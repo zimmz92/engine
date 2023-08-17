@@ -53,9 +53,9 @@ namespace ae {
         // Get the size of an individual vertex.
 		uint32_t vertexSize = sizeof(t_vertices[0]);
 
-        // Create a buffer for the model.
-        // Want the host (CPU) to be able to access the GPU's buffer memory and keep the host memory for the buffer
-        // consistent with the GPU memory for the buffer.
+        // Create a buffer to stage the model data from the host and it into the GPU.
+        // Want the host (CPU) to be able to access the GPU's buffer memory and keep the GPU buffer memory consistent
+        // with the host memory.
 		AeBuffer stagingBuffer{
 			m_aeDevice,
 			vertexSize,
@@ -64,9 +64,14 @@ namespace ae {
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
 		};
 
+        // Map the memory required for the staging buffer.
 		stagingBuffer.map();
+
+        // Write the vertex data to the staging buffer.
 		stagingBuffer.writeToBuffer((void*)t_vertices.data());
 
+        // Create a buffer only on the GPU that will store the vertex data for this model until it is no longer
+        // required.
 		m_vertexBuffer = std::make_unique<AeBuffer>(
 			m_aeDevice,
 			vertexSize,
@@ -74,7 +79,10 @@ namespace ae {
 			VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
+        // Copy the data from the staging buffer (host synced to GPU) to the vertex buffer (only on GPU)
 		m_aeDevice.copyBuffer(stagingBuffer.getBuffer(), m_vertexBuffer->getBuffer(), bufferSize);
+
+        // Remember staging buffer will be cleaned up here now that we're moving out of the staging buffer's scope.
 	}
 
 	void AeModel::createIndexBuffers(const std::vector<uint32_t>& t_indicies) {
@@ -129,17 +137,25 @@ namespace ae {
 		
 	}
 
+    // Define the vertex binding descriptions used to bind the vertex buffer type to the pipeline.
 	std::vector<VkVertexInputBindingDescription> AeModel::Vertex::getBindingDescriptions() {
+
 		std::vector<VkVertexInputBindingDescription> bindingDescriptions(1);
+
+        // Define the general structure of the vertex buffer for binding.
 		bindingDescriptions[0].binding = 0;
 		bindingDescriptions[0].stride = sizeof(Vertex);
 		bindingDescriptions[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
 		return bindingDescriptions;
 	}
 
+    // Define the vertex attribute descriptions used to bind the vertex buffer type to the pipeline.
 	std::vector<VkVertexInputAttributeDescription> AeModel::Vertex::getAttributeDescriptions() {
+
 		std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
 
+        // Describe the data composition of each vertex data set input.
 		attributeDescriptions.push_back({ 0, 0, VK_FORMAT_R32G32B32_SFLOAT , offsetof(Vertex, position)});
 		attributeDescriptions.push_back({ 1, 0, VK_FORMAT_R32G32B32_SFLOAT , offsetof(Vertex, color) });
 		attributeDescriptions.push_back({ 2, 0, VK_FORMAT_R32G32B32_SFLOAT , offsetof(Vertex, normal) });

@@ -239,12 +239,14 @@ namespace ae {
         t_configInfo.depthStencilInfo.front = {};  // Optional
         t_configInfo.depthStencilInfo.back = {};   // Optional
 
+        // Configures the pipeline to expect a dynamic view port and dynamic scissor after creation.
         t_configInfo.dynamicStateEnables = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
         t_configInfo.dynamicStateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
         t_configInfo.dynamicStateInfo.pDynamicStates = t_configInfo.dynamicStateEnables.data();
         t_configInfo.dynamicStateInfo.dynamicStateCount = static_cast<uint32_t>(t_configInfo.dynamicStateEnables.size());
         t_configInfo.dynamicStateInfo.flags = 0;
 
+        // Specify that this pipeline by default will be dealing with model vertex buffers.
         t_configInfo.bindingDescriptions = AeModel::Vertex::getBindingDescriptions();
         t_configInfo.attributeDescriptions = AeModel::Vertex::getAttributeDescriptions();
     }

@@ -13,12 +13,18 @@ namespace ae {
     AeRenderer::~AeRenderer() { freeCommandBuffers(); }
 
     void AeRenderer::recreateSwapChain() {
+        // Get the current window size.
         auto extent = m_aeWindow.getExtent();
+
+        // If one of the dimensions are 0 then the application should wait. This can also occur during minimization.
+        // TODO: Create a glfw "window refresh callback" to redraw the contents of the window so the application does
+        //  not experience a processing block during a window resize.
         while (extent.width == 0 || extent.height == 0) {
             extent = m_aeWindow.getExtent();
             glfwWaitEvents();
         }
 
+        // Wait until the current swap chain is being used before creating a new swap chain.
         vkDeviceWaitIdle(m_aeDevice.device());
 
         if (m_aeSwapChain == nullptr) {
@@ -30,7 +36,7 @@ namespace ae {
 
             if (!oldSwapChain->compareSwapFormats(*m_aeSwapChain.get())) {
                 throw std::runtime_error("Swap chain image (or depth) format has changed!");
-                // TODO: Create a callback function probably to setup a callback function that a new incompatible render pass has been created
+                // TODO: Create a callback function that deals with a new incompatible render pass has being created
             }
         }
     };
@@ -55,25 +61,33 @@ namespace ae {
     }
 
     VkCommandBuffer AeRenderer::beginFrame() {
+
         assert(!m_isFrameStarted && "Cannot call begin frame when a frame is in progress!");
 
+        // Get the next image that will be rendered to.
         auto result = m_aeSwapChain->acquireNextImage(&m_currentImageIndex);
 
+        // Recreate the swap chain if the screen has been resized or the surface has changed for some reason. If this
+        // is the case do not allow a new frame to begin on this pass.
         if (result == VK_ERROR_OUT_OF_DATE_KHR) {
             recreateSwapChain();
             return nullptr;
         }
 
+        // Check to make sure that the swap chain still matches the surface properties of the device.
         if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
-            throw std::runtime_error("Failed to aquire swap chain image!");
+            throw std::runtime_error("Failed to acquire swap chain image!");
         }
 
+        // The frame has started.
         m_isFrameStarted = true;
 
+        // Get the command buffer to be used for rendering this image.
         auto commandBuffer = getCurrentCommandBuffer();
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
+        // Start recording to the command buffer for this image.
         if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
             throw std::runtime_error("Failed to begin recording command buffer!");
         }
@@ -123,6 +137,8 @@ namespace ae {
 
         vkCmdBeginRenderPass(t_commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
+        // Configure the dynamic viewport and scissor. This is to ensure that the correct window size for each frame is
+        // submitted before the command buffer is executed even if the swap chain changes.
         VkViewport viewport{};
         viewport.x = 0.0f;
         viewport.y = 0.0f;

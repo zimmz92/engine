@@ -14,6 +14,7 @@ namespace ae {
 
     /// Information required to create the Vulkan pipeline.
     struct PipelineConfigInfo {
+
         /// Struct constructor, default currently.
         PipelineConfigInfo() = default;
 
