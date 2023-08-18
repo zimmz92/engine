@@ -9,8 +9,17 @@
 
 namespace ae {
 
+    /// Defines a class to generically create and handle vulkan buffers.
     class AeBuffer {
     public:
+
+        /// Constructs a buffer to create and manage a vulkan buffer.
+        /// \param t_device A reference to the device the buffer is to be created on.
+        /// \param t_instanceSize The size of a single data set, instance, that will be stored in the buffer.
+        /// \param t_instanceCount The number of data sets, instances, will be stored in the buffer.
+        /// \param t_usageFlags Indicates how the buffer to be created will be used.
+        /// \param t_memoryPropertyFlags Indicates the memory requirements for the buffer memory to be allocated.
+        /// \param t_minOffsetAlignment (Optional) Sets the minimum required offset to align the data in memory.
         AeBuffer(
                 AeDevice &t_device,
                 VkDeviceSize t_instanceSize,
@@ -19,6 +28,7 @@ namespace ae {
                 VkMemoryPropertyFlags t_memoryPropertyFlags,
                 VkDeviceSize t_minOffsetAlignment = 1);
 
+        /// Destroys and cleans up the vulkan buffer and it's management class.
         ~AeBuffer();
 
         /// Do not allow this class to be copied (2 lines below)

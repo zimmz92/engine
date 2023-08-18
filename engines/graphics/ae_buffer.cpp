@@ -97,6 +97,8 @@ namespace ae {
             memcpy(m_mapped, t_data, m_bufferSize);
         }
         else {
+            // Calculate the memory range to be written to if not being supplied with all the data to be written to the
+            // buffer.
             char* memOffset = (char*)m_mapped;
             memOffset += t_offset;
             memcpy(memOffset, t_data, t_size);
