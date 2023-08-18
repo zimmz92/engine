@@ -60,11 +60,12 @@ namespace ae {
         void endFrame();
 
         /// Starts the swap chain render pass using the supplied command buffer.
+        /// \note This allows the command buffer to be recorded to before actually executing the render.
         /// \param t_commandBuffer The command buffer the swap chain will be getting it's commands from to create the
         /// image for the current frame being rendered.
         void beginSwapChainRenderPass(VkCommandBuffer t_commandBuffer);
 
-        /// Ends the swap chain render pass using the supplied command buffer.
+        /// Executes the render using the supplied command buffer then ends the swap chain render pass.
         /// \param t_commandBuffer The command buffer the swap chain will be getting it's commands from to create the
         /// image for the current frame being rendered.
         void endSwapChainRenderPass(VkCommandBuffer t_commandBuffer);
