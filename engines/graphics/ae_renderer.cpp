@@ -49,7 +49,7 @@ namespace ae {
             // Make the new swap chain reusing as much of the old swap chain as possible.
             m_aeSwapChain = std::make_unique<AeSwapChain>(m_aeDevice, extent, oldSwapChain);
 
-            // Make sure the
+            // Make sure the render pass is still compatible with the new swap chain.
             if (!oldSwapChain->compareSwapFormats(*m_aeSwapChain.get())) {
                 throw std::runtime_error("Swap chain image (or depth) format has changed!");
                 // TODO: Create a callback function that deals with a new incompatible render pass has being created

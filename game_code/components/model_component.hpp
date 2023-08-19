@@ -18,6 +18,8 @@ namespace ae {
         /// Defines the scaling factors to be applied to the model being used by the entity.
         glm::vec3 scale{ 1.0f, 1.0f, 1.0f };
 
+        // TODO: Implement rotations as quaternions in the future for better performance.
+
         /// Defines the rotation of the model used by a entity in radians. Rotations correspond to Tait-bryan angles of
         /// Y(1) - varphi, X(2) - theta, Z(3) - psi.
         glm::vec3 rotation{ 0.0f, 0.0f, 0.0f };
