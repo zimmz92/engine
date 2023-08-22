@@ -81,7 +81,7 @@ namespace ae {
         if (glfwGetKey(m_window, keys.lookDown) == GLFW_PRESS) rotate.x -= 1.0f;
 
         // Apply the rotation transform matrix to the model accounting for the amount of time that has past since the
-        // last update.
+        // last update. Make sure that the rotation is not "zero" so the normalize function does not explode.
         if (glm::dot(rotate, rotate) > std::numeric_limits<float>::epsilon()) {
             t_modelData.rotation += m_lookSpeed * m_timingSystem.getDt() * glm::normalize(rotate);
         }
@@ -107,7 +107,7 @@ namespace ae {
         if (glfwGetKey(m_window, keys.moveUp) == GLFW_PRESS) moveDir += upDir;
         if (glfwGetKey(m_window, keys.moveDown) == GLFW_PRESS) moveDir -= upDir;
 
-        // As long as the requested vector of movement is greater than the limits that a float can capture move the entity.
+        // Make sure that the moveDir is not "zero" so the normalize function does not explode.
         if (glm::dot(moveDir, moveDir) > std::numeric_limits<float>::epsilon()) {
 
             // Calculate the actual movement of the entity to be applied using the movement vector

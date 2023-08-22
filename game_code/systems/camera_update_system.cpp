@@ -140,6 +140,8 @@ namespace ae {
         t_entityCameraData.m_projectionMatrix = glm::mat4{ 0.0f };
 
         // Set the projection matrix based on the camera's fov and the aspect ratio of the view window.
+        // Accounting for the window's aspect ratio prevents deformation of viewed objects when the window's dimensions
+        // are not square like the canonical view volume is.
         t_entityCameraData.m_projectionMatrix[0][0] = 1.f / (t_aspect * tanHalfFovy);
         t_entityCameraData.m_projectionMatrix[1][1] = 1.f / (tanHalfFovy);
         t_entityCameraData.m_projectionMatrix[2][2] = t_entityCameraData.m_farDistance / (t_entityCameraData.m_farDistance - t_entityCameraData.m_nearDistance);
@@ -219,6 +221,7 @@ namespace ae {
 
 
     // Set the camera view based on the world position and rotation of the camera entity.
+    // TODO: Implement rotations as quaternions in the future for better performance.
     void CameraUpdateSystem::setViewYXZ(CameraComponentStruct& t_entityCameraData,
                                         ModelComponentStruct& t_entityModelData,
                                         WorldPositionComponentStruct& t_entityWorldPosition) {
