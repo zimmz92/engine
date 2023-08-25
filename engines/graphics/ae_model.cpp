@@ -14,6 +14,8 @@
 #include <unordered_map>
 
 namespace std {
+    // Define a hash operator for the Vertex structure to allow for a Vertex structure to be used as the key in an
+    // unordered map.
 	template <>
 	struct hash<ae::AeModel::Vertex> {
 		size_t operator()(ae::AeModel::Vertex const& vertex) const {
@@ -85,15 +87,15 @@ namespace ae {
         // Remember staging buffer will be cleaned up here now that we're moving out of the staging buffer's scope.
 	}
 
-	void AeModel::createIndexBuffers(const std::vector<uint32_t>& t_indicies) {
-		m_indexCount = static_cast<uint32_t>(t_indicies.size());
+	void AeModel::createIndexBuffers(const std::vector<uint32_t>& t_indices) {
+		m_indexCount = static_cast<uint32_t>(t_indices.size());
 		m_hasIndexBuffer = m_indexCount > 0;
 
 		if (!m_hasIndexBuffer) {
 			return;
 		}
-		VkDeviceSize bufferSize = sizeof(t_indicies[0]) * m_indexCount;
-		uint32_t indexSize = sizeof(t_indicies[0]);
+		VkDeviceSize bufferSize = sizeof(t_indices[0]) * m_indexCount;
+		uint32_t indexSize = sizeof(t_indices[0]);
 
 		AeBuffer stagingBuffer{
 			m_aeDevice,
@@ -104,7 +106,7 @@ namespace ae {
 		};
 
 		stagingBuffer.map();
-		stagingBuffer.writeToBuffer((void*)t_indicies.data());
+		stagingBuffer.writeToBuffer((void*)t_indices.data());
 
 		m_indexBuffer = std::make_unique<AeBuffer>(
 			m_aeDevice,
@@ -212,8 +214,11 @@ namespace ae {
 					};
 				}
 
+                // Use the hashing function of the unordered map to identify if the vertex is unique.
 				if (uniqueVertices.count(vertex) == 0) {
+                    // Add the unique vertex to the unique vertices unordered map
 					uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
+                    // Add the
 					vertices.push_back(vertex);
 				}
 				indices.push_back(uniqueVertices[vertex]);
