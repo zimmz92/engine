@@ -633,6 +633,8 @@ namespace ae {
 	}
 
 	// Copies a command buffer.
+    // TODO: Relies on single time command that depends on the device to be idle to ensure that the copy command is
+    //  finished before rendering begins. This can be avoided with a memory barrier... implement one!
 	void AeDevice::copyBuffer(VkBuffer t_srcBuffer, VkBuffer t_dstBuffer, VkDeviceSize t_size) {
 
         // Get a new one-shot command buffer from the pool to execute the copy command.
