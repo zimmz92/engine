@@ -8,11 +8,13 @@ namespace ae {
 
     // *************** Descriptor Set Layout Builder *********************
 
+    // 
     AeDescriptorSetLayout::Builder& AeDescriptorSetLayout::Builder::addBinding(
         uint32_t t_binding,
         VkDescriptorType t_descriptorType,
         VkShaderStageFlags t_stageFlags,
         uint32_t t_count) {
+
         assert(m_bindings.count(t_binding) == 0 && "Binding already in use");
         VkDescriptorSetLayoutBinding layoutBinding{};
         layoutBinding.binding = t_binding;

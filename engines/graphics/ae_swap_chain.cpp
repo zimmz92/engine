@@ -11,17 +11,19 @@
 
 namespace ae {
 
-    // Function that creates a swap chain object
+    // Function that creates a swap chain object.
     AeSwapChain::AeSwapChain(AeDevice& t_deviceRef, VkExtent2D t_extent)
         : m_device{ t_deviceRef }, m_windowExtent{ t_extent } {
 
+        // Create the swap chain
         init();
     }
 
-    // Function that creates a swap chain object
+    // Function that creates a swap chain object reusing as much of the specified swap chain as possible.
     AeSwapChain::AeSwapChain(AeDevice& t_deviceRef, VkExtent2D t_extent, std::shared_ptr<AeSwapChain> t_previous)
         : m_device{ t_deviceRef }, m_windowExtent{ t_extent }, m_oldSwapChain{t_previous} {
 
+        // Create the swap chain referencing the specified swap chain.
         init();
 
         // Clean up the old swap chain and release it from memory if nothing else is using it.
@@ -42,29 +44,35 @@ namespace ae {
 
     // Function that destroys a swap chain object
     AeSwapChain::~AeSwapChain() {
+
+        // Destroy all the image views.
         for (auto imageView : m_swapChainImageViews) {
             vkDestroyImageView(m_device.device(), imageView, nullptr);
         }
         m_swapChainImageViews.clear();
 
+        // Destroy the swap chain itself.
         if (m_swapChain != nullptr) {
             vkDestroySwapchainKHR(m_device.device(), m_swapChain, nullptr);
             m_swapChain = nullptr;
         }
 
+        // Destroy the depth images.
         for (int i = 0; i < m_depthImages.size(); i++) {
             vkDestroyImageView(m_device.device(), m_depthImageViews[i], nullptr);
             vkDestroyImage(m_device.device(), m_depthImages[i], nullptr);
             vkFreeMemory(m_device.device(), m_depthImageMemories[i], nullptr);
         }
 
+        // Destroy the frame buffers.
         for (auto framebuffer : m_swapChainFramebuffers) {
             vkDestroyFramebuffer(m_device.device(), framebuffer, nullptr);
         }
 
+        // Destroy the render pass.
         vkDestroyRenderPass(m_device.device(), m_renderPass, nullptr);
 
-        // cleanup synchronization objects
+        // Destroy the synchronization objects
         for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             vkDestroySemaphore(m_device.device(), m_renderFinishedSemaphores[i], nullptr);
             vkDestroySemaphore(m_device.device(), m_imageAvailableSemaphores[i], nullptr);
@@ -72,8 +80,10 @@ namespace ae {
         }
     }
 
-    // Function to acquire the next image from the swap chain
+    // Function to acquire the next image from the swap chain.
     VkResult AeSwapChain::acquireNextImage(uint32_t* t_imageIndex) {
+
+        // Ensure that the device frame is ready to begin rendering a new image.
         vkWaitForFences(
             m_device.device(),
             1,
@@ -81,6 +91,7 @@ namespace ae {
             VK_TRUE,
             std::numeric_limits<uint64_t>::max());
 
+        // Acquire the image to be rendered to.
         VkResult result = vkAcquireNextImageKHR(
             m_device.device(),
             m_swapChain,
@@ -104,44 +115,58 @@ namespace ae {
         // track of the frame command buffer status. This is useful when we have more images than frames.
         m_imagesInFlight[*t_imageIndex] = m_inFlightFences[m_currentFrame];
 
+        // Create the info struct to submit the command buffer to the queue
         VkSubmitInfo submitInfo = {};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
+        // Specify the image tracking semaphores.
         VkSemaphore waitSemaphores[] = { m_imageAvailableSemaphores[m_currentFrame] };
         VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
         submitInfo.waitSemaphoreCount = 1;
         submitInfo.pWaitSemaphores = waitSemaphores;
         submitInfo.pWaitDstStageMask = waitStages;
 
+        // Specify the command buffers that will be submitted and executed.
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = t_buffers;
 
+        // Specify the render tracking semaphores.
         VkSemaphore signalSemaphores[] = { m_renderFinishedSemaphores[m_currentFrame] };
         submitInfo.signalSemaphoreCount = 1;
         submitInfo.pSignalSemaphores = signalSemaphores;
 
+        // Reset the fences tracking the execution status of the current frame.
         vkResetFences(m_device.device(), 1, &m_inFlightFences[m_currentFrame]);
+
+        // Attempt to submit and execute the command buffer using the device queue.
         if (vkQueueSubmit(m_device.graphicsQueue(), 1, &submitInfo, m_inFlightFences[m_currentFrame]) !=
             VK_SUCCESS) {
             throw std::runtime_error("failed to submit draw command buffer!");
         }
 
+        // Create the info struct to submit the rendered image to the presentation queue.
         VkPresentInfoKHR presentInfo = {};
         presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 
+        // Specify the semaphores tracking the rendering status.
         presentInfo.waitSemaphoreCount = 1;
         presentInfo.pWaitSemaphores = signalSemaphores;
 
+        // Specify the swap chain holding the queue of images to be presented.
         VkSwapchainKHR swapChains[] = { m_swapChain };
         presentInfo.swapchainCount = 1;
         presentInfo.pSwapchains = swapChains;
 
+        // The index of the image in the swap chain to be presented when ready.
         presentInfo.pImageIndices = t_imageIndex;
 
+        // Attempt to submit the image to the present queue.
         auto result = vkQueuePresentKHR(m_device.presentQueue(), &presentInfo);
 
+        // Increment the frame tracker.
         m_currentFrame = (m_currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 
+        // Return VK_SUCCESS if the image was submitted to the present queue.
         return result;
     }
 
@@ -222,10 +247,15 @@ namespace ae {
         m_swapChainExtent = extent;
     }
 
-    // Function to create image views for a swap chain
+    // Create image views for a swap chain
     void AeSwapChain::createImageViews() {
+
+        // Ensure there is an image view for each of the images the swap chain will be tracking.
         m_swapChainImageViews.resize(m_swapChainImages.size());
+
+        // Create the image views.
         for (size_t i = 0; i < m_swapChainImages.size(); i++) {
+            // Specify the properties of the image view to be created.
             VkImageViewCreateInfo viewInfo{};
             viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
             viewInfo.image = m_swapChainImages[i];
@@ -237,6 +267,7 @@ namespace ae {
             viewInfo.subresourceRange.baseArrayLayer = 0;
             viewInfo.subresourceRange.layerCount = 1;
 
+            // Attempt to create the image view.
             if (vkCreateImageView(m_device.device(), &viewInfo, nullptr, &m_swapChainImageViews[i]) !=
                 VK_SUCCESS) {
                 throw std::runtime_error("failed to create texture image view!");
@@ -244,9 +275,10 @@ namespace ae {
         }
     }
 
-    // Function to add render the pass tothe swap chain
-    // Render pass is a template for a frame buffer
+    // Add a render the pass to the swap chain, the render pass is a template for a frame buffer.
     void AeSwapChain::createRenderPass() {
+
+        // Specify the image depth information.
         VkAttachmentDescription depthAttachment{};
         depthAttachment.format = findDepthFormat();
         depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -261,6 +293,7 @@ namespace ae {
         depthAttachmentRef.attachment = 1;
         depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
+        // Specify the image color information.
         VkAttachmentDescription colorAttachment = {};
         colorAttachment.format = getSwapChainImageFormat();
         colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -275,14 +308,15 @@ namespace ae {
         colorAttachmentRef.attachment = 0;
         colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
+        // Define the sub-pass attributes.
         VkSubpassDescription subpass = {};
         subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
         subpass.colorAttachmentCount = 1;
         subpass.pColorAttachments = &colorAttachmentRef;
         subpass.pDepthStencilAttachment = &depthAttachmentRef;
 
+        // Define the dependency attributes.
         VkSubpassDependency dependency = {};
-
         dependency.dstSubpass = 0;
         dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
         dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
@@ -290,6 +324,7 @@ namespace ae {
         dependency.srcAccessMask = 0;
         dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 
+        // Define the render creation struct.
         std::array<VkAttachmentDescription, 2> attachments = { colorAttachment, depthAttachment };
         VkRenderPassCreateInfo renderPassInfo = {};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
@@ -300,6 +335,7 @@ namespace ae {
         renderPassInfo.dependencyCount = 1;
         renderPassInfo.pDependencies = &dependency;
 
+        // Attempt to create the render pass.
         if (vkCreateRenderPass(m_device.device(), &renderPassInfo, nullptr, &m_renderPass) != VK_SUCCESS) {
             throw std::runtime_error("failed to create render pass!");
         }
