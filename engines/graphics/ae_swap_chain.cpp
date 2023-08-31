@@ -343,11 +343,18 @@ namespace ae {
 
     // Function to create the swap chain frame buffers
     void AeSwapChain::createFramebuffers() {
+
+        // Create a frame buffer for each of the swap chain images.
         m_swapChainFramebuffers.resize(imageCount());
         for (size_t i = 0; i < imageCount(); i++) {
+
+            // Get the images, and their views, that the frame buffer will be responsible for.
             std::array<VkImageView, 2> attachments = { m_swapChainImageViews[i], m_depthImageViews[i] };
 
+            // Get the extent, resolution, of the image the buffer will be rendering for.
             VkExtent2D swapChainExtent = getSwapChainExtent();
+
+            // Specify the frame buffer properties.
             VkFramebufferCreateInfo framebufferInfo = {};
             framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
             framebufferInfo.renderPass = m_renderPass;
@@ -357,11 +364,13 @@ namespace ae {
             framebufferInfo.height = swapChainExtent.height;
             framebufferInfo.layers = 1;
 
+            // Attempt to create the image's frame buffer.
             if (vkCreateFramebuffer(
                 m_device.device(),
                 &framebufferInfo,
                 nullptr,
                 &m_swapChainFramebuffers[i]) != VK_SUCCESS) {
+
                 throw std::runtime_error("failed to create framebuffer!");
             }
         }
@@ -369,15 +378,22 @@ namespace ae {
 
     // Function to add depth resources to the swap chain
     void AeSwapChain::createDepthResources() {
+
+        // Get the depth format of the swap chain.
         VkFormat depthFormat = findDepthFormat();
         m_swapChainDepthFormat = depthFormat;
+
+        // Get the extent, resolution, of the swap chain.
         VkExtent2D swapChainExtent = getSwapChainExtent();
 
+        // Size the image depth properties for the number of images managed by the swap chain.
         m_depthImages.resize(imageCount());
         m_depthImageMemories.resize(imageCount());
         m_depthImageViews.resize(imageCount());
 
         for (int i = 0; i < m_depthImages.size(); i++) {
+
+            // Specify the depth image information
             VkImageCreateInfo imageInfo{};
             imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
             imageInfo.imageType = VK_IMAGE_TYPE_2D;
@@ -394,12 +410,14 @@ namespace ae {
             imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
             imageInfo.flags = 0;
 
+            // Create the depth images.
             m_device.createImageWithInfo(
                     imageInfo,
                     VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
                     m_depthImages[i],
                     m_depthImageMemories[i]);
 
+            // Specify the depth image view properties.
             VkImageViewCreateInfo viewInfo{};
             viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
             viewInfo.image = m_depthImages[i];
@@ -411,26 +429,32 @@ namespace ae {
             viewInfo.subresourceRange.baseArrayLayer = 0;
             viewInfo.subresourceRange.layerCount = 1;
 
+            // Attempt to create the depth image view.
             if (vkCreateImageView(m_device.device(), &viewInfo, nullptr, &m_depthImageViews[i]) != VK_SUCCESS) {
                 throw std::runtime_error("failed to create texture image view!");
             }
         }
     }
 
-    // Function to syncronize the swap chain image views with render finishes
+    // Create the synchronization objects for the swap chain image views to identify when the render finishes.
     void AeSwapChain::createSyncObjects() {
+
+        // Make synchronization objects for each of the frames that may be being rendered.
         m_imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
         m_renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
         m_inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
         m_imagesInFlight.resize(imageCount(), VK_NULL_HANDLE);
 
+        // Specify the semaphore properties. This is the same for all the frames currently.
         VkSemaphoreCreateInfo semaphoreInfo = {};
         semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
+        // Specify the fence properties. This is the same for all the frames currently.
         VkFenceCreateInfo fenceInfo = {};
         fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
         fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
+        // Attempt to create the synchronization objects for each of the frames.
         for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             if (vkCreateSemaphore(m_device.device(), &semaphoreInfo, nullptr, &m_imageAvailableSemaphores[i]) !=
                 VK_SUCCESS ||
@@ -442,25 +466,31 @@ namespace ae {
         }
     }
 
-    // Function to choose a swap surface format based on set criteria
+    // Choose a swap surface format based on the desired criteria within this function.
     VkSurfaceFormatKHR AeSwapChain::chooseSwapSurfaceFormat(
         const std::vector<VkSurfaceFormatKHR>& t_availableFormats) {
+
+        // Check the available formats for one that meets the criteria define here.
         for (const auto& availableFormat : t_availableFormats) {
-            // Choose a color format at applies the proper gamma correction, in this case VK_FORMAT_B8G8R8A8_SRGB.
+
+            // Choose a color format that applies the proper gamma correction, in this case VK_FORMAT_B8G8R8A8_SRGB.
             if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB &&
                 availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
+
                 return availableFormat;
             }
         }
 
+        // If none of the available formats meets the desired criteria just return the first one.
+        // TODO Should probably try to find the most compatible format and not just return whatever is first.
         return t_availableFormats[0];
     }
 
-    // Function to select the image synchronization with screen refresh
+    // Select the methodology for how the image presentation will synchronization with the screen's refreshing.
     VkPresentModeKHR AeSwapChain::chooseSwapPresentMode(
         const std::vector<VkPresentModeKHR>& t_availablePresentModes) {
 
-        // Mailbox
+        // Mailbox present mode. Synchronize images with screen refresh rate, newest image is always used.
         for (const auto& availablePresentMode : t_availablePresentModes) {
             if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
                 std::cout << "Present mode: Mailbox" << std::endl;
@@ -468,7 +498,8 @@ namespace ae {
             }
         }
 
-        // Immediate - no sync
+        // Immediate present mode. No synchronization with the screen's refresh. Images rendered as soon as they are
+        // available. Will most likely result in screen tearing.
         // for (const auto &availablePresentMode : t_availablePresentModes) {
         //   if (availablePresentMode == VK_PRESENT_MODE_IMMEDIATE_KHR) {
         //     std::cout << "Present mode: Immediate" << std::endl;
@@ -476,17 +507,21 @@ namespace ae {
         //   }
         // }
 
-        // Default to FIFO VSYNC
+        // Default to FIFO VSYNC. Images are synchronized to the screen's refresh but are always presented in the order
+        // in which they are rendered even if they are "old".
         std::cout << "Present mode: V-Sync" << std::endl;
         return VK_PRESENT_MODE_FIFO_KHR;
     }
 
-    // Function to set the image extend based on the size of the given surface capabilities
+    // Swap chain image extend, resolution, based on the size of the given surface capabilities.
     VkExtent2D AeSwapChain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& t_capabilities) {
+
+        // Check if the provided capabilities already have a defined extent.
         if (t_capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
             return t_capabilities.currentExtent;
         }
         else {
+            // Set the extent to either the size of the screen or the maximum capabilities of the device.
             VkExtent2D actualExtent = m_windowExtent;
             actualExtent.width = std::max(
                 t_capabilities.minImageExtent.width,
@@ -499,7 +534,7 @@ namespace ae {
         }
     }
 
-    // Function to return the depth format of the swap chain
+    // Gets a supported depth format for the swap chain.
     VkFormat AeSwapChain::findDepthFormat() {
         return m_device.findSupportedFormat(
             { VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },

@@ -198,6 +198,8 @@ namespace ae {
 
         // Rotations correspond to Tait-bryan angles of Y(1), X(2), Z(3)
         // https://en.wikipedia.org/wiki/Euler_angles#Rotation_matrix
+        // Normal Matrix is calculated to facilitate non-uniform model scaling scale.x != scale.y =! scale.z
+        // TODO benchmark if this is faster than just calculating the normal matrix in the shader when there are many objects.
         glm::mat3 normalMatrix = {
                 {
                         invScale.x * (c1 * c3 + s1 * s2 * s3),
