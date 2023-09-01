@@ -1,3 +1,7 @@
+/*! \file ae_device.cpp
+    \brief The script defining the vulkan device interface class.
+    The vulkan device interface class is defined.
+*/
 #pragma once
 
 #include "ae_window.hpp"
@@ -9,22 +13,41 @@
 
 namespace ae {
 
+    /// Stores the swap chain capabilities of the GPU.
 	struct SwapChainSupportDetails {
+        /// The surface capabilities of the GPU.
 		VkSurfaceCapabilitiesKHR capabilities;
+
+        /// The surface format of the GPU.
 		std::vector<VkSurfaceFormatKHR> formats;
+
+        /// The available presentation modes of the GPU.
 		std::vector<VkPresentModeKHR> presentModes;
 	};
 
+    /// Structure that stores the desired queue families and their device information.
 	struct QueueFamilyIndices {
+        /// Index of the graphics queue family on the device.
 		uint32_t graphicsFamily;
+
+        /// Index of the present family queue on the device.
 		uint32_t presentFamily;
+
+        /// Represents if the graphics queue family has been found.
 		bool graphicsFamilyHasValue = false;
+
+        /// Represents if the present queue family has been found.
 		bool presentFamilyHasValue = false;
+
+        /// Checks to see if all the desire queue families have been found.
+        /// \return True if all the required queue families have been found and indexes populated.
 		bool isComplete() { return graphicsFamilyHasValue && presentFamilyHasValue; }
 	};
 
+    /// A vulkan device interface object.
 	class AeDevice {
 	public:
+
 		// Enable validation layers if debugging
 #ifdef NDEBUG
 		const bool m_enableValidationLayers = false;
@@ -32,40 +55,69 @@ namespace ae {
 		const bool m_enableValidationLayers = true;
 #endif
 	
-		// Function to create graphics device
+		/// Creates the vulkan device from the best available GPU from the application's perspective.
+		/// \param t_window The window the GPU will be interfacing with.
 		AeDevice(AeWindow& t_window);
 
-		// Function to destroy graphics device
+		/// Destroys the vulkan device interface object.
 		~AeDevice();
 
-		// Do not allow this class to be copied (2 lines below)
+		/// Do not allow this class to be copied (2 lines below)
 		AeDevice(const AeDevice&) = delete;
 		AeDevice& operator=(const AeDevice&) = delete;
 
-		// Do not allow this class to be moved (2 lines below)
+		/// Do not allow this class to be moved (2 lines below)
 		AeDevice(AeDevice&&) = delete;
 		AeDevice& operator=(AeDevice&&) = delete;
 
-		// Functions to return member variable values
+		/// Get the device's command pool.
+		/// \return The command pool of the device.
 		VkCommandPool getCommandPool() { return m_commandPool; }
+
+        /// Get the vulkan device.
+        /// \return The vulkan device this object is the interface for.
 		VkDevice device() { return m_device; }
+
+        /// Get the surface the device corresponds with.
+        /// \return The surface this device corresponds with.
 		VkSurfaceKHR surface() { return m_surface; }
+
+        /// Get the device's graphics queue.
+        /// \return The graphics queue of the device.
 		VkQueue graphicsQueue() { return m_graphicsQueue; }
+
+        /// Get the device's presentation queue.
+        /// \return The presentation queue of the device.
 		VkQueue presentQueue() { return m_presentQueue; }
 
-		// Funciton to fetch the swap chain features supported by the device
+		/// Fetches the swap chain features supported by the device
+		/// \return A structure containing the device's swap chain capabilities.
 		SwapChainSupportDetails getSwapChainSupport() { return querySwapChainSupport(m_physicalDevice); }
 
-		// Function to check if the device has memory of a specific type with specific properties
+		/// Finds the memory on the device of the desired memory type with the specified properties.
+		/// \param t_typeFilter The memory type to be considered.
+		/// \param t_properties The memory properties required.
+		/// \return The memory index to device memory that meets the specified requirements.
 		uint32_t findMemoryType(uint32_t t_typeFilter, VkMemoryPropertyFlags t_properties);
 
-		// Function to retrun the queue families that meet the criteria for the program
+		/// Returns the queue families that meet the criteria for the application.
+		/// \return A structure containing the queue family information required for the application.
 		QueueFamilyIndices findPhysicalQueueFamilies() { return findQueueFamilies(m_physicalDevice); }
 
-		// Function to return the candidate formats that meet the tiling and feature requirements
+		/// Get a supported image format that meets the specified tiling and feature requirements
+		/// \param t_candidates A list of candidate image formats that should be considered, if available.
+		/// \param t_tiling The desired tiling arrangement the format needs to support.
+		/// \param t_features The desired tiling features the format needs to support.
+		/// \return A supported image format supported by the device that meets the specified requirements.
 		VkFormat findSupportedFormat(const std::vector<VkFormat>& t_candidates, VkImageTiling t_tiling, VkFormatFeatureFlags t_features);
 
-		// Function to create a command buffer and allocate memory for it
+		/// Creates a command buffer from the device's command buffer pool and allocates memory for it.
+		/// \param t_size Specifies the desired size of the buffer to be created.
+		/// \param t_usage Specifies how the buffer will be used.
+		/// \param t_properties Specifies the memory properties for the memory to be allocated for the buffer.
+		/// \param t_buffer A reference that should be populated with the location of the created command buffer.
+		/// \param t_bufferMemory A reference that should be populated with the location of the allocated device memory
+		/// for the buffer.
 		void createBuffer(
 			VkDeviceSize t_size,
 			VkBufferUsageFlags t_usage,
@@ -73,87 +125,129 @@ namespace ae {
 			VkBuffer& t_buffer,
 			VkDeviceMemory& t_bufferMemory);
 
-		// Function to start running the command buffer once
+		/// Returns a command buffer that is ready to have commands recorded to it and will only be executed once.
+		/// \return A one-shot command buffer that is ready have command recorded to it.
 		VkCommandBuffer beginSingleTimeCommands();
 
-		// Function to end and clear the singular command buffer run
+		/// Executes and clean up a one-shot command buffer.
+		/// \param t_commandBuffer The one-shot command buffer that should be executed and then cleaned up.
 		void endSingleTimeCommands(VkCommandBuffer t_commandBuffer);
 
-		// Function to copy a command buffer
+		/// Copies the "srcBuffer" to the "dstBuffer" using a one-shot command buffer.
+		/// \param t_srcBuffer The buffer containing the information to be copied.
+		/// \param t_dstBuffer The buffer where the information is to be copied to.
+		/// \param t_size The size of the srcBuffer.
 		void copyBuffer(VkBuffer t_srcBuffer, VkBuffer t_dstBuffer, VkDeviceSize t_size);
 
-		// Funciton to copy the command buffer results to an immage
+		/// Copy the command buffer data/results to an image object.
+		/// \param t_buffer The command buffer the data/results are to be copied from.
+		/// \param t_image The image the data/results from the command buffer are to be copied to.
+		/// \param t_width The image width.
+		/// \param t_height The image height.
+		/// \param t_layerCount The number of layers that are to be copied.
 		void copyBufferToImage(VkBuffer t_buffer, VkImage t_image, uint32_t t_width, uint32_t t_height, uint32_t t_layerCount);
 
-		// Funciton to create, and allocate memory for, an image
+		/// Creates, and allocates memory for, an image.
+		/// \param t_imageInfo The information required to create the desired image.
+		/// \param t_properties The memory requirements of the image being created.
+		/// \param t_image A reference to the image that will be populated with the location of the created image.
+		/// \param t_imageMemory A reference to the image memory that will be populated with the location of the
+		/// allocated image memory.
 		void createImageWithInfo(
 			const VkImageCreateInfo& t_imageInfo,
 			VkMemoryPropertyFlags t_properties,
 			VkImage& t_image,
 			VkDeviceMemory& t_imageMemory);
 
+        /// The properties of the GPU which this device interfaces with.
 		VkPhysicalDeviceProperties m_properties;
 
 	private:
-		// Function to create the Vulkan instance
+		/// Creates the vulkan instance that will initialize the vulkan library and passes the application information
+		/// to it.
 		void createInstance();
 
-		// Function to setup debugging messaging if validation layers are enabled
+		/// Setup debugging messaging if validation layers are enabled.
 		void setupDebugMessenger();
 
-		// Function to create a window surface for an instance
+		/// Creates a window surface for instance.
 		void createSurface();
 
-		// Function to choose between multiple physical devies based on available device features
+		/// Chooses between multiple physical devices based on device features.
 		void pickPhysicalDevice();
 
-		// Function to create a virtual device based on required queues
+		/// Create a virtual device based on required queues for the application.
 		void createLogicalDevice();
 
-		// Funciton to add required commands from the queue families to the device command pool
+		/// Add required commands from the queue families to the logical device's command pool.
 		void createCommandPool();
 
-		// Function to rate a device based on required applicaiton features
+		/// Rates a GPU based on the required application features.
 		int rateDeviceSuitability(VkPhysicalDevice t_device);
 
-		// Function to return the required extentions for glfw
-		std::vector<const char*> getRequiredExtentions();
+		/// Gets the required extensions for GLFW library.
+		/// \return The extensions required by the GLFW library.
+		std::vector<const char*> getRequiredGLFWExtensions();
 
-		// Function to check if the instance supports the required validation layers
+		/// Check if the instance, vulkan library, supports the required validation layers.
 		bool checkValidationLayerSupport();
 
-		// Find a queue family that supports all the desired features
+		/// Finds the queue families on the GPU that supports the desired features.
+		/// \param t_device The GPU that will be searched for the desired queue families.
+		/// \return The populated QueueFamilyIndices struct containing the pointers to the required queue families.
 		QueueFamilyIndices findQueueFamilies(VkPhysicalDevice t_device);
 
-		// Function to populate the debug messeger information
+		/// Populates the debug messenger creation information.
+		/// \param t_createInfo A reference to the VkDebugUtilsMessengerCreateInfoEXT to be populated with the default
+		/// information this function provides.
 		void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& t_createInfo);
 
-		// Function that returns the extentions required to create a glfw instance
-		void hasGflwRequiredInstanceExtensions(std::vector<const char*>* t_requiredExtensions);
+		/// Checks if the instance supports the required GLFW extensions.
+		/// \param t_requiredExtensions The GLFW extensions required for the application to operate properly.
+		void hasGlfwRequiredInstanceExtensions(std::vector<const char*>* t_requiredExtensions);
 
-		// Function to ensure device supports all required extentions
+		/// Ensure device supports all required extensions.
+		/// \param t_device The GPU that needs to support the required device extensions.
 		bool checkDeviceExtensionSupport(VkPhysicalDevice t_device);
 
-		// Function to requrn the properties of the swap chain
+		/// Get the swap chain capabilities of the GPU.
+		/// \param t_device The GPU that is to be checked for it's swap chain capabilities.
+		/// \return The SwapChainSupportDetails structure containing the swap chain capabilities of the specified GPU.
 		SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice t_device);
 
-		// Member variables
+		/// The vulkan instance used by this application.
 		VkInstance m_instance;
+
+        /// The debugger that will be used by this application if validation layers are enabled.
 		VkDebugUtilsMessengerEXT m_debugMessenger;
+
+        /// The GPU being used.
 		VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
+
+        /// A reference to the window this device interfaces with.
 		AeWindow& m_window;
+
+        /// The command pool available to create command buffers from.
 		VkCommandPool m_commandPool;
+
+        /// The vulkan device which provides the interface between the application and the GPU.
 		VkDevice m_device;
+
+        /// The vulkan surface that is mapped to the window.
 		VkSurfaceKHR m_surface;
+
+        /// The graphics queue family this device uses.
 		VkQueue m_graphicsQueue;
+
+        /// The present queue family this device uses.
 		VkQueue m_presentQueue;
 
-		// Validation Layers
+		/// Required validation Layers
 		const std::vector<const char*> m_validationLayers = {
 			"VK_LAYER_KHRONOS_validation"
 		};
 
-		// Swapchain extension layers
+		/// Required device extensions
 		const std::vector<const char*> m_deviceExtensions = {
 			VK_KHR_SWAPCHAIN_EXTENSION_NAME
 		};

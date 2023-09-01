@@ -1,164 +1,130 @@
-﻿#include "Arundos.hpp"
-#include "ae_rs_simple.hpp"
-#include "ae_rs_point_light.hpp"
-#include "ae_camera.hpp"
-#include "keyboard_movement_controller.hpp"
+﻿/// \file Arundos.cpp
+/// \brief Implements Arundos.
+/// The Arundos application implemented.
+
+#include "Arundos.hpp"
 #include "ae_buffer.hpp"
 
-// libraries
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#include <glm/glm.hpp>
-#include <glm/gtc/constants.hpp>
+#include "game_object_entity.hpp"
+#include "camera_entity.hpp"
+#include "point_light_entity.hpp"
 
-#include <stdexcept>
-#include <chrono>
-#include <array>
-#include <cassert>
+// libraries
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 
 namespace ae {
 
+    // The constructor of the Arundos application. Sets up the base application.
     Arundos::Arundos() {
-        m_globalPool = AeDescriptorPool::Builder(m_aeDevice)
-            .setMaxSets(AeSwapChain::MAX_FRAMES_IN_FLIGHT)
-            .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, AeSwapChain::MAX_FRAMES_IN_FLIGHT)
-            .build();
+        // Load the default game objects into the scene.
         loadGameObjects();
-    }
+    };
 
-    Arundos::~Arundos() {
-    }
 
+
+    // The destructor of the Arundos application.
+    Arundos::~Arundos() {};
+
+
+
+    // While the window should remain open continue to run the application and it's systems..
     void Arundos::run() {
-        std::vector<std::unique_ptr<AeBuffer>> uboBuffers(AeSwapChain::MAX_FRAMES_IN_FLIGHT);
-        for (int i = 0; i < uboBuffers.size(); i++) {
-            uboBuffers[i] = std::make_unique<AeBuffer>(
-                m_aeDevice,
-                sizeof(GlobalUbo),
-                1,
-                VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-            uboBuffers[i]->map();
-        }
 
-
-        // TODO: Implement master render system that handles sub-render systems like skybox and models etc.
-        auto globalSetLayout = AeDescriptorSetLayout::Builder(m_aeDevice)
-            .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
-            .build();
-
-        std::vector<VkDescriptorSet> globalDescriptorSets(AeSwapChain::MAX_FRAMES_IN_FLIGHT);
-        for (int i = 0; i < globalDescriptorSets.size(); i++) {
-            auto bufferInfo = uboBuffers[i]->descriptorInfo();
-            AeDescriptorWriter(*globalSetLayout, *m_globalPool)
-                .writeBuffer(0, &bufferInfo)
-                .build(globalDescriptorSets[i]);
-        }
-
-        AeRsSimple simpleRenderSystem(m_aeDevice, m_aeRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout());
-        AeRsPointLight pointLightSystem(m_aeDevice, m_aeRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout());
-        AeCamera camera{};
-
-        auto viewerObject = AeGameObject::createGameObject();
-        viewerObject.m_transform.translation.z = -2.5f;
-        KeyboardMovementController cameraController{};
-
-        auto currentTime = std::chrono::high_resolution_clock::now();
-        
-        
         while (!m_aeWindow.shouldClose()) {
+            // Check to see if there are any user input events.
             glfwPollEvents();
 
-            auto newTime = std::chrono::high_resolution_clock::now();
-            float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
-            currentTime = newTime;
+            // TODO: Update the components so that direction is with the entities world position data. Knowing which way
+            //  an entity is facing in the world is a requirement!
+            // TODO: Implement order independent transparency
+            // Instruct the entity component system (ECS) to run it's system to update applicable entity component data.
+            m_aeECS.runSystems();
 
-            //frameTime = glm::min(frameTime, MAX_FRAME_TIME);
-
-            cameraController.moveInPlaneXZ(m_aeWindow.getGLFWwindow(), frameTime, viewerObject);
-            camera.setViewYXZ(viewerObject.m_transform.translation, viewerObject.m_transform.rotation);
-
-            float aspect = m_aeRenderer.getAspectRatio();
-
-            camera.setPerspectiveProjection(glm::radians(50.0f), aspect, 0.1f, 100.0f);
-
-            if (auto commandBuffer = m_aeRenderer.beginFrame()) {
-                int frameIndex = m_aeRenderer.getFrameIndex();
-                FrameInfo frameInfo{
-                    frameIndex,
-                    frameTime,
-                    commandBuffer,
-                    camera,
-                    globalDescriptorSets[frameIndex],
-                    m_gameObjects
-                };
-
-                // update
-                GlobalUbo ubo{};
-                ubo.projection = camera.getProjection();
-                ubo.view = camera.getView();
-                ubo.inverseView = camera.getInverseView();
-                pointLightSystem.update(frameInfo, ubo);
-                uboBuffers[frameIndex]->writeToBuffer(&ubo);
-                uboBuffers[frameIndex]->flush();
-
-                // render
-                m_aeRenderer.beginSwapChainRenderPass(commandBuffer);
-
-                // order here matters for transparency
-                simpleRenderSystem.renderGameObjects(frameInfo);
-                pointLightSystem.render(frameInfo);
-
-                m_aeRenderer.endSwapChainRenderPass(commandBuffer);
-                m_aeRenderer.endFrame();
-            }
+            // TODO allow for option to limit frame timing, aka lock FPS, if desired but allow other systems to continue to run
+            //time_delta = glm::min(time_delta, MAX_FRAME_TIME);
         }
 
+        // Wait for the completion of all outstanding queue operations.
         vkDeviceWaitIdle(m_aeDevice.device());
     }
 
+
+
+    // Loads the default game objects into the Arundos application.
     void Arundos::loadGameObjects() {
+
+        //==============================================================================================================
+        // Make the game camera using ECS
+        CameraEntity cameraECS{m_aeECS,m_gameComponents};
+        cameraECS.m_playerControlledData.isCurrentlyControlled = true;
+        cameraECS.m_worldPosition.phi = -2.5f;
+        cameraECS.m_cameraData.usePerspectiveProjection = true;
+        cameraECS.m_cameraData.isMainCamera = true;
+        cameraECS.m_uboDataFlags.hasUboCameraData = true;
+        cameraECS.enableEntity();
+        //==============================================================================================================
+
+
+
+        //==============================================================================================================
+        // Load the flat vase object model from the file
         std::shared_ptr<AeModel> aeModel = AeModel::createModelFromFile(m_aeDevice, "models/flat_vase.obj");
+        // ECS version of flatVase
+        auto testFlatVase = GameObjectEntity(m_aeECS,m_gameComponents);
+        testFlatVase.m_worldPosition = {-0.5f, 0.5f, 0.0f };
+        testFlatVase.m_model.m_model = aeModel;
+        testFlatVase.m_model.scale = {3.0f, 1.5f, 3.0f };
+        testFlatVase.enableEntity();
 
-        auto flatVase = AeGameObject::createGameObject();
-        flatVase.m_model = aeModel;
-        flatVase.m_transform.translation = { -0.5f, 0.5f, 0.0f };
-        flatVase.m_transform.scale = {3.0f, 1.5f, 3.0f };
-        m_gameObjects.emplace(flatVase.getID(), std::move(flatVase));
 
-
+        // Load the smooth vase object model from the file
         aeModel = AeModel::createModelFromFile(m_aeDevice, "models/smooth_vase.obj");
-        auto smoothVase = AeGameObject::createGameObject();
-        smoothVase.m_model = aeModel;
-        smoothVase.m_transform.translation = { 0.5f, 0.5f, 0.0f };
-        smoothVase.m_transform.scale = { 3.0f, 1.5f, 3.0f };
-        m_gameObjects.emplace(smoothVase.getID(), std::move(smoothVase));
+        // ECS version of smoothVase
+        auto testSmoothVase = GameObjectEntity(m_aeECS,m_gameComponents);
+        testSmoothVase.m_worldPosition = {0.5f, 0.5f, 0.0f };
+        testSmoothVase.m_model.m_model = aeModel;
+        testSmoothVase.m_model.scale = {3.0f, 1.5f, 3.0f };
+        testSmoothVase.enableEntity();
 
+        // Load the floor object model from the file
         aeModel = AeModel::createModelFromFile(m_aeDevice, "models/quad.obj");
-        auto floor = AeGameObject::createGameObject();
-        floor.m_model = aeModel;
-        floor.m_transform.translation = { 0.0f, 0.5f, 0.0f };
-        floor.m_transform.scale = { 3.0f, 1.0f, 3.0f };
-        m_gameObjects.emplace(floor.getID(), std::move(floor));
+        // ECS version of the floor
+        auto testFloor = GameObjectEntity(m_aeECS,m_gameComponents);
+        testFloor.m_worldPosition = {0.0f, 0.5f, 0.0f };
+        testFloor.m_model.m_model = aeModel;
+        testFloor.m_model.scale = {3.0f, 1.0f, 3.0f };
+        testFloor.enableEntity();
+        //==============================================================================================================
 
+
+
+        //==============================================================================================================
+        // Make the point lights using the ECS for testing
+        // Create Point Lights
         std::vector<glm::vec3> lightColors{
-             {1.f, .1f, .1f},
-             {.1f, .1f, 1.f},
-             {.1f, 1.f, .1f},
-             {1.f, 1.f, .1f},
-             {.1f, 1.f, 1.f},
-             {1.f, 1.f, 1.f}  //
+                {1.f, .1f, .1f},
+                {.1f, .1f, 1.f},
+                {.1f, 1.f, .1f},
+                {1.f, 1.f, .1f},
+                {.1f, 1.f, 1.f},
+                {1.f, 1.f, 1.f}  //
         };
 
         for (int i = 0; i < lightColors.size(); i++) {
-            auto pointLight = AeGameObject::makePointLight(0.2f);
-            pointLight.m_color = lightColors[i];
+            auto pointLight = PointLightEntity(m_aeECS,m_gameComponents);
+            pointLight.m_uboDataFlags.hasUboPointLightData = true;
+            pointLight.m_pointLightData.lightIntensity = 0.2f;
+            pointLight.m_pointLightData.m_color = lightColors[i];
             auto rotateLight = glm::rotate(
-                glm::mat4(1.0f), 
-                (i * glm::two_pi<float>()) / lightColors.size(), 
-                {0.0f, -1.0f, 0.0f});
-            pointLight.m_transform.translation = glm::vec3(rotateLight * glm::vec4(-1.0f, -1.0f, -1.0f, 1.0f));
-            m_gameObjects.emplace(pointLight.getID(), std::move(pointLight));
+                    glm::mat4(1.0f),
+                    (i * glm::two_pi<float>()) / lightColors.size(),
+                    {0.0f, -1.0f, 0.0f});
+            glm::vec3 worldPosition = glm::vec3(rotateLight * glm::vec4(-1.0f, -1.0f, -1.0f, 1.0f));
+            pointLight.m_worldPosition.rho = worldPosition.x;
+            pointLight.m_worldPosition.theta = worldPosition.y;
+            pointLight.m_worldPosition.phi = worldPosition.z;
+            pointLight.enableEntity();
         }
+        //==============================================================================================================
     }
 }  // namespace ae
