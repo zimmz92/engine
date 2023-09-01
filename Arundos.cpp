@@ -36,6 +36,7 @@ namespace ae {
 
             // TODO: Update the components so that direction is with the entities world position data. Knowing which way
             //  an entity is facing in the world is a requirement!
+            // TODO: Implement order independent transparency
             // Instruct the entity component system (ECS) to run it's system to update applicable entity component data.
             m_aeECS.runSystems();
 

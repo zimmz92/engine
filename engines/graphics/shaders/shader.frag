@@ -47,6 +47,7 @@ void main() {
         vec3 halfAngle = normalize(directionToLight + viewDirection);
         float blinnTerm = dot(surfaceNormal, halfAngle);
         blinnTerm = clamp(blinnTerm, 0 ,1);
+        // TODO Pass in power as it's on value per model for materials.
         blinnTerm = pow(blinnTerm, 512.0); // Higher power = sharper highlights
         specularLight += intensity * blinnTerm;
     }
