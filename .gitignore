@@ -1,6 +1,6 @@
-﻿################################################################################
-# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
-################################################################################
-
-/.vs
-/out/build/x64-Debug
+﻿/cmake-build-debug
+/engines/graphics/shaders/frag.spv
+/engines/graphics/shaders/vert.spv
+/engines/graphics/shaders/point_light_frag.spv
+/engines/graphics/shaders/point_light_vert.spv
+/.idea

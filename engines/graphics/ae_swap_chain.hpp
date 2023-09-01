@@ -16,115 +16,185 @@ namespace ae {
     public:
         static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
-        // Function that creates a swap chain object
+        /// Create the swap chain.
+        /// \param t_deviceRef Reference to the graphics device the swap chain will be created for.
+        /// \param t_windowExtent The window the swap chain will be interfacing with.
         AeSwapChain(AeDevice& t_deviceRef, VkExtent2D t_windowExtent);
+
+        /// Create a new swap chain from a previous swap chain, this must be done whenever the window size is changed.
+        /// \param t_deviceRef Reference to the graphics device the swap chain will be created for.
+        /// \param t_windowExtent The window the swap chain will be interfacing with.
+        /// \param t_previous The previous swap chain the new swap chain shall use a reference during it's creation.
         AeSwapChain(AeDevice& t_deviceRef, VkExtent2D t_windowExtent, std::shared_ptr<AeSwapChain> t_previous);
 
-        // Function that destroys a swap chain object
+        /// Function that destroys a swap chain object.
         ~AeSwapChain();
 
-        // Do not allow this class to be copied (2 lines below)
+        /// Do not allow this class to be copied (2 lines below).
         AeSwapChain(const AeSwapChain&) = delete;
         AeSwapChain& operator=(const AeSwapChain&) = delete;
 
-        // Function to return the specified frame bufffer
+        /// Get the specified frame buffer.
+        /// \param t_index The index to which frame buffer should be returned.
+        /// \return The frame buffer at the specified index.
         VkFramebuffer getFrameBuffer(int t_index) { return m_swapChainFramebuffers[t_index]; }
 
-        // Function to return the render pass
+        /// Get the current render pass.
+        /// \return The current render pass.
         VkRenderPass getRenderPass() { return m_renderPass; }
 
-        // Function to return the image view
+        /// Get the image view at the specified index.
+        /// \param t_index The index of which image view should be returned.
+        /// \return The image view at the specified index.
         VkImageView getImageView(int t_index) { return m_swapChainImageViews[t_index]; }
 
-        // Funciton to return the number of images in the swap chain
+        /// Get the number of images in the swap chain.
+        /// \return The number of images in the swap chain.
         size_t imageCount() { return m_swapChainImages.size(); }
 
-        // Funciton to return the image format of the swap chain
+        /// Get the image format of the swap chain.
+        /// \return The image format of the swap chain.
         VkFormat getSwapChainImageFormat() { return m_swapChainImageFormat; }
 
-        // Function to return the extent of the swap chain
+        /// Get the extent of the swap chain.
+        /// \return The 2D extent of the swap chain.
         VkExtent2D getSwapChainExtent() { return m_swapChainExtent; }
 
-        // Function to return the width of the swap chain extent
+        /// Get the width of the swap chain extent.
+        /// \return The width of the swap chain extent.
         uint32_t width() { return m_swapChainExtent.width; }
 
-        // Function to return the height of the swap chain extent
+        /// Get the height of the swap chain extent.
+        /// \return The height of the swap chain extent.
         uint32_t height() { return m_swapChainExtent.height; }
 
-        // Function to return the aspect ratio of the swap chain extent
+        /// Get the aspect ratio of the swap chain extent.
+        /// \return The aspect ratio of the swap chain extent as a float.
         float extentAspectRatio() {
             return static_cast<float>(m_swapChainExtent.width) / static_cast<float>(m_swapChainExtent.height);
         }
 
-        // Function to return the depth format of the swap chain
+        /// Get the depth format of the swap chain.
+        /// \return The depth format of the swap chain.
         VkFormat findDepthFormat();
 
-        // Function to aquire the next image from the swap chain
+        /// Acquire the next image from the swap chain by setting the input pointer to the index of the next image.
+        /// \param t_imageIndex Pointer to be populated with the index of the next image of the swap chain.
+        /// \return VK_SUCCESS if the provided index pointer was successfully set.
         VkResult acquireNextImage(uint32_t* t_imageIndex);
 
-        // Function to submit command buffers to the swap chain
+        /// Submit command buffers to the swap chain to create the image at the specified index.
+        /// \param t_buffers The command buffers which provide the data for creating the image.
+        /// \param t_imageIndex The index of the image the command buffers are providing data to create.
+        /// \return VK_SUCCESS if the command buffers were submitted successfully.
         VkResult submitCommandBuffers(const VkCommandBuffer* t_buffers, uint32_t* t_imageIndex);
 
+        /// Compare the specified swap chain format to this swap chain's format.
+        /// \param t_swapchain The swap chain who's format is to be compared to this swap chain's format.
+        /// \return True if the swap chain formats are identical.
         bool compareSwapFormats(const AeSwapChain &t_swapchain) const {
             return t_swapchain.m_swapChainDepthFormat == m_swapChainDepthFormat && 
                    t_swapchain.m_swapChainImageFormat == m_swapChainImageFormat;
         }
 
     private:
+
+        /// Creates and initializes the swap chain.
         void init();
 
-        // Function to create a swap chain object
+        /// Creates the base swap chain object.
         void createSwapChain();
 
-        // Function to create image views for a swap chain
+        /// Creates image views for a swap chain.
         void createImageViews();
 
-        // Function to add depth resources to the swap chain
+        /// Add depth resources to the swap chain.
         void createDepthResources();
 
-        // Function to add render the pass tothe swap chain
+        /// Create the swap chain's render pass.
         void createRenderPass();
 
-        // Function to create the swap chain frame buffers
+        /// Create frame buffers for the swap chain.
         void createFramebuffers();
 
-        // Function to syncronize the swap chain image views with render finishes
+        /// Create objects to synchronize the swap chain image views with what has been rendered.
         void createSyncObjects();
 
-        // Function to choose a swap surface format based on set criterias
+        /// Choose a swap surface format from the provided list of available formats which best suite this application.
+        /// \param t_availableFormats The swap surface formats available to choose from.
+        /// \return The swap surface format, VkSurfaceFormatKHR, most suitable for this application from the list of
+        /// available formats.
         VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& t_availableFormats);
 
-        // Function to select the image synchornization with scree refresh
-        VkPresentModeKHR chooseSwapPresentMode(
-            const std::vector<VkPresentModeKHR>& t_availablePresentModes);
+        /// Select how images shall synchronize with screen refreshing from the available present modes.\
+        /// \param t_availablePresentModes The presentation formats available to choose from.
+        /// \return The presentation format, VkPresentModeKHR, most suitable for this application from the list of
+        /// available formats.
+        VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& t_availablePresentModes);
 
-        // Function to set the image extend baesd on the size of the given surface capabilities
+        /// Function to set the image extent based on the size of the given surface capabilities.
+        /// \param t_capabilities The surface capabilities that the swap chain must use to choose a suitable image
+        /// extent from.
+        /// \return The image extent, VkExtent2D, best suited for this application.
         VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& t_capabilities);
 
         // Member variables
+        /// The image format of the swap chain.
         VkFormat m_swapChainImageFormat;
+
+        /// The depth format of the swap chain.
         VkFormat m_swapChainDepthFormat;
+
+        /// The image extent of the swap chain.
         VkExtent2D m_swapChainExtent;
 
+        /// The swap chain frame buffers.
         std::vector<VkFramebuffer> m_swapChainFramebuffers;
+
+        /// The swap chain render pass.
         VkRenderPass m_renderPass;
 
+        /// The depth images of the swap chain.
         std::vector<VkImage> m_depthImages;
-        std::vector<VkDeviceMemory> m_depthImageMemorys;
+
+        /// The memory for the depth images.
+        std::vector<VkDeviceMemory> m_depthImageMemories;
+
+        /// The view of the depth images.
         std::vector<VkImageView> m_depthImageViews;
+
+        /// The images in the swap chain.
         std::vector<VkImage> m_swapChainImages;
+
+        /// The views of the images in the swap chain.
         std::vector<VkImageView> m_swapChainImageViews;
 
+        /// A reference to the device this swap chain is executed on.
         AeDevice& m_device;
+
+        /// The window extent of the GLFW window this swap chain interfaces with.
         VkExtent2D m_windowExtent;
 
+        /// The swap chain vulkan interface.
         VkSwapchainKHR m_swapChain;
+
+        /// A pointer to the old swap chain this swap chain creation is based on. This will be retired (not deleted)
+        /// when this swap chain is created.
         std::shared_ptr<AeSwapChain> m_oldSwapChain;
 
+        /// A synchronization primitive used to ensure an image is ready before rendering to it.
         std::vector<VkSemaphore> m_imageAvailableSemaphores;
+
+        /// A synchronization primitive used to ensure a render has finished before presenting it.
         std::vector<VkSemaphore> m_renderFinishedSemaphores;
+
+        /// Fence that tracks that the command buffer corresponding to a frame has finished execution.
         std::vector<VkFence> m_inFlightFences;
+
+        /// Fence that tracks that the command buffers corresponding to an image have finished.
         std::vector<VkFence> m_imagesInFlight;
+
+        /// Track which of the frames is the one that currently should be used for rendering.
         size_t m_currentFrame = 0;
     };
 
