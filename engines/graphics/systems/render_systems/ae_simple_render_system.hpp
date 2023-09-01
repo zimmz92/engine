@@ -1,6 +1,6 @@
-/*! \file point_light_render_system.hpp
-    \brief The script defining the system that renders the point lights.
-    The render point light system is defined.
+/*! \file ae_simple_render_system.hpp
+    \brief The script defining the system that renders 3D objects in the game.
+    The simple render system is defined.
 */
 #pragma once
 
