@@ -18,6 +18,7 @@ namespace ae {
 		struct Vertex {
             /// The position of the vertex.
 			glm::vec3 position{};
+
             /// The color of the vertex.
 			glm::vec3 color{};
 
@@ -28,11 +29,11 @@ namespace ae {
 			glm::vec2 uv{};
 
             /// Get the binding descriptions for the model.
-            /// \return
+            /// \return The model's vertex buffer binding description.
 			static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
 
             /// Get the attribute descriptions for the model.
-            /// \return
+            /// \return The model's vertex buffer binding attributes.
 			static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
 
             /// Overload the comparison function to allow the Vertex struct to be used as a key in an unordered map
