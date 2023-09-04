@@ -1,5 +1,6 @@
 target_sources(mySrcFiles
     PRIVATE
+        model_2d_component.hpp
         model_component.hpp
         world_position_component.hpp
         player_controlled_component.hpp

@@ -1,8 +1,8 @@
-/// \file ae_simple_render_system.cpp
-/// \brief The script implementing the system that general 3D objects in the game.
-/// The simple render system is implemented.
+/// \file ae_ui_render_system.cpp
+/// \brief The script implementing the system that renders the user interface.
+/// The user interface render system is implemented.
 
-#include "ae_simple_render_system.hpp"
+#include "ae_ui_render_system.hpp"
 
 // Standard Libraries
 #include <map>
@@ -10,15 +10,13 @@
 namespace ae {
 
     // Constructor implementation
-    SimpleRenderSystem::SimpleRenderSystem(ae_ecs::AeECS& t_ecs, GameComponents &t_game_components, AeDevice &t_aeDevice,
+    UiRenderSystem::UiRenderSystem(ae_ecs::AeECS& t_ecs, GameComponents &t_game_components, AeDevice &t_aeDevice,
                                            VkRenderPass t_renderPass, VkDescriptorSetLayout t_globalSetLayout)
-            : m_worldPositionComponent{t_game_components.worldPositionComponent},
-              m_model2DComponent{t_game_components.modelComponent},
+            : m_model2DComponent{t_game_components.model2DComponent},
               m_aeDevice{t_aeDevice},
-              ae_ecs::AeSystem<SimpleRenderSystem>(t_ecs) {
+              ae_ecs::AeSystem<UiRenderSystem>(t_ecs) {
 
         // Register component dependencies
-        m_worldPositionComponent.requiredBySystem(this->getSystemId());
         m_model2DComponent.requiredBySystem(this->getSystemId());
 
 
@@ -39,17 +37,17 @@ namespace ae {
 
 
     // Destructor implementation
-    SimpleRenderSystem::~SimpleRenderSystem() {
+    UiRenderSystem::~UiRenderSystem() {
         vkDestroyPipelineLayout(m_aeDevice.device(), m_pipelineLayout, nullptr);
     };
 
 
     // Set up the system prior to execution. Currently not used.
-    void SimpleRenderSystem::setupSystem() {};
+    void UiRenderSystem::setupSystem() {};
 
 
     // Renders the models.
-    void SimpleRenderSystem::executeSystem(VkCommandBuffer &t_commandBuffer, VkDescriptorSet t_globalDescriptorSet) {
+    void UiRenderSystem::executeSystem(VkCommandBuffer &t_commandBuffer, VkDescriptorSet t_globalDescriptorSet) {
 
         // Tell the pipeline what the current command buffer being worked on is.
         m_aePipeline->bind(t_commandBuffer);
@@ -72,44 +70,43 @@ namespace ae {
 
         // Loop through the entities if they have models render them.
         for (ecs_id entityId: validEntityIds) {
-            // Get the world position and model of the entity
-            glm::vec3 entityWorldPosition = m_worldPositionComponent.getWorldPositionVec3(entityId);
-            ModelComponentStruct& entityModelData = m_model2DComponent.getDataReference(entityId);
+            // Get the model of the entity
+            Model2dComponentStruct& entityModelData = m_model2DComponent.getDataReference(entityId);
 
             // Make sure the entity actually has a model to render.
-            if (entityModelData.m_model == nullptr) continue;
+            if (entityModelData.m_2d_model == nullptr) continue;
 
             // Get the simple render system push constants for the current entity.
-            SimplePushConstantData push{calculatePushConstantData(entityWorldPosition,
+            UiPushConstantData push{calculatePushConstantData(entityModelData.translation,
                                                                   entityModelData.rotation,
                                                                   entityModelData.scale)};
 
             // Update the push constant data.
             vkCmdPushConstants(t_commandBuffer, m_pipelineLayout,
                                VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
-                               sizeof(SimplePushConstantData), &push);
+                               sizeof(UiPushConstantData), &push);
 
             // Bind the model buffer(s) to the command buffer.
-            entityModelData.m_model->bind(t_commandBuffer);
+            entityModelData.m_2d_model->bind(t_commandBuffer);
 
             // Draw the model.
-            entityModelData.m_model->draw(t_commandBuffer);
+            entityModelData.m_2d_model->draw(t_commandBuffer);
         };
     };
 
 
     // Clean up the system after execution. Currently not used.
-    void SimpleRenderSystem::cleanupSystem() {};
+    void UiRenderSystem::cleanupSystem() {};
 
 
     // Creates the pipeline layout for the point light render system.
-    void SimpleRenderSystem::createPipelineLayout(VkDescriptorSetLayout t_globalSetLayout) {
+    void UiRenderSystem::createPipelineLayout(VkDescriptorSetLayout t_globalSetLayout) {
 
         // Define the push constant information for this pipeline.
         VkPushConstantRange pushConstantRange{};
         pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
         pushConstantRange.offset = 0;
-        pushConstantRange.size = sizeof(SimplePushConstantData);
+        pushConstantRange.size = sizeof(UiPushConstantData);
 
         // Prepare the descriptor set layouts based on the global set layout for the device.
         std::vector<VkDescriptorSetLayout> descriptorSetLayouts{t_globalSetLayout};
@@ -128,95 +125,44 @@ namespace ae {
                                    nullptr,
                                    &m_pipelineLayout)
                                    != VK_SUCCESS) {
-            throw std::runtime_error("Failed to create the simple render system's pipeline layout!");
+            throw std::runtime_error("Failed to create the ui render system's pipeline layout!");
         }
 
     };
 
 
     // Creates the pipeline for the point light render system.
-    void SimpleRenderSystem::createPipeline(VkRenderPass t_renderPass) {
+    void UiRenderSystem::createPipeline(VkRenderPass t_renderPass) {
 
         // Ensure the pipeline layout has already been created, cannot create a pipeline otherwise.
         assert(m_pipelineLayout != nullptr &&
-               "Cannot create the simple render system's pipeline before pipeline layout!");
+               "Cannot create the ui render system's pipeline before pipeline layout!");
 
         // Define the pipeline to be created.
         PipelineConfigInfo pipelineConfig{};
         AePipeline::defaultPipelineConfigInfo(pipelineConfig);
         pipelineConfig.renderPass = t_renderPass;
         pipelineConfig.pipelineLayout = m_pipelineLayout;
+        // Specify that this pipeline will be dealing with the 2D vertexes.
+        pipelineConfig.bindingDescriptions = Ae2DModel::Vertex2D::getBindingDescriptions();
+        pipelineConfig.attributeDescriptions = Ae2DModel::Vertex2D::getAttributeDescriptions();
+
 
         // Create the point light render system pipeline.
         m_aePipeline = std::make_unique<AePipeline>(
                 m_aeDevice,
-                "engines/graphics/shaders/shader.vert.spv",
-                "engines/graphics/shaders/shader.frag.spv",
+                "engines/graphics/shaders/ui_shader.vert.spv",
+                "engines/graphics/shaders/ui_shader.frag.spv",
                 pipelineConfig);
     };
 
     // Calculates the push constant data for the specified entity
-    SimplePushConstantData SimpleRenderSystem::calculatePushConstantData(glm::vec3 translation, glm::vec3 rotation, glm::vec3 scale) {
+    UiPushConstantData UiRenderSystem::calculatePushConstantData(glm::vec2 t_translation, float t_rotation, glm::vec2 t_scale) {
+        const float s = glm::sin(t_rotation);
+        const float c = glm::cos(t_rotation);
+        glm::mat2 rotMatrix{{c, s}, {-s, c}};
 
-        // Calculate the components of the Tait-bryan angles matrix.
-        const float c3 = glm::cos(rotation.z);
-        const float s3 = glm::sin(rotation.z);
-        const float c2 = glm::cos(rotation.x);
-        const float s2 = glm::sin(rotation.x);
-        const float c1 = glm::cos(rotation.y);
-        const float s1 = glm::sin(rotation.y);
-        const glm::vec3 invScale = 1.0f / scale;
-
-        // Matrix corresponds to Translate * Ry * Rx * Rz * Scale
-        // Rotations correspond to Tait-bryan angles of Y(1), X(2), Z(3)
-        // https://en.wikipedia.org/wiki/Euler_angles#Rotation_matrix
-        glm::mat4 rotationMatrix = {
-                {
-                        scale.x * (c1 * c3 + s1 * s2 * s3),
-                        scale.x * (c2 * s3),
-                        scale.x * (c1 * s2 * s3 - c3 * s1),
-                        0.0f,
-                    },
-                {
-                        scale.y * (c3 * s1 * s2 - c1 * s3),
-                        scale.y * (c2 * c3),
-                        scale.y * (c1 * c3 * s2 + s1 * s3),
-                        0.0f,
-                    },
-                {
-                        scale.z * (c2 * s1),
-                        scale.z * (-s2),
-                        scale.z * (c1 * c2),
-                        0.0f,
-                    },
-                {
-                        translation.x,
-                        translation.y,
-                        translation.z,
-                        1.0f
-                    }};
-
-        // Rotations correspond to Tait-bryan angles of Y(1), X(2), Z(3)
-        // https://en.wikipedia.org/wiki/Euler_angles#Rotation_matrix
-        // Normal Matrix is calculated to facilitate non-uniform model scaling scale.x != scale.y =! scale.z
-        // TODO benchmark if this is faster than just calculating the normal matrix in the shader when there are many objects.
-        glm::mat3 normalMatrix = {
-                {
-                        invScale.x * (c1 * c3 + s1 * s2 * s3),
-                        invScale.x * (c2 * s3),
-                        invScale.x * (c1 * s2 * s3 - c3 * s1),
-                    },
-                {
-                        invScale.y * (c3 * s1 * s2 - c1 * s3),
-                        invScale.y * (c2 * c3),
-                        invScale.y * (c1 * c3 * s2 + s1 * s3),
-                    },
-                {
-                        invScale.z * (c2 * s1),
-                        invScale.z * (-s2),
-                        invScale.z * (c1 * c2),
-                    }};
-
-        return {rotationMatrix, normalMatrix};
+        glm::mat2 scaleMat{{t_scale.x, .0f}, {.0f, t_scale.y}};
+        return {rotMatrix * scaleMat, t_translation};
     };
 }

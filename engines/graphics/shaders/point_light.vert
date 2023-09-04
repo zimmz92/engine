@@ -43,7 +43,7 @@ void main() {
     gl_Position = ubo.projection * ubo.view * vec4(positionWorld, 1.0);
 
     // alternative method is to first transform light position to camera space,
-    // then aply offset in camera space.
+    // then apply offset in camera space.
     //vec4 lightInCameraSpace = ubo.view * vec4(ubo.lightPosition, 1.0);
     //vec4 positionInCameraSpace = lightInCameraSpace + LIGHT_RADIUS * vec4(fragOffset, 0.0, 0.0);
     //gl_Position = ubo.projection * positionInCameraSpace;

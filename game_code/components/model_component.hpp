@@ -4,7 +4,7 @@
 */
 #pragma once
 
-#include "ae_ecs.hpp"
+#include "ae_ecs_include.hpp"
 #include "ae_model.hpp"
 
 namespace ae {

@@ -18,6 +18,7 @@
 
 #include "ae_simple_render_system.hpp"
 #include "ae_point_light_render_system.hpp"
+#include "ae_ui_render_system.hpp"
 
 namespace ae {
 
@@ -97,5 +98,8 @@ namespace ae {
 
         /// Pointer to the simple render system
         SimpleRenderSystem* m_simpleRenderSystem;
+
+        /// Pointer to the UI render system.
+        UiRenderSystem* m_uiRenderSystem;
     };
 }
