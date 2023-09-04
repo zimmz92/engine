@@ -6,6 +6,8 @@ target_sources(mySrcFiles
         camera_entity.cpp
         point_light_entity.cpp
         point_light_entity.hpp
+        two_d_entity.hpp
+        two_d_entity.cpp
     PUBLIC
 )
 

@@ -79,6 +79,12 @@ namespace ae {
                                                               m_renderer.getSwapChainRenderPass(),
                                                               globalSetLayout->getDescriptorSetLayout());
 
+        m_uiRenderSystem = new UiRenderSystem(t_ecs,
+                                              t_game_components,
+                                              m_aeDevice,
+                                              m_renderer.getSwapChainRenderPass(),
+                                              globalSetLayout->getDescriptorSetLayout());
+
 
         // Enable the system
         this->enableSystem();
@@ -94,6 +100,9 @@ namespace ae {
 
         delete m_pointLightRenderSystem;
         m_pointLightRenderSystem = nullptr;
+
+        delete m_uiRenderSystem;
+        m_uiRenderSystem = nullptr;
 
     };
 
@@ -123,6 +132,7 @@ namespace ae {
             // Call subservient render systems. Order matters here to maintain object transparencies.
             m_simpleRenderSystem->executeSystem(m_commandBuffer,m_globalDescriptorSets[m_frameIndex]);
             m_pointLightRenderSystem->executeSystem(m_commandBuffer,m_globalDescriptorSets[m_frameIndex]);
+            m_uiRenderSystem->executeSystem(m_commandBuffer,m_globalDescriptorSets[m_frameIndex]);
 
             // End the render pass and the frame.
             m_renderer.endSwapChainRenderPass(m_commandBuffer);

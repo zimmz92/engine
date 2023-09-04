@@ -1,6 +1,6 @@
 /// \file point_light_render_system.cpp
 /// \brief The script implementing the system that renders the point lights.
-/// The cycle point light system is implemented.
+/// The point light render system is implemented.
 
 #include "ae_point_light_render_system.hpp"
 

@@ -2,6 +2,8 @@ target_sources(mySrcFiles
     PRIVATE
         ae_device.cpp
         ae_device.hpp
+        ae_2d_model.hpp
+        ae_2d_model.cpp
         ae_model.cpp
         ae_model.hpp
         ae_pipeline.cpp
