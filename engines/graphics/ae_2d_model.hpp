@@ -18,7 +18,7 @@
 namespace ae {
 	class Ae2DModel {
 	public:
-		struct Vertex {
+		struct Vertex2D {
             /// The position of the vertex.
 			glm::vec2 position{};
 
@@ -37,14 +37,14 @@ namespace ae {
 			static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
 
             /// Overload the comparison function to allow the Vertex struct to be used as a key in an unordered map
-			bool operator==(const Vertex& t_other) const {
+			bool operator==(const Vertex2D& t_other) const {
 				return position == t_other.position && color == t_other.color && uv == t_other.uv;
 			}
 		};
 
 		struct Builder {
             /// Vector to store the vertex data until a vertex buffer is created for it.
-			std::vector<Vertex> vertices{};
+			std::vector<Vertex2D> vertices{};
 
             /// Vector to store the index data until an index buffer is created for it.
 			std::vector<uint32_t> indices{};
@@ -52,7 +52,7 @@ namespace ae {
             /// Loads a model from the file at the specified path and populates the Builder's struct it is being called
             /// for.
             /// \param t_filepath The path to the model file to be loaded.
-			void loadModel(const std::vector<Vertex> &t_vertices);
+			void loadModel(const std::vector<Vertex2D> &t_vertices);
 		};
 
         /// Construct a new AeModel and creates the model buffers ready for the specified device using the model built
@@ -72,7 +72,7 @@ namespace ae {
         /// Creates an Ae2DModel using the specified vertices which is compatible with the specified GPU.
         /// \param t_device The GPU the created model will be compatible with and will have buffer created for.
         /// \param t_vertices The superset of vertices specifying the 2D object.
-        static std::unique_ptr<Ae2DModel> createModelFromFile(AeDevice& t_device, const std::vector<Vertex> &t_vertices);
+        static std::unique_ptr<Ae2DModel> createModelFromFile(AeDevice& t_device, const std::vector<Vertex2D> &t_vertices);
 
         /// Binds the model's vertex buffer, and if available index buffer, to the specified command buffer.
         /// \param t_commandBuffer The command buffer that this model's vertex and index buffer(s) shall be bound to.
@@ -87,7 +87,7 @@ namespace ae {
 	private:
         /// Creates a vertex buffer from the provided vertices.
         /// \param t_vertices The vertices to create the vertex buffer using.
-		void createVertexBuffers(const std::vector<Vertex> &t_vertices);
+		void createVertexBuffers(const std::vector<Vertex2D> &t_vertices);
 
         /// Create a index buffer from the provided indices
         /// \param t_indicies The indices to create the index buffer using.

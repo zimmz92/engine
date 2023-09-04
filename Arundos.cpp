@@ -132,7 +132,7 @@ namespace ae {
         //==============================================================================================================
         // Make a triangle to test UI render system.
         // Create Point Lights
-        std::vector<Ae2DModel::Vertex> vertices{
+        std::vector<Ae2DModel::Vertex2D> vertices{
                 {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
                 {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
                 {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}};

@@ -143,6 +143,10 @@ namespace ae {
         AePipeline::defaultPipelineConfigInfo(pipelineConfig);
         pipelineConfig.renderPass = t_renderPass;
         pipelineConfig.pipelineLayout = m_pipelineLayout;
+        // Specify that this pipeline will be dealing with the 2D vertexes.
+        pipelineConfig.bindingDescriptions = Ae2DModel::Vertex2D::getBindingDescriptions();
+        pipelineConfig.attributeDescriptions = Ae2DModel::Vertex2D::getAttributeDescriptions();
+
 
         // Create the point light render system pipeline.
         m_aePipeline = std::make_unique<AePipeline>(

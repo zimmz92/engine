@@ -17,8 +17,8 @@ namespace std {
     // Define a hash operator for the Vertex structure to allow for a Vertex structure to be used as the key in an
     // unordered map. This is used to determine if the vertex is unique or a repeat used to make another triangle.
 	template <>
-	struct hash<ae::Ae2DModel::Vertex> {
-		size_t operator()(ae::Ae2DModel::Vertex const& vertex) const {
+	struct hash<ae::Ae2DModel::Vertex2D> {
+		size_t operator()(ae::Ae2DModel::Vertex2D const& vertex) const {
 			size_t seed = 0;
 			ae::hashCombine(seed, vertex.position, vertex.color, vertex.uv);
 			return seed;
@@ -46,7 +46,7 @@ namespace ae {
 
 
     // Create the 2D model using the specified superset of vertices.
-    std::unique_ptr<Ae2DModel> Ae2DModel::createModelFromFile(AeDevice& t_device, const std::vector<Vertex> &t_vertices) {
+    std::unique_ptr<Ae2DModel> Ae2DModel::createModelFromFile(AeDevice& t_device, const std::vector<Vertex2D> &t_vertices) {
         // Create a new builder helper class to load the vertices and identify unique vertices.
         Builder builder{};
         builder.loadModel(t_vertices);
@@ -59,7 +59,7 @@ namespace ae {
 
 
     // Create the model's vertex buffer.
-	void Ae2DModel::createVertexBuffers(const std::vector<Vertex> &t_vertices) {
+	void Ae2DModel::createVertexBuffers(const std::vector<Vertex2D> &t_vertices) {
 
         // Get the size of the vertex vector and ensure that we at least have one triangle.
 		m_vertexCount = static_cast<uint32_t>(t_vertices.size());
@@ -173,13 +173,13 @@ namespace ae {
 
 
     // Define the vertex binding descriptions used to bind the vertex buffer type to the pipeline.
-	std::vector<VkVertexInputBindingDescription> Ae2DModel::Vertex::getBindingDescriptions() {
+	std::vector<VkVertexInputBindingDescription> Ae2DModel::Vertex2D::getBindingDescriptions() {
 
 		std::vector<VkVertexInputBindingDescription> bindingDescriptions(1);
 
         // Define the general structure of the vertex buffer for binding.
 		bindingDescriptions[0].binding = 0;
-		bindingDescriptions[0].stride = sizeof(Vertex);
+		bindingDescriptions[0].stride = sizeof(Vertex2D);
 		bindingDescriptions[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
 		return bindingDescriptions;
@@ -188,14 +188,14 @@ namespace ae {
 
 
     // Define the vertex attribute descriptions used to bind the vertex buffer type to the pipeline.
-	std::vector<VkVertexInputAttributeDescription> Ae2DModel::Vertex::getAttributeDescriptions() {
+	std::vector<VkVertexInputAttributeDescription> Ae2DModel::Vertex2D::getAttributeDescriptions() {
 
 		std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
 
         // Describe the data composition of each vertex data set input.
-		attributeDescriptions.push_back({ 0, 0, VK_FORMAT_R32G32_SFLOAT , offsetof(Vertex, position)});
-		attributeDescriptions.push_back({ 1, 0, VK_FORMAT_R32G32B32_SFLOAT , offsetof(Vertex, color) });
-		attributeDescriptions.push_back({ 2, 0, VK_FORMAT_R32G32_SFLOAT , offsetof(Vertex, uv) });
+		attributeDescriptions.push_back({ 0, 0, VK_FORMAT_R32G32_SFLOAT , offsetof(Vertex2D, position)});
+		attributeDescriptions.push_back({ 1, 0, VK_FORMAT_R32G32B32_SFLOAT , offsetof(Vertex2D, color) });
+		attributeDescriptions.push_back({ 2, 0, VK_FORMAT_R32G32_SFLOAT , offsetof(Vertex2D, uv) });
 
 		return attributeDescriptions;
 	}
@@ -203,7 +203,7 @@ namespace ae {
 
 
     // Load the 2-D model's vertices and indices for the object specified by its superset of vertices.
-    void Ae2DModel::Builder::loadModel(const std::vector<Vertex> &t_vertices) {
+    void Ae2DModel::Builder::loadModel(const std::vector<Vertex2D> &t_vertices) {
 
         // Assume that the input vertex data is unoptimized and intended to be used with an index buffer.
         uint32_t vertexCount = static_cast<uint32_t>(t_vertices.size());
@@ -216,7 +216,7 @@ namespace ae {
         // Create an unordered map that uses the Vertex struct as it's key to allow its hash to be used to identify if
         // the current vertex is unique or already exists in the map. This allows the index of non-unique vertices to
         // point to the already existing vertex data instead of replicating the data.
-		std::unordered_map<Vertex, uint32_t> uniqueVertices{};
+		std::unordered_map<Vertex2D, uint32_t> uniqueVertices{};
 
         // Loop through all the input vertex data.
         for (const auto &in_vertex : t_vertices) {
