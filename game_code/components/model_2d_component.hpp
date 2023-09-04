@@ -1,10 +1,10 @@
-/// \file ui_component.hpp
-/// \brief Stores the information for a user interface game object.
+/// \file model_2d_component.hpp
+/// \brief Stores the information for a 2d game object.
 /// Specifies the information for a user interface game object.
 #pragma once
 
 #include "ae_ecs_include.hpp"
-#include "ae_model.hpp"
+#include "ae_2d_model.hpp"
 
 namespace ae {
 
@@ -12,7 +12,7 @@ namespace ae {
     struct Model2dComponentStruct {
 
         /// A pointer to the model used by a entity.
-        std::shared_ptr<AeModel> m_2d_model{};
+        std::shared_ptr<Ae2DModel> m_2d_model{};
 
         /// Defines the offset of the 2D object from the viewport origin.
         glm::vec2 translation{};

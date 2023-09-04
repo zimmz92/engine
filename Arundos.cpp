@@ -8,6 +8,7 @@
 #include "game_object_entity.hpp"
 #include "camera_entity.hpp"
 #include "point_light_entity.hpp"
+#include "two_d_entity.hpp"
 
 // libraries
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -125,6 +126,25 @@ namespace ae {
             pointLight.m_worldPosition.phi = worldPosition.z;
             pointLight.enableEntity();
         }
+        //==============================================================================================================
+
+
+        //==============================================================================================================
+        // Make a triangle to test UI render system.
+        // Create Point Lights
+        std::vector<Ae2DModel::Vertex> vertices{
+                {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+                {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+                {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}};
+
+        std::shared_ptr<Ae2DModel> ae2DModel = Ae2DModel::createModelFromFile(m_aeDevice, vertices);
+        // ECS version of the floor
+        auto triangle = TwoDEntity(m_aeECS,m_gameComponents);
+        triangle.m_model.m_2d_model = ae2DModel;
+        triangle.m_model.translation.x = 0.2f;
+        triangle.m_model.scale = {1.0f, 0.25f};
+        triangle.m_model.rotation = 0.25 * glm::two_pi<float>();
+        triangle.enableEntity();
         //==============================================================================================================
     }
 }  // namespace ae

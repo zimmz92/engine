@@ -14,26 +14,23 @@
 namespace ae {
 
     /// Defines the simple render system push constant data.
-    struct SimplePushConstantData {
-        // Matrix corresponds to WorldPosition * Ry * Rx * Rz * Scale
-        // Rotations correspond to Tait-bryan angles of Y(1), X(2), Z(3)
-        // https://en.wikipedia.org/wiki/Euler_angles#Rotation_matrix
-        glm::mat4 modelMatrix{ 1.0f };
+    struct UiPushConstantData {
+        /// The scaling and rotation of the 2D object.
+        glm::mat2 transform{ 1.0f };
 
-        // Rotations correspond to Tait-bryan angles of Y(1), X(2), Z(3)
-        // https://en.wikipedia.org/wiki/Euler_angles#Rotation_matrix
-        glm::mat4 normalMatrix{ 1.0f };
+        /// The offset of the 2D object.
+        glm::vec2 translation{ 1.0f };
     };
 
     /// A child system of the RendererSystem which renders the entity models.
-    class SimpleRenderSystem : public ae_ecs::AeSystem<SimpleRenderSystem> {
+    class UiRenderSystem : public ae_ecs::AeSystem<UiRenderSystem> {
     public:
         /// Constructor of the SimpleRenderSystem
         /// \param t_game_components The game components available that this system may require.
-        SimpleRenderSystem(ae_ecs::AeECS& t_ecs, GameComponents& t_game_components, AeDevice& t_aeDevice, VkRenderPass t_renderPass, VkDescriptorSetLayout t_globalSetLayout);
+        UiRenderSystem(ae_ecs::AeECS& t_ecs, GameComponents& t_game_components, AeDevice& t_aeDevice, VkRenderPass t_renderPass, VkDescriptorSetLayout t_globalSetLayout);
 
         /// Destructor of the SimpleRenderSystem
-        ~SimpleRenderSystem();
+        ~UiRenderSystem();
 
         /// Setup the SimpleRenderSystem, this is handled by the RendererSystem.
         void setupSystem() override;
@@ -54,15 +51,13 @@ namespace ae {
     private:
 
         // Components this system utilizes.
-        /// The WorldPositionComponent this systems accesses to know where an entity is to render it.
-        WorldPositionComponent& m_worldPositionComponent;
         /// The ModelComponent this system accesses to render the entity in the game world.
-        ModelComponent& m_modelComponent;
+        Model2dComponent& m_model2DComponent;
 
 
         // Prerequisite systems for the SimpleRenderSystem.
         // This requires any world position updating system to run before this system runs.
-        // This needs to be run before the point light render system to maintain transparency.
+        // This needs to be run after the point light render system to maintain transparency/render it in front.
 
 
         /// Creates the pipeline layout for the SimpleRenderSystem.
@@ -88,11 +83,10 @@ namespace ae {
 
 
         /// Calculates the push constant data for a specified entity.
-        /// \param t_translation The translation data for the entity, this normally corresponds to world position but
-        /// could be the world position plus an additional offset.
-        /// \param t_rotation The rotation of the entity, typically the direction the entity is facing.
-        /// \param t_scale The scaling for the entity's model.
-        SimplePushConstantData calculatePushConstantData(glm::vec3 t_translation, glm::vec3 t_rotation, glm::vec3 t_scale);
+        /// \param t_translation The translation data for the entity.
+        /// \param t_rotation The rotation of the entity.
+        /// \param t_scale The scaling for the entity.
+        UiPushConstantData calculatePushConstantData(glm::vec2 t_translation, float t_rotation, glm::vec2 t_scale);
     };
 }
 

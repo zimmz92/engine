@@ -58,7 +58,7 @@ namespace ae {
         /// The WorldPositionComponent this systems accesses to know where an entity is to render it.
         WorldPositionComponent& m_worldPositionComponent;
         /// The ModelComponent this system accesses to render the entity in the game world.
-        ModelComponent& m_modelComponent;
+        ModelComponent& m_model2DComponent;
 
 
         // Prerequisite systems for the SimpleRenderSystem.

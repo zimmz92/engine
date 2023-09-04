@@ -2,12 +2,8 @@
 /// \brief Implements the model for 2-D objects that will be rendered in the game.
 /// Implements the model for 2-D game objects such as user interface elements or billboards.
 
-#include "ae_model.hpp"
+#include "ae_2d_model.hpp"
 #include "ae_utils.hpp"
-
-// libs
-#define TINYOBJLOADER_IMPLEMENTATION
-#include <tiny_obj_loader.h>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
@@ -21,10 +17,10 @@ namespace std {
     // Define a hash operator for the Vertex structure to allow for a Vertex structure to be used as the key in an
     // unordered map. This is used to determine if the vertex is unique or a repeat used to make another triangle.
 	template <>
-	struct hash<ae::AeModel::Vertex> {
-		size_t operator()(ae::AeModel::Vertex const& vertex) const {
+	struct hash<ae::Ae2DModel::Vertex> {
+		size_t operator()(ae::Ae2DModel::Vertex const& vertex) const {
 			size_t seed = 0;
-			ae::hashCombine(seed, vertex.position, vertex.color, vertex.normal, vertex.uv);
+			ae::hashCombine(seed, vertex.position, vertex.color, vertex.uv);
 			return seed;
 		}
 	};
@@ -33,7 +29,7 @@ namespace std {
 namespace ae {
 
     // Constructor, makes a model compatible with the device using a builder that loaded the model's object file.
-	AeModel::AeModel(AeDevice &t_device, const AeModel::Builder& t_builder) : m_aeDevice{ t_device } {
+    Ae2DModel::Ae2DModel(AeDevice &t_device, const Ae2DModel::Builder& t_builder) : m_aeDevice{ t_device } {
 
         // TODO: Look into creating a memory allocator for vulkan: https://www.youtube.com/redirect?event=video_description&redir_token=QUFFLUhqbm9VSzZadjhDZF9pYnMxV2M4c09Cc25KTUNYQXxBQ3Jtc0ttQTFaTHpWNG1nb29jS3BDY2tSX1pUeUZ5R1RzRGF2ZVdkazA5NDRmUHo4S08wV0xXR0ZMRW55bnR6X0pJZ3REYmU2UlNNNVJWdW1oVnA4Um9aY0ZLZXU3U280QWdUWmY5czBpS3BkN3dHSHF6cGJZTQ&q=http%3A%2F%2Fkylehalladay.com%2Fblog%2Ftutorial%2F2017%2F12%2F13%2FCustom-Allocators-Vulkan.html&v=mnKp501RXDc
 		// Create the vertex buffer using the vertices in the specified builder.
@@ -46,24 +42,24 @@ namespace ae {
 
 
     // Destroy the model.
-	AeModel::~AeModel() {}
+    Ae2DModel::~Ae2DModel() {}
 
 
-
-    // Create the model using the object file at the specified path.
-	std::unique_ptr<AeModel> AeModel::createModelFromFile(AeDevice& t_device, const std::string& t_filepath) {
-        // Create a new builder helper class to load the object from the specified file.
-		Builder builder{};
-		builder.loadModel(t_filepath);
+    // Create the 2D model using the specified superset of vertices.
+    std::unique_ptr<Ae2DModel> Ae2DModel::createModelFromFile(AeDevice& t_device, const std::vector<Vertex> &t_vertices) {
+        // Create a new builder helper class to load the vertices and identify unique vertices.
+        Builder builder{};
+        builder.loadModel(t_vertices);
 
         // Create the model using the object that was loaded by the builder.
-		return std::make_unique<AeModel>(t_device, builder);
-	}
+        return std::make_unique<Ae2DModel>(t_device, builder);
+    }
+
 
 
 
     // Create the model's vertex buffer.
-	void AeModel::createVertexBuffers(const std::vector<Vertex> &t_vertices) {
+	void Ae2DModel::createVertexBuffers(const std::vector<Vertex> &t_vertices) {
 
         // Get the size of the vertex vector and ensure that we at least have one triangle.
 		m_vertexCount = static_cast<uint32_t>(t_vertices.size());
@@ -110,7 +106,7 @@ namespace ae {
 
 
     // Create the model's index buffer.
-	void AeModel::createIndexBuffers(const std::vector<uint32_t>& t_indices) {
+	void Ae2DModel::createIndexBuffers(const std::vector<uint32_t>& t_indices) {
 		m_indexCount = static_cast<uint32_t>(t_indices.size());
 		m_hasIndexBuffer = m_indexCount > 0;
 
@@ -145,7 +141,7 @@ namespace ae {
 
     // Bind the vertex and index buffers to the specified command buffer to they are available to the command buffer
     // when executing draw commands for this model.
-	void  AeModel::bind(VkCommandBuffer t_commandBuffer) {
+	void  Ae2DModel::bind(VkCommandBuffer t_commandBuffer) {
         // Create buffer and offset arrays to store the vertex buffer to make them compatible with the command buffer
         // bind command.
 		VkBuffer buffers[] = {m_vertexBuffer->getBuffer()};
@@ -162,7 +158,7 @@ namespace ae {
 
 
     // Submit the draw command for the model to the specified command buffer.
-	void  AeModel::draw(VkCommandBuffer t_commandBuffer) {
+	void  Ae2DModel::draw(VkCommandBuffer t_commandBuffer) {
 		if (m_hasIndexBuffer) {
             // Draw using the indexed vertex buffer if available.
 			vkCmdDrawIndexed(t_commandBuffer, m_indexCount, 1, 0, 0, 0);
@@ -177,7 +173,7 @@ namespace ae {
 
 
     // Define the vertex binding descriptions used to bind the vertex buffer type to the pipeline.
-	std::vector<VkVertexInputBindingDescription> AeModel::Vertex::getBindingDescriptions() {
+	std::vector<VkVertexInputBindingDescription> Ae2DModel::Vertex::getBindingDescriptions() {
 
 		std::vector<VkVertexInputBindingDescription> bindingDescriptions(1);
 
@@ -192,34 +188,26 @@ namespace ae {
 
 
     // Define the vertex attribute descriptions used to bind the vertex buffer type to the pipeline.
-	std::vector<VkVertexInputAttributeDescription> AeModel::Vertex::getAttributeDescriptions() {
+	std::vector<VkVertexInputAttributeDescription> Ae2DModel::Vertex::getAttributeDescriptions() {
 
 		std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
 
         // Describe the data composition of each vertex data set input.
-		attributeDescriptions.push_back({ 0, 0, VK_FORMAT_R32G32B32_SFLOAT , offsetof(Vertex, position)});
+		attributeDescriptions.push_back({ 0, 0, VK_FORMAT_R32G32_SFLOAT , offsetof(Vertex, position)});
 		attributeDescriptions.push_back({ 1, 0, VK_FORMAT_R32G32B32_SFLOAT , offsetof(Vertex, color) });
-		attributeDescriptions.push_back({ 2, 0, VK_FORMAT_R32G32B32_SFLOAT , offsetof(Vertex, normal) });
-		attributeDescriptions.push_back({ 3, 0, VK_FORMAT_R32G32_SFLOAT , offsetof(Vertex, uv) });
+		attributeDescriptions.push_back({ 2, 0, VK_FORMAT_R32G32_SFLOAT , offsetof(Vertex, uv) });
 
 		return attributeDescriptions;
 	}
 
 
 
-    // Load the model's vertices and indices for the object at the specified file path.
-	void AeModel::Builder::loadModel(const std::string& t_filepath) {
+    // Load the 2-D model's vertices and indices for the object specified by its superset of vertices.
+    void Ae2DModel::Builder::loadModel(const std::vector<Vertex> &t_vertices) {
 
-        // Declare variables to store the object data from the tiny object loader.
-		tinyobj::attrib_t attrib;
-		std::vector<tinyobj::shape_t> shapes;
-		std::vector<tinyobj::material_t> materials;
-		std::string warn, err;
-
-        // Attempt to load the object using tinyObjectLoader.
-		if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, t_filepath.c_str())) {
-			throw std::runtime_error(warn + err);
-		}
+        // Assume that the input vertex data is unoptimized and intended to be used with an index buffer.
+        uint32_t vertexCount = static_cast<uint32_t>(t_vertices.size());
+        assert(vertexCount >= 3 && "Vertex count must be at least 3");
 
         // Clear the structs data to ensure only the new object data is loaded.
 		vertices.clear();
@@ -227,62 +215,25 @@ namespace ae {
 
         // Create an unordered map that uses the Vertex struct as it's key to allow its hash to be used to identify if
         // the current vertex is unique or already exists in the map. This allows the index of non-unique vertices to
-        // point to the already existing vertex data instead of replicating the data.s
+        // point to the already existing vertex data instead of replicating the data.
 		std::unordered_map<Vertex, uint32_t> uniqueVertices{};
 
-        // Loop through all the vertex data imported by the tinyObject loader.
-		for (const auto &shape : shapes) {
-			for (const auto &index : shape.mesh.indices) {
+        // Loop through all the input vertex data.
+        for (const auto &in_vertex : t_vertices) {
 
-                // Create a unique vertex struct for the data of the current vertex being evaluated.
-				Vertex vertex{};
+            // Use the hashing function of the unordered map to identify if the vertex is unique.
+            if (uniqueVertices.count(in_vertex) == 0) {
+                // Add the unique vertex to the unique vertices unordered map.
+                uniqueVertices[in_vertex] = static_cast<uint32_t>(vertices.size());
+                // Add the vertex data to the builder's vertices data that will be used to make the model's vertex
+                // buffer later.
+                vertices.push_back(in_vertex);
+            }
 
-                // Get the vertex position and color data.
-				if (index.vertex_index >= 0) {
-					vertex.position = { 
-						attrib.vertices[3 * index.vertex_index + 0], 
-						attrib.vertices[3 * index.vertex_index + 1], 
-						attrib.vertices[3 * index.vertex_index + 2],
-					};
-
-					vertex.color = {
-						attrib.colors[3 * index.vertex_index + 0],
-						attrib.colors[3 * index.vertex_index + 1],
-						attrib.colors[3 * index.vertex_index + 2],
-					};					
-				}
-
-                // Get the vertex normal data.
-				if (index.normal_index >= 0) {
-					vertex.normal = { 
-						attrib.normals[3 * index.normal_index + 0], 
-						attrib.normals[3 * index.normal_index + 1],
-						attrib.normals[3 * index.normal_index + 2],
-					};
-				}
-
-                // Get the vertex texture data.
-				if (index.texcoord_index >= 0) {
-					vertex.uv = { 
-						attrib.texcoords[2 * index.texcoord_index + 0], 
-						attrib.texcoords[2 * index.texcoord_index + 1],
-					};
-				}
-
-                // Use the hashing function of the unordered map to identify if the vertex is unique.
-				if (uniqueVertices.count(vertex) == 0) {
-                    // Add the unique vertex to the unique vertices unordered map.
-					uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
-                    // Add the vertex data to the builder's vertices data that will be used to make the model's vertex
-                    // buffer later.
-					vertices.push_back(vertex);
-				}
-
-                // Specify the index for the vertex data that was created from the imported object file data. The hash
-                // of the vertex struct will ensure matching vertex data will get the same index.s
-				indices.push_back(uniqueVertices[vertex]);
-			}
-		}
+            // Specify the index for the vertex data that was created from the imported object file data. The hash
+            // of the vertex struct will ensure matching vertex data will get the same index.s
+            indices.push_back(uniqueVertices[in_vertex]);
+        }
 	}
 
 } //namespace ae

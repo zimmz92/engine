@@ -16,32 +16,29 @@
 #include <vector>
 
 namespace ae {
-	class AeModel {
+	class Ae2DModel {
 	public:
 		struct Vertex {
             /// The position of the vertex.
-			glm::vec3 position{};
+			glm::vec2 position{};
 
             /// The color of the vertex.
 			glm::vec3 color{};
-
-            /// The vertex normal.
-			glm::vec3 normal{};
 
             /// Texture coordinate of the vertex.
 			glm::vec2 uv{};
 
             /// Get the binding descriptions for the model.
-            /// \return The model's vertex buffer binding description.
+            /// \return The 2-D object's vertex buffer binding description.
 			static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
 
             /// Get the attribute descriptions for the model.
-            /// \return The model's vertex buffer binding attributes.
+            /// \return The 2-D object's vertex buffer binding attributes.
 			static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
 
             /// Overload the comparison function to allow the Vertex struct to be used as a key in an unordered map
 			bool operator==(const Vertex& t_other) const {
-				return position == t_other.position && color == t_other.color && normal == t_other.normal && uv == t_other.uv;
+				return position == t_other.position && color == t_other.color && uv == t_other.uv;
 			}
 		};
 
@@ -55,7 +52,7 @@ namespace ae {
             /// Loads a model from the file at the specified path and populates the Builder's struct it is being called
             /// for.
             /// \param t_filepath The path to the model file to be loaded.
-			void loadModel(const std::string& t_filepath);
+			void loadModel(const std::vector<Vertex> &t_vertices);
 		};
 
         /// Construct a new AeModel and creates the model buffers ready for the specified device using the model built
@@ -63,20 +60,19 @@ namespace ae {
         /// \param t_device The GPU the model buffers should be prepared for and maybe loaded onto.
         /// \param t_builder The builder that contains the model information that buffers should be created for ready
         /// for the specified device.
-		AeModel(AeDevice &t_device, const AeModel::Builder &t_builder);
+        Ae2DModel(AeDevice &t_device, const Ae2DModel::Builder &t_builder);
 
         /// Destroy the AeModel object.
-		~AeModel();
+		~Ae2DModel();
 
 		/// Do not allow this class to be copied (2 lines below)
-		AeModel(const AeModel&) = delete;
-		AeModel& operator=(const AeModel&) = delete;
+        Ae2DModel(const Ae2DModel&) = delete;
+        Ae2DModel& operator=(const Ae2DModel&) = delete;
 
-        /// Creates an AeModel using the specified object data stored at the specified file path compatible with the
-        /// specified GPU.
+        /// Creates an Ae2DModel using the specified vertices which is compatible with the specified GPU.
         /// \param t_device The GPU the created model will be compatible with and will have buffer created for.
-        /// \param t_filepath The location of the file defining the model to be created.
-		static std::unique_ptr<AeModel> createModelFromFile(AeDevice& t_device, const std::string& t_filepath);
+        /// \param t_vertices The superset of vertices specifying the 2D object.
+        static std::unique_ptr<Ae2DModel> createModelFromFile(AeDevice& t_device, const std::vector<Vertex> &t_vertices);
 
         /// Binds the model's vertex buffer, and if available index buffer, to the specified command buffer.
         /// \param t_commandBuffer The command buffer that this model's vertex and index buffer(s) shall be bound to.
