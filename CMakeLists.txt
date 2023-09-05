@@ -70,6 +70,7 @@ add_subdirectory(game_code/components)
 add_subdirectory(game_code/systems)
 
 add_subdirectory(Libraries/tinyobjectloader)
+add_subdirectory(Libraries/stb)
 
 add_subdirectory(models)
 
