@@ -9,6 +9,7 @@
 #include "camera_entity.hpp"
 #include "point_light_entity.hpp"
 #include "two_d_entity.hpp"
+#include "ae_image.hpp"
 
 // libraries
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -146,5 +147,13 @@ namespace ae {
         triangle.m_model.rotation = 0.25 * glm::two_pi<float>();
         triangle.enableEntity();
         //==============================================================================================================
+
+
+        //==============================================================================================================
+        // Attempt to create an image here.
+        std::shared_ptr<AeImage> anImage = AeImage::createModelFromFile(m_aeDevice,"assets_NOTPRODUCTION/ui_textures/TEMP_statue.jpg");
+        //==============================================================================================================
+
+
     }
 }  // namespace ae

@@ -19,6 +19,8 @@ target_sources(mySrcFiles
         ae_descriptors.cpp
         ae_descriptors.hpp
         ae_utils.hpp
+        ae_image.hpp
+        ae_image.cpp
     PUBLIC
 )
 
