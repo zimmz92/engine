@@ -69,7 +69,7 @@ namespace ae {
 
         //==============================================================================================================
         // Load the flat vase object model from the file
-        std::shared_ptr<AeModel> aeModel = AeModel::createModelFromFile(m_aeDevice, "models/flat_vase.obj");
+        std::shared_ptr<AeModel> aeModel = AeModel::createModelFromFile(m_aeDevice, "assets_NOTPRODUCTION/models/TEMP_flat_vase.obj");
         // ECS version of flatVase
         auto testFlatVase = GameObjectEntity(m_aeECS,m_gameComponents);
         testFlatVase.m_worldPosition = {-0.5f, 0.5f, 0.0f };
@@ -79,7 +79,7 @@ namespace ae {
 
 
         // Load the smooth vase object model from the file
-        aeModel = AeModel::createModelFromFile(m_aeDevice, "models/smooth_vase.obj");
+        aeModel = AeModel::createModelFromFile(m_aeDevice, "assets_NOTPRODUCTION/models/TEMP_smooth_vase.obj");
         // ECS version of smoothVase
         auto testSmoothVase = GameObjectEntity(m_aeECS,m_gameComponents);
         testSmoothVase.m_worldPosition = {0.5f, 0.5f, 0.0f };
@@ -88,7 +88,7 @@ namespace ae {
         testSmoothVase.enableEntity();
 
         // Load the floor object model from the file
-        aeModel = AeModel::createModelFromFile(m_aeDevice, "models/quad.obj");
+        aeModel = AeModel::createModelFromFile(m_aeDevice, "assets_NOTPRODUCTION/models/TEMP_quad.obj");
         // ECS version of the floor
         auto testFloor = GameObjectEntity(m_aeECS,m_gameComponents);
         testFloor.m_worldPosition = {0.0f, 0.5f, 0.0f };

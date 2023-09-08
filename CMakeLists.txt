@@ -72,7 +72,17 @@ add_subdirectory(game_code/systems)
 add_subdirectory(Libraries/tinyobjectloader)
 add_subdirectory(Libraries/stb)
 
-add_subdirectory(models)
+# Add asset folders
+add_subdirectory(assets/audio)
+add_subdirectory(assets/materials)
+add_subdirectory(assets/models)
+add_subdirectory(assets/ui_textures)
+
+# Add NON-PRODUCTION asset folders
+add_subdirectory(assets_NOTPRODUCTION/audio)
+add_subdirectory(assets_NOTPRODUCTION/materials)
+add_subdirectory(assets_NOTPRODUCTION/models)
+add_subdirectory(assets_NOTPRODUCTION/ui_textures)
 
 target_sources(mySrcFiles
     PRIVATE
