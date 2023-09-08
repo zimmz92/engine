@@ -241,7 +241,7 @@ namespace ae {
         viewInfo.subresourceRange.levelCount = 1;
         viewInfo.subresourceRange.baseArrayLayer = 0;
         viewInfo.subresourceRange.layerCount = 1;
-        viewInfo.components = VK_COMPONENT_SWIZZLE_IDENTITY;
+        viewInfo.components = {VK_COMPONENT_SWIZZLE_IDENTITY};
 
         if (vkCreateImageView(m_aeDevice.device(), &viewInfo, nullptr, &m_imageView) != VK_SUCCESS) {
             throw std::runtime_error("Failed to create the image view for an image!");
