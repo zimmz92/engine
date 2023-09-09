@@ -15,7 +15,7 @@
 
 namespace ae {
 
-    AeImage::AeImage(ae::AeDevice &t_device, const AeImage::Builder &t_builder) : m_aeDevice{t_device}, m_format{t_builder.imageFormat} {
+    AeImage::AeImage(AeDevice &t_device, const AeImage::Builder &t_builder) : m_aeDevice{t_device}, m_format{t_builder.imageFormat} {
 
         // Create an image on the GPU for the imported image to be loaded into.
         createImage(t_builder,
@@ -42,6 +42,7 @@ namespace ae {
     AeImage::~AeImage(){
         vkDestroyImage(m_aeDevice.device(), m_image, nullptr);
         vkFreeMemory(m_aeDevice.device(), m_memory, nullptr);
+        vkDestroyImageView(m_aeDevice.device(), m_imageView, nullptr);
     };
 
 

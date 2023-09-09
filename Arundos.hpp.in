@@ -12,6 +12,7 @@
 #include "ae_device.hpp"
 #include "ae_window.hpp"
 #include "ae_renderer.hpp"
+#include "ae_samplers.hpp"
 
 #include "ae_ecs_include.hpp"
 
@@ -53,6 +54,9 @@ namespace ae {
 
         /// The vulkan graphics device for the application.
         AeDevice m_aeDevice{ m_aeWindow };
+
+        /// The texture samplers available for the application.
+        AeSamplers m_aeSamplers{m_aeDevice};
 
         /// The vulkan renderer for the application.
         AeRenderer m_aeRenderer{m_aeWindow, m_aeDevice };

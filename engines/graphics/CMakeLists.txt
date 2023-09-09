@@ -21,6 +21,8 @@ target_sources(mySrcFiles
         ae_utils.hpp
         ae_image.hpp
         ae_image.cpp
+        ae_samplers.hpp
+        ae_samplers.cpp
     PUBLIC
 )
 
