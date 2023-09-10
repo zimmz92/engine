@@ -30,6 +30,7 @@ namespace ae {
         m_globalPool = AeDescriptorPool::Builder(m_aeDevice)
                 .setMaxSets(AeSwapChain::MAX_FRAMES_IN_FLIGHT)
                 .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, AeSwapChain::MAX_FRAMES_IN_FLIGHT)
+                .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,AeSwapChain::MAX_FRAMES_IN_FLIGHT)
                 .build();
 
         // Initialize the ubo buffers
@@ -54,13 +55,18 @@ namespace ae {
                 .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
                 .build();
 
+        // Define the descriptor set for the texture.
+        auto textureSetLayout = AeDescriptorSetLayout::Builder(m_aeDevice)
+                .addBinding(0,VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,VK_SHADER_STAGE_FRAGMENT_BIT)
+                .build();
+
         // Reserve space for and then initialize the global descriptors for each frame.
         m_globalDescriptorSets.reserve(AeSwapChain::MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < AeSwapChain::MAX_FRAMES_IN_FLIGHT; i++) {
             // Get the buffer information from the uboBuffers.
             auto bufferInfo = m_uboBuffers[i]->descriptorInfo();
 
-            // Build the descriptor set for the current frame.
+            // Initialize the descriptor set for the current frame.
             AeDescriptorWriter(*globalSetLayout, *m_globalPool)
                     .writeBuffer(0, &bufferInfo)
                     .build(m_globalDescriptorSets[i]);
@@ -83,7 +89,8 @@ namespace ae {
                                               t_game_components,
                                               m_aeDevice,
                                               m_renderer.getSwapChainRenderPass(),
-                                              globalSetLayout->getDescriptorSetLayout());
+                                              globalSetLayout->getDescriptorSetLayout(),
+                                              textureSetLayout->getDescriptorSetLayout());
 
 
         // Enable the system

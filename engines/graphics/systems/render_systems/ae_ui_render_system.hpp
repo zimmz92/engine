@@ -26,8 +26,13 @@ namespace ae {
     class UiRenderSystem : public ae_ecs::AeSystem<UiRenderSystem> {
     public:
         /// Constructor of the SimpleRenderSystem
+        /// \param t_ecs The entity component system this render system will run on.
         /// \param t_game_components The game components available that this system may require.
-        UiRenderSystem(ae_ecs::AeECS& t_ecs, GameComponents& t_game_components, AeDevice& t_aeDevice, VkRenderPass t_renderPass, VkDescriptorSetLayout t_globalSetLayout);
+        /// \param t_aeDevice The device this render system is to be implemented on.
+        /// \param t_renderPass The current render pass that will be used to execute this system.
+        /// \param t_globalSetLayout The layout of the set of information that is common to all render systems.
+        /// \param t_textureSetLayout The descriptor set layout for the textures and materials used by a model.
+        UiRenderSystem(ae_ecs::AeECS& t_ecs, GameComponents& t_game_components, AeDevice& t_aeDevice, VkRenderPass t_renderPass, VkDescriptorSetLayout t_globalSetLayout, VkDescriptorSetLayout t_textureSetLayout);
 
         /// Destructor of the SimpleRenderSystem
         ~UiRenderSystem();
@@ -62,8 +67,9 @@ namespace ae {
 
         /// Creates the pipeline layout for the SimpleRenderSystem.
         /// \param t_globalSetLayout The general descriptor set for the devices and general rendering setting that need
+        /// \param t_textureSetLayout The descriptor set layout for the textures and materials used by a model.
         /// to be accounted for when setting up the render pipeline for this system.
-        void createPipelineLayout(VkDescriptorSetLayout t_globalSetLayout);
+        void createPipelineLayout(VkDescriptorSetLayout t_globalSetLayout, VkDescriptorSetLayout t_textureSetLayout);
 
         /// Creates the pipeline based on the render pass this pipeline should be associated with for the
         /// SimpleRenderSystem.
