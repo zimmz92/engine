@@ -26,7 +26,7 @@ namespace ae {
 
 
     // Return the default sampler.
-    VkSampler AeSamplers::getDefaultSampler() { return m_defaultSampler;};
+    VkSampler& AeSamplers::getDefaultSampler() { return m_defaultSampler;};
 
 
 

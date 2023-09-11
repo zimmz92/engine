@@ -58,6 +58,9 @@ namespace ae {
         return std::make_unique<AeImage>(t_device, builder);
     };
 
+    // Get the image view for the image.
+    VkImageView& AeImage::getImageView() {return m_imageView; };
+
 
 
     // Create, and allocate memory for, the image for the texture to be loaded into.

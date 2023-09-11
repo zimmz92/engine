@@ -16,6 +16,7 @@ namespace ae {
                                                      m_timingSystem{t_timingSystem},
                                                      m_renderer{t_renderer},
                                                      m_aeDevice{t_aeDevice},
+                                                     m_aeSamplers{t_aeDevice},
                                                      ae_ecs::AeSystem<RendererStartPassSystem>(t_ecs)  {
 
         // Register component dependencies
@@ -28,7 +29,7 @@ namespace ae {
 
         // Create the global pool
         m_globalPool = AeDescriptorPool::Builder(m_aeDevice)
-                .setMaxSets(AeSwapChain::MAX_FRAMES_IN_FLIGHT)
+                .setMaxSets(AeSwapChain::MAX_FRAMES_IN_FLIGHT*2)
                 .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, AeSwapChain::MAX_FRAMES_IN_FLIGHT)
                 .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,AeSwapChain::MAX_FRAMES_IN_FLIGHT)
                 .build();
@@ -70,6 +71,21 @@ namespace ae {
             AeDescriptorWriter(*globalSetLayout, *m_globalPool)
                     .writeBuffer(0, &bufferInfo)
                     .build(m_globalDescriptorSets[i]);
+        }
+
+        // Reserve space for and then initialize the texture descriptors for each frame.
+        m_defaultImage = AeImage::createModelFromFile(m_aeDevice,"assets/ui_textures/default.jpg");
+        m_textureDescriptorSets.reserve(AeSwapChain::MAX_FRAMES_IN_FLIGHT);
+        VkDescriptorImageInfo imageInfo{};
+        imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        imageInfo.imageView = m_defaultImage->getImageView();
+        imageInfo.sampler = m_aeSamplers.getDefaultSampler();
+
+        for (int i = 0; i < AeSwapChain::MAX_FRAMES_IN_FLIGHT; i++) {
+            // Initialize the descriptor set for the current frame.
+            AeDescriptorWriter(*textureSetLayout, *m_globalPool)
+                    .writeImage(0, &imageInfo)
+                    .build(m_textureDescriptorSets[i]);
         }
 
 
@@ -139,7 +155,7 @@ namespace ae {
             // Call subservient render systems. Order matters here to maintain object transparencies.
             m_simpleRenderSystem->executeSystem(m_commandBuffer,m_globalDescriptorSets[m_frameIndex]);
             m_pointLightRenderSystem->executeSystem(m_commandBuffer,m_globalDescriptorSets[m_frameIndex]);
-            m_uiRenderSystem->executeSystem(m_commandBuffer,m_globalDescriptorSets[m_frameIndex]);
+            m_uiRenderSystem->executeSystem(m_commandBuffer,m_globalDescriptorSets[m_frameIndex],m_textureDescriptorSets[m_frameIndex]);
 
             // End the render pass and the frame.
             m_renderer.endSwapChainRenderPass(m_commandBuffer);

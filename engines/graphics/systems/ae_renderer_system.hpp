@@ -15,6 +15,8 @@
 #include "ae_buffer.hpp"
 #include "ae_swap_chain.hpp"
 #include "ae_descriptors.hpp"
+#include "ae_image.hpp"
+#include "ae_samplers.hpp"
 
 #include "ae_simple_render_system.hpp"
 #include "ae_point_light_render_system.hpp"
@@ -88,9 +90,11 @@ namespace ae {
         /// Command buffer for the current render pass
         VkCommandBuffer m_commandBuffer;
 
-        /// The global descriptor set for the current frame
-        VkDescriptorSet m_globalDescriptorSet;
+        /// The texture descriptor sets used for each of the allowed frames in flight.
+        std::vector<VkDescriptorSet> m_textureDescriptorSets;
 
+        /// The samplers the render system utilizes
+        AeSamplers m_aeSamplers;
 
         // Child render systems
         /// Pointer to the point light render system
@@ -101,5 +105,9 @@ namespace ae {
 
         /// Pointer to the UI render system.
         UiRenderSystem* m_uiRenderSystem;
+
+        /// Create a default image for use with the render system.
+        std::shared_ptr<AeImage> m_defaultImage;
+
     };
 }

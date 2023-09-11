@@ -29,7 +29,7 @@ namespace ae {
         /// Gets the default sampler which includes: Bilinear filtering, anisotropic filtering, tiling, and expects
         /// normalized texture coordinates.
         /// \return The default sampler.
-        VkSampler getDefaultSampler();
+        VkSampler& getDefaultSampler();
 
     private:
 

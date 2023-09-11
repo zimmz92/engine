@@ -47,14 +47,14 @@ namespace ae {
 
 
     // Renders the models.
-    void UiRenderSystem::executeSystem(VkCommandBuffer &t_commandBuffer, VkDescriptorSet t_globalDescriptorSet, ) {
+    void UiRenderSystem::executeSystem(VkCommandBuffer &t_commandBuffer, VkDescriptorSet t_globalDescriptorSet, VkDescriptorSet t_textureDescriptorSet) {
 
         // Tell the pipeline what the current command buffer being worked on is.
         m_aePipeline->bind(t_commandBuffer);
 
-        AeDescriptorWriter(*globalSetLayout, *m_globalPool)
-                .writeBuffer(0, &bufferInfo)
-                .build(m_globalDescriptorSets[i]);
+        VkDescriptorSet allDescriptorSets[2];
+        allDescriptorSets[0] = t_globalDescriptorSet;
+        allDescriptorSets[1] = t_textureDescriptorSet;
 
         // Bind the descriptor sets to the command buffer.
         vkCmdBindDescriptorSets(
@@ -64,6 +64,16 @@ namespace ae {
                 0,
                 1,
                 &t_globalDescriptorSet,
+                0,
+                nullptr);
+
+        vkCmdBindDescriptorSets(
+                t_commandBuffer,
+                VK_PIPELINE_BIND_POINT_GRAPHICS,
+                m_pipelineLayout,
+                1,
+                1,
+                &t_textureDescriptorSet,
                 0,
                 nullptr);
 
