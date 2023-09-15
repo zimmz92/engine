@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ae_graphics_constants.hpp"
 #include "ae_device.hpp"
 
 // vulkan headers
@@ -14,8 +15,6 @@ namespace ae {
 
     class AeSwapChain {
     public:
-        static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
-
         /// Create the swap chain.
         /// \param t_deviceRef Reference to the graphics device the swap chain will be created for.
         /// \param t_windowExtent The window the swap chain will be interfacing with.

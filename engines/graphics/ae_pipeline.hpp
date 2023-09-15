@@ -4,6 +4,7 @@
 */
 #pragma once
 
+#include "ae_graphics_constants.hpp"
 #include "ae_device.hpp"
 
 // std

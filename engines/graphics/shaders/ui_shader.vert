@@ -24,6 +24,7 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
 layout(push_constant) uniform Push {
   mat2 transform;
   vec2 offset;
+  int textureIndex;
 } push;
 
 void main() {

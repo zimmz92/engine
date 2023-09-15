@@ -54,7 +54,8 @@ namespace ae {
     void UiRenderSystem::executeSystem(VkCommandBuffer &t_commandBuffer,
                                        VkDescriptorSet t_globalDescriptorSet,
                                        VkDescriptorSet t_textureDescriptorSet,
-                                       AeDescriptorWriter& t_textureDescriptorWriter) {
+                                       AeDescriptorWriter& t_textureDescriptorWriter,
+                                       uint64_t t_frameIndex) {
 
         // Tell the pipeline what the current command buffer being worked on is.
         m_aePipeline->bind(t_commandBuffer);
@@ -67,6 +68,16 @@ namespace ae {
                 0,
                 1,
                 &t_globalDescriptorSet,
+                0,
+                nullptr);
+
+        vkCmdBindDescriptorSets(
+                t_commandBuffer,
+                VK_PIPELINE_BIND_POINT_GRAPHICS,
+                m_pipelineLayout,
+                1,
+                1,
+                &t_textureDescriptorSet,
                 0,
                 nullptr);
 
@@ -87,37 +98,16 @@ namespace ae {
             UiPushConstantData push{calculatePushConstantData(entityModelData.translation,
                                                                   entityModelData.rotation,
                                                                   entityModelData.scale)};
+            if(entityModelData.m_texture != nullptr){
+                push.textureIndex =  entityModelData.m_texture->getTextureDescriptorIndex(t_frameIndex);
+            } else {
+                push.textureIndex = MAX_TEXTURE_DESCRIPTORS + 1;
+            }
 
             // Update the push constant data.
             vkCmdPushConstants(t_commandBuffer, m_pipelineLayout,
                                VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
                                sizeof(UiPushConstantData), &push);
-
-            if( (entityModelData.m_texture != nullptr) && (entityModelData.m_sampler != nullptr)){
-                // Update the texture data.
-                VkDescriptorImageInfo imageInfo{};
-                imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-                imageInfo.imageView = entityModelData.m_texture->getImageView();
-                imageInfo.sampler = entityModelData.m_sampler;
-
-                // Clear the old data from then write the texture to the texture descriptor
-                t_textureDescriptorWriter.clearWriteData();
-                t_textureDescriptorWriter.writeImage(0, &imageInfo);
-                t_textureDescriptorWriter.overwrite(t_textureDescriptorSet);
-            } else {
-                throw std::runtime_error("Entity being rendered by the ui_render_system does not have either a texture "
-                                         "or a sampler!");
-            }
-
-            vkCmdBindDescriptorSets(
-                    t_commandBuffer,
-                    VK_PIPELINE_BIND_POINT_GRAPHICS,
-                    m_pipelineLayout,
-                    1,
-                    1,
-                    &t_textureDescriptorSet,
-                    0,
-                    nullptr);
 
             // Bind the model buffer(s) to the command buffer.
             entityModelData.m_2d_model->bind(t_commandBuffer);

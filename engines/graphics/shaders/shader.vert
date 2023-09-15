@@ -8,6 +8,7 @@ layout(location = 3) in vec2 uv;
 layout(location = 0) out vec3 fragColor;
 layout(location = 1) out vec3 fragPosWorld;
 layout(location = 2) out vec3 fragNormalWorld;
+layout(location = 3) out vec2 fragTexCoord;
 
 struct PointLight{
     vec4 position;
@@ -25,7 +26,8 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
 
 layout(push_constant) uniform Push {
     mat4 modelMatrix; // projection * view * model
-    mat4 normalMatrix; 
+    mat4 normalMatrix;
+    int textureIndex;
 } push;
 
 const float AMBIENT = 0.02;
@@ -36,4 +38,5 @@ void main() {
     fragNormalWorld = normalize(mat3(push.normalMatrix) * normal);
     fragPosWorld = positionWorld.xyz;
     fragColor = color;
+    fragTexCoord = uv;
 }

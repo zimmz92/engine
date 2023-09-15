@@ -3,6 +3,7 @@
 #pragma once
 
 // dependencies
+#include "ae_graphics_constants.hpp"
 #include "ae_device.hpp"
 
 // libraries

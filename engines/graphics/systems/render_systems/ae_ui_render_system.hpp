@@ -4,6 +4,7 @@
 #pragma once
 
 #include "ae_ecs_include.hpp"
+#include "ae_graphics_constants.hpp"
 
 #include "game_components.hpp"
 
@@ -21,6 +22,9 @@ namespace ae {
 
         /// The offset of the 2D object.
         glm::vec2 translation{ 1.0f };
+
+        /// The index of the objects texture;
+        int textureIndex = MAX_TEXTURE_DESCRIPTORS+1;
     };
 
     /// A child system of the RendererSystem which renders the entity models.
@@ -50,7 +54,8 @@ namespace ae {
         void executeSystem(VkCommandBuffer& t_commandBuffer,
                            VkDescriptorSet t_globalDescriptorSet,
                            VkDescriptorSet t_textureDescriptorSet,
-                           AeDescriptorWriter& t_textureDescriptorWriter);
+                           AeDescriptorWriter& t_textureDescriptorWriter,
+                           uint64_t t_frameIndex);
 
         /// DO NOT CALL! This is not used by this system.
         void executeSystem() override {

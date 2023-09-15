@@ -3,6 +3,7 @@
 layout(location = 0) in vec3 fragColor;
 layout(location = 1) in vec3 fragPosWorld;
 layout(location = 2) in vec3 fragNormalWorld;
+layout(location = 3) in vec2 fragTexCoord;
 
 layout(location = 0) out vec4 outColor;
 
@@ -20,9 +21,12 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
     int numLights;
 } ubo;
 
+layout(set = 1, binding = 0) uniform sampler2D texSampler[8];
+
 layout(push_constant) uniform Push {
     mat4 modelMatrix; // projection * view * model
-    mat4 normalMatrix; 
+    mat4 normalMatrix;
+    int textureIndex;
 } push;
 
 void main() {
@@ -52,5 +56,12 @@ void main() {
         specularLight += intensity * blinnTerm;
     }
 
-    outColor = vec4(diffuseLight * fragColor + specularLight * fragColor, 1.0);
+    if(push.textureIndex == 9)
+    {
+        outColor = vec4(diffuseLight * fragColor + specularLight * fragColor, 1.0);
+    }
+    else
+    {
+        outColor = vec4(diffuseLight * fragColor * texture(texSampler[push.textureIndex], fragTexCoord).rgb + specularLight * fragColor * texture(texSampler[uint(push.textureIndex)], fragTexCoord).rgb, 1.0);
+    }
 }

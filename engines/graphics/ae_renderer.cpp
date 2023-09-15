@@ -63,7 +63,7 @@ namespace ae {
     void AeRenderer::createCommandBuffers() {
 
         // Allocate enough command buffers for all the frames that could be rendered.
-        m_commandBuffers.resize(AeSwapChain::MAX_FRAMES_IN_FLIGHT);
+        m_commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
 
 
         // Specify the struct for allocating a command buffer from the pool.
@@ -154,7 +154,7 @@ namespace ae {
         // Indicate that a frame is in progress and increment the frame index for the next frame that will be rendered
         // after this one.
         m_isFrameStarted = false;
-        m_currentFrameIndex = (m_currentFrameIndex + 1) % AeSwapChain::MAX_FRAMES_IN_FLIGHT;
+        m_currentFrameIndex = (m_currentFrameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
     }
 
 

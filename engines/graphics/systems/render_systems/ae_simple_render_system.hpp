@@ -5,11 +5,13 @@
 #pragma once
 
 #include "ae_ecs_include.hpp"
+#include "ae_graphics_constants.hpp"
 
 #include "game_components.hpp"
 
 #include "ae_device.hpp"
 #include "ae_pipeline.hpp"
+#include "ae_descriptors.hpp"
 
 
 namespace ae {
@@ -24,6 +26,9 @@ namespace ae {
         // Rotations correspond to Tait-bryan angles of Y(1), X(2), Z(3)
         // https://en.wikipedia.org/wiki/Euler_angles#Rotation_matrix
         glm::mat4 normalMatrix{ 1.0f };
+
+        /// The index of the objects texture;
+        int textureIndex;
     };
 
     /// A child system of the RendererSystem which renders the entity models.
@@ -31,7 +36,12 @@ namespace ae {
     public:
         /// Constructor of the SimpleRenderSystem
         /// \param t_game_components The game components available that this system may require.
-        SimpleRenderSystem(ae_ecs::AeECS& t_ecs, GameComponents& t_game_components, AeDevice& t_aeDevice, VkRenderPass t_renderPass, VkDescriptorSetLayout t_globalSetLayout);
+        SimpleRenderSystem(ae_ecs::AeECS& t_ecs,
+                           GameComponents& t_game_components,
+                           AeDevice& t_aeDevice,
+                           VkRenderPass t_renderPass,
+                           VkDescriptorSetLayout t_globalSetLayout,
+                           VkDescriptorSetLayout t_textureSetLayout);
 
         /// Destructor of the SimpleRenderSystem
         ~SimpleRenderSystem();
@@ -40,7 +50,11 @@ namespace ae {
         void setupSystem() override;
 
         /// Execute the SimpleRenderSystem, this is handled by the RendererSystem.
-        void executeSystem(VkCommandBuffer& t_commandBuffer, VkDescriptorSet t_globalDescriptorSet);
+        void executeSystem(VkCommandBuffer& t_commandBuffer,
+                           VkDescriptorSet t_globalDescriptorSet,
+                           VkDescriptorSet t_textureDescriptorSet,
+                           AeDescriptorWriter& t_textureDescriptorWriter,
+                           uint64_t t_frameIndex);
 
         /// DO NOT CALL! This is not used by this system.
         void executeSystem() override {
@@ -69,7 +83,7 @@ namespace ae {
         /// Creates the pipeline layout for the SimpleRenderSystem.
         /// \param t_globalSetLayout The general descriptor set for the devices and general rendering setting that need
         /// to be accounted for when setting up the render pipeline for this system.
-        void createPipelineLayout(VkDescriptorSetLayout t_globalSetLayout);
+        void createPipelineLayout(VkDescriptorSetLayout t_globalSetLayout, VkDescriptorSetLayout t_textureSetLayout);
 
         /// Creates the pipeline based on the render pass this pipeline should be associated with for the
         /// SimpleRenderSystem.

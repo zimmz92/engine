@@ -3,6 +3,7 @@
 #pragma once
 
 // dependencies
+#include "ae_graphics_constants.hpp"
 #include "ae_device.hpp"
 
 // libraries
@@ -57,6 +58,11 @@ namespace ae {
         AeImage(const AeImage&) = delete;
         AeImage& operator=(const AeImage&) = delete;
 
+        /// Overload the comparison function to allow the Vertex struct to be used as a key in an unordered map
+        bool operator==(const AeImage& t_other) const {
+            return m_image == t_other.m_image && m_memory == t_other.m_memory;
+        }
+
         /// Creates an AeImage using the specified image data stored at the specified file path compatible with the
         /// specified GPU.
         /// \param t_device The GPU the created image will be compatible with and will have buffer created for.
@@ -67,10 +73,15 @@ namespace ae {
         /// \return The image view for the image.
         VkImageView& getImageView();
 
+        /// Set the texture index for the image for the indicated frame.
+        void setTextureDescriptorIndex(int t_frameIndex, uint64_t t_textureIndex);
+
+        /// Get the texture index for the image for the indicated frame.
+        /// \return The texture descriptor index for the specified frame.
+        uint64_t getTextureDescriptorIndex(uint64_t t_frameIndex);
+
 
     private:
-
-
         /// Creates, and allocates memory for, the image that the texture will be loaded into.
         /// \param t_builder The builder class that is being used to construct the image.
         void createImage(const AeImage::Builder &t_builder, VkImageTiling t_tiling, VkImageUsageFlags t_usage, VkMemoryPropertyFlags t_properties);
@@ -103,6 +114,9 @@ namespace ae {
 
         /// The current layout of the image.
         VkImageLayout m_layout;
+
+        /// The position of the texture in the texture descriptor array.
+        uint64_t m_textureDescriptorIndex[MAX_FRAMES_IN_FLIGHT];
 
     protected:
 

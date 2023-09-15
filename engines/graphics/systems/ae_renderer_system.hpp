@@ -5,6 +5,7 @@
 #pragma once
 
 #include "ae_ecs_include.hpp"
+#include "ae_graphics_constants.hpp"
 
 #include "game_components.hpp"
 #include "update_ubo_system.hpp"
@@ -68,6 +69,8 @@ namespace ae {
         /// The TimingSystem this system requires to operate prior to it's own operation.
         TimingSystem& m_timingSystem;
 
+        /// Updates the texture descriptor set for the current frame being rendered.
+        void updateTextureDescriptorSet();
 
 
         /// Reference to the game renderer
@@ -112,6 +115,10 @@ namespace ae {
 
         /// Create a default image for use with the render system.
         std::shared_ptr<AeImage> m_defaultImage;
+
+        /// Component Systems that might be required
+        /// TODO Improve the texture evaluation system so that this is not needed.
+        GameComponents& m_gameComponents;
 
     };
 }

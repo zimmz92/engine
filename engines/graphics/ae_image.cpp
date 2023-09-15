@@ -4,6 +4,7 @@
 
 // dependencies
 #include "ae_buffer.hpp"
+#include "ae_utils.hpp"
 
 // libraries
 #define STB_IMAGE_IMPLEMENTATION
@@ -16,6 +17,9 @@
 namespace ae {
 
     AeImage::AeImage(AeDevice &t_device, const AeImage::Builder &t_builder) : m_aeDevice{t_device}, m_format{t_builder.imageFormat} {
+
+        // Initialize the image index data
+        std::fill_n(m_textureDescriptorIndex, MAX_FRAMES_IN_FLIGHT, MAX_TEXTURE_DESCRIPTORS+1);
 
         // Create an image on the GPU for the imported image to be loaded into.
         createImage(t_builder,
@@ -257,6 +261,18 @@ namespace ae {
     // Make sure to clean up the loaded pixel data when the structure is destroyed.
     AeImage::Builder::~Builder(){
         stbi_image_free(pixels);
+    };
+
+
+
+    void AeImage::setTextureDescriptorIndex(int t_frameIndex, uint64_t t_textureIndex){
+        m_textureDescriptorIndex[t_frameIndex] = t_textureIndex;
+    };
+
+
+
+    uint64_t AeImage::getTextureDescriptorIndex(uint64_t t_frameIndex){
+        return m_textureDescriptorIndex[t_frameIndex];
     };
 
 } //namespace ae

@@ -19,13 +19,22 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
     int numLights;
 } ubo;
 
-layout(set = 1, binding = 0) uniform sampler2D texSampler;
+layout(set = 1, binding = 0) uniform sampler2D texSampler[8];
 
 layout(push_constant) uniform Push {
   mat2 transform;
   vec2 offset;
+  int textureIndex;
 } push;
 
 void main() {
-  outColor = texture(texSampler, fragTexCoord);
+
+  if(push.textureIndex == 9)
+      {
+          outColor = vec4(fragColor, 1.0);
+      }
+      else
+      {
+          outColor = texture(texSampler[push.textureIndex], fragTexCoord);
+      }
 }

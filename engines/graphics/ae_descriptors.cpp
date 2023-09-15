@@ -243,19 +243,13 @@ namespace ae {
 
         auto& bindingDescription = m_setLayout->m_bindings[t_binding];
 
-        // Ensure that the descriptor count in the binding description is just one since this function only deals with
-        // writing to a single description.
-        assert(
-            bindingDescription.descriptorCount == 1 &&
-            "Binding single descriptor info, but binding expects multiple");
-
         // Prepare the descriptor write information.
         VkWriteDescriptorSet write{};
         write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
         write.descriptorType = bindingDescription.descriptorType;
         write.dstBinding = t_binding;
         write.pImageInfo = t_imageInfo;
-        write.descriptorCount = 1;
+        write.descriptorCount = bindingDescription.descriptorCount;
 
         // Add the descriptor write information and data to the staging descriptor set.
         m_writes.push_back(write);

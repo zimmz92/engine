@@ -96,6 +96,19 @@ namespace ae {
         testFloor.m_model.m_model = aeModel;
         testFloor.m_model.scale = {3.0f, 1.0f, 3.0f };
         testFloor.enableEntity();
+
+        // Load the viking object model from the file
+        aeModel = AeModel::createModelFromFile(m_aeDevice, "assets_NOTPRODUCTION/models/TEMP_viking_room.obj");
+        std::shared_ptr<AeImage> aeImage = AeImage::createModelFromFile(m_aeDevice,"assets_NOTPRODUCTION/models/TEMP_viking_room.png");
+        // ECS version of the floor
+        auto vikingRoom = GameObjectEntity(m_aeECS,m_gameComponents);
+        vikingRoom.m_worldPosition = {0.0f, 0.25f, 1.5f };
+        vikingRoom.m_model.m_texture = aeImage;
+        vikingRoom.m_model.m_sampler = m_aeSamplers.getDefaultSampler();
+        vikingRoom.m_model.m_model = aeModel;
+        vikingRoom.m_model.scale = {1.0f, 1.0f, 1.0f };
+        vikingRoom.m_model.rotation = {0.25 * glm::two_pi<float>(), 0.75 * glm::two_pi<float>(), 0.5* glm::two_pi<float>()};
+        vikingRoom.enableEntity();
         //==============================================================================================================
 
 
@@ -142,7 +155,7 @@ namespace ae {
                 {{0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}}
         };
 
-        std::shared_ptr<AeImage> aeImage = AeImage::createModelFromFile(m_aeDevice,"assets_NOTPRODUCTION/ui_textures/TEMP_statue.jpg");
+        aeImage = AeImage::createModelFromFile(m_aeDevice,"assets_NOTPRODUCTION/ui_textures/TEMP_statue.jpg");
         std::shared_ptr<Ae2DModel> ae2DModel = Ae2DModel::createModelFromFile(m_aeDevice, vertices);
         // ECS version of the floor
         auto triangle = TwoDEntity(m_aeECS,m_gameComponents);
