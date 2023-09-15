@@ -6,6 +6,7 @@
 
 #include "ae_ecs_include.hpp"
 #include "ae_model.hpp"
+#include "ae_image.hpp"
 
 namespace ae {
 
@@ -24,7 +25,11 @@ namespace ae {
         /// Y(1) - varphi, X(2) - theta, Z(3) - psi.
         glm::vec3 rotation{ 0.0f, 0.0f, 0.0f };
 
-        // TODO Placeholder for texture
+        /// The 2D model's texture.
+        std::shared_ptr<AeImage> m_texture= nullptr;
+
+        /// The Sampler to use for the image.
+        VkSampler m_sampler = nullptr;
     };
 
 
