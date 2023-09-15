@@ -59,10 +59,6 @@ namespace ae {
         // Tell the pipeline what the current command buffer being worked on is.
         m_aePipeline->bind(t_commandBuffer);
 
-        VkDescriptorSet allDescriptorSets[2];
-        allDescriptorSets[0] = t_globalDescriptorSet;
-        allDescriptorSets[1] = t_textureDescriptorSet;
-
         // Bind the descriptor sets to the command buffer.
         vkCmdBindDescriptorSets(
                 t_commandBuffer,
