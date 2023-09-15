@@ -142,9 +142,12 @@ namespace ae {
                 {{0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}}
         };
 
+        std::shared_ptr<AeImage> aeImage = AeImage::createModelFromFile(m_aeDevice,"assets_NOTPRODUCTION/ui_textures/TEMP_statue.jpg");
         std::shared_ptr<Ae2DModel> ae2DModel = Ae2DModel::createModelFromFile(m_aeDevice, vertices);
         // ECS version of the floor
         auto triangle = TwoDEntity(m_aeECS,m_gameComponents);
+        triangle.m_model.m_texture = aeImage;
+        triangle.m_model.m_sampler = m_aeSamplers.getDefaultSampler();
         triangle.m_model.m_2d_model = ae2DModel;
         triangle.m_model.translation.x = 0.75f;
         triangle.m_model.translation.y = -0.75f;

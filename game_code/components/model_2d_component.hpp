@@ -5,6 +5,7 @@
 
 #include "ae_ecs_include.hpp"
 #include "ae_2d_model.hpp"
+#include "ae_image.hpp"
 
 namespace ae {
 
@@ -12,7 +13,7 @@ namespace ae {
     struct Model2dComponentStruct {
 
         /// A pointer to the model used by a entity.
-        std::shared_ptr<Ae2DModel> m_2d_model{};
+        std::shared_ptr<Ae2DModel> m_2d_model= nullptr;
 
         /// Defines the offset of the 2D object from the viewport origin.
         glm::vec2 translation{};
@@ -21,9 +22,13 @@ namespace ae {
         glm::vec2 scale{ 1.0f, 1.0f};
 
         /// The rotation of the 2D object in radians.
-        float rotation;
+        float rotation = 0.0;
 
-        // TODO Placeholder for texture
+        /// The 2D model's texture.
+        std::shared_ptr<AeImage> m_texture= nullptr;
+
+        /// The Sampler to use for the image.
+        VkSampler m_sampler = nullptr;
     };
 
 

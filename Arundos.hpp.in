@@ -57,6 +57,9 @@ namespace ae {
         /// The vulkan renderer for the application.
         AeRenderer m_aeRenderer{m_aeWindow, m_aeDevice };
 
+        /// The image samplers available.
+        AeSamplers m_aeSamplers{m_aeDevice};
+
         /// Declare the ECS of the game.
         ae_ecs::AeECS m_aeECS{};
 
@@ -64,7 +67,12 @@ namespace ae {
         GameComponents m_gameComponents{m_aeECS};
 
         /// Declare the game systems, the "S" in ECS.
-        GameSystems m_gameSystems{m_aeECS, m_gameComponents, m_aeWindow.getGLFWwindow(), m_aeDevice, m_aeRenderer};
+        GameSystems m_gameSystems{m_aeECS,
+                                  m_gameComponents,
+                                  m_aeWindow.getGLFWwindow(),
+                                  m_aeDevice,
+                                  m_aeRenderer,
+                                  m_aeSamplers};
 
     };
 }  // namespace ae
