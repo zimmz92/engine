@@ -29,10 +29,6 @@ namespace ae {
         // RendererSystem.
         this->isChildSystem = true;
 
-        // Create a default image to be used if a model does not have one so it is easy to identify if something is
-        // missing and where it might be missing from.
-        m_defaultImage = AeImage::createModelFromFile(m_aeDevice,"assets/ui_textures/default.jpg");
-
         // Creates the pipeline layout accounting for the global layout and sets the m_pipelineLayout member variable.
         createPipelineLayout(t_globalSetLayout, t_textureSetLayout);
 

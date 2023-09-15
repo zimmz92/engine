@@ -95,9 +95,6 @@ namespace ae {
         /// The pipeline created for this render system.
         std::unique_ptr<AePipeline> m_aePipeline;
 
-        /// The default image for the
-        std::shared_ptr<AeImage> m_defaultImage;
-
         /// Calculates the push constant data for a specified entity.
         /// \param t_translation The translation data for the entity.
         /// \param t_rotation The rotation of the entity.
