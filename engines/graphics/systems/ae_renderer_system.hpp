@@ -42,7 +42,8 @@ namespace ae {
                                 UpdateUboSystem& t_updateUboSystem,
                                 TimingSystem& t_timingSystem,
                                 AeRenderer& t_renderer,
-                                AeDevice& t_aeDevice);
+                                AeDevice& t_aeDevice,
+                                AeSamplers& t_aeSamplers);
 
         /// Destructor of the RendererStartPassSystem
         ~RendererStartPassSystem();
@@ -93,8 +94,11 @@ namespace ae {
         /// The texture descriptor sets used for each of the allowed frames in flight.
         std::vector<VkDescriptorSet> m_textureDescriptorSets;
 
-        /// The samplers the render system utilizes
-        AeSamplers m_aeSamplers;
+        /// The samplers the render system utilizes.
+        AeSamplers& m_aeSamplers;
+
+        /// The texture descriptor writers.
+        AeDescriptorWriter* m_textureDescriptorWriter;
 
         // Child render systems
         /// Pointer to the point light render system

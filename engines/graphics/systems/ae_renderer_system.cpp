@@ -11,12 +11,13 @@ namespace ae {
                                                      UpdateUboSystem& t_updateUboSystem,
                                                      TimingSystem& t_timingSystem,
                                                      AeRenderer& t_renderer,
-                                                     AeDevice& t_aeDevice) :
+                                                     AeDevice& t_aeDevice,
+                                                     AeSamplers& t_aeSamplers) :
                                                      m_updateUboSystem{t_updateUboSystem},
                                                      m_timingSystem{t_timingSystem},
                                                      m_renderer{t_renderer},
                                                      m_aeDevice{t_aeDevice},
-                                                     m_aeSamplers{t_aeDevice},
+                                                     m_aeSamplers{t_aeSamplers},
                                                      ae_ecs::AeSystem<RendererStartPassSystem>(t_ecs)  {
 
         // Register component dependencies
@@ -68,7 +69,7 @@ namespace ae {
             auto bufferInfo = m_uboBuffers[i]->descriptorInfo();
 
             // Initialize the descriptor set for the current frame.
-            AeDescriptorWriter(*globalSetLayout, *m_globalPool)
+            AeDescriptorWriter(globalSetLayout, *m_globalPool)
                     .writeBuffer(0, &bufferInfo)
                     .build(m_globalDescriptorSets[i]);
         }
@@ -81,11 +82,12 @@ namespace ae {
         imageInfo.imageView = m_defaultImage->getImageView();
         imageInfo.sampler = m_aeSamplers.getDefaultSampler();
 
+        // Initialize the descriptor writer that will be used to update the image data for the textures.
+        m_textureDescriptorWriter = new AeDescriptorWriter(textureSetLayout, *m_globalPool);
+
         for (int i = 0; i < AeSwapChain::MAX_FRAMES_IN_FLIGHT; i++) {
             // Initialize the descriptor set for the current frame.
-            AeDescriptorWriter(*textureSetLayout, *m_globalPool)
-                    .writeImage(0, &imageInfo)
-                    .build(m_textureDescriptorSets[i]);
+            m_textureDescriptorWriter->writeImage(0, &imageInfo).build(m_textureDescriptorSets[i]);
         }
 
 
@@ -127,6 +129,9 @@ namespace ae {
         delete m_uiRenderSystem;
         m_uiRenderSystem = nullptr;
 
+        delete m_textureDescriptorWriter;
+        m_textureDescriptorWriter = nullptr;
+
     };
 
 
@@ -155,7 +160,10 @@ namespace ae {
             // Call subservient render systems. Order matters here to maintain object transparencies.
             m_simpleRenderSystem->executeSystem(m_commandBuffer,m_globalDescriptorSets[m_frameIndex]);
             m_pointLightRenderSystem->executeSystem(m_commandBuffer,m_globalDescriptorSets[m_frameIndex]);
-            m_uiRenderSystem->executeSystem(m_commandBuffer,m_globalDescriptorSets[m_frameIndex],m_textureDescriptorSets[m_frameIndex]);
+            m_uiRenderSystem->executeSystem(m_commandBuffer,
+                                            m_globalDescriptorSets[m_frameIndex],
+                                            m_textureDescriptorSets[m_frameIndex],
+                                            *m_textureDescriptorWriter);
 
             // End the render pass and the frame.
             m_renderer.endSwapChainRenderPass(m_commandBuffer);

@@ -37,7 +37,7 @@ namespace ae {
 
 
     // Create the descriptor set layout based on the m_bindings member variable.
-    std::unique_ptr<AeDescriptorSetLayout> AeDescriptorSetLayout::Builder::build() const {
+    std::shared_ptr<AeDescriptorSetLayout> AeDescriptorSetLayout::Builder::build() const {
         return std::make_unique<AeDescriptorSetLayout>(m_aeDevice, m_bindings);
     }
 
@@ -201,19 +201,17 @@ namespace ae {
     //==================================================================================================================
 
     // Creates the description writer object.
-    AeDescriptorWriter::AeDescriptorWriter(AeDescriptorSetLayout& t_setLayout, AeDescriptorPool& t_pool)
-        : m_setLayout{ t_setLayout }, m_pool{ t_pool } {};
-
-
+    AeDescriptorWriter::AeDescriptorWriter(std::shared_ptr<AeDescriptorSetLayout> t_setLayout, AeDescriptorPool& t_pool)
+        : m_setLayout{t_setLayout}, m_pool{ t_pool } {};
 
     // Write data to a buffer type descriptor.
     AeDescriptorWriter& AeDescriptorWriter::writeBuffer(
         uint32_t t_binding, VkDescriptorBufferInfo* t_bufferInfo) {
 
         // Ensure the binding number is defined in the set layout.
-        assert(m_setLayout.m_bindings.count(t_binding) == 1 && "Layout does not contain specified binding");
+        assert(m_setLayout->m_bindings.count(t_binding) == 1 && "Layout does not contain specified binding");
 
-        auto& bindingDescription = m_setLayout.m_bindings[t_binding];
+        auto& bindingDescription = m_setLayout->m_bindings[t_binding];
 
         // Ensure that the descriptor count in the binding description is just one since this function only deals with
         // writing to a single description.
@@ -241,9 +239,9 @@ namespace ae {
         uint32_t t_binding, VkDescriptorImageInfo* t_imageInfo) {
 
         // Ensure the binding number is defined in the set layout.
-        assert(m_setLayout.m_bindings.count(t_binding) == 1 && "Layout does not contain specified binding");
+        assert(m_setLayout->m_bindings.count(t_binding) == 1 && "Layout does not contain specified binding");
 
-        auto& bindingDescription = m_setLayout.m_bindings[t_binding];
+        auto& bindingDescription = m_setLayout->m_bindings[t_binding];
 
         // Ensure that the descriptor count in the binding description is just one since this function only deals with
         // writing to a single description.
@@ -270,7 +268,7 @@ namespace ae {
     bool AeDescriptorWriter::build(VkDescriptorSet& t_set) {
 
         // Allocate a descriptor set from the descriptor set pool.
-        bool success = m_pool.allocateDescriptorSet(m_setLayout.getDescriptorSetLayout(), t_set);
+        bool success = m_pool.allocateDescriptorSet(m_setLayout->getDescriptorSetLayout(), t_set);
         if (!success) {
             return false;
         }
@@ -279,6 +277,11 @@ namespace ae {
         overwrite(t_set);
         return true;
     }
+
+    AeDescriptorWriter& AeDescriptorWriter::clearWriteData(){
+        m_writes.clear();
+        return *this;
+    };
 
 
 

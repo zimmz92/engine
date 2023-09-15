@@ -6,6 +6,7 @@
 
 #include "ae_ecs_include.hpp"
 #include "game_components.hpp"
+#include "ae_samplers.hpp"
 
 #include "camera_update_system.hpp"
 #include "player_input_system.hpp"
@@ -20,13 +21,24 @@ namespace ae {
     struct GameSystems{
 
         /// Constructor for this struct.
-        GameSystems(ae_ecs::AeECS& t_ecs, GameComponents& t_game_components, GLFWwindow* t_window, AeDevice& t_device, AeRenderer& t_renderer) {
+        GameSystems(ae_ecs::AeECS& t_ecs,
+                    GameComponents& t_game_components,
+                    GLFWwindow* t_window,
+                    AeDevice& t_device,
+                    AeRenderer& t_renderer,
+                    AeSamplers& t_samplers) {
             timingSystem = new TimingSystem(t_ecs);
             playerInputSystem = new PlayerInputSystem(t_ecs, t_game_components, *timingSystem, t_window);
             cameraUpdateSystem = new CameraUpdateSystem(t_ecs, t_game_components, *playerInputSystem, t_renderer);
             cyclePointLightsSystem = new CyclePointLightsSystem(t_ecs, t_game_components, *timingSystem);
             updateUboSystem = new UpdateUboSystem(t_ecs, t_game_components, *cameraUpdateSystem, *cyclePointLightsSystem);
-            rendererSystem = new RendererStartPassSystem(t_ecs, t_game_components, *updateUboSystem, *timingSystem, t_renderer, t_device);
+            rendererSystem = new RendererStartPassSystem(t_ecs,
+                                                         t_game_components,
+                                                         *updateUboSystem,
+                                                         *timingSystem,
+                                                         t_renderer,
+                                                         t_device,
+                                                         t_samplers);
         };
 
         /// Destructor for this struct.

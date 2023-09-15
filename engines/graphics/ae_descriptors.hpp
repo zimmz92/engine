@@ -35,8 +35,8 @@ namespace ae {
                 uint32_t t_count = 1);
 
             /// Creates the descriptor set layout from the bindings in m_bindings.
-            /// \return A unique pointer to a descriptor set layout for the bindings added to the builder.
-            std::unique_ptr<AeDescriptorSetLayout> build() const;
+            /// \return A shared pointer to a descriptor set layout for the bindings added to the builder.
+            std::shared_ptr<AeDescriptorSetLayout> build() const;
 
         private:
             /// The device that the bindings are being made for.
@@ -174,7 +174,7 @@ namespace ae {
         /// Creates the descriptor writer class for handling descriptor sets from the pool.
         /// \param t_setLayout The descriptor set layout that the writer will be handling.
         /// \param t_pool The descriptor pool this writer will be handling descriptor sets for.
-        AeDescriptorWriter(AeDescriptorSetLayout &t_setLayout, AeDescriptorPool &t_pool);
+        AeDescriptorWriter(std::shared_ptr<AeDescriptorSetLayout> t_setLayout, AeDescriptorPool &t_pool);
 
         /// Writes data to a buffer in the descriptor set.
         /// \param t_binding The binding index of the descriptor set the data will be written into.
@@ -198,9 +198,12 @@ namespace ae {
         /// \param t_set A descriptor set reference to the descriptor set which will have it's data overwritten.
         void overwrite(VkDescriptorSet &t_set);
 
+        /// Clears the data the writer is storing that is to be written to the descriptor
+        AeDescriptorWriter& clearWriteData();
+
     private:
         /// A reference to the descriptor set layout of the descriptor sets this class handles.
-        AeDescriptorSetLayout &m_setLayout;
+        std::shared_ptr<AeDescriptorSetLayout> m_setLayout{};
 
         /// A reference to the descriptor pool that this class will fetch descriptor sets from and populate with the
         /// specified data.

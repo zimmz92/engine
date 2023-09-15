@@ -9,6 +9,7 @@
 
 #include "ae_device.hpp"
 #include "ae_pipeline.hpp"
+#include "ae_descriptors.hpp"
 
 
 namespace ae {
@@ -32,7 +33,12 @@ namespace ae {
         /// \param t_renderPass The current render pass that will be used to execute this system.
         /// \param t_globalSetLayout The layout of the set of information that is common to all render systems.
         /// \param t_textureSetLayout The descriptor set layout for the textures and materials used by a model.
-        UiRenderSystem(ae_ecs::AeECS& t_ecs, GameComponents& t_game_components, AeDevice& t_aeDevice, VkRenderPass t_renderPass, VkDescriptorSetLayout t_globalSetLayout, VkDescriptorSetLayout t_textureSetLayout);
+        UiRenderSystem(ae_ecs::AeECS& t_ecs,
+                       GameComponents& t_game_components,
+                       AeDevice& t_aeDevice,
+                       VkRenderPass t_renderPass,
+                       VkDescriptorSetLayout t_globalSetLayout,
+                       VkDescriptorSetLayout t_textureSetLayout);
 
         /// Destructor of the SimpleRenderSystem
         ~UiRenderSystem();
@@ -41,7 +47,10 @@ namespace ae {
         void setupSystem() override;
 
         /// Execute the SimpleRenderSystem, this is handled by the RendererSystem.
-        void executeSystem(VkCommandBuffer& t_commandBuffer, VkDescriptorSet t_globalDescriptorSet, VkDescriptorSet t_textureDescriptorSet);
+        void executeSystem(VkCommandBuffer& t_commandBuffer,
+                           VkDescriptorSet t_globalDescriptorSet,
+                           VkDescriptorSet t_textureDescriptorSet,
+                           AeDescriptorWriter& t_textureDescriptorWriter);
 
         /// DO NOT CALL! This is not used by this system.
         void executeSystem() override {
@@ -86,7 +95,8 @@ namespace ae {
         /// The pipeline created for this render system.
         std::unique_ptr<AePipeline> m_aePipeline;
 
-
+        /// The default image for the
+        std::shared_ptr<AeImage> m_defaultImage;
 
         /// Calculates the push constant data for a specified entity.
         /// \param t_translation The translation data for the entity.

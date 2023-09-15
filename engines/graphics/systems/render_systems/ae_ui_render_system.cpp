@@ -10,8 +10,12 @@
 namespace ae {
 
     // Constructor implementation
-    UiRenderSystem::UiRenderSystem(ae_ecs::AeECS& t_ecs, GameComponents &t_game_components, AeDevice &t_aeDevice,
-                                           VkRenderPass t_renderPass, VkDescriptorSetLayout t_globalSetLayout, VkDescriptorSetLayout t_textureSetLayout)
+    UiRenderSystem::UiRenderSystem(ae_ecs::AeECS& t_ecs,
+                                   GameComponents &t_game_components,
+                                   AeDevice &t_aeDevice,
+                                   VkRenderPass t_renderPass,
+                                   VkDescriptorSetLayout t_globalSetLayout,
+                                   VkDescriptorSetLayout t_textureSetLayout)
             : m_model2DComponent{t_game_components.model2DComponent},
               m_aeDevice{t_aeDevice},
               ae_ecs::AeSystem<UiRenderSystem>(t_ecs) {
@@ -24,6 +28,10 @@ namespace ae {
         // This is a child system and dependencies, as well as execution, will be handled by the parent system,
         // RendererSystem.
         this->isChildSystem = true;
+
+        // Create a default image to be used if a model does not have one so it is easy to identify if something is
+        // missing and where it might be missing from.
+        m_defaultImage = AeImage::createModelFromFile(m_aeDevice,"assets/ui_textures/default.jpg");
 
         // Creates the pipeline layout accounting for the global layout and sets the m_pipelineLayout member variable.
         createPipelineLayout(t_globalSetLayout, t_textureSetLayout);
@@ -47,7 +55,10 @@ namespace ae {
 
 
     // Renders the models.
-    void UiRenderSystem::executeSystem(VkCommandBuffer &t_commandBuffer, VkDescriptorSet t_globalDescriptorSet, VkDescriptorSet t_textureDescriptorSet) {
+    void UiRenderSystem::executeSystem(VkCommandBuffer &t_commandBuffer,
+                                       VkDescriptorSet t_globalDescriptorSet,
+                                       VkDescriptorSet t_textureDescriptorSet,
+                                       AeDescriptorWriter& t_textureDescriptorWriter) {
 
         // Tell the pipeline what the current command buffer being worked on is.
         m_aePipeline->bind(t_commandBuffer);
@@ -64,16 +75,6 @@ namespace ae {
                 0,
                 1,
                 &t_globalDescriptorSet,
-                0,
-                nullptr);
-
-        vkCmdBindDescriptorSets(
-                t_commandBuffer,
-                VK_PIPELINE_BIND_POINT_GRAPHICS,
-                m_pipelineLayout,
-                1,
-                1,
-                &t_textureDescriptorSet,
                 0,
                 nullptr);
 
@@ -99,6 +100,32 @@ namespace ae {
             vkCmdPushConstants(t_commandBuffer, m_pipelineLayout,
                                VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
                                sizeof(UiPushConstantData), &push);
+
+            if( (entityModelData.m_texture != nullptr) && (entityModelData.m_sampler != nullptr)){
+                // Update the texture data.
+                VkDescriptorImageInfo imageInfo{};
+                imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                imageInfo.imageView = entityModelData.m_texture->getImageView();
+                imageInfo.sampler = entityModelData.m_sampler;
+
+                // Clear the old data from then write the texture to the texture descriptor
+                t_textureDescriptorWriter.clearWriteData();
+                t_textureDescriptorWriter.writeImage(0, &imageInfo);
+                t_textureDescriptorWriter.overwrite(t_textureDescriptorSet);
+            } else {
+                throw std::runtime_error("Entity being rendered by the ui_render_system does not have either a texture "
+                                         "or a sampler!");
+            }
+
+            vkCmdBindDescriptorSets(
+                    t_commandBuffer,
+                    VK_PIPELINE_BIND_POINT_GRAPHICS,
+                    m_pipelineLayout,
+                    1,
+                    1,
+                    &t_textureDescriptorSet,
+                    0,
+                    nullptr);
 
             // Bind the model buffer(s) to the command buffer.
             entityModelData.m_2d_model->bind(t_commandBuffer);
