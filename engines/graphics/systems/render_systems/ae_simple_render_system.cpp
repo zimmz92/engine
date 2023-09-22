@@ -194,7 +194,7 @@ namespace ae {
         // Matrix corresponds to Translate * Ry * Rx * Rz * Scale
         // Rotations correspond to Tait-bryan angles of Y(1), X(2), Z(3)
         // https://en.wikipedia.org/wiki/Euler_angles#Rotation_matrix
-        glm::mat4 rotationMatrix = {
+        glm::mat4 modelMatrix = {
                 {
                         scale.x * (c1 * c3 + s1 * s2 * s3),
                         scale.x * (c2 * s3),
@@ -241,6 +241,6 @@ namespace ae {
                         invScale.z * (c1 * c2),
                     }};
 
-        return {rotationMatrix, normalMatrix};
+        return {modelMatrix, normalMatrix};
     };
 }
