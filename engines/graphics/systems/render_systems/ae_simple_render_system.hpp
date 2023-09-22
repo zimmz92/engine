@@ -28,7 +28,8 @@ namespace ae {
         glm::mat4 normalMatrix{ 1.0f };
 
         /// The index of the objects texture;
-        int textureIndex;
+        uint32_t textureIndex=0;
+        uint32_t alignmentInt=0;
     };
 
     /// A child system of the RendererSystem which renders the entity models.
@@ -41,7 +42,8 @@ namespace ae {
                            AeDevice& t_aeDevice,
                            VkRenderPass t_renderPass,
                            VkDescriptorSetLayout t_globalSetLayout,
-                           VkDescriptorSetLayout t_textureSetLayout);
+                           VkDescriptorSetLayout t_textureSetLayout,
+                           VkDescriptorSetLayout t_objectSetLayout);
 
         /// Destructor of the SimpleRenderSystem
         ~SimpleRenderSystem();
@@ -53,7 +55,7 @@ namespace ae {
         void executeSystem(VkCommandBuffer& t_commandBuffer,
                            VkDescriptorSet t_globalDescriptorSet,
                            VkDescriptorSet t_textureDescriptorSet,
-                           AeDescriptorWriter& t_textureDescriptorWriter,
+                           VkDescriptorSet t_objectDescriptorSet,
                            uint64_t t_frameIndex);
 
         /// DO NOT CALL! This is not used by this system.
@@ -65,6 +67,13 @@ namespace ae {
 
         /// Clean up the SimpleRenderSystem, this is handled by the RendererSystem.
         void cleanupSystem() override;
+
+        /// Calculates the push constant data for a specified entity.
+        /// \param t_translation The translation data for the entity, this normally corresponds to world position but
+        /// could be the world position plus an additional offset.
+        /// \param t_rotation The rotation of the entity, typically the direction the entity is facing.
+        /// \param t_scale The scaling for the entity's model.
+        static SimplePushConstantData calculatePushConstantData(glm::vec3 t_translation, glm::vec3 t_rotation, glm::vec3 t_scale);
 
     private:
 
@@ -83,7 +92,9 @@ namespace ae {
         /// Creates the pipeline layout for the SimpleRenderSystem.
         /// \param t_globalSetLayout The general descriptor set for the devices and general rendering setting that need
         /// to be accounted for when setting up the render pipeline for this system.
-        void createPipelineLayout(VkDescriptorSetLayout t_globalSetLayout, VkDescriptorSetLayout t_textureSetLayout);
+        void createPipelineLayout(VkDescriptorSetLayout t_globalSetLayout,
+                                  VkDescriptorSetLayout t_textureSetLayout,
+                                  VkDescriptorSetLayout t_objectSetLayout);
 
         /// Creates the pipeline based on the render pass this pipeline should be associated with for the
         /// SimpleRenderSystem.
@@ -100,14 +111,6 @@ namespace ae {
         /// The pipeline created for this render system.
         std::unique_ptr<AePipeline> m_aePipeline;
 
-
-
-        /// Calculates the push constant data for a specified entity.
-        /// \param t_translation The translation data for the entity, this normally corresponds to world position but
-        /// could be the world position plus an additional offset.
-        /// \param t_rotation The rotation of the entity, typically the direction the entity is facing.
-        /// \param t_scale The scaling for the entity's model.
-        SimplePushConstantData calculatePushConstantData(glm::vec3 t_translation, glm::vec3 t_rotation, glm::vec3 t_scale);
     };
 }
 

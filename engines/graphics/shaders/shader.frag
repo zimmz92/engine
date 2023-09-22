@@ -1,4 +1,4 @@
-#version 450
+#version 460
 
 layout(location = 0) in vec3 fragColor;
 layout(location = 1) in vec3 fragPosWorld;
@@ -22,6 +22,17 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
 } ubo;
 
 layout(set = 1, binding = 0) uniform sampler2D texSampler[8];
+
+//all object matrices
+struct ObjectData{
+	mat4 modelMatrix;
+	mat4 normalMatrix;
+	uint textureIndex;
+	uint alignmentInt;
+};
+layout(std140,set = 2, binding = 0) readonly buffer ObjectBuffer{
+	ObjectData objects[];
+} objectBuffer;
 
 layout(push_constant) uniform Push {
     mat4 modelMatrix; // projection * view * model

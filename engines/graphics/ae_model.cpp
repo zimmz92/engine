@@ -158,14 +158,14 @@ namespace ae {
 
 
     // Submit the draw command for the model to the specified command buffer.
-	void  AeModel::draw(VkCommandBuffer t_commandBuffer) {
+	void  AeModel::draw(VkCommandBuffer t_commandBuffer,int t_objectBufferIndex) {
 		if (m_hasIndexBuffer) {
             // Draw using the indexed vertex buffer if available.
-			vkCmdDrawIndexed(t_commandBuffer, m_indexCount, 1, 0, 0, 0);
+			vkCmdDrawIndexed(t_commandBuffer, m_indexCount, 1, 0, 0, t_objectBufferIndex);
 		}
 		else {
             // If just using a vertex buffer draw only using vertex buffer information.
-			vkCmdDraw(t_commandBuffer, m_vertexCount, 1, 0, 0);
+			vkCmdDraw(t_commandBuffer, m_vertexCount, 1, 0, t_objectBufferIndex);
 		}
 		
 	}

@@ -1,4 +1,4 @@
-#version 450
+#version 460
 
 layout(location = 0) in vec3 position;
 layout(location = 1) in vec3 color;
@@ -24,6 +24,18 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
     int numLights;
 } ubo;
 
+//all object matrices
+struct ObjectData{
+	mat4 modelMatrix;
+	mat4 normalMatrix;
+	uint textureIndex;
+	uint alignmentInt;
+};
+
+layout(std140,set = 2, binding = 0) readonly buffer ObjectBuffer{
+	ObjectData objects[];
+} objectBuffer;
+
 layout(push_constant) uniform Push {
     mat4 modelMatrix; // projection * view * model
     mat4 normalMatrix;
@@ -33,9 +45,9 @@ layout(push_constant) uniform Push {
 const float AMBIENT = 0.02;
 
 void main() {
-    vec4 positionWorld = push.modelMatrix * vec4(position, 1.0);
+    vec4 positionWorld = objectBuffer.objects[gl_BaseInstance].modelMatrix * vec4(position, 1.0);
     gl_Position = ubo.projection * ubo.view * positionWorld;
-    fragNormalWorld = normalize(mat3(push.normalMatrix) * normal);
+    fragNormalWorld = normalize(mat3(objectBuffer.objects[gl_BaseInstance].normalMatrix) * normal);
     fragPosWorld = positionWorld.xyz;
     fragColor = color;
     fragTexCoord = uv;

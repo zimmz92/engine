@@ -70,7 +70,7 @@ namespace ae {
         TimingSystem& m_timingSystem;
 
         /// Updates the texture descriptor set for the current frame being rendered.
-        void updateTextureDescriptorSet();
+        void updateDescriptorSets();
 
 
         /// Reference to the game renderer
@@ -88,20 +88,28 @@ namespace ae {
         /// The UBO buffer objects for each frame in flight
         std::vector<std::unique_ptr<AeBuffer>> m_uboBuffers;
 
+        /// The texture descriptor sets used for each of the allowed frames in flight.
+        std::vector<VkDescriptorSet> m_textureDescriptorSets;
+
+        /// The texture descriptor writers.
+        AeDescriptorWriter* m_textureDescriptorWriter;
+
+        /// The object descriptor sets used for storing the model matrices and texture indexes.
+        std::vector<VkDescriptorSet> m_objectDescriptorSets;
+
+        /// The object buffers for each frame
+        std::vector<std::unique_ptr<AeBuffer>> m_objectBuffers;
+
         /// The frame index for the current render pass.
         int m_frameIndex;
 
         /// Command buffer for the current render pass
         VkCommandBuffer m_commandBuffer;
 
-        /// The texture descriptor sets used for each of the allowed frames in flight.
-        std::vector<VkDescriptorSet> m_textureDescriptorSets;
-
         /// The samplers the render system utilizes.
         AeSamplers& m_aeSamplers;
 
-        /// The texture descriptor writers.
-        AeDescriptorWriter* m_textureDescriptorWriter;
+
 
         // Child render systems
         /// Pointer to the point light render system

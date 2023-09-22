@@ -54,7 +54,6 @@ namespace ae {
     void UiRenderSystem::executeSystem(VkCommandBuffer &t_commandBuffer,
                                        VkDescriptorSet t_globalDescriptorSet,
                                        VkDescriptorSet t_textureDescriptorSet,
-                                       AeDescriptorWriter& t_textureDescriptorWriter,
                                        uint64_t t_frameIndex) {
 
         // Tell the pipeline what the current command buffer being worked on is.

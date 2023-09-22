@@ -15,7 +15,8 @@ namespace ae {
                                            AeDevice &t_aeDevice,
                                            VkRenderPass t_renderPass,
                                            VkDescriptorSetLayout t_globalSetLayout,
-                                           VkDescriptorSetLayout t_textureSetLayout)
+                                           VkDescriptorSetLayout t_textureSetLayout,
+                                           VkDescriptorSetLayout t_objectSetLayout)
             : m_worldPositionComponent{t_game_components.worldPositionComponent},
               m_model2DComponent{t_game_components.modelComponent},
               m_aeDevice{t_aeDevice},
@@ -32,7 +33,7 @@ namespace ae {
         this->isChildSystem = true;
 
         // Creates the pipeline layout accounting for the global layout and sets the m_pipelineLayout member variable.
-        createPipelineLayout(t_globalSetLayout, t_textureSetLayout);
+        createPipelineLayout(t_globalSetLayout, t_textureSetLayout, t_objectSetLayout);
 
         // Creates a graphics pipeline for this render system and sets the m_aePipeline member variable.
         createPipeline(t_renderPass);
@@ -56,7 +57,7 @@ namespace ae {
     void SimpleRenderSystem::executeSystem(VkCommandBuffer &t_commandBuffer,
                                            VkDescriptorSet t_globalDescriptorSet,
                                            VkDescriptorSet t_textureDescriptorSet,
-                                           AeDescriptorWriter& t_textureDescriptorWriter,
+                                           VkDescriptorSet t_objectDescriptorSet,
                                            uint64_t t_frameIndex) {
 
         // Tell the pipeline what the current command buffer being worked on is.
@@ -83,12 +84,23 @@ namespace ae {
                 0,
                 nullptr);
 
+        vkCmdBindDescriptorSets(
+                t_commandBuffer,
+                VK_PIPELINE_BIND_POINT_GRAPHICS,
+                m_pipelineLayout,
+                2,
+                1,
+                &t_objectDescriptorSet,
+                0,
+                nullptr);
+
 
         // Get the entities that use the components this system depends on.
         std::vector<ecs_id> validEntityIds = m_systemManager.getValidEntities(this->getSystemId());
 
 
         // Loop through the entities if they have models render them.
+        int j=0;
         for (ecs_id entityId: validEntityIds) {
             // Get the world position and model of the entity
             glm::vec3 entityWorldPosition = m_worldPositionComponent.getWorldPositionVec3(entityId);
@@ -117,7 +129,8 @@ namespace ae {
             entityModelData.m_model->bind(t_commandBuffer);
 
             // Draw the model.
-            entityModelData.m_model->draw(t_commandBuffer);
+            entityModelData.m_model->draw(t_commandBuffer, j);
+            j++;
         };
     };
 
@@ -127,7 +140,9 @@ namespace ae {
 
 
     // Creates the pipeline layout for the point light render system.
-    void SimpleRenderSystem::createPipelineLayout(VkDescriptorSetLayout t_globalSetLayout, VkDescriptorSetLayout t_textureSetLayout) {
+    void SimpleRenderSystem::createPipelineLayout(VkDescriptorSetLayout t_globalSetLayout,
+                                                  VkDescriptorSetLayout t_textureSetLayout,
+                                                  VkDescriptorSetLayout t_objectSetLayout) {
 
         // Define the push constant information for this pipeline.
         VkPushConstantRange pushConstantRange{};
@@ -136,7 +151,9 @@ namespace ae {
         pushConstantRange.size = sizeof(SimplePushConstantData);
 
         // Prepare the descriptor set layouts based on the global set layout for the device.
-        std::vector<VkDescriptorSetLayout> descriptorSetLayouts{t_globalSetLayout, t_textureSetLayout};
+        std::vector<VkDescriptorSetLayout> descriptorSetLayouts{t_globalSetLayout,
+                                                                t_textureSetLayout,
+                                                                t_objectSetLayout};
 
         // Define the specific layout of the point light renderer.
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};

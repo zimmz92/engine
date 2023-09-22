@@ -54,7 +54,6 @@ namespace ae {
         void executeSystem(VkCommandBuffer& t_commandBuffer,
                            VkDescriptorSet t_globalDescriptorSet,
                            VkDescriptorSet t_textureDescriptorSet,
-                           AeDescriptorWriter& t_textureDescriptorWriter,
                            uint64_t t_frameIndex);
 
         /// DO NOT CALL! This is not used by this system.
