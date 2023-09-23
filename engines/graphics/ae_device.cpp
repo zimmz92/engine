@@ -209,6 +209,14 @@ namespace ae {
 		createInfo.enabledExtensionCount = static_cast<uint32_t>(m_deviceExtensions.size());
 		createInfo.ppEnabledExtensionNames = m_deviceExtensions.data();
 
+        VkPhysicalDeviceShaderDrawParametersFeatures shader_draw_parameters{};
+        shader_draw_parameters.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DRAW_PARAMETERS_FEATURES;
+        shader_draw_parameters.pNext = nullptr;
+        shader_draw_parameters.shaderDrawParameters = VK_TRUE;
+
+        createInfo.pNext = &shader_draw_parameters;
+
+
         // Add the validation layers if enabled.
 		if (m_enableValidationLayers) {
 			createInfo.enabledLayerCount = static_cast<uint32_t>(m_validationLayers.size());

@@ -18,13 +18,13 @@ namespace ae {
                                            VkDescriptorSetLayout t_textureSetLayout,
                                            VkDescriptorSetLayout t_objectSetLayout)
             : m_worldPositionComponent{t_game_components.worldPositionComponent},
-              m_model2DComponent{t_game_components.modelComponent},
+              m_modelComponent{t_game_components.modelComponent},
               m_aeDevice{t_aeDevice},
               ae_ecs::AeSystem<SimpleRenderSystem>(t_ecs) {
 
         // Register component dependencies
         m_worldPositionComponent.requiredBySystem(this->getSystemId());
-        m_model2DComponent.requiredBySystem(this->getSystemId());
+        m_modelComponent.requiredBySystem(this->getSystemId());
 
 
         // Register system dependencies
@@ -104,7 +104,7 @@ namespace ae {
         for (ecs_id entityId: validEntityIds) {
             // Get the world position and model of the entity
             glm::vec3 entityWorldPosition = m_worldPositionComponent.getWorldPositionVec3(entityId);
-            ModelComponentStruct& entityModelData = m_model2DComponent.getDataReference(entityId);
+            ModelComponentStruct& entityModelData = m_modelComponent.getDataReference(entityId);
 
             // Make sure the entity actually has a model to render.
             if (entityModelData.m_model == nullptr) continue;

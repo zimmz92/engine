@@ -266,29 +266,46 @@ namespace ae {
         int j = 0;
         SimplePushConstantData data[MAX_OBJECTS];
         for(auto entityId:validEntityIds_simpleRenderSystem){
-            auto entityModelData = m_gameComponents.modelComponent.getDataReference(entityId);
-            auto entityWorldPosition = m_gameComponents.worldPositionComponent.getWorldPositionVec3(entityId);
+            ModelComponentStruct& entityModelData = m_gameComponents.modelComponent.getDataReference(entityId);
+            glm::vec3 entityWorldPosition = m_gameComponents.worldPositionComponent.getWorldPositionVec3(entityId);
+
+            if (entityModelData.m_model == nullptr) continue;
+
+            // Set the model matrix data to be pushed to the object buffer.
+            data[j] = SimpleRenderSystem::calculatePushConstantData(entityWorldPosition,
+                                                                    entityModelData.rotation,
+                                                                    entityModelData.scale);
+
+            // Check if the object has a texture. If not set it such that the model is rendered using only its vertex
+            // colors.
             if(entityModelData.m_texture == nullptr){
+                data[j].textureIndex = MAX_TEXTURE_DESCRIPTORS + 1;
+                j++;
                 continue;
             }
 
+            // Check to see if the texture is already part of the texture array.
             bool imageIsUnique = true;
             for(int i = 0; uniqueImages.size() ; i++){
+                // If the texture is already part of the array set the data for the object to that texture array index.
                 if(entityModelData.m_texture == uniqueImages[i]){
                     imageIsUnique = false;
+                    data[j].textureIndex = i;
+                    j++;
                     break;
                 };
             };
+
+            // If the image was found to be unique then add it to the texture array and set the object data texture
+            // index accordingly.
             if(imageIsUnique){
                 entityModelData.m_texture->setTextureDescriptorIndex(m_frameIndex, uniqueImages.size());
+                data[j].textureIndex = uniqueImages.size();
+                j++;
                 uniqueImages.push_back(entityModelData.m_texture);
             };
 
-            data[j] = SimpleRenderSystem::calculatePushConstantData(entityWorldPosition,
-                                                                                        entityModelData.rotation,
-                                                                                        entityModelData.scale);
-            data[j].textureIndex = entityModelData.m_texture->getTextureDescriptorIndex(m_frameIndex);
-            j++;
+
         };
 
         m_objectBuffers[m_frameIndex]->writeToBuffer(&data);

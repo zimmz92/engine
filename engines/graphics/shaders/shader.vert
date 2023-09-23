@@ -9,6 +9,7 @@ layout(location = 0) out vec3 fragColor;
 layout(location = 1) out vec3 fragPosWorld;
 layout(location = 2) out vec3 fragNormalWorld;
 layout(location = 3) out vec2 fragTexCoord;
+layout(location = 4) out int baseInstance;
 
 struct PointLight{
     vec4 position;
@@ -29,17 +30,16 @@ struct ObjectData{
 	mat4 modelMatrix;
 	mat4 normalMatrix;
 	uint textureIndex;
-	uint alignmentInt;
 };
 
-layout(std140,set = 2, binding = 0) readonly buffer ObjectBuffer{
+layout(set = 2, binding = 0) readonly buffer ObjectBuffer{
 	ObjectData objects[];
 } objectBuffer;
 
 layout(push_constant) uniform Push {
     mat4 modelMatrix; // projection * view * model
     mat4 normalMatrix;
-    int textureIndex;
+    uint textureIndex;
 } push;
 
 const float AMBIENT = 0.02;
@@ -51,4 +51,5 @@ void main() {
     fragPosWorld = positionWorld.xyz;
     fragColor = color;
     fragTexCoord = uv;
+    baseInstance = gl_BaseInstance;
 }

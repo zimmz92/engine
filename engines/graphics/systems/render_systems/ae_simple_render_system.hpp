@@ -28,8 +28,7 @@ namespace ae {
         glm::mat4 normalMatrix{ 1.0f };
 
         /// The index of the objects texture;
-        uint32_t textureIndex=0;
-        uint32_t alignmentInt=0;
+        alignas(16) uint32_t textureIndex=MAX_TEXTURE_DESCRIPTORS + 1;
     };
 
     /// A child system of the RendererSystem which renders the entity models.
@@ -81,7 +80,7 @@ namespace ae {
         /// The WorldPositionComponent this systems accesses to know where an entity is to render it.
         WorldPositionComponent& m_worldPositionComponent;
         /// The ModelComponent this system accesses to render the entity in the game world.
-        ModelComponent& m_model2DComponent;
+        ModelComponent& m_modelComponent;
 
 
         // Prerequisite systems for the SimpleRenderSystem.

@@ -4,6 +4,7 @@ layout(location = 0) in vec3 fragColor;
 layout(location = 1) in vec3 fragPosWorld;
 layout(location = 2) in vec3 fragNormalWorld;
 layout(location = 3) in vec2 fragTexCoord;
+layout(location = 4) flat in int baseInstance;
 
 layout(location = 0) out vec4 outColor;
 
@@ -28,16 +29,16 @@ struct ObjectData{
 	mat4 modelMatrix;
 	mat4 normalMatrix;
 	uint textureIndex;
-	uint alignmentInt;
 };
-layout(std140,set = 2, binding = 0) readonly buffer ObjectBuffer{
+
+layout(set = 2, binding = 0) readonly buffer ObjectBuffer{
 	ObjectData objects[];
 } objectBuffer;
 
 layout(push_constant) uniform Push {
     mat4 modelMatrix; // projection * view * model
     mat4 normalMatrix;
-    int textureIndex;
+    uint textureIndex;
 } push;
 
 void main() {
@@ -67,12 +68,16 @@ void main() {
         specularLight += intensity * blinnTerm;
     }
 
+    uint texIndex = objectBuffer.objects[baseInstance].textureIndex;
+    //uint texIndex = push.textureIndex;
+
+
     if(push.textureIndex == 9)
     {
         outColor = vec4(diffuseLight * fragColor + specularLight * fragColor, 1.0);
     }
     else
     {
-        outColor = vec4(diffuseLight * fragColor * texture(texSampler[push.textureIndex], fragTexCoord).rgb + specularLight * fragColor * texture(texSampler[uint(push.textureIndex)], fragTexCoord).rgb, 1.0);
+        outColor = vec4(diffuseLight * fragColor * texture(texSampler[texIndex], fragTexCoord).rgb + specularLight * fragColor * texture(texSampler[uint(texIndex)], fragTexCoord).rgb, 1.0);
     }
 }
