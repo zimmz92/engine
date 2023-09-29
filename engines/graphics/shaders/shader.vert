@@ -36,12 +36,6 @@ layout(set = 2, binding = 0) readonly buffer ObjectBuffer{
 	ObjectData objects[];
 } objectBuffer;
 
-layout(push_constant) uniform Push {
-    mat4 modelMatrix; // projection * view * model
-    mat4 normalMatrix;
-    uint textureIndex;
-} push;
-
 const float AMBIENT = 0.02;
 
 void main() {

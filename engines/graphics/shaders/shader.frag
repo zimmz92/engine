@@ -35,12 +35,6 @@ layout(set = 2, binding = 0) readonly buffer ObjectBuffer{
 	ObjectData objects[];
 } objectBuffer;
 
-layout(push_constant) uniform Push {
-    mat4 modelMatrix; // projection * view * model
-    mat4 normalMatrix;
-    uint textureIndex;
-} push;
-
 void main() {
     vec3 diffuseLight = ubo.ambientLightColor.xyz * ubo.ambientLightColor.w;
     vec3 specularLight = vec3(0.0);
@@ -69,10 +63,9 @@ void main() {
     }
 
     uint texIndex = objectBuffer.objects[baseInstance].textureIndex;
-    //uint texIndex = push.textureIndex;
 
 
-    if(push.textureIndex == 9)
+    if(texIndex == 9)
     {
         outColor = vec4(diffuseLight * fragColor + specularLight * fragColor, 1.0);
     }

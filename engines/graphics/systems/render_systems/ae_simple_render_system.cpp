@@ -102,28 +102,10 @@ namespace ae {
         // Loop through the entities if they have models render them.
         int j=0;
         for (ecs_id entityId: validEntityIds) {
-            // Get the world position and model of the entity
-            glm::vec3 entityWorldPosition = m_worldPositionComponent.getWorldPositionVec3(entityId);
-            ModelComponentStruct& entityModelData = m_modelComponent.getDataReference(entityId);
 
             // Make sure the entity actually has a model to render.
+            ModelComponentStruct& entityModelData = m_modelComponent.getDataReference(entityId);
             if (entityModelData.m_model == nullptr) continue;
-
-            // Get the simple render system push constants for the current entity.
-            SimplePushConstantData push{calculatePushConstantData(entityWorldPosition,
-                                                                  entityModelData.rotation,
-                                                                  entityModelData.scale)};
-
-            if(entityModelData.m_texture != nullptr){
-                push.textureIndex =  entityModelData.m_texture->getTextureDescriptorIndex(t_frameIndex);
-            } else {
-                push.textureIndex = MAX_TEXTURE_DESCRIPTORS + 1;
-            }
-
-            // Update the push constant data.
-            vkCmdPushConstants(t_commandBuffer, m_pipelineLayout,
-                               VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
-                               sizeof(SimplePushConstantData), &push);
 
             // Bind the model buffer(s) to the command buffer.
             entityModelData.m_model->bind(t_commandBuffer);
@@ -144,11 +126,6 @@ namespace ae {
                                                   VkDescriptorSetLayout t_textureSetLayout,
                                                   VkDescriptorSetLayout t_objectSetLayout) {
 
-        // Define the push constant information for this pipeline.
-        VkPushConstantRange pushConstantRange{};
-        pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
-        pushConstantRange.offset = 0;
-        pushConstantRange.size = sizeof(SimplePushConstantData);
 
         // Prepare the descriptor set layouts based on the global set layout for the device.
         std::vector<VkDescriptorSetLayout> descriptorSetLayouts{t_globalSetLayout,
@@ -160,8 +137,6 @@ namespace ae {
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
         pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
         pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
-        pipelineLayoutInfo.pushConstantRangeCount = 1;
-        pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange; // Send a small amount of data to shader program
 
         // Attempt to create the pipeline layout, if it cannot error out.
         if (vkCreatePipelineLayout(m_aeDevice.device(),
