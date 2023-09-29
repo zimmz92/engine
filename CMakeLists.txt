@@ -11,13 +11,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DMY_DEBUG")
 #set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DECS_DEBUG")
 
-# Attempt to specify where the Vulkan is before trying to find it.
-if(WIN32)
-    file (TO_NATIVE_PATH "C:/VulkanSDK/1.2.182.0/Bin32" VULKANDIR)
-else()
-    file (TO_NATIVE_PATH "/home/jzimmermann/my_programs/vulkan_sdk/1.3.243.0/x86_64/bin" VULKANDIR)
-endif()
-
 # Add Vulkan and dependant libraries to the project
 find_package(Vulkan REQUIRED)
 
