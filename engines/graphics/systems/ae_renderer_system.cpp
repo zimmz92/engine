@@ -113,7 +113,7 @@ namespace ae {
         }
 
         //==============================================================================================================
-        // Setup Object Shader Storage Buffer Object (SSBO)
+        // Setup Object Shader Storage Buffer for 3D Objects (SSBO)
         //==============================================================================================================
 
         // Allocate memory for the object buffers

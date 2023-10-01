@@ -72,33 +72,11 @@ namespace ae {
         /// Updates the texture descriptor set for the current frame being rendered.
         void updateDescriptorSets();
 
-
         /// Reference to the game renderer
         AeRenderer& m_renderer; // TODO: Make this an entity of it's own?
 
         /// Reference to the game graphics device
         AeDevice& m_aeDevice;
-
-        /// The global pool;
-        std::unique_ptr<AeDescriptorPool> m_globalPool;
-
-        /// The global descriptor sets used for each of the allowed frames in flight.
-        std::vector<VkDescriptorSet> m_globalDescriptorSets;
-
-        /// The UBO buffer objects for each frame in flight
-        std::vector<std::unique_ptr<AeBuffer>> m_uboBuffers;
-
-        /// The texture descriptor sets used for each of the allowed frames in flight.
-        std::vector<VkDescriptorSet> m_textureDescriptorSets;
-
-        /// The texture descriptor writers.
-        AeDescriptorWriter* m_textureDescriptorWriter;
-
-        /// The object descriptor sets used for storing the model matrices and texture indexes.
-        std::vector<VkDescriptorSet> m_objectDescriptorSets;
-
-        /// The object buffers for each frame
-        std::vector<std::unique_ptr<AeBuffer>> m_objectBuffers;
 
         /// The frame index for the current render pass.
         int m_frameIndex;
@@ -109,9 +87,49 @@ namespace ae {
         /// The samplers the render system utilizes.
         AeSamplers& m_aeSamplers;
 
+        /// Component Systems that might be required
+        /// TODO Improve the texture evaluation system so that this is not needed.
+        GameComponents& m_gameComponents;
 
+        //==============================================================================================================
+        // Descriptor Pool
+        //==============================================================================================================
+        /// The global pool;
+        std::unique_ptr<AeDescriptorPool> m_globalPool;
 
+        /// The global descriptor sets used for each of the allowed frames in flight.
+        std::vector<VkDescriptorSet> m_globalDescriptorSets;
+
+        //==============================================================================================================
+        // UBO
+        //==============================================================================================================
+        /// The UBO buffer objects for each frame in flight
+        std::vector<std::unique_ptr<AeBuffer>> m_uboBuffers;
+
+        //==============================================================================================================
+        // Textures Image Buffer
+        //==============================================================================================================
+        /// The texture descriptor sets used for each of the allowed frames in flight.
+        std::vector<VkDescriptorSet> m_textureDescriptorSets;
+
+        /// The texture descriptor writers.
+        AeDescriptorWriter* m_textureDescriptorWriter;
+
+        /// Create a default image for use with the render system.
+        std::shared_ptr<AeImage> m_defaultImage;
+
+        //==============================================================================================================
+        // 3D Object Buffer
+        //==============================================================================================================
+        /// The object descriptor sets used for storing the model matrices and texture indexes.
+        std::vector<VkDescriptorSet> m_objectDescriptorSets;
+
+        /// The object buffers for each frame
+        std::vector<std::unique_ptr<AeBuffer>> m_objectBuffers;
+
+        //==============================================================================================================
         // Child render systems
+        //==============================================================================================================
         /// Pointer to the point light render system
         PointLightRenderSystem* m_pointLightRenderSystem;
 
@@ -120,13 +138,6 @@ namespace ae {
 
         /// Pointer to the UI render system.
         UiRenderSystem* m_uiRenderSystem;
-
-        /// Create a default image for use with the render system.
-        std::shared_ptr<AeImage> m_defaultImage;
-
-        /// Component Systems that might be required
-        /// TODO Improve the texture evaluation system so that this is not needed.
-        GameComponents& m_gameComponents;
 
     };
 }
