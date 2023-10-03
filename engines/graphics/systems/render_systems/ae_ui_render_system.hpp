@@ -42,7 +42,8 @@ namespace ae {
                        AeDevice& t_aeDevice,
                        VkRenderPass t_renderPass,
                        VkDescriptorSetLayout t_globalSetLayout,
-                       VkDescriptorSetLayout t_textureSetLayout);
+                       VkDescriptorSetLayout t_textureSetLayout,
+                       VkDescriptorSetLayout t_object2dSetLayout);
 
         /// Destructor of the SimpleRenderSystem
         ~UiRenderSystem();
@@ -54,6 +55,7 @@ namespace ae {
         void executeSystem(VkCommandBuffer& t_commandBuffer,
                            VkDescriptorSet t_globalDescriptorSet,
                            VkDescriptorSet t_textureDescriptorSet,
+                           VkDescriptorSet t_object2dSetLayout,
                            uint64_t t_frameIndex);
 
         /// DO NOT CALL! This is not used by this system.
@@ -65,6 +67,12 @@ namespace ae {
 
         /// Clean up the SimpleRenderSystem, this is handled by the RendererSystem.
         void cleanupSystem() override;
+
+        /// Calculates the push constant data for a specified entity.
+        /// \param t_translation The translation data for the entity.
+        /// \param t_rotation The rotation of the entity.
+        /// \param t_scale The scaling for the entity.
+        static UiPushConstantData calculatePushConstantData(glm::vec2 t_translation, float t_rotation, glm::vec2 t_scale);
 
     private:
 
@@ -82,7 +90,9 @@ namespace ae {
         /// \param t_globalSetLayout The general descriptor set for the devices and general rendering setting that need
         /// \param t_textureSetLayout The descriptor set layout for the textures and materials used by a model.
         /// to be accounted for when setting up the render pipeline for this system.
-        void createPipelineLayout(VkDescriptorSetLayout t_globalSetLayout, VkDescriptorSetLayout t_textureSetLayout);
+        void createPipelineLayout(VkDescriptorSetLayout t_globalSetLayout,
+                                  VkDescriptorSetLayout t_textureSetLayout,
+                                  VkDescriptorSetLayout t_object2dSetLayout);
 
         /// Creates the pipeline based on the render pass this pipeline should be associated with for the
         /// SimpleRenderSystem.
@@ -99,11 +109,6 @@ namespace ae {
         /// The pipeline created for this render system.
         std::unique_ptr<AePipeline> m_aePipeline;
 
-        /// Calculates the push constant data for a specified entity.
-        /// \param t_translation The translation data for the entity.
-        /// \param t_rotation The rotation of the entity.
-        /// \param t_scale The scaling for the entity.
-        UiPushConstantData calculatePushConstantData(glm::vec2 t_translation, float t_rotation, glm::vec2 t_scale);
     };
 }
 

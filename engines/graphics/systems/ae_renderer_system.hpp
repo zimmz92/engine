@@ -128,6 +128,15 @@ namespace ae {
         std::vector<std::unique_ptr<AeBuffer>> m_objectBuffers;
 
         //==============================================================================================================
+        // 2D Object Buffer
+        //==============================================================================================================
+        /// The object descriptor sets used for storing the model matrices and texture indexes.
+        std::vector<VkDescriptorSet> m_object2DDescriptorSets;
+
+        /// The object buffers for each frame
+        std::vector<std::unique_ptr<AeBuffer>> m_object2DBuffers;
+
+        //==============================================================================================================
         // Child render systems
         //==============================================================================================================
         /// Pointer to the point light render system

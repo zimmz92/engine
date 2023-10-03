@@ -37,10 +37,10 @@ namespace ae {
 
         // Create the global pool
         m_globalPool = AeDescriptorPool::Builder(m_aeDevice)
-                .setMaxSets(MAX_FRAMES_IN_FLIGHT*3)
+                .setMaxSets(MAX_FRAMES_IN_FLIGHT*4)
                 .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MAX_FRAMES_IN_FLIGHT)
                 .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,MAX_TEXTURE_DESCRIPTORS*MAX_FRAMES_IN_FLIGHT)
-                .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, MAX_FRAMES_IN_FLIGHT)
+                .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, MAX_FRAMES_IN_FLIGHT*2)
                 .build();
 
         //==============================================================================================================
@@ -150,6 +150,44 @@ namespace ae {
                     .build(m_objectDescriptorSets[i]);
         }
 
+        //==============================================================================================================
+        // Setup Object Shader Storage Buffer for 2D Objects (SSBO)
+        //==============================================================================================================
+
+        // Allocate memory for the object buffers
+        m_object2DBuffers.reserve(MAX_FRAMES_IN_FLIGHT);
+        for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            // Create a new buffer and push it to the back of the vector of uboBuffers.
+            m_object2DBuffers.push_back(std::make_unique<AeBuffer>(
+                    m_aeDevice,
+                    sizeof(UiPushConstantData),
+                    MAX_OBJECTS,
+                    VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
+                    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT));
+
+            // Attempt to map memory for the object buffer.
+            if ( m_object2DBuffers.back()->map() != VK_SUCCESS) {
+                throw std::runtime_error("Failed to map the ubo buffer to memory!");
+            };
+        };
+
+        // Define the descriptor set for the object buffers.
+        auto object2DSetLayout = AeDescriptorSetLayout::Builder(m_aeDevice)
+                .addBinding(0,VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,VK_SHADER_STAGE_ALL_GRAPHICS)
+                .build();
+
+        // Reserve space for and then initialize the global descriptors for each frame.
+        m_object2DDescriptorSets.reserve(MAX_FRAMES_IN_FLIGHT);
+        for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            // Get the buffer information from the uboBuffers.
+            auto bufferInfo = m_object2DBuffers[i]->descriptorInfo();
+
+            // Initialize the descriptor set for the current frame.
+            AeDescriptorWriter(object2DSetLayout, *m_globalPool)
+                    .writeBuffer(0, &bufferInfo)
+                    .build(m_object2DDescriptorSets[i]);
+        }
+
 
 
         //==============================================================================================================
@@ -174,7 +212,8 @@ namespace ae {
                                               m_aeDevice,
                                               m_renderer.getSwapChainRenderPass(),
                                               globalSetLayout->getDescriptorSetLayout(),
-                                              textureSetLayout->getDescriptorSetLayout());
+                                              textureSetLayout->getDescriptorSetLayout(),
+                                              object2DSetLayout->getDescriptorSetLayout());
 
 
         // Enable the system
@@ -236,6 +275,7 @@ namespace ae {
             m_uiRenderSystem->executeSystem(m_commandBuffer,
                                             m_globalDescriptorSets[m_frameIndex],
                                             m_textureDescriptorSets[m_frameIndex],
+                                            m_object2DDescriptorSets[m_frameIndex],
                                             m_frameIndex);
 
             // End the render pass and the frame.
@@ -311,26 +351,38 @@ namespace ae {
         m_objectBuffers[m_frameIndex]->writeToBuffer(&data);
         m_objectBuffers[m_frameIndex]->flush();
 
+
+        
         // Loop through all the ui render system entities and check to make sure all their textures are included in
         // texture the array and their indexes into that array are set correctly for this frame.
+        j = 0;
+        UiPushConstantData data2d[MAX_OBJECTS];
         for(auto entityId:validEntityIds_uiRenderSystem){
-            auto entityModeData = m_gameComponents.model2DComponent.getDataReference(entityId);
-            if(entityModeData.m_texture == nullptr){
+            auto entityModelData = m_gameComponents.model2DComponent.getDataReference(entityId);
+
+            data2d[j] = UiRenderSystem::calculatePushConstantData(entityModelData.translation,
+                                               entityModelData.rotation,
+                                               entityModelData.scale);
+
+            if(entityModelData.m_texture == nullptr){
                 continue;
             }
 
             bool imageIsUnique = true;
             for(int i = 0; uniqueImages.size()-1; i++){
-                if(entityModeData.m_texture == uniqueImages[i]){
+                if(entityModelData.m_texture == uniqueImages[i]){
                     imageIsUnique = false;
                     break;
                 };
             };
             if(imageIsUnique){
-                entityModeData.m_texture->setTextureDescriptorIndex(m_frameIndex,uniqueImages.size());
-                uniqueImages.push_back(entityModeData.m_texture);
+                entityModelData.m_texture->setTextureDescriptorIndex(m_frameIndex, uniqueImages.size());
+                uniqueImages.push_back(entityModelData.m_texture);
             };
         };
+
+        m_object2DBuffers[m_frameIndex]->writeToBuffer(&data2d);
+        m_object2DBuffers[m_frameIndex]->flush();
 
         // Ensure that we're not about to exceed the maximum number of descriptors that we have.
         if(uniqueImages.size() > MAX_TEXTURE_DESCRIPTORS){

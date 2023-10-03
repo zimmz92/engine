@@ -12,6 +12,7 @@
 #include "ubo_data_flags_component.hpp"
 #include "point_light_component.hpp"
 #include "model_2d_component.hpp"
+#include "graphics_update_flags_component.hpp"
 
 namespace ae {
 
@@ -30,5 +31,6 @@ namespace ae {
         UboDataFlagsComponent uboDataFlagsComponent{ecs};
         PointLightComponent pointLightComponent{ecs};
         Model2dComponent model2DComponent{ecs};
+        GraphicsUpdateFlagsComponent graphicsUpdateFlagsComponent{ecs};
     };
 }

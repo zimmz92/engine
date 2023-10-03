@@ -15,7 +15,8 @@ namespace ae {
                                    AeDevice &t_aeDevice,
                                    VkRenderPass t_renderPass,
                                    VkDescriptorSetLayout t_globalSetLayout,
-                                   VkDescriptorSetLayout t_textureSetLayout)
+                                   VkDescriptorSetLayout t_textureSetLayout,
+                                   VkDescriptorSetLayout t_object2dSetLayout)
             : m_model2DComponent{t_game_components.model2DComponent},
               m_aeDevice{t_aeDevice},
               ae_ecs::AeSystem<UiRenderSystem>(t_ecs) {
@@ -30,7 +31,7 @@ namespace ae {
         this->isChildSystem = true;
 
         // Creates the pipeline layout accounting for the global layout and sets the m_pipelineLayout member variable.
-        createPipelineLayout(t_globalSetLayout, t_textureSetLayout);
+        createPipelineLayout(t_globalSetLayout, t_textureSetLayout, t_object2dSetLayout);
 
         // Creates a graphics pipeline for this render system and sets the m_aePipeline member variable.
         createPipeline(t_renderPass);
@@ -54,10 +55,15 @@ namespace ae {
     void UiRenderSystem::executeSystem(VkCommandBuffer &t_commandBuffer,
                                        VkDescriptorSet t_globalDescriptorSet,
                                        VkDescriptorSet t_textureDescriptorSet,
+                                       VkDescriptorSet t_object2dSet,
                                        uint64_t t_frameIndex) {
 
         // Tell the pipeline what the current command buffer being worked on is.
         m_aePipeline->bind(t_commandBuffer);
+
+        VkDescriptorSet descriptorSetsToBind[] = {t_globalDescriptorSet,
+                                                  t_textureDescriptorSet,
+                                                  t_object2dSet};
 
         // Bind the descriptor sets to the command buffer.
         vkCmdBindDescriptorSets(
@@ -65,18 +71,8 @@ namespace ae {
                 VK_PIPELINE_BIND_POINT_GRAPHICS,
                 m_pipelineLayout,
                 0,
-                1,
-                &t_globalDescriptorSet,
-                0,
-                nullptr);
-
-        vkCmdBindDescriptorSets(
-                t_commandBuffer,
-                VK_PIPELINE_BIND_POINT_GRAPHICS,
-                m_pipelineLayout,
-                1,
-                1,
-                &t_textureDescriptorSet,
+                2,
+                descriptorSetsToBind,
                 0,
                 nullptr);
 
@@ -122,7 +118,9 @@ namespace ae {
 
 
     // Creates the pipeline layout for the point light render system.
-    void UiRenderSystem::createPipelineLayout(VkDescriptorSetLayout t_globalSetLayout, VkDescriptorSetLayout t_textureSetLayout) {
+    void UiRenderSystem::createPipelineLayout(VkDescriptorSetLayout t_globalSetLayout,
+                                              VkDescriptorSetLayout t_textureSetLayout,
+                                              VkDescriptorSetLayout t_object2dSetLayout) {
 
         // Define the push constant information for this pipeline.
         VkPushConstantRange pushConstantRange{};
@@ -131,7 +129,11 @@ namespace ae {
         pushConstantRange.size = sizeof(UiPushConstantData);
 
         // Prepare the descriptor set layouts based on the global set layout for the device.
-        std::vector<VkDescriptorSetLayout> descriptorSetLayouts{t_globalSetLayout, t_textureSetLayout};
+        //std::vector<VkDescriptorSetLayout> descriptorSetLayouts{t_globalSetLayout,
+        //                                                        t_textureSetLayout,
+        //                                                       t_object2dSetLayout};
+        std::vector<VkDescriptorSetLayout> descriptorSetLayouts{t_globalSetLayout,
+                                                                t_textureSetLayout};
 
         // Define the specific layout of the point light renderer.
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
