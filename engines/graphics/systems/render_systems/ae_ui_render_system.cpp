@@ -71,7 +71,7 @@ namespace ae {
                 VK_PIPELINE_BIND_POINT_GRAPHICS,
                 m_pipelineLayout,
                 0,
-                2,
+                3,
                 descriptorSetsToBind,
                 0,
                 nullptr);
@@ -82,33 +82,19 @@ namespace ae {
 
 
         // Loop through the entities if they have models render them.
+        int j=0;
         for (ecs_id entityId: validEntityIds) {
-            // Get the model of the entity
-            Model2dComponentStruct& entityModelData = m_model2DComponent.getDataReference(entityId);
 
             // Make sure the entity actually has a model to render.
+            Model2dComponentStruct& entityModelData = m_model2DComponent.getDataReference(entityId);
             if (entityModelData.m_2d_model == nullptr) continue;
-
-            // Get the simple render system push constants for the current entity.
-            UiPushConstantData push{calculatePushConstantData(entityModelData.translation,
-                                                                  entityModelData.rotation,
-                                                                  entityModelData.scale)};
-            if(entityModelData.m_texture != nullptr){
-                push.textureIndex =  entityModelData.m_texture->getTextureDescriptorIndex(t_frameIndex);
-            } else {
-                push.textureIndex = MAX_TEXTURE_DESCRIPTORS + 1;
-            }
-
-            // Update the push constant data.
-            vkCmdPushConstants(t_commandBuffer, m_pipelineLayout,
-                               VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
-                               sizeof(UiPushConstantData), &push);
 
             // Bind the model buffer(s) to the command buffer.
             entityModelData.m_2d_model->bind(t_commandBuffer);
 
             // Draw the model.
-            entityModelData.m_2d_model->draw(t_commandBuffer);
+            entityModelData.m_2d_model->draw(t_commandBuffer,j);
+            j++;
         };
     };
 
@@ -129,19 +115,15 @@ namespace ae {
         pushConstantRange.size = sizeof(UiPushConstantData);
 
         // Prepare the descriptor set layouts based on the global set layout for the device.
-        //std::vector<VkDescriptorSetLayout> descriptorSetLayouts{t_globalSetLayout,
-        //                                                        t_textureSetLayout,
-        //                                                       t_object2dSetLayout};
         std::vector<VkDescriptorSetLayout> descriptorSetLayouts{t_globalSetLayout,
-                                                                t_textureSetLayout};
+                                                                t_textureSetLayout,
+                                                               t_object2dSetLayout};
 
         // Define the specific layout of the point light renderer.
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
         pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
         pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
-        pipelineLayoutInfo.pushConstantRangeCount = 1;
-        pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange; // Send a small amount of data to shader program
 
         // Attempt to create the pipeline layout, if it cannot error out.
         if (vkCreatePipelineLayout(m_aeDevice.device(),

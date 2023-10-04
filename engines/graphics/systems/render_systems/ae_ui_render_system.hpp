@@ -24,7 +24,7 @@ namespace ae {
         glm::vec2 translation{ 1.0f };
 
         /// The index of the objects texture;
-        int textureIndex = MAX_TEXTURE_DESCRIPTORS+1;
+        alignas(16) uint32_t textureIndex = MAX_TEXTURE_DESCRIPTORS+1;
     };
 
     /// A child system of the RendererSystem which renders the entity models.

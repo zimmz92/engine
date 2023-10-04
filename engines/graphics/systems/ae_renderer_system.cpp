@@ -326,7 +326,7 @@ namespace ae {
 
             // Check to see if the texture is already part of the texture array.
             bool imageIsUnique = true;
-            for(int i = 0; uniqueImages.size() ; i++){
+            for(int i = 0; uniqueImages.size()>i; i++){
                 // If the texture is already part of the array set the data for the object to that texture array index.
                 if(entityModelData.m_texture == uniqueImages[i]){
                     imageIsUnique = false;
@@ -344,8 +344,6 @@ namespace ae {
                 j++;
                 uniqueImages.push_back(entityModelData.m_texture);
             };
-
-
         };
 
         m_objectBuffers[m_frameIndex]->writeToBuffer(&data);
@@ -365,24 +363,31 @@ namespace ae {
                                                entityModelData.scale);
 
             if(entityModelData.m_texture == nullptr){
+                data2d[j].textureIndex = MAX_TEXTURE_DESCRIPTORS + 1;
+                j++;
                 continue;
             }
 
             bool imageIsUnique = true;
-            for(int i = 0; uniqueImages.size()-1; i++){
+            for(int i = 0; uniqueImages.size()>i; i++){
                 if(entityModelData.m_texture == uniqueImages[i]){
                     imageIsUnique = false;
+                    data2d[j].textureIndex = i;
+                    j++;
                     break;
                 };
             };
             if(imageIsUnique){
                 entityModelData.m_texture->setTextureDescriptorIndex(m_frameIndex, uniqueImages.size());
+                data2d[j].textureIndex = uniqueImages.size();
+                j++;
                 uniqueImages.push_back(entityModelData.m_texture);
             };
         };
 
         m_object2DBuffers[m_frameIndex]->writeToBuffer(&data2d);
         m_object2DBuffers[m_frameIndex]->flush();
+
 
         // Ensure that we're not about to exceed the maximum number of descriptors that we have.
         if(uniqueImages.size() > MAX_TEXTURE_DESCRIPTORS){

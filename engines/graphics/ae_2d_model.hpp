@@ -84,7 +84,8 @@ namespace ae {
         /// information.
         /// \param t_commandBuffer The command buffer that the model's buffers were bound to and will actually execute
         /// the draw call.
-		void draw(VkCommandBuffer t_commandBuffer);
+        /// \param t_objectBufferIndex The index into the SSBO that stores the object's model matrix and texture index.
+		void draw(VkCommandBuffer t_commandBuffer, int t_objectBufferIndex = 0);
 
 	private:
         /// Creates a vertex buffer from the provided vertices.
