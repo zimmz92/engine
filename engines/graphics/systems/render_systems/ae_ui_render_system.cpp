@@ -108,12 +108,6 @@ namespace ae {
                                               VkDescriptorSetLayout t_textureSetLayout,
                                               VkDescriptorSetLayout t_object2dSetLayout) {
 
-        // Define the push constant information for this pipeline.
-        VkPushConstantRange pushConstantRange{};
-        pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
-        pushConstantRange.offset = 0;
-        pushConstantRange.size = sizeof(UiPushConstantData);
-
         // Prepare the descriptor set layouts based on the global set layout for the device.
         std::vector<VkDescriptorSetLayout> descriptorSetLayouts{t_globalSetLayout,
                                                                 t_textureSetLayout,
@@ -169,6 +163,6 @@ namespace ae {
         glm::mat2 rotMatrix{{c, s}, {-s, c}};
 
         glm::mat2 scaleMat{{t_scale.x, .0f}, {.0f, t_scale.y}};
-        return {rotMatrix * scaleMat, t_translation};
+        return {rotMatrix * scaleMat,t_translation};
     };
 }

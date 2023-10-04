@@ -25,8 +25,8 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
 //all object matrices
 struct ObjectData{
 	mat2 transform;
-    vec2 offset;
-    uint textureIndex;
+	vec2 offset;
+	uint textureIndex;
 };
 
 layout(set = 2, binding = 0) readonly buffer ObjectBuffer{

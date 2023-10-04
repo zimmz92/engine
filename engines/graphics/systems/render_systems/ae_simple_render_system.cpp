@@ -63,34 +63,18 @@ namespace ae {
         // Tell the pipeline what the current command buffer being worked on is.
         m_aePipeline->bind(t_commandBuffer);
 
+        VkDescriptorSet descriptorSetsToBind[] = {t_globalDescriptorSet,
+                                                  t_textureDescriptorSet,
+                                                  t_objectDescriptorSet};
+
         // Bind the descriptor sets to the command buffer.
         vkCmdBindDescriptorSets(
                 t_commandBuffer,
                 VK_PIPELINE_BIND_POINT_GRAPHICS,
                 m_pipelineLayout,
                 0,
-                1,
-                &t_globalDescriptorSet,
-                0,
-                nullptr);
-
-        vkCmdBindDescriptorSets(
-                t_commandBuffer,
-                VK_PIPELINE_BIND_POINT_GRAPHICS,
-                m_pipelineLayout,
-                1,
-                1,
-                &t_textureDescriptorSet,
-                0,
-                nullptr);
-
-        vkCmdBindDescriptorSets(
-                t_commandBuffer,
-                VK_PIPELINE_BIND_POINT_GRAPHICS,
-                m_pipelineLayout,
-                2,
-                1,
-                &t_objectDescriptorSet,
+                3,
+                descriptorSetsToBind,
                 0,
                 nullptr);
 

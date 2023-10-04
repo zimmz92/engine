@@ -21,14 +21,14 @@ namespace ae {
         // Matrix corresponds to WorldPosition * Ry * Rx * Rz * Scale
         // Rotations correspond to Tait-bryan angles of Y(1), X(2), Z(3)
         // https://en.wikipedia.org/wiki/Euler_angles#Rotation_matrix
-        glm::mat4 modelMatrix{ 1.0f };
+        alignas(16) glm::mat4 modelMatrix{ 1.0f };
 
         // Rotations correspond to Tait-bryan angles of Y(1), X(2), Z(3)
         // https://en.wikipedia.org/wiki/Euler_angles#Rotation_matrix
-        glm::mat4 normalMatrix{ 1.0f };
+        alignas(16) glm::mat4 normalMatrix{ 1.0f };
 
         /// The index of the objects texture;
-        alignas(16) uint32_t textureIndex=MAX_TEXTURE_DESCRIPTORS + 1;
+        alignas(4) uint32_t textureIndex=MAX_TEXTURE_DESCRIPTORS + 1;
     };
 
     /// A child system of the RendererSystem which renders the entity models.
