@@ -109,6 +109,19 @@ namespace ae {
         vikingRoom.m_model.scale = {1.0f, 1.0f, 1.0f };
         vikingRoom.m_model.rotation = {0.25 * glm::two_pi<float>(), 0.75 * glm::two_pi<float>(), 0.5* glm::two_pi<float>()};
         vikingRoom.enableEntity();
+
+        // Load the leaf enemy object model from the file
+        aeModel = AeModel::createModelFromFile(m_aeDevice, "assets/models/leaf_enemy_w_tongue.obj");
+        aeImage = AeImage::createModelFromFile(m_aeDevice,"assets/models/leaf_enemy_body_w_tongue.png");
+        // ECS version of the floor
+        auto leafEnemy = GameObjectEntity(m_aeECS,m_gameComponents);
+        leafEnemy.m_worldPosition = {2.0f, 0.5f, 1.0f };
+        leafEnemy.m_model.m_texture = aeImage;
+        leafEnemy.m_model.m_sampler = m_aeSamplers.getDefaultSampler();
+        leafEnemy.m_model.m_model = aeModel;
+        leafEnemy.m_model.scale = {0.5f, 0.5f, 0.5f };
+        leafEnemy.m_model.rotation = {0.0 * glm::two_pi<float>(), 0.0 * glm::two_pi<float>(), 0.0* glm::two_pi<float>()};
+        leafEnemy.enableEntity();
         //==============================================================================================================
 
 
