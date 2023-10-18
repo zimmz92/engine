@@ -7,9 +7,13 @@ project (Arundos VERSION 1.0)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# specify what tests are to be run
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DMY_DEBUG")
-#set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DECS_DEBUG")
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    #add_compile_definitions( MY_DEBUG )
+    #add_compile_definitions( ECS_DEBUG )
+else()
+    #add_compile_definitions( ECS_DEBUG )
+endif()
+
 
 # Add Vulkan and dependant libraries to the project
 find_package(Vulkan REQUIRED)
