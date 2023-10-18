@@ -6,6 +6,7 @@
 
 #include "ae_ecs_include.hpp"
 #include <chrono>
+#include <queue>
 
 namespace ae {
 
@@ -38,5 +39,19 @@ namespace ae {
 
         /// Stores the amount of time that has passed between the current and previous executions of this system.
         float m_timeDelta = 0.0f;
+
+        /// Stores the simple moving average of the time delta.
+        float m_timeDeltaSMA = 0.0f;
+
+        /// Stores the minimum time delta recorded
+        float m_timeDeltaMax = 0.0f;
+
+        /// Stores the maximum time delta recorded.
+        float m_timeDeltaMin = 1.0f;
+
+        /// Stores the buffer of time delta samples
+        static const int m_timeDeltaSamples = 500;
+        int m_numSamples = 0;
+        std::queue<float> m_timeDeltaFIFO;
     };
 }

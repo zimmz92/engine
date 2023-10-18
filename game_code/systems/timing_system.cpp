@@ -3,6 +3,7 @@
 /// The timing system class is implemented.
 
 #include "timing_system.hpp"
+#include <iostream>
 
 namespace ae {
 
@@ -34,6 +35,34 @@ namespace ae {
 
         // Store the current execution time for reference during next execution.
         m_previousTime = currentTime;
+
+
+#ifdef FPS_DEBUG
+        // Time delta simple moving average
+        if(m_numSamples < m_timeDeltaSamples){
+            m_timeDeltaSMA = (m_timeDelta+m_numSamples*m_timeDeltaSMA)/(m_numSamples+1);
+            m_timeDeltaFIFO.push(m_timeDelta);
+            m_numSamples++;
+        }else{
+            m_timeDeltaSMA = m_timeDeltaSMA + (1.0/m_timeDeltaSamples)*(m_timeDelta-m_timeDeltaFIFO.front());
+            m_timeDeltaFIFO.pop();
+            m_timeDeltaFIFO.push(m_timeDelta);
+
+            // Check if it is the min.
+            if(m_timeDelta<m_timeDeltaMin){
+                m_timeDeltaMin=m_timeDelta;
+            }
+
+            // Check if it is the max.
+            if(m_timeDelta>m_timeDeltaMax){
+                m_timeDeltaMax=m_timeDelta;
+            }
+        }
+
+        std::cout << "fps avg: " << 1.0/m_timeDeltaSMA << std::endl;
+        std::cout << "fps min: " << 1.0/m_timeDeltaMax << std::endl;
+        std::cout << "fps max: " << 1.0/m_timeDeltaMin << std::endl;
+#endif
     };
 
 
