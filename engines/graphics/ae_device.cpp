@@ -8,8 +8,8 @@
 #include <iostream>
 #include <cstring>
 #include <set>
-#include <unordered_set>
 #include <map>
+#include <string>
 
 namespace ae {
 
@@ -150,12 +150,17 @@ namespace ae {
 		vkEnumeratePhysicalDevices(m_instance, &deviceCount, devices.data());
 
 		// Use an ordered map to auto sort candidates for default graphics card selection by increasing score
-		std::multimap<int, VkPhysicalDevice> candidates;
+		std::multimap<uint32_t , VkPhysicalDevice> candidates;
 
         // Rate each device's capabilities then insert them into the ordered map.
 		for (const auto& device : devices) {
-			int score = rateDeviceSuitability(device);
+			uint32_t score = rateDeviceSuitability(device);
 			candidates.insert(std::make_pair(score, device));
+            VkPhysicalDeviceProperties  localProperties;
+            vkGetPhysicalDeviceProperties(device, &localProperties);
+#ifdef MY_DEBUG
+            std::cout << "physical device: " << localProperties.deviceName << ", score: " << score << std::endl;
+#endif
 		}
 
 		// Ensure chosen device is actually suitable and is not just the first amount a list of incompatible devices.
@@ -168,7 +173,9 @@ namespace ae {
 
         // Retrieve the chosen GPU's properties.
 		vkGetPhysicalDeviceProperties(m_physicalDevice, &m_properties);
-		std::cout << "physical device: " << m_properties.deviceName << std::endl;
+#ifdef MY_DEBUG
+        std::cout << "physical device: " << m_properties.deviceName << std::endl;
+#endif
 	}
 
 	// Function to create a virtual device based on required queues
@@ -330,15 +337,20 @@ namespace ae {
 		QueueFamilyIndices indices = findQueueFamilies(t_device);
 
         // Initialize the score that will be returned.
-		int score = 0;
+		uint32_t score = 0;
+
+        // Prefer devices that have greater maximum texture sizes.
+        // Make sure on linux it is not using llvmpipe since it returns a very high number for this but performs
+        // horribly
+        std::string deviceName = deviceProperties.deviceName;
+        if(deviceName.find("llvmpipe") == std::string::npos){
+            score += deviceProperties.limits.maxImageDimension2D;
+        }
 
 		// Heavily prefer discrete GPU to internal GPU.
 		if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
 			score += 1000;
 		}
-
-		// Prefer devices that have greater maximum texture sizes.
-		score += deviceProperties.limits.maxImageDimension2D;
 
 		// Ensure device has required geometry shaders, queue families, and device extensions for this application.
 		if (!deviceFeatures.geometryShader || !indices.isComplete() || !checkDeviceExtensionSupport(t_device)) {
