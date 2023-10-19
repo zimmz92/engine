@@ -86,7 +86,7 @@ namespace ae {
         for (ecs_id entityId: validEntityIds) {
 
             // Make sure the entity actually has a model to render.
-            Model2dComponentStruct& entityModelData = m_model2DComponent.getDataReference(entityId);
+            const Model2dComponentStruct& entityModelData = m_model2DComponent.getReadOnlyDataReference(entityId);
             if (entityModelData.m_2d_model == nullptr) continue;
 
             // Bind the model buffer(s) to the command buffer.

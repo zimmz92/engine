@@ -71,7 +71,7 @@ namespace ae {
 
         // Find the main camera from all the entities that are cameras.
         for(ecs_id entityId : m_cameraComponent.getMyEntities()){
-            if(m_cameraComponent.getDataReference(entityId).isMainCamera){
+            if(m_cameraComponent.getReadOnlyDataReference(entityId).isMainCamera){
                 mainCameraEntityId = entityId;
                 break;
             }
@@ -120,7 +120,7 @@ namespace ae {
             push.position = glm::vec4(m_worldPositionComponent.getWorldPositionVec3(entityId), 1.0f);
 
             // Get the point light characteristics.
-            auto entityPointLightData = m_pointLightComponent.getDataReference(entityId);
+            auto entityPointLightData = m_pointLightComponent.getReadOnlyDataReference(entityId);
             push.color = glm::vec4(entityPointLightData.m_color, entityPointLightData.lightIntensity);
             push.radius = entityPointLightData.radius;
 

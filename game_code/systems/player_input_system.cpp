@@ -52,11 +52,11 @@ namespace ae {
         for (ecs_id entityId : validEntityIds){
 
             // Only move the entity if it is currently being controlled by the player.
-            if(m_playerControlledComponent.getDataReference(entityId).isCurrentlyControlled){
+            if(m_playerControlledComponent.getWriteableDataReference(entityId).isCurrentlyControlled){
 
                 // Move the entity based on the player's input.
-                moveInPlaneYXZ(m_worldPositionComponent.getDataReference(entityId),
-                               m_modelComponent.getDataReference(entityId));
+                moveInPlaneYXZ(m_worldPositionComponent.getWriteableDataReference(entityId),
+                               m_modelComponent.getWriteableDataReference(entityId));
             };
         };
     };

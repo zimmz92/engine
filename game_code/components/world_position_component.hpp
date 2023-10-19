@@ -33,7 +33,7 @@ namespace ae {
         /// \return The world position as a glm::vec3 where x = rho, y = theta, and z = phi.
         glm::vec3 getWorldPositionVec3(ecs_id t_entityId) {
             // Get a references to the world position of the entity.
-            auto worldPosition = this->getDataReference(t_entityId);
+            auto worldPosition = this->getReadOnlyDataReference(t_entityId);
 
             // Convert the world position from the world position struct to a glm::vec3.
             glm::vec3 position = {worldPosition.rho,
@@ -50,7 +50,7 @@ namespace ae {
         /// z = phi.
         void setWorldPositionVec3(ecs_id t_entityId, glm::vec3 t_vec3WorldPosition) {
             // Get a reference to the world position of the entity.
-            WorldPositionComponentStruct& worldPosition = this->getDataReference(t_entityId);
+            WorldPositionComponentStruct& worldPosition = this->getWriteableDataReference(t_entityId);
 
             // Set the world position of the entity based on the given glm::vec3.
             worldPosition.rho = t_vec3WorldPosition.x;

@@ -55,9 +55,10 @@ namespace ae {
         for (ecs_id entityId : validEntityIds){
 
             // Get references to the component data for the specific entity being worked on.
-            CameraComponentStruct& entityCameraData = m_cameraComponent.getDataReference(entityId);
-            WorldPositionComponentStruct& entityWorldPosition = m_worldPositionComponent.getDataReference(entityId);
-            ModelComponentStruct& entityModel = m_modelComponent.getDataReference(entityId);
+            CameraComponentStruct& entityCameraData = m_cameraComponent.getWriteableDataReference(entityId);
+            WorldPositionComponentStruct& entityWorldPosition = m_worldPositionComponent.getWriteableDataReference(
+                    entityId);
+            ModelComponentStruct& entityModel = m_modelComponent.getWriteableDataReference(entityId);
 
             // Set the view of the camera to be locked to look in a specific direction.
             if(entityCameraData.cameraLockedOnDirection){
@@ -69,7 +70,7 @@ namespace ae {
             // Set the view of the camera to be locked onto a specific entity.
             else if(entityCameraData.cameraLockedOnEntity){
                 // Get the world position of the entity that the camera is to be locked onto.
-                WorldPositionComponentStruct& targetEntityWorldPosition = m_worldPositionComponent.getDataReference(
+                WorldPositionComponentStruct& targetEntityWorldPosition = m_worldPositionComponent.getWriteableDataReference(
                         entityCameraData.lockOnEntityId);
                 // Set the camera target to the world position of the entity.
                 setViewTarget(entityCameraData,

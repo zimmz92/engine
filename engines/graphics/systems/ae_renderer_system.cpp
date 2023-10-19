@@ -306,7 +306,7 @@ namespace ae {
         int j = 0;
         SimplePushConstantData data[MAX_OBJECTS];
         for(auto entityId:validEntityIds_simpleRenderSystem){
-            ModelComponentStruct& entityModelData = m_gameComponents.modelComponent.getDataReference(entityId);
+            ModelComponentStruct& entityModelData = m_gameComponents.modelComponent.getWriteableDataReference(entityId);
             glm::vec3 entityWorldPosition = m_gameComponents.worldPositionComponent.getWorldPositionVec3(entityId);
 
             if (entityModelData.m_model == nullptr) continue;
@@ -356,7 +356,7 @@ namespace ae {
         j = 0;
         UiPushConstantData data2d[MAX_OBJECTS];
         for(auto entityId:validEntityIds_uiRenderSystem){
-            auto entityModelData = m_gameComponents.model2DComponent.getDataReference(entityId);
+            auto entityModelData = m_gameComponents.model2DComponent.getWriteableDataReference(entityId);
 
             data2d[j] = UiRenderSystem::calculatePushConstantData(entityModelData.translation,
                                                entityModelData.rotation,

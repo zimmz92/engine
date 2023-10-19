@@ -93,21 +93,17 @@ namespace ae_ecs {
             // TODO: Alert system manager that this system uses this component.
         };
 
-		/// Update component data for a specific entity.
-		/// \param t_entityId The ID of the entity the data is being stored in the component for.
-		/// \param t_entityComponentData The data to be stored for the entity in the component.
-		void updateData(ecs_id t_entityId, T t_entityComponentData) {
-			// Check that an entity has actually registered that it uses the component before 
-			// updating its data to ensure data will not collide
-			m_componentManager.isComponentUsed(t_entityId, this->m_componentId);
-			m_componentData[t_entityId] = t_entityComponentData;
-		};
-
 		/// Get data for a specific entity.
 		/// \param t_entityID The ID of the entity to return the component data for.
-		T& getDataReference(ecs_id t_entityID) {
+		T& getWriteableDataReference(ecs_id t_entityID) {
 			return m_componentData[t_entityID];
 		};
+
+        /// Get data for a specific entity.
+        /// \param t_entityID The ID of the entity to return the component data for.
+        const T& getReadOnlyDataReference (ecs_id t_entityID) const {
+            return m_componentData[t_entityID];
+        };
 
 	private:
 
