@@ -78,7 +78,7 @@ namespace ae {
 
 
         // Get the entities that use the components this system depends on.
-        std::vector<ecs_id> validEntityIds = m_systemManager.getValidEntities(this->getSystemId());
+        std::vector<ecs_id> validEntityIds = m_systemManager.getEnabledSystemsEntities(this->getSystemId());
 
 
         // Loop through the entities if they have models render them.
@@ -96,6 +96,8 @@ namespace ae {
             entityModelData.m_2d_model->draw(t_commandBuffer,j);
             j++;
         };
+
+        m_systemManager.clearSystemEntityUpdateSignatures(m_systemId);
     };
 
 

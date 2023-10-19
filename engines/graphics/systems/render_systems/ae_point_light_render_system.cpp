@@ -61,7 +61,7 @@ namespace ae {
     void PointLightRenderSystem::executeSystem(VkCommandBuffer& t_commandBuffer, VkDescriptorSet t_globalDescriptorSet){
 
         // Get the entities that use the components this system depends on.
-        std::vector<ecs_id> validEntityIds = m_systemManager.getValidEntities(this->getSystemId());
+        std::vector<ecs_id> validEntityIds = m_systemManager.getEnabledSystemsEntities(this->getSystemId());
 
         // Declaring a map to sort the point lights by their distance to the camera.
         std::map<float, ecs_id> sorted_point_lights;
@@ -136,6 +136,8 @@ namespace ae {
             // Draw the point light.
             vkCmdDraw(t_commandBuffer, 6, 1, 0, 0);
         };
+
+        m_systemManager.clearSystemEntityUpdateSignatures(m_systemId);
     };
 
 

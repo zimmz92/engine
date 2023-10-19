@@ -47,6 +47,11 @@ namespace ae_ecs {
         /// \param t_predecessorSystemId The ID of the system in which the system specified by t_systemId was dependent on.
         void unsetSystemDependencySignature(ecs_id t_systemId, ecs_id t_predecessorSystemId);
 
+        /// Clears the system entity update signature for the specified system. Usually used at the end of a system's
+        /// execution loop.
+        /// \param t_systemId The ID of the system.
+        void clearSystemEntityUpdateSignatures(ecs_id t_systemId);
+
         /// Enables management of the system
         /// \param t_system A pointer to the system.
         void enableSystem(AeSystemBase* t_system);
@@ -61,7 +66,16 @@ namespace ae_ecs {
 
         /// Get the entities that a system may act upon from the component manager.
         /// \param
-        std::vector<ecs_id> getValidEntities(ecs_id t_systemId);
+        std::vector<ecs_id> getEnabledSystemsEntities(ecs_id t_systemId);
+
+        /// Returns a list of enabled, compatible, entities that the system is to utilize that have had data been updated since the
+        /// last system run loop.
+        /// \param t_systemId The ID of the system to be removed.
+        std::vector<ecs_id> getUpdatedSystemEntities(ecs_id t_systemId);
+
+        /// Returns a list of entities that have been destroyed since the system last ran.
+        /// \param t_systemId The ID of the system to be removed.
+        std::vector<ecs_id> getDestroyedSystemEntities(ecs_id t_systemId);
 
         /// Orders the currently enabled systems to ensure they are executed in the proper order.
         void orderSystems();

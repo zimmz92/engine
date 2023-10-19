@@ -3,6 +3,7 @@
 /// The renderer start pass system class is implemented.
 
 #include <iterator>
+#include <iostream>
 #include "ae_renderer_system.hpp"
 
 namespace ae {
@@ -282,6 +283,8 @@ namespace ae {
             m_renderer.endSwapChainRenderPass(m_commandBuffer);
             m_renderer.endFrame();
         };
+
+        m_systemManager.clearSystemEntityUpdateSignatures(m_systemId);
     };
 
 
@@ -295,8 +298,30 @@ namespace ae {
     void RendererStartPassSystem::updateDescriptorSets(){
 
         // Get entities that might have textures from their respective render systems.
-        std::vector<ecs_id> validEntityIds_simpleRenderSystem = m_systemManager.getValidEntities(m_simpleRenderSystem->getSystemId());
-        std::vector<ecs_id> validEntityIds_uiRenderSystem = m_systemManager.getValidEntities(m_uiRenderSystem->getSystemId());
+        std::vector<ecs_id> validEntityIds_simpleRenderSystem = m_systemManager.getEnabledSystemsEntities(
+                m_simpleRenderSystem->getSystemId());
+        std::vector<ecs_id> validEntityIds_uiRenderSystem = m_systemManager.getEnabledSystemsEntities(
+                m_uiRenderSystem->getSystemId());
+
+        //==============================================================================================================
+        // Testing
+
+        std::string headerString = "Entities that have updated:\n";
+        std::cout << headerString;
+        std::vector<ecs_id> updatedEntityIds_simpleRenderSystem = m_systemManager.getUpdatedSystemEntities(m_simpleRenderSystem->getSystemId());
+        for (auto entityIds : updatedEntityIds_simpleRenderSystem){
+            std::string readBackString = std::to_string(entityIds) + "\n";
+            std::cout << readBackString;
+        };
+
+        headerString = "Entities that have been destroyed:\n";
+        std::vector<ecs_id> destroyedEntityIds_simpleRenderSystem = m_systemManager.getDestroyedSystemEntities(m_simpleRenderSystem->getSystemId());
+        for (auto entityIds : destroyedEntityIds_simpleRenderSystem){
+            std::string readBackString = std::to_string(entityIds) + "\n";
+            std::cout << readBackString;
+        };
+
+        //==============================================================================================================
 
         // Declare a vector to store all the unique images that we find.
         std::vector<std::shared_ptr<AeImage>> uniqueImages{};

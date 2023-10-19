@@ -4,6 +4,7 @@
 #include "ae_component_manager.hpp"
 
 #include <stdexcept>
+#include <bits/stdc++.h>
 
 namespace ae_ecs {
 
@@ -83,7 +84,18 @@ namespace ae_ecs {
 	// on it.
 	void AeComponentManager::enableEntity(ecs_id t_entityId) {
 		m_entityComponentSignatures[t_entityId].set(MAX_NUM_COMPONENTS);
-		// TODO: When the entity is set live, force the component manager to update applicable systems lists of valid entities to act upon
+
+        // Ensure when an entity is re-enabled that it is removed from the list of deleted entities if a previously
+        // deleted entity had the same ID as the new one.
+        for(ecs_id systemId=0; systemId < m_systemComponentSignatures.size() ; systemId++) {
+            auto it = find(m_systemEntityDestroyedSignatures[systemId].begin(),
+                           m_systemEntityDestroyedSignatures[systemId].end(),
+                           t_entityId);
+
+            if (it != m_systemEntityDestroyedSignatures[systemId].end()) {
+                m_systemEntityDestroyedSignatures[systemId].erase(it);
+            }
+        }
 	};
 
 
@@ -97,6 +109,27 @@ namespace ae_ecs {
 
 
 
+    // Update the m_systemEntityUpdateSignatures for the entity that had its data updated.
+    void AeComponentManager::entitiesComponentUpdated(ecs_id t_entityId, ecs_id t_componentId){
+        for(ecs_id systemId=0; systemId < m_systemComponentSignatures.size() ; systemId++) {
+            if(std::find(m_systemEntityUpdateSignatures[systemId].begin(), m_systemEntityUpdateSignatures[systemId].end(), t_entityId) != m_systemEntityUpdateSignatures[systemId].end()){
+                continue;
+            }
+
+            // Need to isolate the entity component signature since the &= operator puts the result back into the
+            // left hand variable.
+            std::bitset<MAX_NUM_COMPONENTS+1> entityComponentSignature = m_entityComponentSignatures[t_entityId];
+
+            // If the entities component signature matches the system's component signature set the flag that indicates
+            // that a component the system requires has been updated for the specific entity.
+            if( m_systemComponentSignatures[systemId].operator==(entityComponentSignature.operator&=(m_systemComponentSignatures[systemId]))){
+                m_systemEntityUpdateSignatures[systemId].push_back(t_entityId);
+            };
+        };
+    };
+
+
+
 	// Check to see if the bit in the entityComponentSignature of the entity is set high that corresponds to the
 	// component. If high then the component is used by the entity.
 	bool AeComponentManager::isComponentUsed(ecs_id t_entityId, ecs_id t_componentId) {
@@ -106,11 +139,28 @@ namespace ae_ecs {
 
 
 	// Removes the entity by clearing the component signature of the entity so the next entity that is allocated the
-	// same ID as the one to be removed it will not have the same components, and component data, by default.
-	void AeComponentManager::destroyEntity(ecs_id t_entityId){
-		m_entityComponentSignatures[t_entityId].reset();
+    // same ID as the one to be removed it will not have the same components, and component data, by default.
+    void AeComponentManager::destroyEntity(ecs_id t_entityId){
+        m_entityComponentSignatures[t_entityId].reset();
+
+        for(ecs_id systemId=0; systemId < m_systemComponentSignatures.size() ; systemId++) {
+
+            // If the entity had been updated by a previous system before being deleted ensure that a future system does
+            // not think this entity still exists and needs to be updated.
+            auto it = find(m_systemEntityUpdateSignatures[systemId].begin(),
+                           m_systemEntityUpdateSignatures[systemId].end(),
+                           t_entityId);
+
+            if (it != m_systemEntityUpdateSignatures[systemId].end()) {
+                m_systemEntityUpdateSignatures[systemId].erase(it);
+            }
+
+
+            // Flag that this entity has been destroyed to all systems.
+            m_systemEntityDestroyedSignatures[systemId].push_back(t_entityId);
+        }
         // TODO: With certain memory management there will need to be memory cleanup done here eventually.
-	};
+    };
 
 
 
@@ -118,8 +168,14 @@ namespace ae_ecs {
     // Registers the system with the component manager, creates a blank entry in the systemComponentSignature. The last
     // bit is set high so when called by the getSystemEntities function only enabled entities are returned.
     void AeComponentManager::registerSystem(ecs_id t_systemId) {
+
+        // Get a systemComponent and systemEntity signature for the system
         m_systemComponentSignatures[t_systemId] = {0};
         setSystemComponentSignature(t_systemId,MAX_NUM_COMPONENTS);
+
+        // Get a systemEntityUpdate signature for the system and ensure on the system's run of all entities will indicate they
+        // have updated data.
+        m_systemEntityUpdateSignatures[t_systemId] = {1};
     };
 
 
@@ -147,6 +203,10 @@ namespace ae_ecs {
 
 	};
 
+    void AeComponentManager::clearSystemEntityUpdateSignatures(ecs_id t_systemId){
+        m_systemEntityUpdateSignatures[t_systemId].clear();
+    };
+
 
 
 	// TODO: Implement this function
@@ -158,10 +218,10 @@ namespace ae_ecs {
 
 	// Compare the system component signature of interest to the entity component signatures and return a list of
     // entities whose component signatures match the system's component signature and the system can act upon.
-    std::vector<ecs_id> AeComponentManager::getSystemsEntities(ecs_id t_systemId) {
+    std::vector<ecs_id> AeComponentManager::getEnabledSystemsEntities(ecs_id t_systemId) {
 
         // The set of valid entities for a system to act upon.
-        std::vector<ecs_id> valid_entities;
+        std::vector<ecs_id> enabledEntities;
 
         auto systemSignaturePair = m_systemComponentSignatures.find(t_systemId);
         if(systemSignaturePair != m_systemComponentSignatures.end()){
@@ -170,18 +230,37 @@ namespace ae_ecs {
 
                 // Need to isolate the entity component signature since the &= operator puts the result back into the
                 // left hand variable.
-                std::bitset<MAX_NUM_COMPONENTS + 1> entityComponentSignature = m_entityComponentSignatures[entityId];
+                std::bitset<MAX_NUM_COMPONENTS+1> entityComponentSignature = m_entityComponentSignatures[entityId];
 
                 // If the entities component signature matches the system's component signature add it to the list of entity
                 // indexes being returned.
                 if( m_systemComponentSignatures[t_systemId].operator==(entityComponentSignature.operator&=(systemSignaturePair->second))){
-                    valid_entities.push_back(entityId);
+                    enabledEntities.push_back(entityId);
                 };
             };
         }
 
-        return valid_entities;
+        return enabledEntities;
 	};
+
+
+    // Returns the vector of entities
+    std::vector<ecs_id> AeComponentManager::getUpdatedSystemEntities(ecs_id t_systemId) {
+        std::vector<ecs_id> enabledUpdatedEntities;
+
+        // Check if the entities that are to be updated are still enabled when this system is executing.
+        for(auto entityId : m_systemEntityUpdateSignatures[t_systemId]){
+            if(m_entityComponentSignatures[entityId].test(MAX_NUM_COMPONENTS)){
+                enabledUpdatedEntities.push_back(entityId);
+            }
+        }
+        return enabledUpdatedEntities;
+    };
+
+    // Returns the vector of entities
+    std::vector<ecs_id> AeComponentManager::getDestroyedSystemEntities(ecs_id t_systemId) {
+        return m_systemEntityDestroyedSignatures[t_systemId];
+    };
 
 
 

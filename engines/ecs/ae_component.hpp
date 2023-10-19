@@ -95,8 +95,9 @@ namespace ae_ecs {
 
 		/// Get data for a specific entity.
 		/// \param t_entityID The ID of the entity to return the component data for.
-		T& getWriteableDataReference(ecs_id t_entityID) {
-			return m_componentData[t_entityID];
+		T& getWriteableDataReference(ecs_id t_entityId) {
+            m_componentManager.entitiesComponentUpdated(t_entityId, m_componentId);
+			return m_componentData[t_entityId];
 		};
 
         /// Get data for a specific entity.

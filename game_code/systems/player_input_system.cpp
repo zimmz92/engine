@@ -43,7 +43,7 @@ namespace ae {
     void PlayerInputSystem::executeSystem(){
 
         // Get the entities that use the components this system depends on.
-        std::vector<ecs_id> validEntityIds = m_systemManager.getValidEntities(this->getSystemId());
+        std::vector<ecs_id> validEntityIds = m_systemManager.getEnabledSystemsEntities(this->getSystemId());
 
         // TODO: Need to call a function here that calculates the required change in the controlled entities position
         //  before looping through all the entities.

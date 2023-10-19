@@ -51,7 +51,7 @@ namespace ae {
     void UpdateUboSystem::executeSystem(){
 
         // Get the entities that use the components this system depends on.
-        std::vector<ecs_id> validEntityIds = m_systemManager.getValidEntities(this->getSystemId());
+        std::vector<ecs_id> validEntityIds = m_systemManager.getEnabledSystemsEntities(this->getSystemId());
 
         // Clear the point light counter, need this to check to insert point lights into the ubo.
         // Also, currently required to verify that the number of point lights going into the ubo matches the expected

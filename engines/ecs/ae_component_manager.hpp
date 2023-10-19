@@ -64,13 +64,20 @@ namespace ae_ecs {
         /// \param t_entityId The ID of the entity
         void disableEntity(ecs_id t_entityId);
 
+        /// Informs the component manager that an entities component data has been updated and sets a flag used to
+        /// inform systems using that component of the change in an entities data.
+        /// \param t_entityId The ID of the entity
+        /// \param t_componentId The ID of the component.
+        void entitiesComponentUpdated(ecs_id t_entityId, ecs_id t_componentId);
+
         /// Checks to see if an entity uses a component.
         /// \param t_entityId The ID of the entity
         /// \param t_componentId The ID of the component.
         /// \return true if the entity uses the component.
         bool isComponentUsed(ecs_id t_entityId, ecs_id t_componentId);
 
-        /// TODO: Document the usage of this function
+        /// Resets/removes the entity data from a component.
+        /// \param t_entityId The ID of the entity
         void destroyEntity(ecs_id t_entityId);
 
         /// Register the system with the component system
@@ -87,14 +94,28 @@ namespace ae_ecs {
         /// \param t_componentId The ID of the component to be removed as required for the system.
         void unsetSystemComponentSignature(ecs_id t_systemId, ecs_id t_componentId);
 
+        /// Clears the system entity update signature for the specified system. Usually used at the end of a system's
+        /// execution loop.
+        /// \param t_systemId The ID of the system.
+        void clearSystemEntityUpdateSignatures(ecs_id t_systemId);
+
         /// A function to remove a systems component usage information from the component manager.
         /// \param t_systemId The ID of the system to be removed.
         void removeSystem(ecs_id t_systemId);
 
-        /// Compares system component signatures to the entity component signatures and returns a list of valid entities
-        /// to the systems to act upon.
+        /// Compares system component signatures to the entity component signatures and returns a list of all enabled
+        /// entities compatible with the system.
         /// \param t_systemId The ID of the system to be removed.
-        std::vector<ecs_id> getSystemsEntities(ecs_id t_systemId);
+        std::vector<ecs_id> getEnabledSystemsEntities(ecs_id t_systemId);
+
+        /// Returns a list of enabled, compatible, entities that the system is to utilize that have had data been updated since the
+        /// last system run loop.
+        /// \param t_systemId The ID of the system to be removed.
+        std::vector<ecs_id> getUpdatedSystemEntities(ecs_id t_systemId);
+
+        /// Returns a list of entities that have been destroyed since the system last ran.
+        /// \param t_systemId The ID of the system to be removed.
+        std::vector<ecs_id> getDestroyedSystemEntities(ecs_id t_systemId);
 
         /// Returns the entities that use the specified component;
         /// \param t_componentId The component ID the list of entities should be returned for.
@@ -125,6 +146,12 @@ namespace ae_ecs {
 
         /// Unordered map storing the components required for each active system.
         std::unordered_map<ecs_id,std::bitset<MAX_NUM_COMPONENTS + 1>> m_systemComponentSignatures;
+
+        /// Unordered map storing the entity component update status.
+        std::unordered_map<ecs_id,std::vector<ecs_id>> m_systemEntityUpdateSignatures;
+
+        /// Unordered map storing the entity destruction status.
+        std::unordered_map<ecs_id,std::vector<ecs_id>> m_systemEntityDestroyedSignatures;
 
 	protected:
 

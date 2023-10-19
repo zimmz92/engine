@@ -43,6 +43,14 @@ namespace ae_ecs {
         m_systemDependencySignatures[t_systemId].reset(t_predecessorSystemId);
     };
 
+
+    // Request that the component manager clears the entity update data for the system.
+    void AeSystemManager::clearSystemEntityUpdateSignatures(ecs_id t_systemId){
+        m_componentManager.clearSystemEntityUpdateSignatures(t_systemId);
+    };
+
+
+
     // Enable the system by adding it to the enabled systems map and alerting the component manager that the system has
     // been enabled. When a system is enabled ensure the systems are ordered correctly.
     void AeSystemManager::enableSystem(AeSystemBase* t_system) {
@@ -104,8 +112,16 @@ namespace ae_ecs {
 
     };
 
-    std::vector<ecs_id> AeSystemManager::getValidEntities(ecs_id t_systemId){
-        return m_componentManager.getSystemsEntities(t_systemId);
+    std::vector<ecs_id> AeSystemManager::getEnabledSystemsEntities(ecs_id t_systemId){
+        return m_componentManager.getEnabledSystemsEntities(t_systemId);
+    };
+
+    std::vector<ecs_id> AeSystemManager::getUpdatedSystemEntities(ecs_id t_systemId){
+        return m_componentManager.getUpdatedSystemEntities(t_systemId);
+    };
+
+    std::vector<ecs_id> AeSystemManager::getDestroyedSystemEntities(ecs_id t_systemId){
+        return m_componentManager.getDestroyedSystemEntities(t_systemId);
     };
 
     // Orders the currently enabled systems to ensure they are executed in the proper order.

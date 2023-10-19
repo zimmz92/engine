@@ -40,7 +40,7 @@ namespace ae {
     void CyclePointLightsSystem::executeSystem(){
 
         // Get the entities that use the components this system depends on.
-        std::vector<ecs_id> validEntityIds = m_systemManager.getValidEntities(this->getSystemId());
+        std::vector<ecs_id> validEntityIds = m_systemManager.getEnabledSystemsEntities(this->getSystemId());
 
         // Calculate the transform matrix to update the point light position to make them move in a circle around a
         // fixed normalized axis in space.
