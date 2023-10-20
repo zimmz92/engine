@@ -136,14 +136,14 @@ namespace ae {
             // Draw the point light.
             vkCmdDraw(t_commandBuffer, 6, 1, 0, 0);
         };
-
-        m_systemManager.clearSystemEntityUpdateSignatures(m_systemId);
     };
 
 
 
     // Clean up the system after execution. Currently not used.
-    void PointLightRenderSystem::cleanupSystem(){};
+    void PointLightRenderSystem::cleanupSystem(){
+        m_systemManager.clearSystemEntityUpdateSignatures(m_systemId);
+    };
 
 
 

@@ -81,7 +81,7 @@ namespace ae {
 
 
         /// Update the passed components based on the
-        void moveInPlaneYXZ(WorldPositionComponentStruct& t_worldPosition, ModelComponentStruct& t_modelData);
+        void moveInPlaneYXZ(ecs_id t_entityId);
 
     };
 }

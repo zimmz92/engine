@@ -49,7 +49,7 @@ namespace ae {
     void CameraUpdateSystem::executeSystem(){
 
         // Get the entities that use the components this system depends on.
-        std::vector<ecs_id> validEntityIds = m_systemManager.getEnabledSystemsEntities(this->getSystemId());
+        std::vector<ecs_id> validEntityIds = m_systemManager.getUpdatedSystemEntities(this->getSystemId());
 
         // Loop through the valid entities and update their camera view properties.
         for (ecs_id entityId : validEntityIds){
@@ -105,7 +105,9 @@ namespace ae {
 
 
     // There is no clean up required after this system executes.
-    void CameraUpdateSystem::cleanupSystem(){};
+    void CameraUpdateSystem::cleanupSystem(){
+        m_systemManager.clearSystemEntityUpdateSignatures(m_systemId);
+    };
 
 
 

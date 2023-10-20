@@ -52,11 +52,10 @@ namespace ae {
         for (ecs_id entityId : validEntityIds){
 
             // Only move the entity if it is currently being controlled by the player.
-            if(m_playerControlledComponent.getWriteableDataReference(entityId).isCurrentlyControlled){
+            if(m_playerControlledComponent.getReadOnlyDataReference(entityId).isCurrentlyControlled){
 
                 // Move the entity based on the player's input.
-                moveInPlaneYXZ(m_worldPositionComponent.getWriteableDataReference(entityId),
-                               m_modelComponent.getWriteableDataReference(entityId));
+                moveInPlaneYXZ(entityId);
             };
         };
     };
@@ -64,34 +63,41 @@ namespace ae {
 
 
     // Clean up the system after execution. Currently not used.
-    void PlayerInputSystem::cleanupSystem() {};
+    void PlayerInputSystem::cleanupSystem() {
+        m_systemManager.clearSystemEntityUpdateSignatures(m_systemId);
+    };
 
 
 
     // Helper function that translates the users inputs to desired entity position and rotation updates.
-    void PlayerInputSystem::moveInPlaneYXZ(WorldPositionComponentStruct& t_worldPosition, ModelComponentStruct& t_modelData){
+    void PlayerInputSystem::moveInPlaneYXZ(ecs_id t_entityId){
 
         // Initialize the rotation transform matrix.
-        glm::vec3 rotate{ 0 };
+        glm::vec3 rotate{ 0.0f };
 
         // Get the key presses that represent the players desire to rotate the model.
-        if (glfwGetKey(m_window, keys.lookRight) == GLFW_PRESS) rotate.y += 1.0f;
+        if (glfwGetKey(m_window, keys.lookRight) == GLFW_PRESS)rotate.y += 1.0f;
         if (glfwGetKey(m_window, keys.lookLeft) == GLFW_PRESS) rotate.y -= 1.0f;
         if (glfwGetKey(m_window, keys.lookUp) == GLFW_PRESS) rotate.x += 1.0f;
         if (glfwGetKey(m_window, keys.lookDown) == GLFW_PRESS) rotate.x -= 1.0f;
 
-        // Apply the rotation transform matrix to the model accounting for the amount of time that has past since the
-        // last update. Make sure that the rotation is not "zero" so the normalize function does not explode.
-        if (glm::dot(rotate, rotate) > std::numeric_limits<float>::epsilon()) {
-            t_modelData.rotation += m_lookSpeed * m_timingSystem.getDt() * glm::normalize(rotate);
+        if(rotate != glm::vec3(0.0f,0.0f,0.0f)) {
+
+            ModelComponentStruct& modelData = m_modelComponent.getWriteableDataReference(t_entityId);
+
+            // Apply the rotation transform matrix to the model accounting for the amount of time that has past since the
+            // last update. Make sure that the rotation is not "zero" so the normalize function does not explode.
+            if (glm::dot(rotate, rotate) > std::numeric_limits<float>::epsilon()) {
+                modelData.rotation += m_lookSpeed * m_timingSystem.getDt() * glm::normalize(rotate);
+            }
+
+            // Limit pitch value between about +/- 85 degrees.
+            modelData.rotation.x = glm::clamp(modelData.rotation.x, -1.5f, 1.5f);
+            modelData.rotation.y = glm::mod(modelData.rotation.y, glm::two_pi<float>());
         }
 
-        // Limit pitch value between about +/- 85 degrees.
-        t_modelData.rotation.x = glm::clamp(t_modelData.rotation.x, -1.5f, 1.5f);
-        t_modelData.rotation.y = glm::mod(t_modelData.rotation.y, glm::two_pi<float>());
-
         // Account for the fact that the model has rotated when updating the model movement.
-        float yaw = t_modelData.rotation.y;
+        float yaw = m_modelComponent.getReadOnlyDataReference(t_entityId).rotation.y;
         const glm::vec3 forwardDir{sin(yaw), 0.0f, cos(yaw)};
         const glm::vec3 rightDir{forwardDir.z, 0.0f, -forwardDir.x};
         const glm::vec3 upDir{ 0.0f, -1.0f, 0.0f };
@@ -100,7 +106,7 @@ namespace ae {
         glm::vec3 moveDir{ 0.0f };
 
         // Get the key presses that represent the players desire to move the model.
-        if (glfwGetKey(m_window, keys.moveForward) == GLFW_PRESS) moveDir += forwardDir;
+        if (glfwGetKey(m_window, keys.moveForward) == GLFW_PRESS)moveDir += forwardDir;
         if (glfwGetKey(m_window, keys.moveBackward) == GLFW_PRESS) moveDir -= forwardDir;
         if (glfwGetKey(m_window, keys.moveRight) == GLFW_PRESS) moveDir += rightDir;
         if (glfwGetKey(m_window, keys.moveLeft) == GLFW_PRESS) moveDir -= rightDir;
@@ -108,15 +114,16 @@ namespace ae {
         if (glfwGetKey(m_window, keys.moveDown) == GLFW_PRESS) moveDir -= upDir;
 
         // Make sure that the moveDir is not "zero" so the normalize function does not explode.
-        if (glm::dot(moveDir, moveDir) > std::numeric_limits<float>::epsilon()) {
+        if (glm::dot(moveDir, moveDir) > std::numeric_limits<float>::epsilon() && moveDir != glm::vec3(0.0f,0.0f,0.0f)) {
 
             // Calculate the actual movement of the entity to be applied using the movement vector
             glm::vec3 movement = m_moveSpeed * m_timingSystem.getDt() * glm::normalize(moveDir);
 
+            WorldPositionComponentStruct& worldPosition = m_worldPositionComponent.getWriteableDataReference(t_entityId);
             // Move the entity.
-            t_worldPosition.rho = t_worldPosition.rho + movement.x;
-            t_worldPosition.theta = t_worldPosition.theta + movement.y;
-            t_worldPosition.phi = t_worldPosition.phi + movement.z;
+            worldPosition.rho = worldPosition.rho + movement.x;
+            worldPosition.theta = worldPosition.theta + movement.y;
+            worldPosition.phi = worldPosition.phi + movement.z;
 
         };
     };

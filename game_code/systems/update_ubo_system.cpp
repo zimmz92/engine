@@ -61,14 +61,13 @@ namespace ae {
         // Loop through all the valid entities with the required components with the UpdateUboSystem
         for (ecs_id entityId : validEntityIds){
 
-
             // Check if this entity has camera data for the ubo
-            if(m_uboDataFlagsComponent.getWriteableDataReference(entityId).hasUboCameraData){
+            if(m_uboDataFlagsComponent.getReadOnlyDataReference(entityId).hasUboCameraData){
                 // Check that the entity actually uses the cameraComponent. If not we have some sort of error going on
                 // so throw one!
                 if(m_cameraComponent.doesEntityUseThis(entityId)) {
                     // Get a pointer to entity's camera data
-                    CameraComponentStruct& entityCameraData = m_cameraComponent.getWriteableDataReference(entityId);
+                    const CameraComponentStruct& entityCameraData = m_cameraComponent.getReadOnlyDataReference(entityId);
 
                     // Only the main camera should be fed to the ubo since all buffers will require that data
                     if (entityCameraData.isMainCamera) {
@@ -92,7 +91,7 @@ namespace ae {
 
 
             // Check if the entity has point light data for the ubo
-            if(m_uboDataFlagsComponent.getWriteableDataReference(entityId).hasUboPointLightData){
+            if(m_uboDataFlagsComponent.getReadOnlyDataReference(entityId).hasUboPointLightData){
                 // Check that the entity actually uses the pointLightComponent. If not we have some sort of error going on
                 // so throw one!
                 if(m_pointLightComponent.doesEntityUseThis(entityId)) {
@@ -100,8 +99,7 @@ namespace ae {
                     assert(m_numPointLights < MAX_LIGHTS && "Number of point lights exceed MAX_LIGHTS!");
 
                     // Get a pointer to entity's point light data
-                    PointLightComponentStruct& entityPointLightData = m_pointLightComponent.getWriteableDataReference(
-                            entityId);
+                    const PointLightComponentStruct& entityPointLightData = m_pointLightComponent.getReadOnlyDataReference(entityId);
 
                     // Put the entity's point light data into the ubo.
                     m_ubo.pointLights[m_numPointLights].position = glm::vec4(m_worldPositionComponent.getWorldPositionVec3(entityId), 1.0f);
@@ -139,5 +137,7 @@ namespace ae {
     };
 
     // Clean up the system after execution. Currently not used.
-    void UpdateUboSystem::cleanupSystem(){};
+    void UpdateUboSystem::cleanupSystem(){
+        m_systemManager.clearSystemEntityUpdateSignatures(m_systemId);
+    };
 }

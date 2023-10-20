@@ -68,6 +68,8 @@ namespace ae {
 
 
     // Clean up the system after execution. Currently not used.
-    void TimingSystem::cleanupSystem() {};
+    void TimingSystem::cleanupSystem() {
+        m_systemManager.clearSystemEntityUpdateSignatures(m_systemId);
+    };
 
 }

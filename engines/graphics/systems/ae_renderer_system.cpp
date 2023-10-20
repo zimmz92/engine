@@ -283,14 +283,14 @@ namespace ae {
             m_renderer.endSwapChainRenderPass(m_commandBuffer);
             m_renderer.endFrame();
         };
-
-        m_systemManager.clearSystemEntityUpdateSignatures(m_systemId);
     };
 
 
 
     // There is no clean up required after this system executes.
-    void RendererStartPassSystem::cleanupSystem(){};
+    void RendererStartPassSystem::cleanupSystem(){
+        m_systemManager.clearSystemEntityUpdateSignatures(m_systemId);
+    };
 
 
 

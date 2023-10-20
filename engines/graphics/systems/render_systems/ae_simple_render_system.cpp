@@ -98,13 +98,13 @@ namespace ae {
             entityModelData.m_model->draw(t_commandBuffer, j);
             j++;
         };
-
-        m_systemManager.clearSystemEntityUpdateSignatures(m_systemId);
     };
 
 
     // Clean up the system after execution. Currently not used.
-    void SimpleRenderSystem::cleanupSystem() {};
+    void SimpleRenderSystem::cleanupSystem() {
+        m_systemManager.clearSystemEntityUpdateSignatures(m_systemId);
+    };
 
 
     // Creates the pipeline layout for the point light render system.

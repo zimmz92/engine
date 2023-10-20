@@ -72,5 +72,7 @@ namespace ae {
 
 
     // Clean up the system after execution. Currently not used.
-    void CyclePointLightsSystem::cleanupSystem(){};
+    void CyclePointLightsSystem::cleanupSystem(){
+        m_systemManager.clearSystemEntityUpdateSignatures(m_systemId);
+    };
 }
