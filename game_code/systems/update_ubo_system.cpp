@@ -50,7 +50,9 @@ namespace ae {
 
     void UpdateUboSystem::executeSystem(){
 
-        // Get the entities that use the components this system depends on.
+        // Get the entities that use the components this system depends on. Get enabled entities since this is a
+        // system that reads data from entities component data no matter if previous systems have acted upon
+        // them or not. Entity data access is limited to read only.
         std::vector<ecs_id> validEntityIds = m_systemManager.getEnabledSystemsEntities(this->getSystemId());
 
         // Clear the point light counter, need this to check to insert point lights into the ubo.

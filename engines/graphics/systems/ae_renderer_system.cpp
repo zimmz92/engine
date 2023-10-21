@@ -297,6 +297,8 @@ namespace ae {
     // Update the texture descriptor set for the current frame being rendered.
     void RendererStartPassSystem::updateDescriptorSets(){
 
+        VkDrawIndirectCommand drawIndirectCommand;
+
         // Get entities that might have textures from their respective render systems.
         std::vector<ecs_id> validEntityIds_simpleRenderSystem = m_systemManager.getEnabledSystemsEntities(
                 m_simpleRenderSystem->getSystemId());

@@ -42,7 +42,9 @@ namespace ae {
     // Check for player inputs and apply them to controlled entities.
     void PlayerInputSystem::executeSystem(){
 
-        // Get the entities that use the components this system depends on.
+        // Get the entities that use the components this system depends on. Get enabled entities since this will be a
+        // system that will conditionally update their component data no matter if previous systems have acted upon
+        // them.
         std::vector<ecs_id> validEntityIds = m_systemManager.getEnabledSystemsEntities(this->getSystemId());
 
         // TODO: Need to call a function here that calculates the required change in the controlled entities position

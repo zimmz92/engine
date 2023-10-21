@@ -39,7 +39,9 @@ namespace ae {
     // Update the positions of the point lights to make them move in a circle.
     void CyclePointLightsSystem::executeSystem(){
 
-        // Get the entities that use the components this system depends on.
+        // Get the entities that use the components this system depends on. Get enabled entities since this will be a
+        // system that will conditionally update their component data no matter if previous systems have acted upon
+        // them.
         std::vector<ecs_id> validEntityIds = m_systemManager.getEnabledSystemsEntities(this->getSystemId());
 
         // Calculate the transform matrix to update the point light position to make them move in a circle around a

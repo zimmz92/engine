@@ -25,6 +25,8 @@
 
 namespace ae {
 
+
+
     /// If the swap chain does not need to be recreated this system will start the render pass, compile the frame
     /// information, push the ubo information to the shaders, and initiates the swap chain render pass.
     class RendererStartPassSystem : public ae_ecs::AeSystem<RendererStartPassSystem> {

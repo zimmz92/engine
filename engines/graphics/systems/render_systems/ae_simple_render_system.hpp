@@ -31,6 +31,12 @@ namespace ae {
         alignas(4) uint32_t textureIndex=MAX_TEXTURE_DESCRIPTORS + 1;
     };
 
+    struct SimpleIndirectBatch{
+        ModelComponentStruct& model;
+        uint32_t first;
+        uint32_t count;
+    };
+
     /// A child system of the RendererSystem which renders the entity models.
     class SimpleRenderSystem : public ae_ecs::AeSystem<SimpleRenderSystem> {
     public:
@@ -109,6 +115,9 @@ namespace ae {
 
         /// The pipeline created for this render system.
         std::unique_ptr<AePipeline> m_aePipeline;
+
+        /// A vector to store the unique models, and the number of times they need to be drawn, for each frame.
+        std::vector<SimpleIndirectBatch> draws[MAX_FRAMES_IN_FLIGHT];
 
     };
 }
