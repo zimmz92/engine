@@ -16,22 +16,31 @@
 
 namespace ae {
 
-    template <int requiredTextures>
-    class AeMaterial3D : public ae_ecs::AeSystem<AeMaterial3D<requiredTextures>>{
+    /// The typename T is intended to be a structure defining anything what the specific material requires of an entity
+    /// and need to be specified when an entity registers with the material.
+    template <typename T>
+    class AeMaterial3D : public ae_ecs::AeSystem<AeMaterial3D<T>>{
 
     public:
 
         struct Model3DMaterial{
             AeMaterial3D& material3D;
-            std::shared_ptr<AeImage> textures[requiredTextures];
+            T entityMaterialProperties;
+        };
+
+        struct MaterialShaderFiles{
+            std::string vertexShaderFilepath = "Not Used";
+            std::string fragmentShaderFilepath = "Not Used";
+            std::string tessellationShaderFilepath =  "Not Used";
+            std::string geometryShaderFilepath =  "Not Used";
         };
 
         /// Constructor of the SimpleRenderSystem
         /// \param t_game_components The game components available that this system may require.
         AeMaterial3D(ae_ecs::AeECS& t_ecs,
-                     GameComponents& t_game_components,
                      AeDevice& t_aeDevice,
                      VkRenderPass t_renderPass,
+                     MaterialShaderFiles t_materialShaderFiles,
                      VkDescriptorSetLayout t_globalSetLayout,
                      VkDescriptorSetLayout t_textureSetLayout,
                      VkDescriptorSetLayout t_objectSetLayout);
@@ -43,32 +52,16 @@ namespace ae {
         void setupSystem() override;
 
         /// Execute the SimpleRenderSystem, this is handled by the RendererSystem.
-        void executeSystem(VkCommandBuffer& t_commandBuffer,
-                           VkDescriptorSet t_globalDescriptorSet,
-                           VkDescriptorSet t_textureDescriptorSet,
-                           VkDescriptorSet t_objectDescriptorSet,
-                           uint64_t t_frameIndex);
+        void executeSystem() override;
 
         /// Clean up the SimpleRenderSystem, this is handled by the RendererSystem.
         void cleanupSystem() override;
 
-        void registerEntity(ecs_id t_entityId, AeModel& t_model3D, std::shared_ptr<AeImage> textures[requiredTextures]);
+        void registerEntity(ecs_id t_entityId, AeModel& t_model3D, T t_entityMaterialProperties);
 
     private:
 
-        // Components this system utilizes.
-        /// The WorldPositionComponent this systems accesses to know where an entity is to render it.
-        WorldPositionComponent& m_worldPositionComponent;
-        /// The ModelComponent this system accesses to render the entity in the game world.
-        ModelComponent& m_modelComponent;
-
-
-        // Prerequisite systems for the SimpleRenderSystem.
-        // This requires any world position updating system to run before this system runs.
-        // This needs to be run before the point light render system to maintain transparency.
-
-
-        /// Creates the pipeline layout for the SimpleRenderSystem.
+        /// Creates the pipeline layout for the material.
         /// \param t_globalSetLayout The general descriptor set for the devices and general rendering setting that need
         /// to be accounted for when setting up the render pipeline for this system.
         void createPipelineLayout(VkDescriptorSetLayout t_globalSetLayout,
@@ -90,15 +83,14 @@ namespace ae {
         /// The pipeline created for this render system.
         std::unique_ptr<AePipeline> m_aePipeline;
 
-        /// A vector to store the unique models, and the number of times they need to be drawn, for each frame.
-        std::map<AeModel,std::map<ecs_id,uint64_t>> draws;
+        // A structure specifying the shaders this material uses.
+        MaterialShaderFiles m_materialShaderFiles;
 
-        /// DO NOT CALL! This is not used by this system.
-        void executeSystem() override {
-            throw std::runtime_error("This is the incorrect execute function for a Model3DMaterial and should "
-                                     "not have been called. The Model3DMaterial execution should be being handled by "
-                                     "it's parent, RenderSystem.");
-        };
+        /// A vector to track unique models, and a list of which entities use them.
+        std::map<AeModel,std::map<ecs_id,uint64_t>> m_uniqueModelMap;
+
+        /// Compiles the commands to be called by draw indexed indirect command for each frames.
+        VkDrawIndexedIndirectCommand materialDrawIndexedCommands[MAX_FRAMES_IN_FLIGHT][MAX_OBJECTS];
 
     protected:
 

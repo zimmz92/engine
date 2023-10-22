@@ -196,6 +196,8 @@ namespace ae {
                 m_aeDevice,
                 "engines/graphics/shaders/point_light.vert.spv",
                 "engines/graphics/shaders/point_light.frag.spv",
+                "Not Used",
+                "Not Used",
                 pipelineConfig);
     };
 }

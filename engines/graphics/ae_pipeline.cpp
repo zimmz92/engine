@@ -18,9 +18,11 @@ namespace ae {
         AeDevice& t_device,
         const std::string& t_vertFilepath,
         const std::string& t_fragFilepath,
+        const std::string& t_tessFilepath,
+        const std::string& t_geometryFilepath,
         const PipelineConfigInfo& t_configInfo) : m_aeDevice{ t_device } {
 
-        createGraphicsPipeline(t_vertFilepath, t_fragFilepath, t_configInfo);
+        createGraphicsPipeline(t_vertFilepath, t_fragFilepath, t_tessFilepath, t_geometryFilepath, t_configInfo);
 
     }
 
@@ -61,6 +63,8 @@ namespace ae {
     void AePipeline::createGraphicsPipeline(
         const std::string& t_vertFilepath,
         const std::string& t_fragFilepath,
+        const std::string& t_tessFilepath,
+        const std::string& t_geometryFilepath,
         const PipelineConfigInfo& t_configInfo) {
 
         assert(
@@ -71,36 +75,105 @@ namespace ae {
             t_configInfo.renderPass != nullptr &&
             "Cannot create graphics pipeline: no renderPass provided in config info");
 
-        // Read in the vertex shader code from the specified file.
-        auto vertCode = readFile(t_vertFilepath);
+        // Create a collection of shader stages information to create the pipeline using.
+        std::vector<VkPipelineShaderStageCreateInfo> shaderStagesInfo;
 
-        // Read in the fragment shader code from the specified file.
-        auto fragCode = readFile(t_fragFilepath);
+        // If a vertex shader has been provided create the information for it.
+        VkShaderModule vertShaderModule;
+        if(t_vertFilepath != "Not Used"){
 
-        // Create the vertex shader module the imported shader code
-        createShaderModule(vertCode, &m_vertShaderModule);
+            // Read in the vertex shader code from the specified file.
+            auto vertCode = readFile(t_vertFilepath);
 
-        // Create the fragment shader module the imported shader code
-        createShaderModule(fragCode, &m_fragShaderModule);
+            // Create the vertex shader module the imported shader code
+            createShaderModule(vertCode, &vertShaderModule);
 
-        // Specify the vertex shader
-        VkPipelineShaderStageCreateInfo shaderStages[2];
-        shaderStages[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-        shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
-        shaderStages[0].module = m_vertShaderModule;
-        shaderStages[0].pName = "main";
-        shaderStages[0].flags = 0;
-        shaderStages[0].pNext = nullptr;
-        shaderStages[0].pSpecializationInfo = nullptr;
+            // Specify the vertex shader
+            VkPipelineShaderStageCreateInfo shaderStage;
+            shaderStage.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+            shaderStage.stage = VK_SHADER_STAGE_VERTEX_BIT;
+            shaderStage.module = vertShaderModule;
+            shaderStage.pName = "main";
+            shaderStage.flags = 0;
+            shaderStage.pNext = nullptr;
+            shaderStage.pSpecializationInfo = nullptr;
 
-        // Specify the fragment shader
-        shaderStages[1].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-        shaderStages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-        shaderStages[1].module = m_fragShaderModule;
-        shaderStages[1].pName = "main";
-        shaderStages[1].flags = 0;
-        shaderStages[1].pNext = nullptr;
-        shaderStages[1].pSpecializationInfo = nullptr;
+            shaderStagesInfo.push_back(shaderStage);
+        }else{
+            throw std::runtime_error("A vertex shader must be provided!");
+        }
+
+        // If a fragment shader has been provided, create the information for it.
+        VkShaderModule fragShaderModule;
+        if(t_fragFilepath != "Not Used"){
+
+            // Read in the fragment shader code from the specified file.
+            auto fragCode = readFile(t_fragFilepath);
+
+            // Create the fragment shader module the imported shader code
+            createShaderModule(fragCode, &fragShaderModule);
+
+            // Specify the fragment shader
+            VkPipelineShaderStageCreateInfo shaderStage;
+            shaderStage.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+            shaderStage.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+            shaderStage.module = fragShaderModule;
+            shaderStage.pName = "main";
+            shaderStage.flags = 0;
+            shaderStage.pNext = nullptr;
+            shaderStage.pSpecializationInfo = nullptr;
+
+            shaderStagesInfo.push_back(shaderStage);
+        }else{
+            throw std::runtime_error("A fragment shader must be provided!");
+        }
+
+        // If a tesselation control shader has been provided, create the information for it.
+        VkShaderModule tessShaderModule;
+        if(t_tessFilepath != "Not Used"){
+
+            // Read in the fragment shader code from the specified file.
+            auto tessCode = readFile(t_tessFilepath);
+
+            // Create the fragment shader module the imported shader code
+            createShaderModule(tessCode, &tessShaderModule);
+
+            // Specify the fragment shader
+            VkPipelineShaderStageCreateInfo shaderStage;
+            shaderStage.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+            shaderStage.stage = VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
+            shaderStage.module = tessShaderModule;
+            shaderStage.pName = "main";
+            shaderStage.flags = 0;
+            shaderStage.pNext = nullptr;
+            shaderStage.pSpecializationInfo = nullptr;
+
+            shaderStagesInfo.push_back(shaderStage);
+        }
+
+        // If a tesselation control shader has been provided, create the information for it.
+        VkShaderModule geometryShaderModule;
+        if(t_geometryFilepath != "Not Used"){
+
+            // Read in the fragment shader code from the specified file.
+            auto geometryCode = readFile(t_geometryFilepath);
+
+            // Create the fragment shader module the imported shader code
+            createShaderModule(geometryCode, &geometryShaderModule);
+
+            // Specify the fragment shader
+            VkPipelineShaderStageCreateInfo shaderStage;
+            shaderStage.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+            shaderStage.stage = VK_SHADER_STAGE_GEOMETRY_BIT;
+            shaderStage.module = geometryShaderModule;
+            shaderStage.pName = "main";
+            shaderStage.flags = 0;
+            shaderStage.pNext = nullptr;
+            shaderStage.pSpecializationInfo = nullptr;
+
+            shaderStagesInfo.push_back(shaderStage);
+        }
+
 
 
         // Configure the vertex shader, how to interpret the vertex buffer input.
@@ -116,8 +189,8 @@ namespace ae {
         // Configure the graphics pipeline
         VkGraphicsPipelineCreateInfo pipelineInfo = {};
         pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-        pipelineInfo.stageCount = 2;
-        pipelineInfo.pStages = shaderStages;
+        pipelineInfo.stageCount = shaderStagesInfo.size();
+        pipelineInfo.pStages = shaderStagesInfo.data();
         pipelineInfo.pVertexInputState = &vertexInputInfo;
         pipelineInfo.pInputAssemblyState = &t_configInfo.inputAssemblyInfo;
         pipelineInfo.pViewportState = &t_configInfo.viewportInfo;
@@ -140,10 +213,14 @@ namespace ae {
         }
 
         // Clean up the shader modules now that they have been loaded into the pipeline.
-        vkDestroyShaderModule(m_aeDevice.device(), m_fragShaderModule, nullptr);
-        vkDestroyShaderModule(m_aeDevice.device(), m_vertShaderModule, nullptr);
-        m_fragShaderModule = VK_NULL_HANDLE;
-        m_vertShaderModule = VK_NULL_HANDLE;
+        vkDestroyShaderModule(m_aeDevice.device(), fragShaderModule, nullptr);
+        fragShaderModule = VK_NULL_HANDLE;
+
+        vkDestroyShaderModule(m_aeDevice.device(), vertShaderModule, nullptr);
+        vertShaderModule = VK_NULL_HANDLE;
+
+        vkDestroyShaderModule(m_aeDevice.device(), tessShaderModule, nullptr);
+        tessShaderModule = VK_NULL_HANDLE;
     }
 
     // Function to create a Vulkan shader module

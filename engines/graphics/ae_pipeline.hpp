@@ -52,6 +52,8 @@ namespace ae {
             AeDevice& t_device,
             const std::string& t_vertFilepath,
             const std::string& t_fragFilepath,
+            const std::string& t_tessFilepath,
+            const std::string& t_geometryFilepath,
             const PipelineConfigInfo& t_configInfo);
 
         /// Destroy a Vulkan pipeline object
@@ -90,6 +92,8 @@ namespace ae {
         void createGraphicsPipeline(
             const std::string& t_vertFilepath,
             const std::string& t_fragFilepath,
+            const std::string& t_tessFilepath,
+            const std::string& t_geometryFilepath,
             const PipelineConfigInfo& t_configInfo);
 
         /// Function to create a Vulkan shader module from the supplied reference of code vector variable.
@@ -104,10 +108,5 @@ namespace ae {
         /// This graphics pipeline
         VkPipeline m_graphicsPipeline;
 
-        /// The vertex shader module this pipeline uses, this is just a placeholder for creating the pipeline.
-        VkShaderModule m_vertShaderModule;
-
-        /// The fragment shader module this pipeline uses, this is just a placeholder for creating the pipeline.
-        VkShaderModule m_fragShaderModule;
     };
 }  // namespace lve

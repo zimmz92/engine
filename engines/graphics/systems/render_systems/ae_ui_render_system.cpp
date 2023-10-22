@@ -155,6 +155,8 @@ namespace ae {
                 m_aeDevice,
                 "engines/graphics/shaders/ui_shader.vert.spv",
                 "engines/graphics/shaders/ui_shader.frag.spv",
+                "Not Used",
+                "Not Used",
                 pipelineConfig);
     };
 
