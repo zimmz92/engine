@@ -93,7 +93,7 @@ namespace ae_ecs {
             // TODO: Alert system manager that this system uses this component.
         };
 
-		/// Get data for a specific entity.
+        virtual /// Get data for a specific entity.
 		/// \param t_entityID The ID of the entity to return the component data for.
 		T& getWriteableDataReference(ecs_id t_entityId) {
             m_componentManager.entitiesComponentUpdated(t_entityId, m_componentId);
@@ -108,15 +108,15 @@ namespace ae_ecs {
 
 	private:
 
-        /// Pointer to the data the component is storing.
-		T* m_componentData;
-
 	protected:
         /// ID for the unique component created
         ecs_id m_componentId;
 
 		/// Pointer to the component manager
 		AeComponentManager& m_componentManager;
+
+        /// Pointer to the data the component is storing.
+        T* m_componentData;
 	};
 
 	/// When a derivative of the AeComponent class is defined the type ID will be set for the derivative class

@@ -123,6 +123,7 @@ namespace ae_ecs {
             // If the entities component signature matches the system's component signature set the flag that indicates
             // that a component the system requires has been updated for the specific entity.
             if( m_systemComponentSignatures[systemId].operator==(entityComponentSignature.operator&=(m_systemComponentSignatures[systemId]))){
+                //TODO check if this is unique!
                 m_systemEntityUpdateSignatures[systemId].push_back(t_entityId);
             };
         };
