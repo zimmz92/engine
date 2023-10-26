@@ -19,7 +19,7 @@ namespace ae {
     AeImage::AeImage(AeDevice &t_device, const AeImage::Builder &t_builder) : m_aeDevice{t_device}, m_format{t_builder.imageFormat} {
 
         // Initialize the image index data
-        std::fill_n(m_textureDescriptorIndex, MAX_FRAMES_IN_FLIGHT, MAX_TEXTURE_DESCRIPTORS+1);
+        std::fill_n(m_textureDescriptorIndex, MAX_FRAMES_IN_FLIGHT, MAX_TEXTURES + 1);
 
         // Create an image on the GPU for the imported image to be loaded into.
         createImage(t_builder,

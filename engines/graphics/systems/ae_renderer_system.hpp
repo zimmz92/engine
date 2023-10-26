@@ -19,6 +19,8 @@
 #include "ae_image.hpp"
 #include "ae_samplers.hpp"
 
+#include "game_materials.hpp"
+
 #include "ae_simple_render_system.hpp"
 #include "ae_point_light_render_system.hpp"
 #include "ae_ui_render_system.hpp"
@@ -141,6 +143,8 @@ namespace ae {
         //==============================================================================================================
         // Child render systems
         //==============================================================================================================
+        GameMaterials* m_gameMaterials;
+
         /// Pointer to the point light render system
         PointLightRenderSystem* m_pointLightRenderSystem;
 

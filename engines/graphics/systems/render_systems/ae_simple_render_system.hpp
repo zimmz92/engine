@@ -28,7 +28,7 @@ namespace ae {
         alignas(16) glm::mat4 normalMatrix{ 1.0f };
 
         /// The index of the objects texture;
-        alignas(4) uint32_t textureIndex=MAX_TEXTURE_DESCRIPTORS + 1;
+        alignas(4) uint32_t textureIndex= MAX_TEXTURES + 1;
     };
 
     struct SimpleIndirectBatch{

@@ -4,6 +4,6 @@
 
 namespace ae {
     static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
-    static constexpr int MAX_TEXTURE_DESCRIPTORS = 8;
+    static constexpr int MAX_TEXTURES = 8;
     static constexpr int MAX_OBJECTS = 10000;
 } // namespace ae

@@ -24,6 +24,9 @@ target_sources(mySrcFiles
         ae_samplers.hpp
         ae_samplers.cpp
         ae_graphics_constants.hpp
+        ae_material3d.hpp
+        ae_material3d_base.hpp
+        ae_material3d_base.cpp
     PUBLIC
 )
 

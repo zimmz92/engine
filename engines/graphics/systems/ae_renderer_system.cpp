@@ -40,7 +40,7 @@ namespace ae {
         m_globalPool = AeDescriptorPool::Builder(m_aeDevice)
                 .setMaxSets(MAX_FRAMES_IN_FLIGHT*4)
                 .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MAX_FRAMES_IN_FLIGHT)
-                .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,MAX_TEXTURE_DESCRIPTORS*MAX_FRAMES_IN_FLIGHT)
+                .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MAX_TEXTURES * MAX_FRAMES_IN_FLIGHT)
                 .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, MAX_FRAMES_IN_FLIGHT*2)
                 .build();
 
@@ -87,7 +87,7 @@ namespace ae {
         //==============================================================================================================
         // Define the descriptor set for the texture.
         auto textureSetLayout = AeDescriptorSetLayout::Builder(m_aeDevice)
-                .addBinding(0,VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,VK_SHADER_STAGE_FRAGMENT_BIT, MAX_TEXTURE_DESCRIPTORS)
+                .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, MAX_TEXTURES)
                 .build();
 
         // Reserve space for and then initialize the texture descriptors for each frame.
@@ -103,7 +103,7 @@ namespace ae {
 
         for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             // Create the set of images that are the textures for each frame.
-            VkDescriptorImageInfo imageInfos[MAX_TEXTURE_DESCRIPTORS];
+            VkDescriptorImageInfo imageInfos[MAX_TEXTURES];
 
             // Set the default image information for each frame.
             for (auto & j : imageInfos) {
@@ -194,6 +194,13 @@ namespace ae {
         //==============================================================================================================
         // Setup child render systems
         //==============================================================================================================
+        m_gameMaterials = new GameMaterials(m_aeDevice,
+                                            m_renderer.getSwapChainRenderPass(),
+                                            t_ecs,
+                                            globalSetLayout->getDescriptorSetLayout(),
+                                            textureSetLayout->getDescriptorSetLayout(),
+                                            objectSetLayout->getDescriptorSetLayout());
+
         m_simpleRenderSystem = new SimpleRenderSystem(t_ecs,
                                                       t_game_components,
                                                       m_aeDevice,
@@ -346,7 +353,7 @@ namespace ae {
             // Check if the object has a texture. If not set it such that the model is rendered using only its vertex
             // colors.
             if(entityModelData.m_texture == nullptr){
-                data[j].textureIndex = MAX_TEXTURE_DESCRIPTORS + 1;
+                data[j].textureIndex = MAX_TEXTURES + 1;
                 j++;
                 continue;
             }
@@ -390,7 +397,7 @@ namespace ae {
                                                entityModelData.scale);
 
             if(entityModelData.m_texture == nullptr){
-                data2d[j].textureIndex = MAX_TEXTURE_DESCRIPTORS + 1;
+                data2d[j].textureIndex = MAX_TEXTURES + 1;
                 j++;
                 continue;
             }
@@ -417,12 +424,12 @@ namespace ae {
 
 
         // Ensure that we're not about to exceed the maximum number of descriptors that we have.
-        if(uniqueImages.size() > MAX_TEXTURE_DESCRIPTORS){
+        if(uniqueImages.size() > MAX_TEXTURES){
             throw std::runtime_error("Too many textures trying to be bound!");
         };
 
         // Create the set of images that are the textures for each frame.
-        VkDescriptorImageInfo imageInfos[MAX_TEXTURE_DESCRIPTORS];
+        VkDescriptorImageInfo imageInfos[MAX_TEXTURES];
 
         // Set the image information array for the frame.
         for (auto i=0; i<uniqueImages.size();i++) {
@@ -432,7 +439,7 @@ namespace ae {
         }
 
         // Set the rest to the default image.
-        for(auto i=uniqueImages.size(); i<MAX_TEXTURE_DESCRIPTORS;i++){
+        for(auto i=uniqueImages.size(); i < MAX_TEXTURES; i++){
             imageInfos[i].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
             imageInfos[i].imageView = m_defaultImage->getImageView();
             imageInfos[i].sampler = m_aeSamplers.getDefaultSampler();

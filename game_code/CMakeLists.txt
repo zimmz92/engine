@@ -2,6 +2,7 @@ target_sources(mySrcFiles
     PRIVATE
         game_components.hpp
         game_systems.hpp
+        game_materials.hpp
     PUBLIC
 )
 
