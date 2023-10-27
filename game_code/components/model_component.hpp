@@ -16,6 +16,9 @@ namespace ae {
         /// A pointer to the model used by a entity.
         std::shared_ptr<AeModel> m_model{};
 
+        /// Model Matrix Index.
+        uint32_t m_modelMatrixIndex = MAX_OBJECTS;
+
         /// Defines the scaling factors to be applied to the model being used by the entity.
         glm::vec3 scale{ 1.0f, 1.0f, 1.0f };
 

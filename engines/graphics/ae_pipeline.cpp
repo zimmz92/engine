@@ -213,14 +213,25 @@ namespace ae {
         }
 
         // Clean up the shader modules now that they have been loaded into the pipeline.
-        vkDestroyShaderModule(m_aeDevice.device(), fragShaderModule, nullptr);
-        fragShaderModule = VK_NULL_HANDLE;
+        if(t_vertFilepath != "Not Used") {
+            vkDestroyShaderModule(m_aeDevice.device(), fragShaderModule, nullptr);
+            fragShaderModule = VK_NULL_HANDLE;
+        }
 
-        vkDestroyShaderModule(m_aeDevice.device(), vertShaderModule, nullptr);
-        vertShaderModule = VK_NULL_HANDLE;
+        if(t_fragFilepath != "Not Used") {
+            vkDestroyShaderModule(m_aeDevice.device(), vertShaderModule, nullptr);
+            vertShaderModule = VK_NULL_HANDLE;
+        }
 
-        vkDestroyShaderModule(m_aeDevice.device(), tessShaderModule, nullptr);
-        tessShaderModule = VK_NULL_HANDLE;
+        if(t_tessFilepath != "Not Used") {
+            vkDestroyShaderModule(m_aeDevice.device(), tessShaderModule, nullptr);
+            tessShaderModule = VK_NULL_HANDLE;
+        }
+
+        if(t_geometryFilepath != "Not Used") {
+            vkDestroyShaderModule(m_aeDevice.device(), geometryShaderModule, nullptr);
+            geometryShaderModule = VK_NULL_HANDLE;
+        }
     }
 
     // Function to create a Vulkan shader module

@@ -234,6 +234,9 @@ namespace ae {
 
     // Destructor class of the RendererStartPassSystem
     RendererStartPassSystem::~RendererStartPassSystem(){
+        delete m_gameMaterials;
+        m_gameMaterials = nullptr;
+
         delete m_simpleRenderSystem;
         m_simpleRenderSystem = nullptr;
 
@@ -252,7 +255,9 @@ namespace ae {
 
     // There is no setup required for this system to execute.
     void RendererStartPassSystem::setupSystem(){
-        //m_gameMaterials->m_simpleMaterial.executeMaterialSystem();
+        for(auto material : m_gameMaterials->m_materials){
+            material->executeMaterialSystem(m_frameIndex);
+        }
     };
 
 

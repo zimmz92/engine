@@ -36,6 +36,8 @@ namespace ae {
         /// Destructor of the SimpleRenderSystem
         ~AeMaterial3DBase();
 
+        virtual void executeMaterialSystem(int t_frameIndex){};
+
     private:
 
         /// Creates the pipeline layout for the material.

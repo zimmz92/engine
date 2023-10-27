@@ -87,6 +87,8 @@ namespace ae {
         /// \param t_objectBufferIndex The index into the SSBO that stores the object's model matrix and texture index.
 		void draw(VkCommandBuffer t_commandBuffer,int t_objectBufferIndex = 0);
 
+        uint32_t getIndexCount() {return m_indexCount;};
+
 	private:
         /// Creates a vertex buffer from the provided vertices.
         /// \param t_vertices The vertices to create the vertex buffer using.

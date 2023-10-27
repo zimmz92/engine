@@ -49,7 +49,9 @@ namespace ae {
                   m_renderPass{t_renderPass},
                   m_globalSetLayout{t_globalSetLayout},
                   m_textureSetLayout{t_textureSetLayout},
-                  m_objectSetLayout{t_objectSetLayout}{};
+                  m_objectSetLayout{t_objectSetLayout}{
+            m_materials.push_back(&m_simpleMaterial);
+        };
 
         ~GameMaterials(){};
 
@@ -61,6 +63,7 @@ namespace ae {
         VkDescriptorSetLayout m_globalSetLayout;
         VkDescriptorSetLayout m_textureSetLayout;
         VkDescriptorSetLayout m_objectSetLayout;
+        std::vector<AeMaterial3DBase*> m_materials;
 
         // Materials
         MaterialShaderFiles simpleMaterialShaderFiles = {"engines/graphics/shaders/shader.vert.spv",
