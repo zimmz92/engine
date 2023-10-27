@@ -65,18 +65,84 @@ namespace ae_ecs {
 
 
 	// Sets the entity component signature bit to indicate that the entity uses the component.
-	void AeComponentManager::setEntityComponentSignature(ecs_id t_entityId, ecs_id t_componentId) {
+	void AeComponentManager::entityUsesComponent(ecs_id t_entityId, ecs_id t_componentId) {
 		m_entityComponentSignatures[t_entityId].set(t_componentId);
-		// TODO: When the entity sets a component, and is live, force the component manager to update applicable systems lists of valid entities to act upon
+
+        // Search through systems to see if the system matches the new component signature of the entity. If the system
+        // uses the component check to see if that entity was already in its list of entities to update, if  not add it.
+        for (ecs_id systemId = 0; systemId < m_systemComponentSignatures.size(); systemId++) {
+
+            // Before changing the entities component signature search which systems the entity is compatible with
+            // currently.
+
+            // Need to isolate the entity component signature since the &= operator puts the result back into the
+            // left hand variable.
+            std::bitset<MAX_NUM_COMPONENTS + 1> entityComponentSignature = m_entityComponentSignatures[t_entityId];
+            if (m_systemComponentSignatures[systemId].operator==(
+                    entityComponentSignature.operator&=(m_systemComponentSignatures[systemId]))) {
+
+                // Check to ensure that the system also requires the component being removed. Only systems that require
+                // the component being removed should be impacted by the entity removing the specified component.
+                if(m_systemComponentSignatures[systemId].test(t_componentId)){
+
+                    // If the entity is currently already in the system's list of entities that have been updated and needs
+                    // to be acted upon it should be removed from that list since it no longer has one of the required
+                    // components to be compatible with that system.
+                    auto it = find(m_systemEntityUpdateSignatures[systemId].begin(),
+                                   m_systemEntityUpdateSignatures[systemId].end(),
+                                   t_entityId);
+
+                    if (it == m_systemEntityUpdateSignatures[systemId].end()) {
+                        m_systemEntityUpdateSignatures[systemId].push_back(t_entityId);
+                    }
+                }
+            };
+        };
 	};
 
 
 
 	// Resets the entity component signature bit to indicate that the entity does not use the component.
-	void AeComponentManager::unsetEntityComponentSignature(ecs_id t_entityId, ecs_id t_componentId) {
-		m_entityComponentSignatures[t_entityId].reset(t_componentId);
-		// TODO: When the entity removes a component force the component manager to update applicable systems lists of valid entities to act upon
-	};
+	void AeComponentManager::entityErstUsesComponent(ecs_id t_entityId, ecs_id t_componentId) {
+        // Search through systems to see if they use the component that is being removed from the entity. If the system
+        // uses the component being removed by the entity check to see if that entity was already in its list of
+        // entities to update, if it is removed it from that list.
+        // The entity will be added to the system's destroyed entities list since it is no longer eligible to be worked
+        // upon by that system.
+        for (ecs_id systemId = 0; systemId < m_systemComponentSignatures.size(); systemId++) {
+
+            // Before changing the entities component signature search which systems the entity is compatible with
+            // currently.
+
+            // Need to isolate the entity component signature since the &= operator puts the result back into the
+            // left hand variable.
+            std::bitset<MAX_NUM_COMPONENTS + 1> entityComponentSignature = m_entityComponentSignatures[t_entityId];
+            if (m_systemComponentSignatures[systemId].operator==(
+                    entityComponentSignature.operator&=(m_systemComponentSignatures[systemId]))) {
+
+                // Check to ensure that the system also requires the component being removed. Only systems that require
+                // the component being removed should be impacted by the entity removing the specified component.
+                if(m_systemComponentSignatures[systemId].test(t_componentId)){
+
+                    // If the entity is currently already in the system's list of entities that have been updated and needs
+                    // to be acted upon it should be removed from that list since it no longer has one of the required
+                    // components to be compatible with that system.
+                    auto it = find(m_systemEntityUpdateSignatures[systemId].begin(),
+                                   m_systemEntityUpdateSignatures[systemId].end(),
+                                   t_entityId);
+
+                    if (it != m_systemEntityUpdateSignatures[systemId].end()) {
+                        m_systemEntityUpdateSignatures[systemId].erase(it);
+                    }
+
+                    // Flag that this entity has been destroyed to this system.
+                    m_systemEntityDestroyedSignatures[systemId].push_back(t_entityId);
+                }
+            };
+        };
+
+        m_entityComponentSignatures[t_entityId].reset(t_componentId);
+    };
 
 
 
@@ -85,17 +151,19 @@ namespace ae_ecs {
 	void AeComponentManager::enableEntity(ecs_id t_entityId) {
 		m_entityComponentSignatures[t_entityId].set(MAX_NUM_COMPONENTS);
 
-        // Ensure when an entity is re-enabled that it is removed from the list of deleted entities if a previously
-        // deleted entity had the same ID as the new one.
-        for(ecs_id systemId=0; systemId < m_systemComponentSignatures.size() ; systemId++) {
-            auto it = find(m_systemEntityDestroyedSignatures[systemId].begin(),
-                           m_systemEntityDestroyedSignatures[systemId].end(),
-                           t_entityId);
-
-            if (it != m_systemEntityDestroyedSignatures[systemId].end()) {
-                m_systemEntityDestroyedSignatures[systemId].erase(it);
-            }
-        }
+// Removed because if a system tracks entities in some way on their own they should deal with the fact that an entity
+// was destroyed first before dealing with the newly enabled entity that has the same ID.
+//        // Ensure when an entity is re-enabled that it is removed from the list of deleted entities if a previously
+//        // deleted entity had the same ID as the new one.
+//        for(ecs_id systemId=0; systemId < m_systemComponentSignatures.size() ; systemId++) {
+//            auto it = find(m_systemEntityDestroyedSignatures[systemId].begin(),
+//                           m_systemEntityDestroyedSignatures[systemId].end(),
+//                           t_entityId);
+//
+//            if (it != m_systemEntityDestroyedSignatures[systemId].end()) {
+//                m_systemEntityDestroyedSignatures[systemId].erase(it);
+//            }
+//        }
 	};
 
 
@@ -112,19 +180,19 @@ namespace ae_ecs {
     // Update the m_systemEntityUpdateSignatures for the entity that had its data updated.
     void AeComponentManager::entitiesComponentUpdated(ecs_id t_entityId, ecs_id t_componentId){
         for(ecs_id systemId=0; systemId < m_systemComponentSignatures.size() ; systemId++) {
-            if(std::find(m_systemEntityUpdateSignatures[systemId].begin(), m_systemEntityUpdateSignatures[systemId].end(), t_entityId) != m_systemEntityUpdateSignatures[systemId].end()){
-                continue;
-            }
-
-            // Need to isolate the entity component signature since the &= operator puts the result back into the
-            // left hand variable.
-            std::bitset<MAX_NUM_COMPONENTS+1> entityComponentSignature = m_entityComponentSignatures[t_entityId];
 
             // If the entities component signature matches the system's component signature set the flag that indicates
             // that a component the system requires has been updated for the specific entity.
+            // Need to isolate the entity component signature since the &= operator puts the result back into the
+            // left hand variable.
+            std::bitset<MAX_NUM_COMPONENTS+1> entityComponentSignature = m_entityComponentSignatures[t_entityId];
             if( m_systemComponentSignatures[systemId].operator==(entityComponentSignature.operator&=(m_systemComponentSignatures[systemId]))){
-                //TODO check if this is unique!
-                m_systemEntityUpdateSignatures[systemId].push_back(t_entityId);
+                if(m_systemComponentSignatures[systemId].test(t_componentId)){
+                    // Add the entity to the update list if it is unique. No need to have duplicates in the list.
+                    if(std::find(m_systemEntityUpdateSignatures[systemId].begin(), m_systemEntityUpdateSignatures[systemId].end(), t_entityId) == m_systemEntityUpdateSignatures[systemId].end()){
+                        m_systemEntityUpdateSignatures[systemId].push_back(t_entityId);
+                    }
+                }
             };
         };
     };

@@ -195,6 +195,7 @@ namespace ae {
         // Setup child render systems
         //==============================================================================================================
         m_gameMaterials = new GameMaterials(m_aeDevice,
+                                            t_game_components,
                                             m_renderer.getSwapChainRenderPass(),
                                             t_ecs,
                                             globalSetLayout->getDescriptorSetLayout(),
@@ -250,7 +251,9 @@ namespace ae {
 
 
     // There is no setup required for this system to execute.
-    void RendererStartPassSystem::setupSystem(){};
+    void RendererStartPassSystem::setupSystem(){
+        //m_gameMaterials->m_simpleMaterial.executeMaterialSystem();
+    };
 
 
 
@@ -314,7 +317,7 @@ namespace ae {
 
         //==============================================================================================================
         // Testing
-
+#ifdef MY_DEBUG
         std::string headerString = "Entities that have updated:\n";
         std::cout << headerString;
         std::vector<ecs_id> updatedEntityIds_simpleRenderSystem = m_systemManager.getUpdatedSystemEntities(m_simpleRenderSystem->getSystemId());
@@ -329,6 +332,7 @@ namespace ae {
             std::string readBackString = std::to_string(entityIds) + "\n";
             std::cout << readBackString;
         };
+#endif
 
         //==============================================================================================================
 

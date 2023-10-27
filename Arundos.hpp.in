@@ -74,5 +74,7 @@ namespace ae {
                                   m_aeRenderer,
                                   m_aeSamplers};
 
+        GameMaterials& m_gameMaterials = m_gameSystems.rendererSystem->getGameMaterials();
+
     };
 }  // namespace ae

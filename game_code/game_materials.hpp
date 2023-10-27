@@ -15,6 +15,7 @@ namespace ae {
     class SimpleMaterial : public AeMaterial3D<std::shared_ptr<AeImage>>{
     public:
         SimpleMaterial(AeDevice &t_aeDevice,
+                       GameComponents& t_game_components,
                        VkRenderPass t_renderPass,
                        ae_ecs::AeECS& t_ecs,
                        MaterialShaderFiles& t_materialShaderFiles,
@@ -22,6 +23,7 @@ namespace ae {
                        VkDescriptorSetLayout t_textureSetLayout,
                        VkDescriptorSetLayout t_objectSetLayout):
                 AeMaterial3D(t_aeDevice,
+                             t_game_components,
                              t_renderPass,
                              t_ecs,
                              t_materialShaderFiles,
@@ -35,6 +37,7 @@ namespace ae {
     struct GameMaterials{
 
         GameMaterials(AeDevice &t_aeDevice,
+                      GameComponents& t_game_components,
                       VkRenderPass t_renderPass,
                       ae_ecs::AeECS& t_ecs,
                       VkDescriptorSetLayout t_globalSetLayout,
@@ -42,6 +45,7 @@ namespace ae {
                       VkDescriptorSetLayout t_objectSetLayout)
                 : m_ecs{t_ecs},
                   m_device{t_aeDevice},
+                  m_game_components{t_game_components},
                   m_renderPass{t_renderPass},
                   m_globalSetLayout{t_globalSetLayout},
                   m_textureSetLayout{t_textureSetLayout},
@@ -51,6 +55,7 @@ namespace ae {
 
         // Variables to easily declare new materials
         ae_ecs::AeECS& m_ecs;
+        GameComponents& m_game_components;
         AeDevice& m_device;
         VkRenderPass m_renderPass;
         VkDescriptorSetLayout m_globalSetLayout;
@@ -63,6 +68,7 @@ namespace ae {
                                                          "Not Used",
                                                          "Not Used"};
         SimpleMaterial m_simpleMaterial{m_device,
+                                        m_game_components,
                                         m_renderPass,
                                         m_ecs,
                                         simpleMaterialShaderFiles,

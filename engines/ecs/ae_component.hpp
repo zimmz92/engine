@@ -54,7 +54,7 @@ namespace ae_ecs {
         /// allocated in memory for the storage of the entities data.
         /// \param t_entityId The ID of the entity using the component.
         void requiredByEntity(ecs_id t_entityId) {
-            m_componentManager.setEntityComponentSignature(t_entityId, m_componentId);
+            m_componentManager.entityUsesComponent(t_entityId, m_componentId);
             // TODO: If stack type component allocate additional memory for the entity on the stack.
         };
 
@@ -62,7 +62,7 @@ namespace ae_ecs {
         /// Alerts the component manager that a specific entity no longer uses a component.
         /// \param t_entityId The ID of the entity that no longer uses this component.
 		void unrequiredByEntity(ecs_id t_entityId) {
-            m_componentManager.unsetEntityComponentSignature(t_entityId, m_componentId);
+            m_componentManager.entityErstUsesComponent(t_entityId, m_componentId);
 			// TODO: Alert system manager that this entity no longer uses this component.
 		};
 

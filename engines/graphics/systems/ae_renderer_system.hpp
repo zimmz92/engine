@@ -62,6 +62,9 @@ namespace ae {
         /// Clean up the RendererStartPassSystem, this is handled by the ECS.
         void cleanupSystem() override;
 
+        /// Returns a reference to the materials available while using this renderer
+        GameMaterials& getGameMaterials(){return *m_gameMaterials;}
+
     private:
 
         // Components this system utilizes.

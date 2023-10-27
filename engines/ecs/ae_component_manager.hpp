@@ -49,12 +49,12 @@ namespace ae_ecs {
         ///  A function that sets the field in the entity component signature corresponding to the specific component.
         /// \param t_entityId  The ID of the entity.
         /// \param t_componentId The ID of the component to be added as used for the entity.
-		void setEntityComponentSignature(ecs_id t_entityId, ecs_id t_componentId);
+		void entityUsesComponent(ecs_id t_entityId, ecs_id t_componentId);
 
         /// A function that unsets the field in the entity component signature corresponding to the specific component.
         /// \param t_entityId The ID of the entity.
         /// \param t_componentId The ID of the component to be removed as used for the entity.
-		void unsetEntityComponentSignature(ecs_id t_entityId, ecs_id t_componentId);
+		void entityErstUsesComponent(ecs_id t_entityId, ecs_id t_componentId);
 
         /// Enables entity allowing it to be acted upon by systems
         /// \param t_entityId The ID of the entity
