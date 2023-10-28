@@ -8,6 +8,7 @@
 #include "ae_model.hpp"
 #include "ae_material3d_base.hpp"
 #include "game_components.hpp"
+#include "ae_image.hpp"
 
 // libraries
 
@@ -19,9 +20,24 @@
 
 namespace ae {
 
-    template <typename T>
-    class AeMaterial3D : public AeMaterial3DBase{
+    template <uint32_t numVertTexts, uint32_t numFragTexts, uint32_t numTessTexts, uint32_t numGeometryTexts>
+    struct MaterialTextures{
+        std::shared_ptr<AeImage> m_vertexTextures[numVertTexts];
+        uint32_t numVertexTextures = numVertTexts;
 
+        std::shared_ptr<AeImage> m_fragmentTextures[numFragTexts];
+        uint32_t numFragmentTextures = numFragTexts;
+
+        std::shared_ptr<AeImage> m_tessellationTextures[numTessTexts];
+        uint32_t numTessellationTextures = numTessTexts;
+
+        std::shared_ptr<AeImage> m_geometryTextures[numGeometryTexts];
+        uint32_t numGeometryTextures = numGeometryTexts;
+    };
+
+    template <uint32_t numVertTexts, uint32_t numFragTexts, uint32_t numTessTexts, uint32_t numGeometryTexts>
+    class AeMaterial3D : public AeMaterial3DBase{
+        using T = MaterialTextures<numVertTexts,numFragTexts,numTessTexts,numGeometryTexts>;
     public:
 
         /// This component is used to allow entities to store specific information required for this material to

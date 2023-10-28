@@ -123,7 +123,7 @@ namespace ae {
         leafEnemy.m_model.rotation = {0.0 * glm::two_pi<float>(), 0.0 * glm::two_pi<float>(), 0.0* glm::two_pi<float>()};
         m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntity(leafEnemy.getEntityId());
         auto leafEnemyMaterialProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.getWriteableDataReference(leafEnemy.getEntityId());
-        leafEnemyMaterialProperties = aeImage;
+        leafEnemyMaterialProperties.m_vertexTextures[0] = aeImage;
         leafEnemy.enableEntity();
         //==============================================================================================================
 

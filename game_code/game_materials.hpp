@@ -12,7 +12,7 @@
 
 namespace ae {
 
-    class SimpleMaterial : public AeMaterial3D<std::shared_ptr<AeImage>>{
+    class SimpleMaterial : public AeMaterial3D<1,0,0,0>{
     public:
         SimpleMaterial(AeDevice &t_aeDevice,
                        GameComponents& t_game_components,
