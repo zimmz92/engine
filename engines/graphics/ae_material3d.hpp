@@ -8,7 +8,6 @@
 #include "ae_model.hpp"
 #include "ae_material3d_base.hpp"
 #include "game_components.hpp"
-#include "ae_image.hpp"
 
 // libraries
 
@@ -84,6 +83,14 @@ namespace ae {
 
             // Set up the system prior to execution. Currently not used.
             void setupSystem(int t_frameIndex) {
+            };
+
+            // Update the time difference between the current execution and the previous.
+            void executeSystem(int t_frameIndex,
+                               std::array<Entity3DSSBOData,MAX_OBJECTS>& t_entity3DSSBOData,
+                               std::vector<std::shared_ptr<AeImage>>& t_imageBuffer,
+                               std::map<std::shared_ptr<AeImage>,std::map<ecs_id,std::vector<material_id>>>& t_imageBufferMap) {
+
                 // Delete the destroyed entities from the list first.
                 std::vector<ecs_id> destroyedEntityIds = this->m_systemManager.getDestroyedSystemEntities(this->m_systemId);
                 for(ecs_id entityId: destroyedEntityIds){
@@ -102,12 +109,9 @@ namespace ae {
                 // Get the entities that have been updated that use this system.
                 std::vector<ecs_id> updatedEntityIds = this->m_systemManager.getUpdatedSystemEntities(this->m_systemId);
 
-            };
-
-            // Update the time difference between the current execution and the previous.
-            void executeSystem(int t_frameIndex) {
-
-
+                for(auto entityId:updatedEntityIds){
+                    updateEntity(entityId);
+                };
             };
 
             // Clean up the system after execution. Currently not used.
@@ -146,6 +150,8 @@ namespace ae {
 
                 //TODO: Need to ensure that the material information gets updated as well.
             }
+
+            ecs_id getComponentId(){return m_modelComponent.getComponentId();};
 
         private:
             /// A reference to the model component this system is associated with.
@@ -187,8 +193,13 @@ namespace ae {
         /// Destructor of the SimpleRenderSystem
         ~AeMaterial3D()= default;
 
-        void executeMaterialSystem(int t_frameIndex) override {m_materialSystem.executeSystem(t_frameIndex);};
-        ecs_id getMaterialSystemId(){return m_materialSystem.getSystemId()};
+        void executeMaterialSystem(int t_frameIndex,
+                                   std::array<Entity3DSSBOData,MAX_OBJECTS>& t_entity3DSSBOData,
+                                   std::vector<std::shared_ptr<AeImage>>& t_imageBuffer,
+                                   std::map<std::shared_ptr<AeImage>,std::map<ecs_id,std::vector<material_id>>>& t_imageBufferMap) override
+                                   {m_materialSystem.executeSystem(t_frameIndex, t_entity3DSSBOData,t_imageBuffer,t_imageBufferMap);};
+
+        ecs_id getMaterialSystemId(){return m_materialSystem.getSystemId();};
 
     private:
 

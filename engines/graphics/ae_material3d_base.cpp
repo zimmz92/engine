@@ -92,7 +92,7 @@ namespace ae {
                 pipelineConfig);
     };
 
-    uint64_t AeMaterial3DBase::getMaterialId(){
+    material_id AeMaterial3DBase::getMaterialId(){
         return m_materialID;
     };
 

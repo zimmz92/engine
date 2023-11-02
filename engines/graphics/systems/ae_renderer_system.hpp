@@ -20,6 +20,7 @@
 #include "ae_samplers.hpp"
 
 #include "game_materials.hpp"
+#include "ae_model_3d_buffer_system.hpp"
 
 #include "ae_simple_render_system.hpp"
 #include "ae_point_light_render_system.hpp"
@@ -126,7 +127,7 @@ namespace ae {
 
         /// Stores images for each frame that are used during rendering.
         std::vector<std::shared_ptr<AeImage>> m_imageBufferData[MAX_FRAMES_IN_FLIGHT]{};
-        std::map<std::shared_ptr<AeImage>,std::map<ecs_id,std::vector<material_id>>> m_entityMaterialImageUsage;
+        std::map<std::shared_ptr<AeImage>,std::map<ecs_id,std::vector<material_id>>> m_entityMaterialImageUsage[MAX_FRAMES_IN_FLIGHT];
 
         //==============================================================================================================
         // 3D Object Buffer
@@ -149,7 +150,14 @@ namespace ae {
         //==============================================================================================================
         // Child render systems
         //==============================================================================================================
+        /// The materials available to objects to define how they appear when rendered.
         GameMaterials* m_gameMaterials;
+
+        /// Stores the material component IDs for quick reference.
+        std::vector<ecs_id> m_materialComponentIds;
+
+        /// A system that compiles the model matrix data for entities that can be rendered.
+        AeModel3DBufferSystem* m_model3DBufferSystem;
 
         /// Pointer to the point light render system
         PointLightRenderSystem* m_pointLightRenderSystem;

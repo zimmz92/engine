@@ -10,11 +10,11 @@
 namespace ae {
 
     // Constructor implementation
-    Model3DBufferSystem::Model3DBufferSystem(ae_ecs::AeECS &t_ecs,
-                                           GameComponents &t_game_components)
+    AeModel3DBufferSystem::AeModel3DBufferSystem(ae_ecs::AeECS &t_ecs,
+                                                 GameComponents &t_game_components)
             : m_worldPositionComponent{t_game_components.worldPositionComponent},
               m_modelComponent{t_game_components.modelComponent},
-              ae_ecs::AeSystem<Model3DBufferSystem>(t_ecs) {
+              ae_ecs::AeSystem<AeModel3DBufferSystem>(t_ecs) {
 
         // Register component dependencies
         m_worldPositionComponent.requiredBySystem(this->getSystemId());
@@ -29,7 +29,8 @@ namespace ae {
         // Initialize the object index array with all the available indices.
         for (uint64_t j = 0; j < MAX_FRAMES_IN_FLIGHT; j++) {
             for (uint64_t i = 0; i < MAX_OBJECTS; i++) {
-                returnObjectBufferPosition(MAX_OBJECTS - 1 - i, j);
+                m_object3DBufferDataPositionStack[j][m_object3DBufferDataPositionStackTop[j]] = MAX_OBJECTS - 1 - i;
+                m_object3DBufferDataPositionStackTop[j] = m_object3DBufferDataPositionStackTop[j] + 1;
             }
         }
 
@@ -39,17 +40,17 @@ namespace ae {
 
 
     // Destructor implementation
-    Model3DBufferSystem::~Model3DBufferSystem() {};
+    AeModel3DBufferSystem::~AeModel3DBufferSystem() {};
 
 
     // Set up the system prior to execution. Currently not used.
-    void Model3DBufferSystem::setupSystem(uint64_t t_frameIndex) {
+    void AeModel3DBufferSystem::setupSystem(uint64_t t_frameIndex) {
 
     };
 
 
     // Manages the model matrix data for the 3D SSBO.
-    void Model3DBufferSystem::executeSystem(uint64_t t_frameIndex, std::vector<ecs_id>  t_materialComponentIds) {
+    void AeModel3DBufferSystem::executeSystem(uint64_t t_frameIndex, std::vector<ecs_id>  t_materialComponentIds) {
 
         // Deal with any entities that were deleted between the last time this system ran and now.
         std::vector<ecs_id> destroyedEntities = m_systemManager.getUpdatedSystemEntities(m_systemId);
@@ -60,6 +61,7 @@ namespace ae {
             // Check to make sure the entity was actually already mapped in the system. If it was then free the buffer
             // index it was using then remove it from the map.
             if(m_object3DBufferDataEntityTracking[t_frameIndex].find(entityId)!=m_object3DBufferDataEntityTracking[t_frameIndex].end()){
+                // Entity was in the map
                 returnObjectBufferPosition(m_object3DBufferDataEntityTracking[t_frameIndex][entityId],t_frameIndex);
                 m_object3DBufferDataEntityTracking[t_frameIndex].erase(entityId);
             };
@@ -85,8 +87,8 @@ namespace ae {
             // Ensure that the entity actually has a model to render. If it has a material attached to it a model should
             // have been attached as well.
             if (entityModelData.m_model == nullptr){
-                throw std::runtime_error("Attempting to add an entity that should be eligible to the 3D SSBO, however it"
-                                         " has no model!");
+                // Must be a point light.
+                continue;
             }
 
             // If the entity has not already been assigned a buffer position get one to assign to it.
@@ -107,23 +109,25 @@ namespace ae {
                 // faster to do this than to attempt a find and if it fails to then do an insert.
                 returnObjectBufferPosition(entitySSBOIndex,t_frameIndex);
 
-                //
+                // Update the entities model matrix data.
                 m_object3DBufferData[t_frameIndex][entityObjectBufferIterator.first->second] = calculateModelMatrixData(entityWorldPosition,
                                                                                                                             entityModelData.rotation,
                                                                                                                             entityModelData.scale);
             };
         };
+
+        // Clear the updated entities signatures so if nothing changes they are not updated again.
+        m_systemManager.clearSystemEntityUpdateSignatures(m_systemId);
     };
 
 
     // Clean up the system after execution. Currently not used.
-    void Model3DBufferSystem::cleanupSystem() {
-        m_systemManager.clearSystemEntityUpdateSignatures(m_systemId);
+    void AeModel3DBufferSystem::cleanupSystem() {
     };
 
     // Release the entity ID by incrementing the top of stack pointer and putting the entity ID being released
     // at that location.
-    void Model3DBufferSystem::returnObjectBufferPosition(ecs_id t_objectBufferPosition, uint64_t t_frameIndex){
+    void AeModel3DBufferSystem::returnObjectBufferPosition(uint64_t t_objectBufferPosition, uint64_t t_frameIndex){
         if (m_object3DBufferDataPositionStackTop[t_frameIndex] >= MAX_OBJECTS - 1) {
             throw std::runtime_error("3D object buffer Stack Overflow! Releasing more object buffer positions than "
                                      "should have been able to exist!");
@@ -137,13 +141,13 @@ namespace ae {
     };
 
     // Get the next available object position in the buffer.
-    uint64_t Model3DBufferSystem::getObjectBufferPosition(uint64_t t_frameIndex) {
+    uint64_t AeModel3DBufferSystem::getObjectBufferPosition(uint64_t t_frameIndex) {
         if (m_object3DBufferDataPositionStackTop[t_frameIndex] <= -1) {
             throw std::runtime_error("3D object buffer Stack Underflow! No more positions to give out!");
         } else {
             // Get the new entity ID being allocated from the top of the stack and add the popped entity ID to the living
             // entities array then decrement the stack counter.
-            ecs_id bufferPosition = m_object3DBufferDataPositionStack[t_frameIndex][m_object3DBufferDataPositionStackTop[t_frameIndex]];
+            uint64_t bufferPosition = m_object3DBufferDataPositionStack[t_frameIndex][m_object3DBufferDataPositionStackTop[t_frameIndex]];
             m_object3DBufferDataPositionStackTop[t_frameIndex] = m_object3DBufferDataPositionStackTop[t_frameIndex] - 1;
             return bufferPosition;
         }
@@ -154,7 +158,7 @@ namespace ae {
     /// could be the world position plus an additional offset.
     /// \param t_rotation The rotation of the entity, typically the direction the entity is facing.
     /// \param t_scale The scaling for the entity's model.
-    Material3DSSBOData Model3DBufferSystem::calculateModelMatrixData(glm::vec3 t_translation, glm::vec3 t_rotation, glm::vec3 t_scale){
+    Entity3DSSBOData AeModel3DBufferSystem::calculateModelMatrixData(glm::vec3 t_translation, glm::vec3 t_rotation, glm::vec3 t_scale){
 
         // Calculate the components of the Tait-bryan angles matrix.
         const float c3 = glm::cos(t_rotation.z);

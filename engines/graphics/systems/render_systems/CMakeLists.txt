@@ -6,6 +6,8 @@ target_sources(mySrcFiles
         ae_simple_render_system.cpp
         ae_ui_render_system.hpp
         ae_ui_render_system.cpp
+        ae_model_3d_buffer_system.hpp
+        ae_model_3d_buffer_system.cpp
     PUBLIC
 )
 

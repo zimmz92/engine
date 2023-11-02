@@ -194,6 +194,8 @@ namespace ae {
         //==============================================================================================================
         // Setup child render systems
         //==============================================================================================================
+
+        // Defines the materials available for entities to use.
         m_gameMaterials = new GameMaterials(m_aeDevice,
                                             t_game_components,
                                             m_renderer.getSwapChainRenderPass(),
@@ -201,6 +203,15 @@ namespace ae {
                                             globalSetLayout->getDescriptorSetLayout(),
                                             textureSetLayout->getDescriptorSetLayout(),
                                             objectSetLayout->getDescriptorSetLayout());
+
+        // Create a list of the available material component IDs for quick reference when making/updating the model
+        // matrix data.
+        for(auto material : m_gameMaterials->m_materials){
+            m_materialComponentIds.push_back(material->getComponentId());
+        };
+
+        // Creates a buffer of entity model matrix and texture data for entities with 3D models that have a material.
+        m_model3DBufferSystem = new AeModel3DBufferSystem(t_ecs,t_game_components);
 
         m_simpleRenderSystem = new SimpleRenderSystem(t_ecs,
                                                       t_game_components,
@@ -276,10 +287,22 @@ namespace ae {
             // Update the texture descriptor data for the models that are being rendered.
             updateDescriptorSets();
 
+            // Update the model matrix data before updating the materials so that the materials know where to put the
+            // image buffer indices for an entities textures.
+            m_model3DBufferSystem->executeSystem(m_frameIndex,m_materialComponentIds);
+
+            //  TODO: This data should be stored at the renderer level and passed into other components....
+            //auto frameObject3DBufferDataRef = m_model3DBufferSystem->getFrameObject3DBufferDataRef(m_frameIndex);
+
             // After the indexes have been updated for textures entities utilize, call each of the material's system to
             // organize the model objects for each of the materials to use draw indirect.
             for(auto material : m_gameMaterials->m_materials){
-                material->setupSystem(m_frameIndex);
+                // TODO: Much of this information does not change every cycle. Should pass the references in on material
+                //  creation.
+//                material->executeMaterialSystem(m_frameIndex,
+//                                                frameObject3DBufferDataRef,
+//                                                m_imageBufferData[m_frameIndex],
+//                                                m_entityMaterialImageUsage[m_frameIndex]);
             }
 
             // Start the render pass.
