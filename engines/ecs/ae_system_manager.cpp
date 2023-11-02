@@ -264,4 +264,11 @@ namespace ae_ecs {
 
         }
     };
+
+
+    // Call the component manager's function to get the entities that contain the desired required and optional components.
+    std::vector<ecs_id> AeSystemManager::getEntitiesWithSpecifiedComponents(std::vector<ecs_id>& t_entityIds,
+                                                                            std::vector<ecs_id>& t_optionalComponentIds){
+        return m_componentManager.getEntitiesWithSpecifiedComponents(t_entityIds,t_optionalComponentIds);
+    };
 }

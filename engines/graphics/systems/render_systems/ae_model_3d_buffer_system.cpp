@@ -1,0 +1,221 @@
+/// \file ae_simple_render_system.cpp
+/// \brief The script implementing the system that general 3D objects in the game.
+/// The simple render system is implemented.
+
+#include "ae_model_3d_buffer_system.hpp"
+
+// Standard Libraries
+#include <map>
+
+namespace ae {
+
+    // Constructor implementation
+    Model3DBufferSystem::Model3DBufferSystem(ae_ecs::AeECS &t_ecs,
+                                           GameComponents &t_game_components)
+            : m_worldPositionComponent{t_game_components.worldPositionComponent},
+              m_modelComponent{t_game_components.modelComponent},
+              ae_ecs::AeSystem<Model3DBufferSystem>(t_ecs) {
+
+        // Register component dependencies
+        m_worldPositionComponent.requiredBySystem(this->getSystemId());
+        m_modelComponent.requiredBySystem(this->getSystemId());
+
+
+        // Register system dependencies
+        // This is a child system and dependencies, as well as execution, will be handled by the parent system,
+        // RendererSystem.
+        this->isChildSystem = true;
+
+        // Initialize the object index array with all the available indices.
+        for (uint64_t j = 0; j < MAX_FRAMES_IN_FLIGHT; j++) {
+            for (uint64_t i = 0; i < MAX_OBJECTS; i++) {
+                returnObjectBufferPosition(MAX_OBJECTS - 1 - i, j);
+            }
+        }
+
+        // Enable the system so it will run.
+        this->enableSystem();
+    };
+
+
+    // Destructor implementation
+    Model3DBufferSystem::~Model3DBufferSystem() {};
+
+
+    // Set up the system prior to execution. Currently not used.
+    void Model3DBufferSystem::setupSystem(uint64_t t_frameIndex) {
+
+    };
+
+
+    // Manages the model matrix data for the 3D SSBO.
+    void Model3DBufferSystem::executeSystem(uint64_t t_frameIndex, std::vector<ecs_id>  t_materialComponentIds) {
+
+        // Deal with any entities that were deleted between the last time this system ran and now.
+        std::vector<ecs_id> destroyedEntities = m_systemManager.getUpdatedSystemEntities(m_systemId);
+
+        // Loop through all the destroyed entities that were compatible with this system.
+        for(auto entityId:destroyedEntities){
+
+            // Check to make sure the entity was actually already mapped in the system. If it was then free the buffer
+            // index it was using then remove it from the map.
+            if(m_object3DBufferDataEntityTracking[t_frameIndex].find(entityId)!=m_object3DBufferDataEntityTracking[t_frameIndex].end()){
+                returnObjectBufferPosition(m_object3DBufferDataEntityTracking[t_frameIndex][entityId],t_frameIndex);
+                m_object3DBufferDataEntityTracking[t_frameIndex].erase(entityId);
+            };
+        };
+
+
+
+        // Get the entities with the required components that have updated since the last time this system was run.
+        std::vector<ecs_id> updatedEntities = m_systemManager.getUpdatedSystemEntities(m_systemId);
+
+        // Only are interested in entities that use materials since they are the only entities that will actually be
+        // able to be rendered.
+        std::vector<ecs_id> renderableUpdatedEntities = m_systemManager.getEntitiesWithSpecifiedComponents(updatedEntities,
+                                                                                                           t_materialComponentIds);
+
+        // Loop through all the 3D entities that can be rendered.
+        for(auto entityId:renderableUpdatedEntities){
+
+            // Get easy references to the data that will be required.
+            const ModelComponentStruct& entityModelData = m_modelComponent.getReadOnlyDataReference(entityId);
+            glm::vec3 entityWorldPosition = m_worldPositionComponent.getWorldPositionVec3(entityId);
+
+            // Ensure that the entity actually has a model to render. If it has a material attached to it a model should
+            // have been attached as well.
+            if (entityModelData.m_model == nullptr){
+                throw std::runtime_error("Attempting to add an entity that should be eligible to the 3D SSBO, however it"
+                                         " has no model!");
+            }
+
+            // If the entity has not already been assigned a buffer position get one to assign to it.
+            auto entitySSBOIndex = getObjectBufferPosition(t_frameIndex);
+
+            // Attempt to put the entity into the map.
+            auto entityObjectBufferIterator = m_object3DBufferDataEntityTracking[t_frameIndex].insert(std::make_pair(entityId,entitySSBOIndex));
+
+            // If the insert was successful then the entity has been mapped to the assigned buffer position and the data
+            // at that buffer position can be updated.
+            if(entityObjectBufferIterator.second){
+                m_object3DBufferData[t_frameIndex][entitySSBOIndex] = calculateModelMatrixData(entityWorldPosition,
+                                                                                               entityModelData.rotation,
+                                                                                               entityModelData.scale);
+            } else {
+                // If the insert failed then the entity must already be assigned a position in the buffer so the newly
+                // assigned position can be given back. This may seem silly but when there are many entities it is
+                // faster to do this than to attempt a find and if it fails to then do an insert.
+                returnObjectBufferPosition(entitySSBOIndex,t_frameIndex);
+
+                //
+                m_object3DBufferData[t_frameIndex][entityObjectBufferIterator.first->second] = calculateModelMatrixData(entityWorldPosition,
+                                                                                                                            entityModelData.rotation,
+                                                                                                                            entityModelData.scale);
+            };
+        };
+    };
+
+
+    // Clean up the system after execution. Currently not used.
+    void Model3DBufferSystem::cleanupSystem() {
+        m_systemManager.clearSystemEntityUpdateSignatures(m_systemId);
+    };
+
+    // Release the entity ID by incrementing the top of stack pointer and putting the entity ID being released
+    // at that location.
+    void Model3DBufferSystem::returnObjectBufferPosition(ecs_id t_objectBufferPosition, uint64_t t_frameIndex){
+        if (m_object3DBufferDataPositionStackTop[t_frameIndex] >= MAX_OBJECTS - 1) {
+            throw std::runtime_error("3D object buffer Stack Overflow! Releasing more object buffer positions than "
+                                     "should have been able to exist!");
+        }
+        else {
+            // Increment the entity stack pointer then set the top of the stack to the newly released entity ID
+            // and remove that entity ID from the living entities array.
+            m_object3DBufferDataPositionStackTop[t_frameIndex] = m_object3DBufferDataPositionStackTop[t_frameIndex] + 1;
+            m_object3DBufferDataPositionStack[t_frameIndex][m_object3DBufferDataPositionStackTop[t_frameIndex]] = t_objectBufferPosition;
+        }
+    };
+
+    // Get the next available object position in the buffer.
+    uint64_t Model3DBufferSystem::getObjectBufferPosition(uint64_t t_frameIndex) {
+        if (m_object3DBufferDataPositionStackTop[t_frameIndex] <= -1) {
+            throw std::runtime_error("3D object buffer Stack Underflow! No more positions to give out!");
+        } else {
+            // Get the new entity ID being allocated from the top of the stack and add the popped entity ID to the living
+            // entities array then decrement the stack counter.
+            ecs_id bufferPosition = m_object3DBufferDataPositionStack[t_frameIndex][m_object3DBufferDataPositionStackTop[t_frameIndex]];
+            m_object3DBufferDataPositionStackTop[t_frameIndex] = m_object3DBufferDataPositionStackTop[t_frameIndex] - 1;
+            return bufferPosition;
+        }
+    };
+
+    /// Calculates the model, and normal, matrix data.
+    /// \param t_translation The translation data for the entity, this normally corresponds to world position but
+    /// could be the world position plus an additional offset.
+    /// \param t_rotation The rotation of the entity, typically the direction the entity is facing.
+    /// \param t_scale The scaling for the entity's model.
+    Material3DSSBOData Model3DBufferSystem::calculateModelMatrixData(glm::vec3 t_translation, glm::vec3 t_rotation, glm::vec3 t_scale){
+
+        // Calculate the components of the Tait-bryan angles matrix.
+        const float c3 = glm::cos(t_rotation.z);
+        const float s3 = glm::sin(t_rotation.z);
+        const float c2 = glm::cos(t_rotation.x);
+        const float s2 = glm::sin(t_rotation.x);
+        const float c1 = glm::cos(t_rotation.y);
+        const float s1 = glm::sin(t_rotation.y);
+        const glm::vec3 invScale = 1.0f / t_scale;
+
+        // Matrix corresponds to Translate * Ry * Rx * Rz * Scale
+        // Rotations correspond to Tait-bryan angles of Y(1), X(2), Z(3)
+        // https://en.wikipedia.org/wiki/Euler_angles#Rotation_matrix
+        glm::mat4 modelMatrix = {
+                {
+                        t_scale.x * (c1 * c3 + s1 * s2 * s3),
+                        t_scale.x * (c2 * s3),
+                        t_scale.x * (c1 * s2 * s3 - c3 * s1),
+                        0.0f,
+                },
+                {
+                        t_scale.y * (c3 * s1 * s2 - c1 * s3),
+                        t_scale.y * (c2 * c3),
+                        t_scale.y * (c1 * c3 * s2 + s1 * s3),
+                        0.0f,
+                },
+                {
+                        t_scale.z * (c2 * s1),
+                        t_scale.z * (-s2),
+                        t_scale.z * (c1 * c2),
+                        0.0f,
+                },
+                {
+                        t_translation.x,
+                        t_translation.y,
+                        t_translation.z,
+                        1.0f
+                }};
+
+        // Rotations correspond to Tait-bryan angles of Y(1), X(2), Z(3)
+        // https://en.wikipedia.org/wiki/Euler_angles#Rotation_matrix
+        // Normal Matrix is calculated to facilitate non-uniform model scaling scale.x != scale.y =! scale.z
+        // TODO benchmark if this is faster than just calculating the normal matrix in the shader when there are many objects.
+        glm::mat3 normalMatrix = {
+                {
+                        invScale.x * (c1 * c3 + s1 * s2 * s3),
+                        invScale.x * (c2 * s3),
+                        invScale.x * (c1 * s2 * s3 - c3 * s1),
+                },
+                {
+                        invScale.y * (c3 * s1 * s2 - c1 * s3),
+                        invScale.y * (c2 * c3),
+                        invScale.y * (c1 * c3 * s2 + s1 * s3),
+                },
+                {
+                        invScale.z * (c2 * s1),
+                        invScale.z * (-s2),
+                        invScale.z * (c1 * c2),
+                }};
+
+        return {modelMatrix, normalMatrix};
+    };
+
+} // namespace ae

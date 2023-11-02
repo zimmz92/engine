@@ -121,6 +121,12 @@ namespace ae_ecs {
         /// \param t_componentId The component ID the list of entities should be returned for.
         std::vector<ecs_id> getComponentEntities(ecs_id t_componentId);
 
+        /// Returns a list of entity IDs that use one, or more, of the optional components provided.
+        /// \param t_entityIds The entities to be check to see if they contain the optional component IDs.
+        /// \param t_optionalComponentIds The optional components that the entities must have one or more of to be
+        /// included in the returned vector.
+        std::vector<ecs_id> getEntitiesWithSpecifiedComponents(std::vector<ecs_id>& t_entityIds, std::vector<ecs_id>& t_optionalComponentIds);
+
 		/// Function to allocate an ID to a specific component class so every component spawned from that class can be identified.
 		/// \tparam T The component class being allocated an ID.
 		/// \return The component class ID.

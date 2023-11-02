@@ -27,12 +27,11 @@
 
 namespace ae {
 
-
-
     /// If the swap chain does not need to be recreated this system will start the render pass, compile the frame
     /// information, push the ubo information to the shaders, and initiates the swap chain render pass.
     class RendererStartPassSystem : public ae_ecs::AeSystem<RendererStartPassSystem> {
     public:
+
         /// Constructor of the RendererStartPassSystem
         /// \param t_game_components The game components available that this system may require.
         /// \param t_updateUboSystem The UpdateUboSystem the RendererStartPassSystem depends on executing to ensure up
@@ -122,17 +121,21 @@ namespace ae {
         /// The texture descriptor writers.
         AeDescriptorWriter* m_textureDescriptorWriter;
 
-        /// Create a default image for use with the render system.
+        /// The default image for use with the render system.
         std::shared_ptr<AeImage> m_defaultImage;
+
+        /// Stores images for each frame that are used during rendering.
+        std::vector<std::shared_ptr<AeImage>> m_imageBufferData[MAX_FRAMES_IN_FLIGHT]{};
+        std::map<std::shared_ptr<AeImage>,std::map<ecs_id,std::vector<material_id>>> m_entityMaterialImageUsage;
 
         //==============================================================================================================
         // 3D Object Buffer
         //==============================================================================================================
         /// The object descriptor sets used for storing the model matrices and texture indexes.
-        std::vector<VkDescriptorSet> m_objectDescriptorSets;
+        std::vector<VkDescriptorSet> m_object3DDescriptorSets;
 
         /// The object buffers for each frame
-        std::vector<std::unique_ptr<AeBuffer>> m_objectBuffers;
+        std::vector<std::unique_ptr<AeBuffer>> m_object3DBuffers;
 
         //==============================================================================================================
         // 2D Object Buffer

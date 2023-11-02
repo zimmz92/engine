@@ -354,4 +354,33 @@ namespace ae_ecs {
         return  valid_entities;
     };
 
+    std::vector<ecs_id> AeComponentManager::getEntitiesWithSpecifiedComponents(std::vector<ecs_id>& t_entityIds, std::vector<ecs_id>& t_optionalComponentIds){
+
+        // The set of entities that use one or more of the specified optional components.
+        std::vector<ecs_id> compatibleComponentEntities;
+
+        // Create a signature for the optional components.
+        std::bitset<MAX_NUM_COMPONENTS + 1> optionalComponentsSignature = {0};
+
+        // Set the optional component IDs.
+        for(auto componentId:t_optionalComponentIds){
+            optionalComponentsSignature.set(componentId);
+        };
+
+        // Loop through the provided entities to find the ones that have one or more of the optional components.
+        for(auto entityId : t_entityIds){
+            // Need to isolate the entity component signature since the &= operator puts the result back into the
+            // left hand variable.
+            std::bitset<MAX_NUM_COMPONENTS+1> entityComponentSignature = m_entityComponentSignatures[entityId];
+
+            // If the entities component signature has any of the optional components then it will be added to the
+            // returned list of valid entities.
+            if((entityComponentSignature.operator&=(optionalComponentsSignature)).any()){
+                compatibleComponentEntities.push_back(entityId);
+            };
+        };
+
+        return compatibleComponentEntities;
+    };
+
 }

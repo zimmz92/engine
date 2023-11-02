@@ -36,7 +36,11 @@ namespace ae {
         /// Destructor of the SimpleRenderSystem
         ~AeMaterial3DBase();
 
+        virtual void setupSystem(int t_frameIndex){};
         virtual void executeMaterialSystem(int t_frameIndex){};
+        virtual void cleanupSystem(){};
+
+        material_id getMaterialId();
 
     private:
 
@@ -63,6 +67,9 @@ namespace ae {
 
         /// A structure specifying the shader files this material uses.
         MaterialShaderFiles m_materialShaderFiles;
+
+        /// The ID of the material
+        material_id m_materialID;
 
     protected:
 

@@ -22,6 +22,9 @@ namespace ae {
             : m_aeDevice{t_aeDevice},
               m_materialShaderFiles{t_materialShaderFiles}{
 
+        static uint64_t materialIdCounter = 0;
+        this->m_materialID = materialIdCounter++;
+
         // Creates the pipeline layout accounting for the global layout and sets the m_pipelineLayout member variable.
         createPipelineLayout(t_globalSetLayout, t_textureSetLayout, t_objectSetLayout);
 
@@ -87,6 +90,10 @@ namespace ae {
                 m_materialShaderFiles.tessellationShaderFilepath,
                 m_materialShaderFiles.geometryShaderFilepath,
                 pipelineConfig);
+    };
+
+    uint64_t AeMaterial3DBase::getMaterialId(){
+        return m_materialID;
     };
 
 } //namespace ae

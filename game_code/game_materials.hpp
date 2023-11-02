@@ -51,6 +51,15 @@ namespace ae {
                   m_textureSetLayout{t_textureSetLayout},
                   m_objectSetLayout{t_objectSetLayout}{
             m_materials.push_back(&m_simpleMaterial);
+
+            // Check that the number of materials does not exceed the maximum number of allowed materials. The maximum
+            // can be changed.
+            // TODO Figure out how to dynamically create the texture index object... or some other way of indexing into
+            //  the texture SSBO.
+            if(m_materials.size()>MAX_MATERIALS){
+                throw std::runtime_error("Too many materials are being created! Either this is an error or the maximum "
+                                         "number of allowed materials needs to be increased!");
+            }
         };
 
         ~GameMaterials(){};

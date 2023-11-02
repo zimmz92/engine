@@ -77,6 +77,12 @@ namespace ae_ecs {
         /// \param t_systemId The ID of the system to be removed.
         std::vector<ecs_id> getDestroyedSystemEntities(ecs_id t_systemId);
 
+        /// Returns a list of entity IDs that use one, or more, of the optional components provided.
+        /// \param t_entityIds The entities to be check to see if they contain the optional component IDs.
+        /// \param t_optionalComponentIds The optional components that the entities must have one or more of to be
+        /// included in the returned vector.
+        std::vector<ecs_id> getEntitiesWithSpecifiedComponents(std::vector<ecs_id>& t_entityIds, std::vector<ecs_id>& t_optionalComponentIds);
+
         /// Orders the currently enabled systems to ensure they are executed in the proper order.
         void orderSystems();
 
