@@ -8,6 +8,7 @@
 #include "ae_graphics_constants.hpp"
 
 #include "game_components.hpp"
+#include "pre_allocated_stack.hpp"
 
 
 #include <map>
@@ -50,7 +51,9 @@ namespace ae {
         /// Clean up the SimpleRenderSystem, this is handled by the RendererSystem.
         void cleanupSystem() override;
 
-        std::array<Entity3DSSBOData,MAX_OBJECTS>& getFrameObject3DBufferDataRef(int t_frameIndex){return m_object3DBufferData[t_frameIndex];};
+        std::vector<Entity3DSSBOData>* getFrameObject3DBufferDataRef(int t_frameIndex){return &m_object3DBufferData[t_frameIndex];};
+
+        std::map<ecs_id, uint64_t>* getObject3DBufferEntityMap(int t_frameIndex){return &m_object3DBufferDataEntityTracking[t_frameIndex];};
 
     private:
 
@@ -61,28 +64,16 @@ namespace ae {
         ModelComponent& m_modelComponent;
 
         /// Stores all the entity specific data for 3D models required for rendering a specific frame.
-        std::array<Entity3DSSBOData,MAX_OBJECTS> m_object3DBufferData[MAX_FRAMES_IN_FLIGHT];
+        std::vector<std::vector<Entity3DSSBOData>> m_object3DBufferData = std::vector<std::vector<Entity3DSSBOData>>(MAX_FRAMES_IN_FLIGHT,std::vector<Entity3DSSBOData>(MAX_OBJECTS, Entity3DSSBOData()));
 
         /// Maps entities to their model matrix/texture data in the 3D SSBO.
-        std::map<ecs_id, uint64_t> m_object3DBufferDataEntityTracking[MAX_FRAMES_IN_FLIGHT];
+        std::vector<std::map<ecs_id, uint64_t>> m_object3DBufferDataEntityTracking  = std::vector<std::map<ecs_id, uint64_t>>(MAX_FRAMES_IN_FLIGHT,std::map<ecs_id, uint64_t>{});
 
-        /// A stack to track the available positions in the 3D SSBO.
-        uint64_t m_object3DBufferDataPositionStack[MAX_FRAMES_IN_FLIGHT][MAX_OBJECTS];
-
-        /// Tracks the current top of the 3D SSBO stack
-        uint64_t m_object3DBufferDataPositionStackTop[MAX_FRAMES_IN_FLIGHT] = {0};
+        /// A stack to track the available data positions in the SSBO.
+        PreAllocatedStack<uint64_t,MAX_OBJECTS> m_object3DBufferDataPositionStack[MAX_FRAMES_IN_FLIGHT];
 
         // Prerequisite systems for the SimpleRenderSystem.
         // This requires any world position updating system to run before this system runs.
-
-
-        /// Pushes the object buffer position back onto the stack to allow the next object that requires a position in
-        /// the object buffer to have it.
-        /// \param t_objectBufferPosition The object buffer position to be released back to the stack.
-        void returnObjectBufferPosition(uint64_t t_objectBufferPosition, uint64_t t_frameIndex);
-
-        /// Get the next object buffer position off the stack.
-        uint64_t getObjectBufferPosition(uint64_t t_frameIndex);
 
         /// Calculates the model, and normal, matrix data.
         /// \param t_translation The translation data for the entity, this normally corresponds to world position but

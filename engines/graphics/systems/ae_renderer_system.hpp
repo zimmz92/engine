@@ -26,6 +26,8 @@
 #include "ae_point_light_render_system.hpp"
 #include "ae_ui_render_system.hpp"
 
+#include "pre_allocated_stack.hpp"
+
 namespace ae {
 
     /// If the swap chain does not need to be recreated this system will start the render pass, compile the frame
@@ -126,8 +128,13 @@ namespace ae {
         std::shared_ptr<AeImage> m_defaultImage;
 
         /// Stores images for each frame that are used during rendering.
-        std::vector<std::shared_ptr<AeImage>> m_imageBufferData[MAX_FRAMES_IN_FLIGHT]{};
-        std::map<std::shared_ptr<AeImage>,std::map<ecs_id,std::vector<material_id>>> m_entityMaterialImageUsage[MAX_FRAMES_IN_FLIGHT];
+        VkDescriptorImageInfo m_imageBufferData[MAX_FRAMES_IN_FLIGHT][MAX_TEXTURES];
+
+        /// A stack to track the available texture buffer data indexes.
+        PreAllocatedStack<uint64_t,MAX_TEXTURES> m_imageBufferDataIndexStack[MAX_FRAMES_IN_FLIGHT];
+
+        /// Stores the image buffer and entity relation for a specific image.
+        std::map<std::shared_ptr<AeImage>,ImageBufferInfo> m_entityMaterialImageUsage[MAX_FRAMES_IN_FLIGHT];
 
         //==============================================================================================================
         // 3D Object Buffer
@@ -137,6 +144,13 @@ namespace ae {
 
         /// The object buffers for each frame
         std::vector<std::unique_ptr<AeBuffer>> m_object3DBuffers;
+
+        /// A pointer to the model matrix and texture data for the 3D SSBO.
+        std::vector<Entity3DSSBOData>* m_3DSSBODataReference[MAX_FRAMES_IN_FLIGHT];
+
+        /// A pointer to the map of entities to the model matrix and texture data for the 3D SSBO.
+        std::map<ecs_id, uint64_t>* m_3DSSBOEntityMap[MAX_FRAMES_IN_FLIGHT];
+
 
         //==============================================================================================================
         // 2D Object Buffer

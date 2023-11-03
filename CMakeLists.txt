@@ -62,6 +62,8 @@ add_subdirectory(engines/graphics/systems/render_systems)
 add_subdirectory(engines/ecs)
 add_subdirectory(engines/ecs/test_code)
 
+add_subdirectory(engines/library)
+
 add_subdirectory(game_code)
 add_subdirectory(game_code/entities)
 add_subdirectory(game_code/components)

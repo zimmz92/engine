@@ -26,14 +26,6 @@ namespace ae {
         // RendererSystem.
         this->isChildSystem = true;
 
-        // Initialize the object index array with all the available indices.
-        for (uint64_t j = 0; j < MAX_FRAMES_IN_FLIGHT; j++) {
-            for (uint64_t i = 0; i < MAX_OBJECTS; i++) {
-                m_object3DBufferDataPositionStack[j][m_object3DBufferDataPositionStackTop[j]] = MAX_OBJECTS - 1 - i;
-                m_object3DBufferDataPositionStackTop[j] = m_object3DBufferDataPositionStackTop[j] + 1;
-            }
-        }
-
         // Enable the system so it will run.
         this->enableSystem();
     };
@@ -61,8 +53,10 @@ namespace ae {
             // Check to make sure the entity was actually already mapped in the system. If it was then free the buffer
             // index it was using then remove it from the map.
             if(m_object3DBufferDataEntityTracking[t_frameIndex].find(entityId)!=m_object3DBufferDataEntityTracking[t_frameIndex].end()){
-                // Entity was in the map
-                returnObjectBufferPosition(m_object3DBufferDataEntityTracking[t_frameIndex][entityId],t_frameIndex);
+                // Entity was in the map, free its index in the SSBO.
+                m_object3DBufferDataPositionStack[t_frameIndex].push(m_object3DBufferDataEntityTracking[t_frameIndex][entityId]);
+
+                // Now that the index has been returned it can be removed from the map.
                 m_object3DBufferDataEntityTracking[t_frameIndex].erase(entityId);
             };
         };
@@ -92,7 +86,7 @@ namespace ae {
             }
 
             // If the entity has not already been assigned a buffer position get one to assign to it.
-            auto entitySSBOIndex = getObjectBufferPosition(t_frameIndex);
+            auto entitySSBOIndex = m_object3DBufferDataPositionStack[t_frameIndex].pop();
 
             // Attempt to put the entity into the map.
             auto entityObjectBufferIterator = m_object3DBufferDataEntityTracking[t_frameIndex].insert(std::make_pair(entityId,entitySSBOIndex));
@@ -107,7 +101,7 @@ namespace ae {
                 // If the insert failed then the entity must already be assigned a position in the buffer so the newly
                 // assigned position can be given back. This may seem silly but when there are many entities it is
                 // faster to do this than to attempt a find and if it fails to then do an insert.
-                returnObjectBufferPosition(entitySSBOIndex,t_frameIndex);
+                m_object3DBufferDataPositionStack[t_frameIndex].push(entitySSBOIndex);
 
                 // Update the entities model matrix data.
                 m_object3DBufferData[t_frameIndex][entityObjectBufferIterator.first->second] = calculateModelMatrixData(entityWorldPosition,
@@ -123,34 +117,6 @@ namespace ae {
 
     // Clean up the system after execution. Currently not used.
     void AeModel3DBufferSystem::cleanupSystem() {
-    };
-
-    // Release the entity ID by incrementing the top of stack pointer and putting the entity ID being released
-    // at that location.
-    void AeModel3DBufferSystem::returnObjectBufferPosition(uint64_t t_objectBufferPosition, uint64_t t_frameIndex){
-        if (m_object3DBufferDataPositionStackTop[t_frameIndex] >= MAX_OBJECTS - 1) {
-            throw std::runtime_error("3D object buffer Stack Overflow! Releasing more object buffer positions than "
-                                     "should have been able to exist!");
-        }
-        else {
-            // Increment the entity stack pointer then set the top of the stack to the newly released entity ID
-            // and remove that entity ID from the living entities array.
-            m_object3DBufferDataPositionStackTop[t_frameIndex] = m_object3DBufferDataPositionStackTop[t_frameIndex] + 1;
-            m_object3DBufferDataPositionStack[t_frameIndex][m_object3DBufferDataPositionStackTop[t_frameIndex]] = t_objectBufferPosition;
-        }
-    };
-
-    // Get the next available object position in the buffer.
-    uint64_t AeModel3DBufferSystem::getObjectBufferPosition(uint64_t t_frameIndex) {
-        if (m_object3DBufferDataPositionStackTop[t_frameIndex] <= -1) {
-            throw std::runtime_error("3D object buffer Stack Underflow! No more positions to give out!");
-        } else {
-            // Get the new entity ID being allocated from the top of the stack and add the popped entity ID to the living
-            // entities array then decrement the stack counter.
-            uint64_t bufferPosition = m_object3DBufferDataPositionStack[t_frameIndex][m_object3DBufferDataPositionStackTop[t_frameIndex]];
-            m_object3DBufferDataPositionStackTop[t_frameIndex] = m_object3DBufferDataPositionStackTop[t_frameIndex] - 1;
-            return bufferPosition;
-        }
     };
 
     /// Calculates the model, and normal, matrix data.

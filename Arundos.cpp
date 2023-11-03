@@ -125,6 +125,18 @@ namespace ae {
         auto leafEnemyMaterialProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.getWriteableDataReference(leafEnemy.getEntityId());
         leafEnemyMaterialProperties.m_vertexTextures[0] = aeImage;
         leafEnemy.enableEntity();
+
+        auto leafEnemy2 = GameObjectEntity(m_aeECS,m_gameComponents);
+        leafEnemy2.m_worldPosition = {2.0f, 0.5f, 2.0f };
+        leafEnemy2.m_model.m_texture = aeImage;
+        leafEnemy2.m_model.m_sampler = m_aeSamplers.getDefaultSampler();
+        leafEnemy2.m_model.m_model = aeModel;
+        leafEnemy2.m_model.scale = {0.5f, 0.5f, 0.5f };
+        leafEnemy2.m_model.rotation = {0.0 * glm::two_pi<float>(), 0.0 * glm::two_pi<float>(), 0.0* glm::two_pi<float>()};
+        m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntity(leafEnemy2.getEntityId());
+        auto leafEnemyMaterialProperties2 = m_gameMaterials.m_simpleMaterial.m_materialComponent.getWriteableDataReference(leafEnemy2.getEntityId());
+        leafEnemyMaterialProperties2.m_vertexTextures[0] = aeImage;
+        leafEnemy2.enableEntity();
         //==============================================================================================================
 
 

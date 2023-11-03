@@ -40,9 +40,10 @@ namespace ae {
 
         virtual void setupSystem(int t_frameIndex){};
         virtual void executeMaterialSystem(int t_frameIndex,
-                                           std::array<Entity3DSSBOData,MAX_OBJECTS>& t_entity3DSSBOData,
-                                           std::vector<std::shared_ptr<AeImage>>& t_imageBuffer,
-                                           std::map<std::shared_ptr<AeImage>,std::map<ecs_id,std::vector<material_id>>>& t_imageBufferMap){};
+                                           std::vector<Entity3DSSBOData>* t_entity3DSSBOData,
+                                           std::map<ecs_id, uint64_t>* t_entity3DSSBOMap,
+                                           VkDescriptorImageInfo t_imageBuffer[MAX_TEXTURES],
+                                           std::map<std::shared_ptr<AeImage>,ImageBufferInfo>& t_imageBufferMap){};
         virtual void cleanupSystem(){};
         virtual ecs_id getComponentId(){return 0;};
 

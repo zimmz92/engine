@@ -101,16 +101,14 @@ namespace ae {
         // Initialize the descriptor writer that will be used to update the image data for the textures.
         m_textureDescriptorWriter = new AeDescriptorWriter(textureSetLayout, *m_globalPool);
 
+        // Initialize the imageBufferData arrays and build the description writer.
         for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-            // Create the set of images that are the textures for each frame.
-            VkDescriptorImageInfo imageInfos[MAX_TEXTURES];
-
             // Set the default image information for each frame.
-            for (auto & j : imageInfos) {
+            for (auto & j : m_imageBufferData[i]) {
                 j = imageInfo;
             }
             // Initialize the descriptor set for the frame.
-            m_textureDescriptorWriter->writeImage(0, imageInfos).build(m_textureDescriptorSets[i]);
+            m_textureDescriptorWriter->writeImage(0, m_imageBufferData[i]).build(m_textureDescriptorSets[i]);
         }
 
         //==============================================================================================================
@@ -195,6 +193,14 @@ namespace ae {
         // Setup child render systems
         //==============================================================================================================
 
+        // Creates a buffer of entity model matrix and texture data for entities with 3D models that have a material.
+        m_model3DBufferSystem = new AeModel3DBufferSystem(t_ecs,t_game_components);
+        for(int i = 0 ; i<MAX_FRAMES_IN_FLIGHT; i++){
+            m_3DSSBODataReference[i] = m_model3DBufferSystem->getFrameObject3DBufferDataRef(i);
+            m_3DSSBOEntityMap[i] = m_model3DBufferSystem->getObject3DBufferEntityMap(i);
+        }
+
+
         // Defines the materials available for entities to use.
         m_gameMaterials = new GameMaterials(m_aeDevice,
                                             t_game_components,
@@ -210,8 +216,7 @@ namespace ae {
             m_materialComponentIds.push_back(material->getComponentId());
         };
 
-        // Creates a buffer of entity model matrix and texture data for entities with 3D models that have a material.
-        m_model3DBufferSystem = new AeModel3DBufferSystem(t_ecs,t_game_components);
+
 
         m_simpleRenderSystem = new SimpleRenderSystem(t_ecs,
                                                       t_game_components,
@@ -291,18 +296,16 @@ namespace ae {
             // image buffer indices for an entities textures.
             m_model3DBufferSystem->executeSystem(m_frameIndex,m_materialComponentIds);
 
-            //  TODO: This data should be stored at the renderer level and passed into other components....
-            //auto frameObject3DBufferDataRef = m_model3DBufferSystem->getFrameObject3DBufferDataRef(m_frameIndex);
-
             // After the indexes have been updated for textures entities utilize, call each of the material's system to
             // organize the model objects for each of the materials to use draw indirect.
             for(auto material : m_gameMaterials->m_materials){
                 // TODO: Much of this information does not change every cycle. Should pass the references in on material
                 //  creation.
-//                material->executeMaterialSystem(m_frameIndex,
-//                                                frameObject3DBufferDataRef,
-//                                                m_imageBufferData[m_frameIndex],
-//                                                m_entityMaterialImageUsage[m_frameIndex]);
+                material->executeMaterialSystem(m_frameIndex,
+                                                m_3DSSBODataReference[m_frameIndex],
+                                                m_3DSSBOEntityMap[m_frameIndex],
+                                                m_imageBufferData[m_frameIndex],
+                                                m_entityMaterialImageUsage[m_frameIndex]);
             }
 
             // Start the render pass.
@@ -488,4 +491,4 @@ namespace ae {
         m_textureDescriptorWriter->overwrite(m_textureDescriptorSets[m_frameIndex]);
     };
 
-}
+} // namespace ae

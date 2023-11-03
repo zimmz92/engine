@@ -150,20 +150,6 @@ namespace ae_ecs {
 	// on it.
 	void AeComponentManager::enableEntity(ecs_id t_entityId) {
 		m_entityComponentSignatures[t_entityId].set(MAX_NUM_COMPONENTS);
-
-// Removed because if a system tracks entities in some way on their own they should deal with the fact that an entity
-// was destroyed first before dealing with the newly enabled entity that has the same ID.
-//        // Ensure when an entity is re-enabled that it is removed from the list of deleted entities if a previously
-//        // deleted entity had the same ID as the new one.
-//        for(ecs_id systemId=0; systemId < m_systemComponentSignatures.size() ; systemId++) {
-//            auto it = find(m_systemEntityDestroyedSignatures[systemId].begin(),
-//                           m_systemEntityDestroyedSignatures[systemId].end(),
-//                           t_entityId);
-//
-//            if (it != m_systemEntityDestroyedSignatures[systemId].end()) {
-//                m_systemEntityDestroyedSignatures[systemId].erase(it);
-//            }
-//        }
 	};
 
 
@@ -172,7 +158,6 @@ namespace ae_ecs {
 	// should not work on it.
 	void AeComponentManager::disableEntity(ecs_id t_entityId) {
 		m_entityComponentSignatures[t_entityId].reset(MAX_NUM_COMPONENTS);
-		// TODO: When the entity is disabled, force the component manager to update applicable systems lists of valid entities to act upon
 	};
 
 
@@ -186,6 +171,11 @@ namespace ae_ecs {
             // Need to isolate the entity component signature since the &= operator puts the result back into the
             // left hand variable.
             std::bitset<MAX_NUM_COMPONENTS+1> entityComponentSignature = m_entityComponentSignatures[t_entityId];
+
+            // Ignore if the entity has not yet been enabled. This is so that when an entity is eventually enabled it
+            // can be acted upon immediately.
+            entityComponentSignature.set(MAX_NUM_COMPONENTS);
+
             if( m_systemComponentSignatures[systemId].operator==(entityComponentSignature.operator&=(m_systemComponentSignatures[systemId]))){
                 if(m_systemComponentSignatures[systemId].test(t_componentId)){
                     // Add the entity to the update list if it is unique. No need to have duplicates in the list.
@@ -242,9 +232,8 @@ namespace ae_ecs {
         m_systemComponentSignatures[t_systemId] = {0};
         setSystemComponentSignature(t_systemId,MAX_NUM_COMPONENTS);
 
-        // Get a systemEntityUpdate signature for the system and ensure on the system's run of all entities will indicate they
-        // have updated data.
-        m_systemEntityUpdateSignatures[t_systemId] = {1};
+        // Get a systemEntityUpdate signature for the system.
+        m_systemEntityUpdateSignatures[t_systemId] = {};
     };
 
 
