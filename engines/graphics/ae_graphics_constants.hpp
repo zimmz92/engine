@@ -6,11 +6,12 @@
 #include <glm/glm.hpp>
 #include <map>
 #include <vector>
+#include <memory>
 #include "ae_ecs_constants.hpp"
 
 namespace ae {
 
-    using material_id = std::int64_t;
+    using material_id = std::uint64_t;
 
     static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 

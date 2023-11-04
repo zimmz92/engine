@@ -305,7 +305,8 @@ namespace ae {
                                                 m_3DSSBODataReference[m_frameIndex],
                                                 m_3DSSBOEntityMap[m_frameIndex],
                                                 m_imageBufferData[m_frameIndex],
-                                                m_entityMaterialImageUsage[m_frameIndex]);
+                                                m_entityMaterialImageUsage[m_frameIndex],
+                                                m_imageBufferDataIndexStack[m_frameIndex]);
             }
 
             // Start the render pass.

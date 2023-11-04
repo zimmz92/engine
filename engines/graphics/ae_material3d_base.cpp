@@ -22,7 +22,7 @@ namespace ae {
             : m_aeDevice{t_aeDevice},
               m_materialShaderFiles{t_materialShaderFiles}{
 
-        static uint64_t materialIdCounter = 0;
+        static material_id materialIdCounter = 0;
         this->m_materialID = materialIdCounter++;
 
         // Creates the pipeline layout accounting for the global layout and sets the m_pipelineLayout member variable.

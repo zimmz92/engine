@@ -7,6 +7,7 @@
 #include "ae_model.hpp"
 #include "ae_graphics_constants.hpp"
 #include "ae_image.hpp"
+#include "pre_allocated_stack.hpp"
 
 // libraries
 
@@ -39,11 +40,11 @@ namespace ae {
         ~AeMaterial3DBase();
 
         virtual void setupSystem(int t_frameIndex){};
-        virtual void executeMaterialSystem(int t_frameIndex,
-                                           std::vector<Entity3DSSBOData>* t_entity3DSSBOData,
-                                           std::map<ecs_id, uint64_t>* t_entity3DSSBOMap,
-                                           VkDescriptorImageInfo t_imageBuffer[MAX_TEXTURES],
-                                           std::map<std::shared_ptr<AeImage>,ImageBufferInfo>& t_imageBufferMap){};
+        virtual void executeMaterialSystem(int t_frameIndex, std::vector<Entity3DSSBOData> *t_entity3DSSBOData,
+                                           std::map<ecs_id, uint64_t> *t_entity3DSSBOMap,
+                                           VkDescriptorImageInfo t_imageBuffer[8],
+                                           std::map<std::shared_ptr<AeImage>, ImageBufferInfo> &t_imageBufferMap,
+                                           PreAllocatedStack<uint64_t,MAX_TEXTURES>& t_imageBufferStack) {};
         virtual void cleanupSystem(){};
         virtual ecs_id getComponentId(){return 0;};
 
