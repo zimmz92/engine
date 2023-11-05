@@ -22,23 +22,26 @@ namespace ae {
 
     struct TextureSamplerPair{
         std::shared_ptr<AeImage> m_texture = nullptr;
-        VkSampler* m_sampler= nullptr;
+        VkSampler m_sampler= nullptr;
     };
 
     template <uint32_t numVertTexts, uint32_t numFragTexts, uint32_t numTessTexts, uint32_t numGeometryTexts>
     struct MaterialTextures{
 
         TextureSamplerPair m_vertexTextures[numVertTexts]{};
-        uint32_t numVertexTextures = numVertTexts;
+        uint32_t m_numVertexTextures = numVertTexts;
 
         TextureSamplerPair m_fragmentTextures[numFragTexts]{};
-        uint32_t numFragmentTextures = numFragTexts;
+        uint32_t m_numFragmentTextures = numFragTexts;
 
         TextureSamplerPair m_tessellationTextures[numTessTexts]{};
-        uint32_t numTessellationTextures = numTessTexts;
+        uint32_t m_numTessellationTextures = numTessTexts;
 
         TextureSamplerPair m_geometryTextures[numGeometryTexts]{};
-        uint32_t numGeometryTextures = numGeometryTexts;
+        uint32_t m_numGeometryTextures = numGeometryTexts;
+
+        // TODO: make functions to add/get shader image/sampler pairs to enforce only adding information to the
+        //  materials where the textures are supposed to exist.
     };
 
     template <uint32_t numVertTexts, uint32_t numFragTexts, uint32_t numTessTexts, uint32_t numGeometryTexts>
@@ -97,9 +100,8 @@ namespace ae {
             };
 
             // Update the time difference between the current execution and the previous.
-            void executeSystem(int t_frameIndex,
-                               std::vector<Entity3DSSBOData>* t_entity3DSSBOData,
-                               std::map<ecs_id, uint64_t>* t_entity3DSSBOMap,
+            void executeSystem(std::vector<Entity3DSSBOData>& t_entity3DSSBOData,
+                               std::map<ecs_id, uint32_t>& t_entity3DSSBOMap,
                                VkDescriptorImageInfo t_imageBuffer[MAX_TEXTURES],
                                std::map<std::shared_ptr<AeImage>,ImageBufferInfo>& t_imageBufferMap,
                                PreAllocatedStack<uint64_t,MAX_TEXTURES>& t_imageBufferStack) {
@@ -133,7 +135,7 @@ namespace ae {
                     entityCommand.firstIndex = 0;
                     entityCommand.indexCount = entityModel.m_model->getIndexCount();
                     entityCommand.instanceCount = 1;
-                    entityCommand.firstInstance = (*t_entity3DSSBOMap)[entityId];
+                    entityCommand.firstInstance = t_entity3DSSBOMap[entityId];
                     entityCommand.vertexOffset = 0;
 
                     // Check if entity's model is already in the unique model map.
@@ -158,6 +160,25 @@ namespace ae {
                     // the order they are placed into the material texture array for the specific material.
                     uint32_t textureIndex = 0;
 
+                    handleShaderImages(t_entity3DSSBOMap[entityId],
+                                       textureIndex,
+                                       entityId,
+                                       entityMaterialProperties.m_vertexTextures,
+                                       entityMaterialProperties.m_numVertexTextures,
+                                       t_entity3DSSBOData,
+                                       t_imageBuffer,
+                                       t_imageBufferMap,
+                                       t_imageBufferStack);
+
+                    handleShaderImages(t_entity3DSSBOMap[entityId],
+                                       textureIndex,
+                                       entityId,
+                                       entityMaterialProperties.m_fragmentTextures,
+                                       entityMaterialProperties.m_numFragmentTextures,
+                                       t_entity3DSSBOData,
+                                       t_imageBuffer,
+                                       t_imageBufferMap,
+                                       t_imageBufferStack);
 
                     //TODO: Need to ensure that the material information gets updated as well.
                 };
@@ -167,9 +188,10 @@ namespace ae {
 
             void handleShaderImages(uint32_t& t_entitySSBOIndex,
                                     uint32_t& t_entityTextureIndex,
+                                    ecs_id& t_entityId,
                                     TextureSamplerPair t_shaderTextures[],
                                     uint32_t t_numShaderTextures,
-                                    std::vector<Entity3DSSBOData>* t_entity3DSSBOData,
+                                    std::vector<Entity3DSSBOData>& t_entity3DSSBOData,
                                     VkDescriptorImageInfo t_imageBuffer[MAX_TEXTURES],
                                     std::map<std::shared_ptr<AeImage>,ImageBufferInfo>& t_imageBufferMap,
                                     PreAllocatedStack<uint64_t,MAX_TEXTURES>& t_imageBufferStack){
@@ -179,7 +201,7 @@ namespace ae {
                     // Check if the object has a texture. If not set it such that the model is rendered using only its vertex
                     // colors.
                     if(t_shaderTextures[i].m_texture == nullptr){
-                        t_entity3DSSBOData[t_entitySSBOIndex].data()->textureIndex[this->m_material.getMaterialId()][t_entityTextureIndex] = MAX_TEXTURES + 1;
+                        t_entity3DSSBOData[t_entitySSBOIndex].textureIndex[m_material.getMaterialId()][t_entityTextureIndex] = MAX_TEXTURES + 1;
                         t_entityTextureIndex++;
                         continue;
                     }
@@ -191,15 +213,39 @@ namespace ae {
                     auto imageSearchIterator = t_imageBufferMap.find(t_shaderTextures[i].m_texture);
 
                     if(imageSearchIterator==t_imageBufferMap.end()){
-                        // If the image was not already in the map it is time to add it.
+                        // If the image was not already in the map it is time to add it. First get an available image
+                        // buffer index to add the image into the buffer.
                         auto newImageIndex = t_imageBufferStack.pop();
-                        t_imageBuffer[newImageIndex].sampler = *t_shaderTextures[i].m_sampler;
+
+                        // Add the image to the image buffer.
+                        t_imageBuffer[newImageIndex].sampler = t_shaderTextures[i].m_sampler;
                         t_imageBuffer[newImageIndex].imageView = t_shaderTextures[i].m_texture->getImageView();
                         t_imageBuffer[newImageIndex].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
-                        //t_imageBufferMap.insert(std::make_pair(t_shaderTextures[i].m_texture,std::map<>))
+                        // Add the image and the entity/material relation into the map.
+                        t_imageBufferMap.insert({t_shaderTextures[i].m_texture,
+                                                 ImageBufferInfo(newImageIndex,t_entityId,m_material.getMaterialId())});
+
                     } else{
-                        // If the image was already in the map it is time to update it.
+
+                        // If the image was already in the map attempt to insert it to see if the entity is in the
+                        // images image buffer info entity map.
+                        auto entityImageSearchIterator= imageSearchIterator->second.
+                                m_entityMaterialMap.
+                                insert(std::pair<ecs_id,
+                                       std::unordered_set<material_id>>(t_entityId,
+                                               m_material.
+                                               getMaterialId()));
+
+                        // Check to see if the insertion was successful.
+                        if(!entityImageSearchIterator.second){
+
+                            // If the insertion was not successful check to see if the material ID is already in the
+                            // list if not add it.
+                            if (entityImageSearchIterator.first->second.find(m_material.getMaterialId()) == entityImageSearchIterator.first->second.end()){
+                                entityImageSearchIterator.first->second.insert(m_material.getMaterialId());
+                            };
+                        };
                     };
                 };
             };
@@ -254,13 +300,12 @@ namespace ae {
         /// Destructor of the SimpleRenderSystem
         ~AeMaterial3D()= default;
 
-        void executeMaterialSystem(int t_frameIndex, std::vector<Entity3DSSBOData> *t_entity3DSSBOData,
-                                   std::map<ecs_id, uint64_t> *t_entity3DSSBOMap,
+        void executeMaterialSystem(std::vector<Entity3DSSBOData>& t_entity3DSSBOData,
+                                   std::map<ecs_id, uint32_t>& t_entity3DSSBOMap,
                                    VkDescriptorImageInfo t_imageBuffer[MAX_TEXTURES],
-                                   std::map<std::shared_ptr<AeImage>, ImageBufferInfo>& t_imageBufferMap,
+                                   std::map<std::shared_ptr<AeImage>,ImageBufferInfo>& t_imageBufferMap,
                                    PreAllocatedStack<uint64_t,MAX_TEXTURES>& t_imageBufferStack) override {
-            m_materialSystem.executeSystem(t_frameIndex,
-                                        t_entity3DSSBOData,
+            m_materialSystem.executeSystem(t_entity3DSSBOData,
                                         t_entity3DSSBOMap,
                                         t_imageBuffer,
                                         t_imageBufferMap,

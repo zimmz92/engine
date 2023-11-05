@@ -42,7 +42,10 @@ namespace ae {
 
 
     // Manages the model matrix data for the 3D SSBO.
-    void AeModel3DBufferSystem::executeSystem(uint64_t t_frameIndex, std::vector<ecs_id>  t_materialComponentIds) {
+    void AeModel3DBufferSystem::executeSystem(std::vector<ecs_id>&  t_materialComponentIds,
+                                              std::vector<Entity3DSSBOData>& t_object3DBufferData,
+                                              std::map<ecs_id, uint32_t>& t_object3DBufferEntityMap,
+                                              PreAllocatedStack<uint64_t,MAX_OBJECTS>& t_object3DBufferDataIndexStack) {
 
         // Deal with any entities that were deleted between the last time this system ran and now.
         std::vector<ecs_id> destroyedEntities = m_systemManager.getUpdatedSystemEntities(m_systemId);
@@ -52,12 +55,12 @@ namespace ae {
 
             // Check to make sure the entity was actually already mapped in the system. If it was then free the buffer
             // index it was using then remove it from the map.
-            if(m_object3DBufferDataEntityTracking[t_frameIndex].find(entityId)!=m_object3DBufferDataEntityTracking[t_frameIndex].end()){
+            if(t_object3DBufferEntityMap.find(entityId) != t_object3DBufferEntityMap.end()){
                 // Entity was in the map, free its index in the SSBO.
-                m_object3DBufferDataPositionStack[t_frameIndex].push(m_object3DBufferDataEntityTracking[t_frameIndex][entityId]);
+                t_object3DBufferDataIndexStack.push(t_object3DBufferEntityMap[entityId]);
 
                 // Now that the index has been returned it can be removed from the map.
-                m_object3DBufferDataEntityTracking[t_frameIndex].erase(entityId);
+                t_object3DBufferEntityMap.erase(entityId);
             };
         };
 
@@ -86,27 +89,27 @@ namespace ae {
             }
 
             // If the entity has not already been assigned a buffer position get one to assign to it.
-            auto entitySSBOIndex = m_object3DBufferDataPositionStack[t_frameIndex].pop();
+            auto entitySSBOIndex = t_object3DBufferDataIndexStack.pop();
 
             // Attempt to put the entity into the map.
-            auto entityObjectBufferIterator = m_object3DBufferDataEntityTracking[t_frameIndex].insert(std::make_pair(entityId,entitySSBOIndex));
+            auto entityObjectBufferIterator = t_object3DBufferEntityMap.insert(std::make_pair(entityId, entitySSBOIndex));
 
             // If the insert was successful then the entity has been mapped to the assigned buffer position and the data
             // at that buffer position can be updated.
             if(entityObjectBufferIterator.second){
-                m_object3DBufferData[t_frameIndex][entitySSBOIndex] = calculateModelMatrixData(entityWorldPosition,
-                                                                                               entityModelData.rotation,
-                                                                                               entityModelData.scale);
+                t_object3DBufferData[entitySSBOIndex] = calculateModelMatrixData(entityWorldPosition,
+                                                                                 entityModelData.rotation,
+                                                                                 entityModelData.scale);
             } else {
                 // If the insert failed then the entity must already be assigned a position in the buffer so the newly
                 // assigned position can be given back. This may seem silly but when there are many entities it is
                 // faster to do this than to attempt a find and if it fails to then do an insert.
-                m_object3DBufferDataPositionStack[t_frameIndex].push(entitySSBOIndex);
+                t_object3DBufferDataIndexStack.push(entitySSBOIndex);
 
                 // Update the entities model matrix data.
-                m_object3DBufferData[t_frameIndex][entityObjectBufferIterator.first->second] = calculateModelMatrixData(entityWorldPosition,
-                                                                                                                            entityModelData.rotation,
-                                                                                                                            entityModelData.scale);
+                t_object3DBufferData[entityObjectBufferIterator.first->second] = calculateModelMatrixData(entityWorldPosition,
+                                                                                                          entityModelData.rotation,
+                                                                                                          entityModelData.scale);
             };
         };
 

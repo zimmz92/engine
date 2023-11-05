@@ -101,14 +101,14 @@ namespace ae {
         // Initialize the descriptor writer that will be used to update the image data for the textures.
         m_textureDescriptorWriter = new AeDescriptorWriter(textureSetLayout, *m_globalPool);
 
-        // Initialize the imageBufferData arrays and build the description writer.
+        // Set the default image information for the imageBufferData array.
+        for (auto & j : m_imageBufferData) {
+            j = imageInfo;
+        };
+
+        // Initialize and build the description writer.
         for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-            // Set the default image information for each frame.
-            for (auto & j : m_imageBufferData[i]) {
-                j = imageInfo;
-            }
-            // Initialize the descriptor set for the frame.
-            m_textureDescriptorWriter->writeImage(0, m_imageBufferData[i]).build(m_textureDescriptorSets[i]);
+            m_textureDescriptorWriter->writeImage(0, m_imageBufferData).build(m_textureDescriptorSets[i]);
         }
 
         //==============================================================================================================
@@ -195,11 +195,6 @@ namespace ae {
 
         // Creates a buffer of entity model matrix and texture data for entities with 3D models that have a material.
         m_model3DBufferSystem = new AeModel3DBufferSystem(t_ecs,t_game_components);
-        for(int i = 0 ; i<MAX_FRAMES_IN_FLIGHT; i++){
-            m_3DSSBODataReference[i] = m_model3DBufferSystem->getFrameObject3DBufferDataRef(i);
-            m_3DSSBOEntityMap[i] = m_model3DBufferSystem->getObject3DBufferEntityMap(i);
-        }
-
 
         // Defines the materials available for entities to use.
         m_gameMaterials = new GameMaterials(m_aeDevice,
@@ -294,19 +289,21 @@ namespace ae {
 
             // Update the model matrix data before updating the materials so that the materials know where to put the
             // image buffer indices for an entities textures.
-            m_model3DBufferSystem->executeSystem(m_frameIndex,m_materialComponentIds);
+            m_model3DBufferSystem->executeSystem(m_materialComponentIds,
+                                                 m_object3DBufferData,
+                                                 m_object3DBufferEntityMap,
+                                                 m_object3DBufferDataIndexStack);
 
             // After the indexes have been updated for textures entities utilize, call each of the material's system to
             // organize the model objects for each of the materials to use draw indirect.
             for(auto material : m_gameMaterials->m_materials){
                 // TODO: Much of this information does not change every cycle. Should pass the references in on material
                 //  creation.
-                material->executeMaterialSystem(m_frameIndex,
-                                                m_3DSSBODataReference[m_frameIndex],
-                                                m_3DSSBOEntityMap[m_frameIndex],
-                                                m_imageBufferData[m_frameIndex],
-                                                m_entityMaterialImageUsage[m_frameIndex],
-                                                m_imageBufferDataIndexStack[m_frameIndex]);
+                material->executeMaterialSystem(m_object3DBufferData,
+                                                m_object3DBufferEntityMap,
+                                                m_imageBufferData,
+                                                m_imageBufferEntityMaterialMap,
+                                                m_imageBufferDataIndexStack);
             }
 
             // Start the render pass.

@@ -128,13 +128,13 @@ namespace ae {
         std::shared_ptr<AeImage> m_defaultImage;
 
         /// Stores images for each frame that are used during rendering.
-        VkDescriptorImageInfo m_imageBufferData[MAX_FRAMES_IN_FLIGHT][MAX_TEXTURES];
+        VkDescriptorImageInfo m_imageBufferData[MAX_TEXTURES];
 
         /// A stack to track the available texture buffer data indexes.
-        PreAllocatedStack<uint64_t,MAX_TEXTURES> m_imageBufferDataIndexStack[MAX_FRAMES_IN_FLIGHT];
+        PreAllocatedStack<uint64_t,MAX_TEXTURES> m_imageBufferDataIndexStack{};
 
         /// Stores the image buffer and entity relation for a specific image.
-        std::map<std::shared_ptr<AeImage>,ImageBufferInfo> m_entityMaterialImageUsage[MAX_FRAMES_IN_FLIGHT];
+        std::map<std::shared_ptr<AeImage>,ImageBufferInfo> m_imageBufferEntityMaterialMap{};
 
         //==============================================================================================================
         // 3D Object Buffer
@@ -145,11 +145,14 @@ namespace ae {
         /// The object buffers for each frame
         std::vector<std::unique_ptr<AeBuffer>> m_object3DBuffers;
 
-        /// A pointer to the model matrix and texture data for the 3D SSBO.
-        std::vector<Entity3DSSBOData>* m_3DSSBODataReference[MAX_FRAMES_IN_FLIGHT];
+        /// Stores all the entity specific data for 3D models required for rendering a specific frame.
+        std::vector<Entity3DSSBOData> m_object3DBufferData = std::vector<Entity3DSSBOData>(MAX_OBJECTS, Entity3DSSBOData());
 
-        /// A pointer to the map of entities to the model matrix and texture data for the 3D SSBO.
-        std::map<ecs_id, uint64_t>* m_3DSSBOEntityMap[MAX_FRAMES_IN_FLIGHT];
+        /// Maps entities to their model matrix/texture data in the 3D SSBO.
+        std::map<ecs_id, uint32_t> m_object3DBufferEntityMap= std::map<ecs_id, uint32_t>{};
+
+        /// A stack to track the available data positions in the SSBO.
+        PreAllocatedStack<uint64_t,MAX_OBJECTS> m_object3DBufferDataIndexStack{};
 
 
         //==============================================================================================================

@@ -8,6 +8,7 @@
 #include <vector>
 #include <memory>
 #include "ae_ecs_constants.hpp"
+#include <unordered_set>
 
 namespace ae {
 
@@ -42,11 +43,16 @@ namespace ae {
 
     /// A structure for tracking relevant image buffer information.
     struct ImageBufferInfo{
+        ImageBufferInfo(uint64_t t_imageBufferIndex, ecs_id t_entityID, material_id t_materialId){
+            m_imageBufferIndex = t_imageBufferIndex;
+            m_entityMaterialMap.insert(std::pair<ecs_id,std::unordered_set<material_id>>(t_entityID,{t_materialId}));
+        };
+
         /// Index for a specific image in the image buffer.
         uint64_t m_imageBufferIndex;
 
         /// For an image records the entities that use the image and which of the entities materials references the
         /// image.
-        std::map<ecs_id,std::vector<material_id>> m_entityMaterialMap;
+        std::map<ecs_id,std::unordered_set<material_id>> m_entityMaterialMap{};
     };
 } // namespace ae

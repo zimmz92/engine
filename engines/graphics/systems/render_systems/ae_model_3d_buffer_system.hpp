@@ -39,7 +39,10 @@ namespace ae {
         };
 
         /// Execute the SimpleRenderSystem, this is handled by the RendererSystem.
-        void executeSystem(uint64_t t_frameIndex, std::vector<ecs_id>  t_materialComponentIds);
+        void executeSystem(std::vector<ecs_id>&  t_materialComponentIds,
+                           std::vector<Entity3DSSBOData>& t_object3DBufferData,
+                           std::map<ecs_id, uint32_t>& t_object3DBufferEntityMap,
+                           PreAllocatedStack<uint64_t,MAX_OBJECTS>& t_object3DBufferDataIndexStack);
 
         /// DO NOT CALL! This is not used by this system.
         void executeSystem() override {
@@ -51,10 +54,6 @@ namespace ae {
         /// Clean up the SimpleRenderSystem, this is handled by the RendererSystem.
         void cleanupSystem() override;
 
-        std::vector<Entity3DSSBOData>* getFrameObject3DBufferDataRef(int t_frameIndex){return &m_object3DBufferData[t_frameIndex];};
-
-        std::map<ecs_id, uint64_t>* getObject3DBufferEntityMap(int t_frameIndex){return &m_object3DBufferDataEntityTracking[t_frameIndex];};
-
     private:
 
         // Components this system utilizes.
@@ -62,15 +61,6 @@ namespace ae {
         WorldPositionComponent& m_worldPositionComponent;
         /// The ModelComponent this system accesses to render the entity in the game world.
         ModelComponent& m_modelComponent;
-
-        /// Stores all the entity specific data for 3D models required for rendering a specific frame.
-        std::vector<std::vector<Entity3DSSBOData>> m_object3DBufferData = std::vector<std::vector<Entity3DSSBOData>>(MAX_FRAMES_IN_FLIGHT,std::vector<Entity3DSSBOData>(MAX_OBJECTS, Entity3DSSBOData()));
-
-        /// Maps entities to their model matrix/texture data in the 3D SSBO.
-        std::vector<std::map<ecs_id, uint64_t>> m_object3DBufferDataEntityTracking  = std::vector<std::map<ecs_id, uint64_t>>(MAX_FRAMES_IN_FLIGHT,std::map<ecs_id, uint64_t>{});
-
-        /// A stack to track the available data positions in the SSBO.
-        PreAllocatedStack<uint64_t,MAX_OBJECTS> m_object3DBufferDataPositionStack[MAX_FRAMES_IN_FLIGHT];
 
         // Prerequisite systems for the SimpleRenderSystem.
         // This requires any world position updating system to run before this system runs.

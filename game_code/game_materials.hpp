@@ -12,7 +12,7 @@
 
 namespace ae {
 
-    class SimpleMaterial : public AeMaterial3D<1,0,0,0>{
+    class SimpleMaterial : public AeMaterial3D<0,1,0,0>{
     public:
         SimpleMaterial(AeDevice &t_aeDevice,
                        GameComponents& t_game_components,
