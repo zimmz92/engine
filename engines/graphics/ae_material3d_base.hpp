@@ -39,16 +39,30 @@ namespace ae {
         /// Destructor of the SimpleRenderSystem
         ~AeMaterial3DBase();
 
-        virtual void setupSystem(int t_frameIndex){};
-        virtual void executeMaterialSystem(std::vector<Entity3DSSBOData>& t_entity3DSSBOData,
+        virtual void executeSystem(VkCommandBuffer& t_commandBuffer,
+                                   VkBuffer t_drawIndirectBuffer,
+                                   VkDescriptorSet t_globalDescriptorSet,
+                                   VkDescriptorSet t_textureDescriptorSet,
+                                   VkDescriptorSet t_objectDescriptorSet){};
+
+        virtual const std::vector<VkDrawIndexedIndirectCommand>& updateMaterialEntities(std::vector<Entity3DSSBOData>& t_entity3DSSBOData,
                                            std::map<ecs_id, uint32_t>& t_entity3DSSBOMap,
                                            VkDescriptorImageInfo t_imageBuffer[MAX_TEXTURES],
                                            std::map<std::shared_ptr<AeImage>,ImageBufferInfo>& t_imageBufferMap,
-                                           PreAllocatedStack<uint64_t,MAX_TEXTURES>& t_imageBufferStack) {};
+                                           PreAllocatedStack<uint64_t,MAX_TEXTURES>& t_imageBufferStack,
+                                           uint64_t t_drawIndirectCommandBufferIndex)=0;
         virtual void cleanupSystem(){};
         virtual ecs_id getComponentId(){return 0;};
 
         material_id getMaterialId();
+
+        void bindPipeline(VkCommandBuffer& t_commandBuffer){
+            m_aePipeline->bind(t_commandBuffer);
+        }
+
+        VkPipelineLayout& getPipelineLayout(){
+            return m_pipelineLayout;
+        }
 
     private:
 

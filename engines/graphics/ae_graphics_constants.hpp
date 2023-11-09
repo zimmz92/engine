@@ -12,7 +12,7 @@
 
 namespace ae {
 
-    using material_id = std::uint64_t;
+    using material_id = std::uint32_t;
 
     static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
@@ -38,7 +38,7 @@ namespace ae {
         alignas(16) glm::mat4 normalMatrix{ 1.0f };
 
         /// The index of the objects texture;
-        alignas(4) uint32_t textureIndex[MAX_MATERIALS][MAX_TEXTURES_PER_MATERIAL]= {MAX_TEXTURES + 1};
+        alignas(4) uint32_t textureIndex[MAX_MATERIALS][MAX_TEXTURES_PER_MATERIAL] = {MAX_TEXTURES + 1};
     };
 
     /// A structure for tracking relevant image buffer information.

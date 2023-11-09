@@ -56,6 +56,15 @@ namespace ae {
             const std::string& t_geometryFilepath,
             const PipelineConfigInfo& t_configInfo);
 
+        AePipeline(
+                AeDevice& t_device,
+                const std::string& t_vertFilepath,
+                const std::string& t_fragFilepath,
+                const std::string& t_tessFilepath,
+                const std::string& t_geometryFilepath,
+                const PipelineConfigInfo& t_configInfo,
+                uint32_t& t_materialId);
+
         /// Destroy a Vulkan pipeline object
         ~AePipeline();
 
@@ -94,7 +103,8 @@ namespace ae {
             const std::string& t_fragFilepath,
             const std::string& t_tessFilepath,
             const std::string& t_geometryFilepath,
-            const PipelineConfigInfo& t_configInfo);
+            const PipelineConfigInfo& t_configInfo,
+            VkSpecializationInfo* spec_info);
 
         /// Function to create a Vulkan shader module from the supplied reference of code vector variable.
         /// \param t_code The vector containing the code for the shader module to be created.

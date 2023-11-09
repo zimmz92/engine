@@ -75,8 +75,8 @@ namespace ae {
         std::vector<AeMaterial3DBase*> m_materials;
 
         // Materials
-        MaterialShaderFiles simpleMaterialShaderFiles = {"engines/graphics/shaders/shader.vert.spv",
-                                                         "engines/graphics/shaders/shader.frag.spv",
+        MaterialShaderFiles simpleMaterialShaderFiles = {"engines/graphics/shaders/simple.vert.spv",
+                                                         "engines/graphics/shaders/simple.frag.spv",
                                                          "Not Used",
                                                          "Not Used"};
         SimpleMaterial m_simpleMaterial{m_device,

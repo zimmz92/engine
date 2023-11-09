@@ -202,6 +202,7 @@ namespace ae {
 		VkPhysicalDeviceFeatures deviceFeatures{};
         // TODO: Make this optional
 		deviceFeatures.samplerAnisotropy = VK_TRUE;
+        deviceFeatures.multiDrawIndirect = VK_TRUE;
 
         // Create the device creation information.
 		VkDeviceCreateInfo createInfo{};

@@ -145,6 +145,13 @@ namespace ae {
         /// The object buffers for each frame
         std::vector<std::unique_ptr<AeBuffer>> m_object3DBuffers;
 
+
+        /// The object descriptor sets used for storing the model matrices and texture indexes.
+        std::vector<VkDescriptorSet> m_object3DDescriptorSetsIndirect;
+
+        /// The object buffers for each frame
+        std::vector<std::unique_ptr<AeBuffer>> m_object3DBuffersIndirect;
+
         /// Stores all the entity specific data for 3D models required for rendering a specific frame.
         std::vector<Entity3DSSBOData> m_object3DBufferData = std::vector<Entity3DSSBOData>(MAX_OBJECTS, Entity3DSSBOData());
 
@@ -163,6 +170,14 @@ namespace ae {
 
         /// The object buffers for each frame
         std::vector<std::unique_ptr<AeBuffer>> m_object2DBuffers;
+
+
+        //==============================================================================================================
+        // UBO
+        //==============================================================================================================
+        /// The draw indirect command buffer objects for each frame in flight
+        std::vector<std::unique_ptr<AeBuffer>> m_drawIndirectCommands;
+
 
         //==============================================================================================================
         // Child render systems

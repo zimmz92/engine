@@ -95,20 +95,23 @@ namespace ae {
             // Destructor implementation
             ~MaterialSystem() = default;
 
-            // Set up the system prior to execution. Currently not used.
-            void setupSystem(int t_frameIndex) {
-            };
-
             // Update the time difference between the current execution and the previous.
-            void executeSystem(std::vector<Entity3DSSBOData>& t_entity3DSSBOData,
+            const std::vector<VkDrawIndexedIndirectCommand>& updateMaterialEntities(std::vector<Entity3DSSBOData>& t_entity3DSSBOData,
                                std::map<ecs_id, uint32_t>& t_entity3DSSBOMap,
                                VkDescriptorImageInfo t_imageBuffer[MAX_TEXTURES],
                                std::map<std::shared_ptr<AeImage>,ImageBufferInfo>& t_imageBufferMap,
-                               PreAllocatedStack<uint64_t,MAX_TEXTURES>& t_imageBufferStack) {
+                               PreAllocatedStack<uint64_t,MAX_TEXTURES>& t_imageBufferStack,
+                               uint64_t t_drawIndirectCommandBufferIndex) {
+
+                m_drawIndirectCommandBufferIndex = t_drawIndirectCommandBufferIndex;
+
+                bool remakeCommandMap = false;
 
                 // Delete the destroyed entities from the list first.
                 std::vector<ecs_id> destroyedEntityIds = this->m_systemManager.getDestroyedSystemEntities(this->m_systemId);
                 for(ecs_id entityId: destroyedEntityIds){
+                    // An update occurred to an entity, remake the command array for this material.
+                    remakeCommandMap = true;
 
                     // Check if entity's model is already in the unique model map.
                     auto entityModel = m_modelComponent.getReadOnlyDataReference(entityId);
@@ -127,6 +130,9 @@ namespace ae {
                 // For the entities that have updated ensure they exist in the list and their drawIndirect command is
                 // updated with the new information.
                 for(auto entityId:updatedEntityIds){
+                    // An update occurred to an entity, remake the command array for this material.
+                    remakeCommandMap = true;
+
                     // Get the model for the entity that was updated.
                     auto entityModel = m_modelComponent.getReadOnlyDataReference(entityId);
 
@@ -160,6 +166,7 @@ namespace ae {
                     // the order they are placed into the material texture array for the specific material.
                     uint32_t textureIndex = 0;
 
+                    // Update the entities vertex textures.
                     handleShaderImages(t_entity3DSSBOMap[entityId],
                                        textureIndex,
                                        entityId,
@@ -170,6 +177,7 @@ namespace ae {
                                        t_imageBufferMap,
                                        t_imageBufferStack);
 
+                    // Update the entities fragment textures.
                     handleShaderImages(t_entity3DSSBOMap[entityId],
                                        textureIndex,
                                        entityId,
@@ -180,10 +188,41 @@ namespace ae {
                                        t_imageBufferMap,
                                        t_imageBufferStack);
 
-                    //TODO: Need to ensure that the material information gets updated as well.
+                    // Update the entities Tesselation textures.
+                    handleShaderImages(t_entity3DSSBOMap[entityId],
+                                       textureIndex,
+                                       entityId,
+                                       entityMaterialProperties.m_tessellationTextures,
+                                       entityMaterialProperties.m_numTessellationTextures,
+                                       t_entity3DSSBOData,
+                                       t_imageBuffer,
+                                       t_imageBufferMap,
+                                       t_imageBufferStack);
+
+                    // Update the entities Geometry textures.
+                    handleShaderImages(t_entity3DSSBOMap[entityId],
+                                       textureIndex,
+                                       entityId,
+                                       entityMaterialProperties.m_geometryTextures,
+                                       entityMaterialProperties.m_numGeometryTextures,
+                                       t_entity3DSSBOData,
+                                       t_imageBuffer,
+                                       t_imageBufferMap,
+                                       t_imageBufferStack);
                 };
 
+                if(remakeCommandMap){
+                    m_entityCommandCount = 0;
+                    m_materialDrawIndexedCommands.clear();
+                    for(const auto& model : m_uniqueModelMap){
+                        for(const auto& entityCommands : model.second){
+                            m_materialDrawIndexedCommands.push_back(entityCommands.second);
+                            m_entityCommandCount++;
+                        }
+                    }
+                }
 
+                return m_materialDrawIndexedCommands;
             };
 
             void handleShaderImages(uint32_t& t_entitySSBOIndex,
@@ -196,18 +235,22 @@ namespace ae {
                                     std::map<std::shared_ptr<AeImage>,ImageBufferInfo>& t_imageBufferMap,
                                     PreAllocatedStack<uint64_t,MAX_TEXTURES>& t_imageBufferStack){
 
+                // TODO This could be optimized, right now all the texture relations, and the images themselves if
+                //  nothing else uses, them for the entity being updated are being removed even if they are still being
+                //  used or remained the same.
+
+                // TODO: Might need to remove all information related to the updated entity before updating...
+                //  otherwise if the entity has a new texture for something the old one never is dropped.
+
                 for(int i = 0; i<t_numShaderTextures; i++){
 
-                    // Check if the object has a texture. If not set it such that the model is rendered using only its vertex
-                    // colors.
+                    // Check if the object has a texture. If not set it such that the model is rendered using only its
+                    // vertex colors.
                     if(t_shaderTextures[i].m_texture == nullptr){
                         t_entity3DSSBOData[t_entitySSBOIndex].textureIndex[m_material.getMaterialId()][t_entityTextureIndex] = MAX_TEXTURES + 1;
                         t_entityTextureIndex++;
                         continue;
                     }
-
-                    // TODO: Might need to remove all information related to the updated entity before updating...
-                    //  otherwise if the entity has a new texture for something the old one never is dropped.
 
                     // Search the image buffer map to see if the image has already been added to it.
                     auto imageSearchIterator = t_imageBufferMap.find(t_shaderTextures[i].m_texture);
@@ -223,13 +266,17 @@ namespace ae {
                         t_imageBuffer[newImageIndex].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
                         // Add the image and the entity/material relation into the map.
+                        // TODO need to make this also account for the sampler used for the texture.....
                         t_imageBufferMap.insert({t_shaderTextures[i].m_texture,
                                                  ImageBufferInfo(newImageIndex,t_entityId,m_material.getMaterialId())});
 
+                        // Set the texture information in the entities SSBO object.
+                        t_entity3DSSBOData[t_entitySSBOIndex].textureIndex[m_material.getMaterialId()][t_entityTextureIndex] = newImageIndex;
+
                     } else{
 
-                        // If the image was already in the map attempt to insert it to see if the entity is in the
-                        // images image buffer info entity map.
+                        // If the image was already in the map attempt to insert the relation between that image and
+                        // this entity-material combination.
                         auto entityImageSearchIterator= imageSearchIterator->second.
                                 m_entityMaterialMap.
                                 insert(std::pair<ecs_id,
@@ -246,8 +293,49 @@ namespace ae {
                                 entityImageSearchIterator.first->second.insert(m_material.getMaterialId());
                             };
                         };
+
+                        // Since the image was already in the image buffer, update the entities SSBO index data accordingly.
+                        t_entity3DSSBOData[t_entitySSBOIndex].textureIndex[m_material.getMaterialId()][t_entityTextureIndex] = imageSearchIterator->second.m_imageBufferIndex;
                     };
                 };
+            };
+
+            // Set up the system prior to execution. Currently not used.
+            void executeSystem(VkCommandBuffer& t_commandBuffer,
+                               VkBuffer t_drawIndirectBuffer,
+                               VkDescriptorSet t_globalDescriptorSet,
+                               VkDescriptorSet t_textureDescriptorSet,
+                               VkDescriptorSet t_objectDescriptorSet) {
+
+                m_material.bindPipeline(t_commandBuffer);
+
+                VkDescriptorSet descriptorSetsToBind[] = {t_globalDescriptorSet,
+                                                          t_textureDescriptorSet,
+                                                          t_objectDescriptorSet};
+
+                // Bind the descriptor sets to the command buffer.
+                vkCmdBindDescriptorSets(
+                        t_commandBuffer,
+                        VK_PIPELINE_BIND_POINT_GRAPHICS,
+                        m_material.getPipelineLayout(),
+                        0,
+                        3,
+                        descriptorSetsToBind,
+                        0,
+                        nullptr);
+
+                // Loop through each of the unique models
+                for(const auto& model : m_uniqueModelMap){
+
+                    model.first->bind(t_commandBuffer);
+
+                    VkDeviceSize indirect_offset = m_drawIndirectCommandBufferIndex * sizeof(VkDrawIndirectCommand);
+                    uint32_t draw_stride = sizeof(VkDrawIndirectCommand);
+
+                    //execute the draw command buffer on each section as defined by the array of draws
+                    vkCmdDrawIndirect(t_commandBuffer, t_drawIndirectBuffer, indirect_offset, model.second.size(),draw_stride);
+
+                }
             };
 
             // Clean up the system after execution. Currently not used.
@@ -273,9 +361,18 @@ namespace ae {
             /// A vector to track unique models, and a list of which entities use them.
             std::map<std::shared_ptr<AeModel>,std::map<ecs_id,VkDrawIndexedIndirectCommand>> m_uniqueModelMap;
 
-            /// Compiles the commands to be called by draw indexed indirect command for each frames.
-            VkDrawIndexedIndirectCommand materialDrawIndexedCommands[MAX_FRAMES_IN_FLIGHT][MAX_OBJECTS];
+            /// Compiles the commands to be called by draw indexed indirect command for each frame.
+            std::vector<VkDrawIndexedIndirectCommand> m_materialDrawIndexedCommands;
+
+            /// A count of the number of materialDrawIndexedCommands this material has.
+            uint64_t m_entityCommandCount = 0;
+
+            /// The starting position in the indirect command buffer where this materials commands start.
+            uint64_t m_drawIndirectCommandBufferIndex = 0;
         };
+
+
+
 
         /// Constructor of the SimpleRenderSystem
         /// \param t_game_components The game components available that this system may require.
@@ -300,16 +397,32 @@ namespace ae {
         /// Destructor of the SimpleRenderSystem
         ~AeMaterial3D()= default;
 
-        void executeMaterialSystem(std::vector<Entity3DSSBOData>& t_entity3DSSBOData,
+        void executeSystem(VkCommandBuffer& t_commandBuffer,
+                           VkBuffer t_drawIndirectBuffer,
+                           VkDescriptorSet t_globalDescriptorSet,
+                           VkDescriptorSet t_textureDescriptorSet,
+                           VkDescriptorSet t_objectDescriptorSet) override {
+
+            m_materialSystem.executeSystem(t_commandBuffer,
+                                           t_drawIndirectBuffer,
+                                           t_globalDescriptorSet,
+                                           t_textureDescriptorSet,
+                                           t_objectDescriptorSet);
+        };
+
+        const std::vector<VkDrawIndexedIndirectCommand>& updateMaterialEntities(std::vector<Entity3DSSBOData>& t_entity3DSSBOData,
                                    std::map<ecs_id, uint32_t>& t_entity3DSSBOMap,
                                    VkDescriptorImageInfo t_imageBuffer[MAX_TEXTURES],
                                    std::map<std::shared_ptr<AeImage>,ImageBufferInfo>& t_imageBufferMap,
-                                   PreAllocatedStack<uint64_t,MAX_TEXTURES>& t_imageBufferStack) override {
-            m_materialSystem.executeSystem(t_entity3DSSBOData,
-                                        t_entity3DSSBOMap,
-                                        t_imageBuffer,
-                                        t_imageBufferMap,
-                                        t_imageBufferStack);
+                                   PreAllocatedStack<uint64_t,MAX_TEXTURES>& t_imageBufferStack,
+                                   uint64_t t_drawIndirectCommandBufferIndex) override {
+
+            return m_materialSystem.updateMaterialEntities(t_entity3DSSBOData,
+                                           t_entity3DSSBOMap,
+                                           t_imageBuffer,
+                                           t_imageBufferMap,
+                                           t_imageBufferStack,
+                                           t_drawIndirectCommandBufferIndex);
         };
 
         ecs_id getMaterialSystemId(){return m_materialSystem.getSystemId();};

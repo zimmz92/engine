@@ -22,9 +22,33 @@ namespace ae {
         const std::string& t_geometryFilepath,
         const PipelineConfigInfo& t_configInfo) : m_aeDevice{ t_device } {
 
-        createGraphicsPipeline(t_vertFilepath, t_fragFilepath, t_tessFilepath, t_geometryFilepath, t_configInfo);
+        createGraphicsPipeline(t_vertFilepath, t_fragFilepath, t_tessFilepath, t_geometryFilepath, t_configInfo,nullptr);
 
     }
+
+    // Create the Vulkan pipeline object
+    AePipeline::AePipeline(
+            AeDevice& t_device,
+            const std::string& t_vertFilepath,
+            const std::string& t_fragFilepath,
+            const std::string& t_tessFilepath,
+            const std::string& t_geometryFilepath,
+            const PipelineConfigInfo& t_configInfo,
+            uint32_t& t_materialId) : m_aeDevice{ t_device } {
+
+        VkSpecializationMapEntry entry = { 0, 0, sizeof(int32_t) };
+        VkSpecializationInfo spec_info = {
+                1,
+                &entry,
+                sizeof(uint32_t),
+                &t_materialId
+        };
+
+        createGraphicsPipeline(t_vertFilepath, t_fragFilepath, t_tessFilepath, t_geometryFilepath, t_configInfo, &spec_info);
+
+    }
+
+
 
     // Destroy the Vulkan pipeline object
     AePipeline::~AePipeline() {
@@ -65,7 +89,8 @@ namespace ae {
         const std::string& t_fragFilepath,
         const std::string& t_tessFilepath,
         const std::string& t_geometryFilepath,
-        const PipelineConfigInfo& t_configInfo) {
+        const PipelineConfigInfo& t_configInfo,
+        VkSpecializationInfo* spec_info) {
 
         assert(
             t_configInfo.pipelineLayout != nullptr &&
@@ -96,7 +121,7 @@ namespace ae {
             shaderStage.pName = "main";
             shaderStage.flags = 0;
             shaderStage.pNext = nullptr;
-            shaderStage.pSpecializationInfo = nullptr;
+            shaderStage.pSpecializationInfo = spec_info;
 
             shaderStagesInfo.push_back(shaderStage);
         }else{
@@ -121,7 +146,7 @@ namespace ae {
             shaderStage.pName = "main";
             shaderStage.flags = 0;
             shaderStage.pNext = nullptr;
-            shaderStage.pSpecializationInfo = nullptr;
+            shaderStage.pSpecializationInfo = spec_info;
 
             shaderStagesInfo.push_back(shaderStage);
         }else{
@@ -146,7 +171,7 @@ namespace ae {
             shaderStage.pName = "main";
             shaderStage.flags = 0;
             shaderStage.pNext = nullptr;
-            shaderStage.pSpecializationInfo = nullptr;
+            shaderStage.pSpecializationInfo = spec_info;
 
             shaderStagesInfo.push_back(shaderStage);
         }
@@ -169,7 +194,7 @@ namespace ae {
             shaderStage.pName = "main";
             shaderStage.flags = 0;
             shaderStage.pNext = nullptr;
-            shaderStage.pSpecializationInfo = nullptr;
+            shaderStage.pSpecializationInfo = spec_info;
 
             shaderStagesInfo.push_back(shaderStage);
         }

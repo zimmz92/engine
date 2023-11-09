@@ -38,10 +38,10 @@ namespace ae {
 
         // Create the global pool
         m_globalPool = AeDescriptorPool::Builder(m_aeDevice)
-                .setMaxSets(MAX_FRAMES_IN_FLIGHT*4)
+                .setMaxSets(MAX_FRAMES_IN_FLIGHT*5)
                 .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MAX_FRAMES_IN_FLIGHT)
                 .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MAX_TEXTURES * MAX_FRAMES_IN_FLIGHT)
-                .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, MAX_FRAMES_IN_FLIGHT*2)
+                .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, MAX_FRAMES_IN_FLIGHT*3)
                 .build();
 
         //==============================================================================================================
@@ -187,6 +187,63 @@ namespace ae {
                     .build(m_object2DDescriptorSets[i]);
         }
 
+        //==============================================================================================================
+        // Create Draw Indirect Command Buffers
+        //==============================================================================================================
+        // Initialize the ubo buffers
+        m_drawIndirectCommands.reserve(MAX_FRAMES_IN_FLIGHT);
+        for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            // Create a new buffer and push it to the back of the vector of uboBuffers.
+            m_drawIndirectCommands.push_back(std::make_unique<AeBuffer>(
+                    m_aeDevice,
+                    sizeof(VkDrawIndexedIndirectCommand),
+                    MAX_OBJECTS*MAX_MATERIALS,
+                    VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |  VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT,
+                    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT));
+
+            // Attempt to map the draw indirect command memory.
+            if ( m_drawIndirectCommands.back()->map() != VK_SUCCESS) {
+                throw std::runtime_error("Failed to map the draw indirect command buffer memory!");
+            };
+        };
+
+        //==============================================================================================================
+        // Setup Indirect Object Shader Storage Buffer for 3D Objects (SSBO)
+        //==============================================================================================================
+
+        // Allocate memory for the object buffers
+        m_object3DBuffersIndirect.reserve(MAX_FRAMES_IN_FLIGHT);
+        for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            // Create a new buffer and push it to the back of the vector of uboBuffers.
+            m_object3DBuffersIndirect.push_back(std::make_unique<AeBuffer>(
+                    m_aeDevice,
+                    sizeof(Entity3DSSBOData),
+                    MAX_OBJECTS,
+                    VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
+                    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT));
+
+            // Attempt to map memory for the object buffer.
+            if (m_object3DBuffersIndirect.back()->map() != VK_SUCCESS) {
+                throw std::runtime_error("Failed to map the ubo buffer to memory!");
+            };
+        };
+
+        // Define the descriptor set for the object buffers.
+        auto objectSetLayoutIndirect = AeDescriptorSetLayout::Builder(m_aeDevice)
+                .addBinding(0,VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,VK_SHADER_STAGE_ALL_GRAPHICS)
+                .build();
+
+        // Reserve space for and then initialize the global descriptors for each frame.
+        m_object3DDescriptorSetsIndirect.reserve(MAX_FRAMES_IN_FLIGHT);
+        for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            // Get the buffer information from the uboBuffers.
+            auto bufferInfo = m_object3DBuffersIndirect[i]->descriptorInfo();
+
+            // Initialize the descriptor set for the current frame.
+            AeDescriptorWriter(objectSetLayoutIndirect, *m_globalPool)
+                    .writeBuffer(0, &bufferInfo)
+                    .build(m_object3DDescriptorSetsIndirect[i]);
+        }
 
 
         //==============================================================================================================
@@ -203,7 +260,7 @@ namespace ae {
                                             t_ecs,
                                             globalSetLayout->getDescriptorSetLayout(),
                                             textureSetLayout->getDescriptorSetLayout(),
-                                            objectSetLayout->getDescriptorSetLayout());
+                                            objectSetLayoutIndirect->getDescriptorSetLayout());
 
         // Create a list of the available material component IDs for quick reference when making/updating the model
         // matrix data.
@@ -285,7 +342,7 @@ namespace ae {
             m_uboBuffers[m_frameIndex]->flush();
 
             // Update the texture descriptor data for the models that are being rendered.
-            updateDescriptorSets();
+            //updateDescriptorSets();
 
             // Update the model matrix data before updating the materials so that the materials know where to put the
             // image buffer indices for an entities textures.
@@ -296,31 +353,58 @@ namespace ae {
 
             // After the indexes have been updated for textures entities utilize, call each of the material's system to
             // organize the model objects for each of the materials to use draw indirect.
+            uint64_t drawIndirectCount = 0;
+            auto* frameDrawIndirectCommands  = static_cast<VkDrawIndexedIndirectCommand *>(m_drawIndirectCommands[m_frameIndex]->getMappedMemory());
             for(auto material : m_gameMaterials->m_materials){
                 // TODO: Much of this information does not change every cycle. Should pass the references in on material
                 //  creation.
-                material->executeMaterialSystem(m_object3DBufferData,
-                                                m_object3DBufferEntityMap,
-                                                m_imageBufferData,
-                                                m_imageBufferEntityMaterialMap,
-                                                m_imageBufferDataIndexStack);
+                const std::vector<VkDrawIndexedIndirectCommand>& materialCommands =
+                        material->updateMaterialEntities(m_object3DBufferData,
+                                                         m_object3DBufferEntityMap,
+                                                         m_imageBufferData,
+                                                         m_imageBufferEntityMaterialMap,
+                                                         m_imageBufferDataIndexStack,
+                                                         drawIndirectCount);
+                for(auto command : materialCommands){
+                    frameDrawIndirectCommands[drawIndirectCount] = command;
+                    drawIndirectCount++;
+                }
             }
+            m_drawIndirectCommands[m_frameIndex]->flush();
+
+            // Write the texture array to the descriptor set.
+            m_textureDescriptorWriter->clearWriteData();
+            m_textureDescriptorWriter->writeImage(0, m_imageBufferData);
+            m_textureDescriptorWriter->overwrite(m_textureDescriptorSets[m_frameIndex]);
+
+            // Write the object buffer data to the descriptor set.
+            m_object3DBuffersIndirect[m_frameIndex]->writeToBuffer(&m_object3DBufferData);
+            m_object3DBuffersIndirect[m_frameIndex]->flush();
+
 
             // Start the render pass.
             m_renderer.beginSwapChainRenderPass(m_commandBuffer);
 
+            for(auto material : m_gameMaterials->m_materials){
+                material->executeSystem(m_commandBuffer,
+                                        m_drawIndirectCommands[m_frameIndex]->getBuffer(),
+                                        m_globalDescriptorSets[m_frameIndex],
+                                        m_textureDescriptorSets[m_frameIndex],
+                                        m_object3DDescriptorSetsIndirect[m_frameIndex]);
+            }
+
             // Call subservient render systems. Order matters here to maintain object transparencies.
-            m_simpleRenderSystem->executeSystem(m_commandBuffer,
-                                                m_globalDescriptorSets[m_frameIndex],
-                                                m_textureDescriptorSets[m_frameIndex],
-                                                m_object3DDescriptorSets[m_frameIndex],
-                                                m_frameIndex);
-            m_pointLightRenderSystem->executeSystem(m_commandBuffer,m_globalDescriptorSets[m_frameIndex]);
-            m_uiRenderSystem->executeSystem(m_commandBuffer,
-                                            m_globalDescriptorSets[m_frameIndex],
-                                            m_textureDescriptorSets[m_frameIndex],
-                                            m_object2DDescriptorSets[m_frameIndex],
-                                            m_frameIndex);
+//            m_simpleRenderSystem->executeSystem(m_commandBuffer,
+//                                                m_globalDescriptorSets[m_frameIndex],
+//                                                m_textureDescriptorSets[m_frameIndex],
+//                                                m_object3DDescriptorSets[m_frameIndex],
+//                                                m_frameIndex);
+            //m_pointLightRenderSystem->executeSystem(m_commandBuffer,m_globalDescriptorSets[m_frameIndex]);
+//            m_uiRenderSystem->executeSystem(m_commandBuffer,
+//                                            m_globalDescriptorSets[m_frameIndex],
+//                                            m_textureDescriptorSets[m_frameIndex],
+//                                            m_object2DDescriptorSets[m_frameIndex],
+//                                            m_frameIndex);
 
             // End the render pass and the frame.
             m_renderer.endSwapChainRenderPass(m_commandBuffer);

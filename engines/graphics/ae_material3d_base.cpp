@@ -42,8 +42,8 @@ namespace ae {
 
     // Creates the pipeline layout for the point light render system.
     void AeMaterial3DBase::createPipelineLayout(VkDescriptorSetLayout t_globalSetLayout,
-                                            VkDescriptorSetLayout t_textureSetLayout,
-                                            VkDescriptorSetLayout t_objectSetLayout) {
+                                                VkDescriptorSetLayout t_textureSetLayout,
+                                                VkDescriptorSetLayout t_objectSetLayout) {
 
 
         // Prepare the descriptor set layouts based on the global set layout for the device.
@@ -89,7 +89,8 @@ namespace ae {
                 m_materialShaderFiles.fragmentShaderFilepath,
                 m_materialShaderFiles.tessellationShaderFilepath,
                 m_materialShaderFiles.geometryShaderFilepath,
-                pipelineConfig);
+                pipelineConfig,
+                m_materialID);
     };
 
     material_id AeMaterial3DBase::getMaterialId(){
