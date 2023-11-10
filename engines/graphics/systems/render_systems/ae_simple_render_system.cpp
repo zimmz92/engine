@@ -14,9 +14,7 @@ namespace ae {
                                            GameComponents &t_game_components,
                                            AeDevice &t_aeDevice,
                                            VkRenderPass t_renderPass,
-                                           VkDescriptorSetLayout t_globalSetLayout,
-                                           VkDescriptorSetLayout t_textureSetLayout,
-                                           VkDescriptorSetLayout t_objectSetLayout)
+                                           std::vector<VkDescriptorSetLayout> t_descriptorSetLayouts)
             : m_worldPositionComponent{t_game_components.worldPositionComponent},
               m_modelComponent{t_game_components.modelComponent},
               m_aeDevice{t_aeDevice},
@@ -33,7 +31,7 @@ namespace ae {
         this->isChildSystem = true;
 
         // Creates the pipeline layout accounting for the global layout and sets the m_pipelineLayout member variable.
-        createPipelineLayout(t_globalSetLayout, t_textureSetLayout, t_objectSetLayout);
+        createPipelineLayout(t_descriptorSetLayouts);
 
         // Creates a graphics pipeline for this render system and sets the m_aePipeline member variable.
         createPipeline(t_renderPass);
@@ -55,17 +53,10 @@ namespace ae {
 
     // Renders the models.
     void SimpleRenderSystem::executeSystem(VkCommandBuffer &t_commandBuffer,
-                                           VkDescriptorSet t_globalDescriptorSet,
-                                           VkDescriptorSet t_textureDescriptorSet,
-                                           VkDescriptorSet t_objectDescriptorSet,
-                                           uint64_t t_frameIndex) {
+                                           std::vector<VkDescriptorSet>& t_descriptorSets) {
 
         // Tell the pipeline what the current command buffer being worked on is.
         m_aePipeline->bind(t_commandBuffer);
-
-        VkDescriptorSet descriptorSetsToBind[] = {t_globalDescriptorSet,
-                                                  t_textureDescriptorSet,
-                                                  t_objectDescriptorSet};
 
         // Bind the descriptor sets to the command buffer.
         vkCmdBindDescriptorSets(
@@ -73,8 +64,8 @@ namespace ae {
                 VK_PIPELINE_BIND_POINT_GRAPHICS,
                 m_pipelineLayout,
                 0,
-                3,
-                descriptorSetsToBind,
+                static_cast<uint32_t>(t_descriptorSets.size()),
+                t_descriptorSets.data(),
                 0,
                 nullptr);
 
@@ -108,21 +99,14 @@ namespace ae {
 
 
     // Creates the pipeline layout for the point light render system.
-    void SimpleRenderSystem::createPipelineLayout(VkDescriptorSetLayout t_globalSetLayout,
-                                                  VkDescriptorSetLayout t_textureSetLayout,
-                                                  VkDescriptorSetLayout t_objectSetLayout) {
+    void SimpleRenderSystem::createPipelineLayout(std::vector<VkDescriptorSetLayout> t_descriptorSetLayouts) {
 
-
-        // Prepare the descriptor set layouts based on the global set layout for the device.
-        std::vector<VkDescriptorSetLayout> descriptorSetLayouts{t_globalSetLayout,
-                                                                t_textureSetLayout,
-                                                                t_objectSetLayout};
 
         // Define the specific layout of the point light renderer.
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-        pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
-        pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
+        pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(t_descriptorSetLayouts.size());
+        pipelineLayoutInfo.pSetLayouts = t_descriptorSetLayouts.data();
 
         // Attempt to create the pipeline layout, if it cannot error out.
         if (vkCreatePipelineLayout(m_aeDevice.device(),

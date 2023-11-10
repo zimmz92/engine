@@ -46,9 +46,7 @@ namespace ae {
                            GameComponents& t_game_components,
                            AeDevice& t_aeDevice,
                            VkRenderPass t_renderPass,
-                           VkDescriptorSetLayout t_globalSetLayout,
-                           VkDescriptorSetLayout t_textureSetLayout,
-                           VkDescriptorSetLayout t_objectSetLayout);
+                           std::vector<VkDescriptorSetLayout> t_descriptorSetLayouts);
 
         /// Destructor of the SimpleRenderSystem
         ~SimpleRenderSystem();
@@ -58,10 +56,7 @@ namespace ae {
 
         /// Execute the SimpleRenderSystem, this is handled by the RendererSystem.
         void executeSystem(VkCommandBuffer& t_commandBuffer,
-                           VkDescriptorSet t_globalDescriptorSet,
-                           VkDescriptorSet t_textureDescriptorSet,
-                           VkDescriptorSet t_objectDescriptorSet,
-                           uint64_t t_frameIndex);
+                           std::vector<VkDescriptorSet>& t_descriptorSets);
 
         /// DO NOT CALL! This is not used by this system.
         void executeSystem() override {
@@ -97,9 +92,7 @@ namespace ae {
         /// Creates the pipeline layout for the SimpleRenderSystem.
         /// \param t_globalSetLayout The general descriptor set for the devices and general rendering setting that need
         /// to be accounted for when setting up the render pipeline for this system.
-        void createPipelineLayout(VkDescriptorSetLayout t_globalSetLayout,
-                                  VkDescriptorSetLayout t_textureSetLayout,
-                                  VkDescriptorSetLayout t_objectSetLayout);
+        void createPipelineLayout(std::vector<VkDescriptorSetLayout> t_descriptorSetLayouts);
 
         /// Creates the pipeline based on the render pass this pipeline should be associated with for the
         /// SimpleRenderSystem.

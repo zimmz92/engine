@@ -38,10 +38,10 @@ namespace ae {
 
         // Create the global pool
         m_globalPool = AeDescriptorPool::Builder(m_aeDevice)
-                .setMaxSets(MAX_FRAMES_IN_FLIGHT*5)
+                .setMaxSets(MAX_FRAMES_IN_FLIGHT*6)
                 .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MAX_FRAMES_IN_FLIGHT)
                 .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MAX_TEXTURES * MAX_FRAMES_IN_FLIGHT)
-                .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, MAX_FRAMES_IN_FLIGHT*3)
+                .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, MAX_FRAMES_IN_FLIGHT*4)
                 .build();
 
         //==============================================================================================================
@@ -191,21 +191,38 @@ namespace ae {
         // Create Draw Indirect Command Buffers
         //==============================================================================================================
         // Initialize the ubo buffers
-        m_drawIndirectCommands.reserve(MAX_FRAMES_IN_FLIGHT);
+        m_drawIndirectBuffers.reserve(MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             // Create a new buffer and push it to the back of the vector of uboBuffers.
-            m_drawIndirectCommands.push_back(std::make_unique<AeBuffer>(
+            m_drawIndirectBuffers.push_back(std::make_unique<AeBuffer>(
                     m_aeDevice,
                     sizeof(VkDrawIndexedIndirectCommand),
                     MAX_OBJECTS*MAX_MATERIALS,
-                    VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |  VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT,
+                    VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |  VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT,
                     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT));
 
             // Attempt to map the draw indirect command memory.
-            if ( m_drawIndirectCommands.back()->map() != VK_SUCCESS) {
+            if (m_drawIndirectBuffers.back()->map() != VK_SUCCESS) {
                 throw std::runtime_error("Failed to map the draw indirect command buffer memory!");
             };
         };
+
+        // Define the descriptor set for the object buffers.
+        auto indirectSetLayout = AeDescriptorSetLayout::Builder(m_aeDevice)
+                .addBinding(0,VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,VK_SHADER_STAGE_ALL_GRAPHICS)
+                .build();
+
+        // Reserve space for and then initialize the global descriptors for each frame.
+        m_drawIndirectDescriptorSets.reserve(MAX_FRAMES_IN_FLIGHT);
+        for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            // Get the buffer information from the uboBuffers.
+            auto bufferInfo = m_drawIndirectBuffers[i]->descriptorInfo();
+
+            // Initialize the descriptor set for the current frame.
+            AeDescriptorWriter(indirectSetLayout, *m_globalPool)
+                    .writeBuffer(0, &bufferInfo)
+                    .build(m_drawIndirectDescriptorSets[i]);
+        }
 
         //==============================================================================================================
         // Setup Indirect Object Shader Storage Buffer for 3D Objects (SSBO)
@@ -247,8 +264,40 @@ namespace ae {
 
 
         //==============================================================================================================
+        // Descriptor Set Gathering
+        //==============================================================================================================
+        // Gather all the descriptor set layouts.
+        std::vector<VkDescriptorSetLayout> descriptorSetLayouts = {globalSetLayout->getDescriptorSetLayout(),
+                                                                   textureSetLayout->getDescriptorSetLayout(),
+                                                                   objectSetLayoutIndirect->getDescriptorSetLayout(),
+                                                                   indirectSetLayout->getDescriptorSetLayout()};
+
+        std::vector<VkDescriptorSetLayout> descriptorSetLayoutsOLD = {globalSetLayout->getDescriptorSetLayout(),
+                                                                      textureSetLayout->getDescriptorSetLayout(),
+                                                                      objectSetLayout->getDescriptorSetLayout()};
+
+        // Gather all the descriptor sets.
+        m_frameDescriptorSets.reserve(MAX_FRAMES_IN_FLIGHT);
+        m_frameDescriptorSetsOLD.reserve(MAX_FRAMES_IN_FLIGHT);
+        for(int i=0;i<MAX_FRAMES_IN_FLIGHT;i++){
+            m_frameDescriptorSets.push_back({m_globalDescriptorSets[i],
+                                        m_textureDescriptorSets[i],
+                                        m_object3DDescriptorSetsIndirect[i],
+                                        m_drawIndirectDescriptorSets[i]});
+
+            m_frameDescriptorSetsOLD.push_back({m_globalDescriptorSets[i],
+                                                m_textureDescriptorSets[i],
+                                                m_object3DDescriptorSets[i]});
+        }
+
+
+        //==============================================================================================================
         // Setup child render systems
         //==============================================================================================================
+
+
+
+
 
         // Creates a buffer of entity model matrix and texture data for entities with 3D models that have a material.
         m_model3DBufferSystem = new AeModel3DBufferSystem(t_ecs,t_game_components);
@@ -258,9 +307,7 @@ namespace ae {
                                             t_game_components,
                                             m_renderer.getSwapChainRenderPass(),
                                             t_ecs,
-                                            globalSetLayout->getDescriptorSetLayout(),
-                                            textureSetLayout->getDescriptorSetLayout(),
-                                            objectSetLayoutIndirect->getDescriptorSetLayout());
+                                            descriptorSetLayouts);
 
         // Create a list of the available material component IDs for quick reference when making/updating the model
         // matrix data.
@@ -274,16 +321,14 @@ namespace ae {
                                                       t_game_components,
                                                       m_aeDevice,
                                                       m_renderer.getSwapChainRenderPass(),
-                                                      globalSetLayout->getDescriptorSetLayout(),
-                                                      textureSetLayout->getDescriptorSetLayout(),
-                                                      objectSetLayout->getDescriptorSetLayout());
-
-        m_pointLightRenderSystem = new PointLightRenderSystem(t_ecs,
-                                                              t_game_components,
-                                                              m_aeDevice,
-                                                              m_renderer.getSwapChainRenderPass(),
-                                                              globalSetLayout->getDescriptorSetLayout());
-
+                                                      descriptorSetLayoutsOLD);
+//
+//        m_pointLightRenderSystem = new PointLightRenderSystem(t_ecs,
+//                                                              t_game_components,
+//                                                              m_aeDevice,
+//                                                              m_renderer.getSwapChainRenderPass(),
+//                                                              globalSetLayout->getDescriptorSetLayout());
+//
         m_uiRenderSystem = new UiRenderSystem(t_ecs,
                                               t_game_components,
                                               m_aeDevice,
@@ -302,14 +347,17 @@ namespace ae {
 
     // Destructor class of the RendererStartPassSystem
     RendererStartPassSystem::~RendererStartPassSystem(){
+        delete m_model3DBufferSystem;
+        m_model3DBufferSystem = nullptr;
+
         delete m_gameMaterials;
         m_gameMaterials = nullptr;
 
         delete m_simpleRenderSystem;
         m_simpleRenderSystem = nullptr;
 
-        delete m_pointLightRenderSystem;
-        m_pointLightRenderSystem = nullptr;
+        //delete m_pointLightRenderSystem;
+        //m_pointLightRenderSystem = nullptr;
 
         delete m_uiRenderSystem;
         m_uiRenderSystem = nullptr;
@@ -354,7 +402,8 @@ namespace ae {
             // After the indexes have been updated for textures entities utilize, call each of the material's system to
             // organize the model objects for each of the materials to use draw indirect.
             uint64_t drawIndirectCount = 0;
-            auto* frameDrawIndirectCommands  = static_cast<VkDrawIndexedIndirectCommand *>(m_drawIndirectCommands[m_frameIndex]->getMappedMemory());
+            //auto* frameDrawIndirectCommands  = static_cast<VkDrawIndexedIndirectCommand *>(m_drawIndirectBuffers[m_frameIndex]->getMappedMemory());
+            VkDrawIndexedIndirectCommand frameDrawIndirectCommands[MAX_OBJECTS*MAX_MATERIALS]  = {};
             for(auto material : m_gameMaterials->m_materials){
                 // TODO: Much of this information does not change every cycle. Should pass the references in on material
                 //  creation.
@@ -370,7 +419,9 @@ namespace ae {
                     drawIndirectCount++;
                 }
             }
-            m_drawIndirectCommands[m_frameIndex]->flush();
+
+            m_drawIndirectBuffers[m_frameIndex]->writeToBuffer(&frameDrawIndirectCommands);
+            m_drawIndirectBuffers[m_frameIndex]->flush();
 
             // Write the texture array to the descriptor set.
             m_textureDescriptorWriter->clearWriteData();
@@ -378,7 +429,7 @@ namespace ae {
             m_textureDescriptorWriter->overwrite(m_textureDescriptorSets[m_frameIndex]);
 
             // Write the object buffer data to the descriptor set.
-            m_object3DBuffersIndirect[m_frameIndex]->writeToBuffer(&m_object3DBufferData);
+            m_object3DBuffersIndirect[m_frameIndex]->writeToBuffer(m_object3DBufferData.data());
             m_object3DBuffersIndirect[m_frameIndex]->flush();
 
 
@@ -387,18 +438,15 @@ namespace ae {
 
             for(auto material : m_gameMaterials->m_materials){
                 material->executeSystem(m_commandBuffer,
-                                        m_drawIndirectCommands[m_frameIndex]->getBuffer(),
-                                        m_globalDescriptorSets[m_frameIndex],
-                                        m_textureDescriptorSets[m_frameIndex],
-                                        m_object3DDescriptorSetsIndirect[m_frameIndex]);
+                                        m_drawIndirectBuffers[m_frameIndex]->getBuffer(),
+                                        m_frameDescriptorSets[m_frameIndex],
+                                        m_simpleRenderSystem->getSystemId());
             }
 
             // Call subservient render systems. Order matters here to maintain object transparencies.
 //            m_simpleRenderSystem->executeSystem(m_commandBuffer,
-//                                                m_globalDescriptorSets[m_frameIndex],
-//                                                m_textureDescriptorSets[m_frameIndex],
-//                                                m_object3DDescriptorSets[m_frameIndex],
-//                                                m_frameIndex);
+//                                                m_frameDescriptorSetsOLD[m_frameIndex]);
+
             //m_pointLightRenderSystem->executeSystem(m_commandBuffer,m_globalDescriptorSets[m_frameIndex]);
 //            m_uiRenderSystem->executeSystem(m_commandBuffer,
 //                                            m_globalDescriptorSets[m_frameIndex],

@@ -173,11 +173,20 @@ namespace ae {
 
 
         //==============================================================================================================
-        // UBO
+        // Draw Indirect buffer
         //==============================================================================================================
-        /// The draw indirect command buffer objects for each frame in flight
-        std::vector<std::unique_ptr<AeBuffer>> m_drawIndirectCommands;
+        /// The draw indirect buffer descriptor sets used for draw indirect commands.
+        std::vector<VkDescriptorSet> m_drawIndirectDescriptorSets;
 
+        /// The draw indirect command buffer objects for each frame in flight
+        std::vector<std::unique_ptr<AeBuffer>> m_drawIndirectBuffers;
+
+        //==============================================================================================================
+        // Descriptor Sets
+        //==============================================================================================================
+        std::vector<std::vector<VkDescriptorSet>> m_frameDescriptorSets;
+
+        std::vector<std::vector<VkDescriptorSet>> m_frameDescriptorSetsOLD;
 
         //==============================================================================================================
         // Child render systems

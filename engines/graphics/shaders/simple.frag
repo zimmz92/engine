@@ -13,7 +13,7 @@ struct PointLight{
     vec4 color;
 };
 
-layout (constant_id = 0) const int MATERIAL_ID = 0;
+//layout (constant_id = 0) const int MATERIAL_ID = 0;
 
 layout(set = 0, binding = 0) uniform GlobalUbo {
     mat4 projection;
@@ -30,7 +30,7 @@ layout(set = 1, binding = 0) uniform sampler2D texSampler[8];
 struct ObjectData{
 	mat4 modelMatrix;
 	mat4 normalMatrix;
-	uint textureIndex[20][10];
+	uint textureIndex;
 };
 
 layout(set = 2, binding = 0) readonly buffer ObjectBuffer{
@@ -64,7 +64,7 @@ void main() {
         specularLight += intensity * blinnTerm;
     }
 
-    uint texIndex = objectBuffer.objects[baseInstance].textureIndex[MATERIAL_ID][0];
+    uint texIndex = objectBuffer.objects[baseInstance].textureIndex;
 
 
     if(texIndex == 9)

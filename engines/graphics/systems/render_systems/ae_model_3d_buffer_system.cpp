@@ -17,28 +17,22 @@ namespace ae {
               ae_ecs::AeSystem<AeModel3DBufferSystem>(t_ecs) {
 
         // Register component dependencies
-        m_worldPositionComponent.requiredBySystem(this->getSystemId());
-        m_modelComponent.requiredBySystem(this->getSystemId());
+        m_worldPositionComponent.requiredBySystem(m_systemId);
+        m_modelComponent.requiredBySystem(m_systemId);
 
 
         // Register system dependencies
         // This is a child system and dependencies, as well as execution, will be handled by the parent system,
         // RendererSystem.
-        this->isChildSystem = true;
+        isChildSystem = true;
 
         // Enable the system so it will run.
-        this->enableSystem();
+        enableSystem();
     };
 
 
     // Destructor implementation
-    AeModel3DBufferSystem::~AeModel3DBufferSystem() {};
-
-
-    // Set up the system prior to execution. Currently not used.
-    void AeModel3DBufferSystem::setupSystem(uint64_t t_frameIndex) {
-
-    };
+    AeModel3DBufferSystem::~AeModel3DBufferSystem() = default;
 
 
     // Manages the model matrix data for the 3D SSBO.
@@ -48,7 +42,7 @@ namespace ae {
                                               PreAllocatedStack<uint64_t,MAX_OBJECTS>& t_object3DBufferDataIndexStack) {
 
         // Deal with any entities that were deleted between the last time this system ran and now.
-        std::vector<ecs_id> destroyedEntities = m_systemManager.getUpdatedSystemEntities(m_systemId);
+        std::vector<ecs_id> destroyedEntities = m_systemManager.getDestroyedSystemEntities(m_systemId);
 
         // Loop through all the destroyed entities that were compatible with this system.
         for(auto entityId:destroyedEntities){

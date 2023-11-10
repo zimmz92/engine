@@ -32,18 +32,15 @@ namespace ae {
         explicit AeMaterial3DBase(AeDevice &t_aeDevice,
                      VkRenderPass t_renderPass,
                      MaterialShaderFiles& t_materialShaderFiles,
-                     VkDescriptorSetLayout t_globalSetLayout,
-                     VkDescriptorSetLayout t_textureSetLayout,
-                     VkDescriptorSetLayout t_objectSetLayout);
+                     std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts);
 
         /// Destructor of the SimpleRenderSystem
         ~AeMaterial3DBase();
 
         virtual void executeSystem(VkCommandBuffer& t_commandBuffer,
                                    VkBuffer t_drawIndirectBuffer,
-                                   VkDescriptorSet t_globalDescriptorSet,
-                                   VkDescriptorSet t_textureDescriptorSet,
-                                   VkDescriptorSet t_objectDescriptorSet){};
+                                   std::vector<VkDescriptorSet>& t_descriptorSets,
+                                   ecs_id test){};
 
         virtual const std::vector<VkDrawIndexedIndirectCommand>& updateMaterialEntities(std::vector<Entity3DSSBOData>& t_entity3DSSBOData,
                                            std::map<ecs_id, uint32_t>& t_entity3DSSBOMap,
@@ -69,9 +66,7 @@ namespace ae {
         /// Creates the pipeline layout for the material.
         /// \param t_globalSetLayout The general descriptor set for the devices and general rendering setting that need
         /// to be accounted for when setting up the render pipeline for this system.
-        void createPipelineLayout(VkDescriptorSetLayout t_globalSetLayout,
-                                  VkDescriptorSetLayout t_textureSetLayout,
-                                  VkDescriptorSetLayout t_objectSetLayout);
+        void createPipelineLayout(std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts);
 
         /// Creates the pipeline based on the render pass this pipeline should be associated with for the
         /// SimpleRenderSystem.

@@ -76,6 +76,12 @@ namespace ae {
         testFlatVase.m_worldPosition = {-0.5f, 0.5f, 0.0f };
         testFlatVase.m_model.m_model = aeModel;
         testFlatVase.m_model.scale = {3.0f, 1.5f, 3.0f };
+
+        m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntity(testFlatVase.getEntityId());
+        auto& testFlatVaseProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.getWriteableDataReference(testFlatVase.getEntityId());
+        testFlatVaseProperties.m_fragmentTextures[0].m_texture = nullptr;
+        testFlatVaseProperties.m_fragmentTextures[0].m_sampler = nullptr;
+
         testFlatVase.enableEntity();
 
 
@@ -86,7 +92,14 @@ namespace ae {
         testSmoothVase.m_worldPosition = {0.5f, 0.5f, 0.0f };
         testSmoothVase.m_model.m_model = aeModel;
         testSmoothVase.m_model.scale = {3.0f, 1.5f, 3.0f };
+
+        m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntity(testSmoothVase.getEntityId());
+        auto& testSmoothVaseProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.getWriteableDataReference(testSmoothVase.getEntityId());
+        testSmoothVaseProperties.m_fragmentTextures[0].m_texture = nullptr;
+        testSmoothVaseProperties.m_fragmentTextures[0].m_sampler = nullptr;
+
         testSmoothVase.enableEntity();
+
 
         // Load the floor object model from the file
         aeModel = AeModel::createModelFromFile(m_aeDevice, "assets_NOTPRODUCTION/models/TEMP_quad.obj");
@@ -95,7 +108,14 @@ namespace ae {
         testFloor.m_worldPosition = {0.0f, 0.5f, 0.0f };
         testFloor.m_model.m_model = aeModel;
         testFloor.m_model.scale = {3.0f, 1.0f, 3.0f };
+
+        m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntity(testFloor.getEntityId());
+        auto& testFloorProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.getWriteableDataReference(testFloor.getEntityId());
+        testFloorProperties.m_fragmentTextures[0].m_texture = nullptr;
+        testFloorProperties.m_fragmentTextures[0].m_sampler = nullptr;
+
         testFloor.enableEntity();
+
 
         // Load the viking object model from the file
         aeModel = AeModel::createModelFromFile(m_aeDevice, "assets_NOTPRODUCTION/models/TEMP_viking_room.obj");
@@ -108,7 +128,14 @@ namespace ae {
         vikingRoom.m_model.m_model = aeModel;
         vikingRoom.m_model.scale = {1.0f, 1.0f, 1.0f };
         vikingRoom.m_model.rotation = {0.25 * glm::two_pi<float>(), 0.75 * glm::two_pi<float>(), 0.5* glm::two_pi<float>()};
+
+        m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntity(vikingRoom.getEntityId());
+        auto& vikingRoomProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.getWriteableDataReference(vikingRoom.getEntityId());
+        vikingRoomProperties.m_fragmentTextures[0].m_texture = aeImage;
+        vikingRoomProperties.m_fragmentTextures[0].m_sampler = m_aeSamplers.getDefaultSampler();
+
         vikingRoom.enableEntity();
+
 
         // Load the leaf enemy object model from the file
         aeModel = AeModel::createModelFromFile(m_aeDevice, "assets/models/leaf_enemy_w_tongue.obj");
@@ -121,11 +148,14 @@ namespace ae {
         leafEnemy.m_model.m_model = aeModel;
         leafEnemy.m_model.scale = {0.5f, 0.5f, 0.5f };
         leafEnemy.m_model.rotation = {0.0 * glm::two_pi<float>(), 0.0 * glm::two_pi<float>(), 0.0* glm::two_pi<float>()};
+
         m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntity(leafEnemy.getEntityId());
         auto& leafEnemyMaterialProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.getWriteableDataReference(leafEnemy.getEntityId());
         leafEnemyMaterialProperties.m_fragmentTextures[0].m_texture = aeImage;
         leafEnemyMaterialProperties.m_fragmentTextures[0].m_sampler = m_aeSamplers.getDefaultSampler();
+
         leafEnemy.enableEntity();
+
 
         auto leafEnemy2 = GameObjectEntity(m_aeECS,m_gameComponents);
         leafEnemy2.m_worldPosition = {2.0f, 0.5f, 2.0f };
@@ -135,9 +165,11 @@ namespace ae {
         leafEnemy2.m_model.scale = {0.5f, 0.5f, 0.5f };
         leafEnemy2.m_model.rotation = {0.0 * glm::two_pi<float>(), 0.0 * glm::two_pi<float>(), 0.0* glm::two_pi<float>()};
         m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntity(leafEnemy2.getEntityId());
+
         auto& leafEnemyMaterialProperties2 = m_gameMaterials.m_simpleMaterial.m_materialComponent.getWriteableDataReference(leafEnemy2.getEntityId());
         leafEnemyMaterialProperties2.m_fragmentTextures[0].m_texture = aeImage;
         leafEnemyMaterialProperties2.m_fragmentTextures[0].m_sampler = m_aeSamplers.getDefaultSampler();
+
         leafEnemy2.enableEntity();
         //==============================================================================================================
 

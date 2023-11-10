@@ -53,8 +53,10 @@ namespace ae_ecs {
         /// Alerts the component manager that a specific entity uses a component and returns a reference to the location
         /// allocated in memory for the storage of the entities data.
         /// \param t_entityId The ID of the entity using the component.
-        void requiredByEntity(ecs_id t_entityId) {
+        T& requiredByEntity(ecs_id t_entityId) {
             m_componentManager.entityUsesComponent(t_entityId, m_componentId);
+
+            return getWriteableDataReference(t_entityId);
             // TODO: If stack type component allocate additional memory for the entity on the stack.
         };
 

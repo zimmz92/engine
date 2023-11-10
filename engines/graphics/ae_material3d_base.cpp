@@ -16,9 +16,7 @@ namespace ae {
     AeMaterial3DBase::AeMaterial3DBase(AeDevice &t_aeDevice,
                                VkRenderPass t_renderPass,
                                MaterialShaderFiles& t_materialShaderFiles,
-                               VkDescriptorSetLayout t_globalSetLayout,
-                               VkDescriptorSetLayout t_textureSetLayout,
-                               VkDescriptorSetLayout t_objectSetLayout)
+                               std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts)
             : m_aeDevice{t_aeDevice},
               m_materialShaderFiles{t_materialShaderFiles}{
 
@@ -26,7 +24,7 @@ namespace ae {
         this->m_materialID = materialIdCounter++;
 
         // Creates the pipeline layout accounting for the global layout and sets the m_pipelineLayout member variable.
-        createPipelineLayout(t_globalSetLayout, t_textureSetLayout, t_objectSetLayout);
+        createPipelineLayout(t_descriptorSetLayouts);
 
         // Creates a graphics pipeline for this render system and sets the m_aePipeline member variable.
         createPipeline(t_renderPass);
@@ -41,21 +39,13 @@ namespace ae {
 
 
     // Creates the pipeline layout for the point light render system.
-    void AeMaterial3DBase::createPipelineLayout(VkDescriptorSetLayout t_globalSetLayout,
-                                                VkDescriptorSetLayout t_textureSetLayout,
-                                                VkDescriptorSetLayout t_objectSetLayout) {
-
-
-        // Prepare the descriptor set layouts based on the global set layout for the device.
-        std::vector<VkDescriptorSetLayout> descriptorSetLayouts{t_globalSetLayout,
-                                                                t_textureSetLayout,
-                                                                t_objectSetLayout};
+    void AeMaterial3DBase::createPipelineLayout(std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts) {
 
         // Define the specific layout of the point light renderer.
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-        pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
-        pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
+        pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(t_descriptorSetLayouts.size());
+        pipelineLayoutInfo.pSetLayouts = t_descriptorSetLayouts.data();
 
         // Attempt to create the pipeline layout, if it cannot error out.
         if (vkCreatePipelineLayout(m_aeDevice.device(),
@@ -89,8 +79,15 @@ namespace ae {
                 m_materialShaderFiles.fragmentShaderFilepath,
                 m_materialShaderFiles.tessellationShaderFilepath,
                 m_materialShaderFiles.geometryShaderFilepath,
-                pipelineConfig,
-                m_materialID);
+                pipelineConfig);
+//        m_aePipeline = std::make_unique<AePipeline>(
+//                m_aeDevice,
+//                m_materialShaderFiles.vertexShaderFilepath,
+//                m_materialShaderFiles.fragmentShaderFilepath,
+//                m_materialShaderFiles.tessellationShaderFilepath,
+//                m_materialShaderFiles.geometryShaderFilepath,
+//                pipelineConfig,
+//                m_materialID);
     };
 
     material_id AeMaterial3DBase::getMaterialId(){

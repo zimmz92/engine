@@ -19,17 +19,13 @@ namespace ae {
                        VkRenderPass t_renderPass,
                        ae_ecs::AeECS& t_ecs,
                        MaterialShaderFiles& t_materialShaderFiles,
-                       VkDescriptorSetLayout t_globalSetLayout,
-                       VkDescriptorSetLayout t_textureSetLayout,
-                       VkDescriptorSetLayout t_objectSetLayout):
+                       std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts):
                 AeMaterial3D(t_aeDevice,
                              t_game_components,
                              t_renderPass,
                              t_ecs,
                              t_materialShaderFiles,
-                             t_globalSetLayout,
-                             t_textureSetLayout,
-                             t_objectSetLayout) {};
+                             t_descriptorSetLayouts) {};
         ~SimpleMaterial()=default;
     };
 
@@ -40,16 +36,14 @@ namespace ae {
                       GameComponents& t_game_components,
                       VkRenderPass t_renderPass,
                       ae_ecs::AeECS& t_ecs,
-                      VkDescriptorSetLayout t_globalSetLayout,
-                      VkDescriptorSetLayout t_textureSetLayout,
-                      VkDescriptorSetLayout t_objectSetLayout)
+                      std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts)
                 : m_ecs{t_ecs},
                   m_device{t_aeDevice},
                   m_game_components{t_game_components},
                   m_renderPass{t_renderPass},
-                  m_globalSetLayout{t_globalSetLayout},
-                  m_textureSetLayout{t_textureSetLayout},
-                  m_objectSetLayout{t_objectSetLayout}{
+                  m_descriptorSetLayouts{t_descriptorSetLayouts}{
+
+            // Add the simple material to the material list.
             m_materials.push_back(&m_simpleMaterial);
 
             // Check that the number of materials does not exceed the maximum number of allowed materials. The maximum
@@ -69,9 +63,7 @@ namespace ae {
         GameComponents& m_game_components;
         AeDevice& m_device;
         VkRenderPass m_renderPass;
-        VkDescriptorSetLayout m_globalSetLayout;
-        VkDescriptorSetLayout m_textureSetLayout;
-        VkDescriptorSetLayout m_objectSetLayout;
+        std::vector<VkDescriptorSetLayout>& m_descriptorSetLayouts;
         std::vector<AeMaterial3DBase*> m_materials;
 
         // Materials
@@ -84,8 +76,6 @@ namespace ae {
                                         m_renderPass,
                                         m_ecs,
                                         simpleMaterialShaderFiles,
-                                        m_globalSetLayout,
-                                        m_textureSetLayout,
-                                        m_objectSetLayout};
+                                        m_descriptorSetLayouts};
     };
 }

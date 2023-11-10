@@ -203,6 +203,7 @@ namespace ae {
         // TODO: Make this optional
 		deviceFeatures.samplerAnisotropy = VK_TRUE;
         deviceFeatures.multiDrawIndirect = VK_TRUE;
+        deviceFeatures.drawIndirectFirstInstance = VK_TRUE;
 
         // Create the device creation information.
 		VkDeviceCreateInfo createInfo{};
@@ -532,6 +533,7 @@ namespace ae {
 
             // Get the graphics device's format properties.
 			VkFormatProperties props;
+            //props.linearTilingFeatures = VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT;
 			vkGetPhysicalDeviceFormatProperties(m_physicalDevice, format, &props);
 
             // A linear tiling option

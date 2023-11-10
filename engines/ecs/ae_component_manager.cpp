@@ -66,38 +66,10 @@ namespace ae_ecs {
 
 	// Sets the entity component signature bit to indicate that the entity uses the component.
 	void AeComponentManager::entityUsesComponent(ecs_id t_entityId, ecs_id t_componentId) {
+
+        // Update the entities component signature to indicate that the entity now uses the component.
 		m_entityComponentSignatures[t_entityId].set(t_componentId);
 
-        // Search through systems to see if the system matches the new component signature of the entity. If the system
-        // uses the component check to see if that entity was already in its list of entities to update, if  not add it.
-        for (ecs_id systemId = 0; systemId < m_systemComponentSignatures.size(); systemId++) {
-
-            // Before changing the entities component signature search which systems the entity is compatible with
-            // currently.
-
-            // Need to isolate the entity component signature since the &= operator puts the result back into the
-            // left hand variable.
-            std::bitset<MAX_NUM_COMPONENTS + 1> entityComponentSignature = m_entityComponentSignatures[t_entityId];
-            if (m_systemComponentSignatures[systemId].operator==(
-                    entityComponentSignature.operator&=(m_systemComponentSignatures[systemId]))) {
-
-                // Check to ensure that the system also requires the component being removed. Only systems that require
-                // the component being removed should be impacted by the entity removing the specified component.
-                if(m_systemComponentSignatures[systemId].test(t_componentId)){
-
-                    // If the entity is currently already in the system's list of entities that have been updated and needs
-                    // to be acted upon it should be removed from that list since it no longer has one of the required
-                    // components to be compatible with that system.
-                    auto it = find(m_systemEntityUpdateSignatures[systemId].begin(),
-                                   m_systemEntityUpdateSignatures[systemId].end(),
-                                   t_entityId);
-
-                    if (it == m_systemEntityUpdateSignatures[systemId].end()) {
-                        m_systemEntityUpdateSignatures[systemId].push_back(t_entityId);
-                    }
-                }
-            };
-        };
 	};
 
 
@@ -230,10 +202,11 @@ namespace ae_ecs {
 
         // Get a systemComponent and systemEntity signature for the system
         m_systemComponentSignatures[t_systemId] = {0};
-        setSystemComponentSignature(t_systemId,MAX_NUM_COMPONENTS);
+        m_systemComponentSignatures[t_systemId].set(MAX_NUM_COMPONENTS);
 
         // Get a systemEntityUpdate signature for the system.
         m_systemEntityUpdateSignatures[t_systemId] = {};
+        m_systemEntityDestroyedSignatures[t_systemId] = {};
     };
 
 

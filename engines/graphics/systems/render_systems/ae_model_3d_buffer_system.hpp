@@ -28,9 +28,6 @@ namespace ae {
         /// Destructor of the SimpleRenderSystem
         ~AeModel3DBufferSystem();
 
-        /// Setup the SimpleRenderSystem, this is handled by the RendererSystem.
-        void setupSystem(uint64_t t_frameIndex);
-
         /// DO NOT CALL! This is not used by this system.
         void setupSystem() override {
             throw std::runtime_error("This is the incorrect execute function for the PointLightRenderSystem and should "

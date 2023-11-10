@@ -247,7 +247,8 @@ namespace ae {
                     // Check if the object has a texture. If not set it such that the model is rendered using only its
                     // vertex colors.
                     if(t_shaderTextures[i].m_texture == nullptr){
-                        t_entity3DSSBOData[t_entitySSBOIndex].textureIndex[m_material.getMaterialId()][t_entityTextureIndex] = MAX_TEXTURES + 1;
+                        //t_entity3DSSBOData[t_entitySSBOIndex].textureIndex[m_material.getMaterialId()][t_entityTextureIndex] = MAX_TEXTURES + 1;
+                        t_entity3DSSBOData[t_entitySSBOIndex].textureIndex = MAX_TEXTURES + 1;
                         t_entityTextureIndex++;
                         continue;
                     }
@@ -271,7 +272,8 @@ namespace ae {
                                                  ImageBufferInfo(newImageIndex,t_entityId,m_material.getMaterialId())});
 
                         // Set the texture information in the entities SSBO object.
-                        t_entity3DSSBOData[t_entitySSBOIndex].textureIndex[m_material.getMaterialId()][t_entityTextureIndex] = newImageIndex;
+                        //t_entity3DSSBOData[t_entitySSBOIndex].textureIndex[m_material.getMaterialId()][t_entityTextureIndex] = newImageIndex;
+                        t_entity3DSSBOData[t_entitySSBOIndex].textureIndex = newImageIndex;
 
                     } else{
 
@@ -295,7 +297,8 @@ namespace ae {
                         };
 
                         // Since the image was already in the image buffer, update the entities SSBO index data accordingly.
-                        t_entity3DSSBOData[t_entitySSBOIndex].textureIndex[m_material.getMaterialId()][t_entityTextureIndex] = imageSearchIterator->second.m_imageBufferIndex;
+                        //t_entity3DSSBOData[t_entitySSBOIndex].textureIndex[m_material.getMaterialId()][t_entityTextureIndex] = imageSearchIterator->second.m_imageBufferIndex;
+                        t_entity3DSSBOData[t_entitySSBOIndex].textureIndex = imageSearchIterator->second.m_imageBufferIndex;
                     };
                 };
             };
@@ -303,15 +306,11 @@ namespace ae {
             // Set up the system prior to execution. Currently not used.
             void executeSystem(VkCommandBuffer& t_commandBuffer,
                                VkBuffer t_drawIndirectBuffer,
-                               VkDescriptorSet t_globalDescriptorSet,
-                               VkDescriptorSet t_textureDescriptorSet,
-                               VkDescriptorSet t_objectDescriptorSet) {
+                               std::vector<VkDescriptorSet>& t_descriptorSets,
+                               ecs_id test) {
 
+                // Bind this material's pipeline to the command buffer.
                 m_material.bindPipeline(t_commandBuffer);
-
-                VkDescriptorSet descriptorSetsToBind[] = {t_globalDescriptorSet,
-                                                          t_textureDescriptorSet,
-                                                          t_objectDescriptorSet};
 
                 // Bind the descriptor sets to the command buffer.
                 vkCmdBindDescriptorSets(
@@ -319,22 +318,28 @@ namespace ae {
                         VK_PIPELINE_BIND_POINT_GRAPHICS,
                         m_material.getPipelineLayout(),
                         0,
-                        3,
-                        descriptorSetsToBind,
+                        static_cast<uint32_t>(t_descriptorSets.size()),
+                        t_descriptorSets.data(),
                         0,
                         nullptr);
+
+                // Initialize the index into the
+                uint64_t indirectBufferIndex = m_drawIndirectCommandBufferIndex;
 
                 // Loop through each of the unique models
                 for(const auto& model : m_uniqueModelMap){
 
+                    // Bind the model to the pipeline.
                     model.first->bind(t_commandBuffer);
 
-                    VkDeviceSize indirect_offset = m_drawIndirectCommandBufferIndex * sizeof(VkDrawIndirectCommand);
-                    uint32_t draw_stride = sizeof(VkDrawIndirectCommand);
+                    // Calculate the offset value.
+                    VkDeviceSize indirect_offset = indirectBufferIndex * sizeof(VkDrawIndexedIndirectCommand);
 
-                    //execute the draw command buffer on each section as defined by the array of draws
-                    vkCmdDrawIndirect(t_commandBuffer, t_drawIndirectBuffer, indirect_offset, model.second.size(),draw_stride);
+                    // Draw all instances of the model with this material.
+                    vkCmdDrawIndexedIndirect(t_commandBuffer, t_drawIndirectBuffer, indirect_offset, model.second.size(), DRAW_INDEXED_INDIRECT_STRING);
 
+                    // Increment the offset by the number of entities drawn that had the current model.
+                    indirectBufferIndex += model.second.size();
                 }
             };
 
@@ -381,17 +386,13 @@ namespace ae {
                               VkRenderPass t_renderPass,
                               ae_ecs::AeECS& t_ecs,
                               MaterialShaderFiles& t_materialShaderFiles,
-                              VkDescriptorSetLayout t_globalSetLayout,
-                              VkDescriptorSetLayout t_textureSetLayout,
-                              VkDescriptorSetLayout t_objectSetLayout) :
+                              std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts) :
                 m_ecs{t_ecs},
                 m_gameComponents{t_game_components},
                 AeMaterial3DBase(t_aeDevice,
                                  t_renderPass,
                                  t_materialShaderFiles,
-                                 t_globalSetLayout,
-                                 t_textureSetLayout,
-                                 t_objectSetLayout) {
+                                 t_descriptorSetLayouts) {
         };
 
         /// Destructor of the SimpleRenderSystem
@@ -399,15 +400,13 @@ namespace ae {
 
         void executeSystem(VkCommandBuffer& t_commandBuffer,
                            VkBuffer t_drawIndirectBuffer,
-                           VkDescriptorSet t_globalDescriptorSet,
-                           VkDescriptorSet t_textureDescriptorSet,
-                           VkDescriptorSet t_objectDescriptorSet) override {
+                           std::vector<VkDescriptorSet>& t_descriptorSets,
+                           ecs_id test) override {
 
             m_materialSystem.executeSystem(t_commandBuffer,
                                            t_drawIndirectBuffer,
-                                           t_globalDescriptorSet,
-                                           t_textureDescriptorSet,
-                                           t_objectDescriptorSet);
+                                           t_descriptorSets,
+                                           test);
         };
 
         const std::vector<VkDrawIndexedIndirectCommand>& updateMaterialEntities(std::vector<Entity3DSSBOData>& t_entity3DSSBOData,
