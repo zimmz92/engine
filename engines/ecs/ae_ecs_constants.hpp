@@ -4,7 +4,7 @@
 
 // These constants must come before the includes to ensure that they are available when compiling the included files below
 #define MAX_NUM_COMPONENTS 32
-#define MAX_NUM_ENTITIES 1024
+#define MAX_NUM_ENTITIES 16384
 #define MAX_NUM_SYSTEMS 32
 
 #pragma once

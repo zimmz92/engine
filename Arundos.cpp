@@ -139,22 +139,28 @@ namespace ae {
 
         // Load the leaf enemy object model from the file
         aeModel = AeModel::createModelFromFile(m_aeDevice, "assets/models/leaf_enemy_w_tongue.obj");
-        aeImage = AeImage::createModelFromFile(m_aeDevice,"assets/models/leaf_enemy_body_w_tongue.png");
-        // ECS version of the floor
-        auto leafEnemy = GameObjectEntity(m_aeECS,m_gameComponents);
-        leafEnemy.m_worldPosition = {2.0f, 0.5f, 1.0f };
-        leafEnemy.m_model.m_texture = aeImage;
-        leafEnemy.m_model.m_sampler = m_aeSamplers.getDefaultSampler();
-        leafEnemy.m_model.m_model = aeModel;
-        leafEnemy.m_model.scale = {0.5f, 0.5f, 0.5f };
-        leafEnemy.m_model.rotation = {0.0 * glm::two_pi<float>(), 0.0 * glm::two_pi<float>(), 0.0* glm::two_pi<float>()};
+        aeImage = AeImage::createModelFromFile(m_aeDevice, "assets/models/leaf_enemy_body_w_tongue.png");
 
-        m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntity(leafEnemy.getEntityId());
-        auto& leafEnemyMaterialProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.getWriteableDataReference(leafEnemy.getEntityId());
-        leafEnemyMaterialProperties.m_fragmentTextures[0].m_texture = aeImage;
-        leafEnemyMaterialProperties.m_fragmentTextures[0].m_sampler = m_aeSamplers.getDefaultSampler();
+        for(int i = 0; i<50; i++) {
+            for(int j=0; j<50; j++) {
+                auto leafEnemy = GameObjectEntity(m_aeECS, m_gameComponents);
+                leafEnemy.m_worldPosition = {2.0f+ (1.0f*(float)i), 0.5f, 1.0f +(1.0f*(float)j)};
+                leafEnemy.m_model.m_texture = aeImage;
+                leafEnemy.m_model.m_sampler = m_aeSamplers.getDefaultSampler();
+                leafEnemy.m_model.m_model = aeModel;
+                leafEnemy.m_model.scale = {0.5f , 0.5f, 0.5f};
+                leafEnemy.m_model.rotation = {0.0 * glm::two_pi<float>(), 0.0 * glm::two_pi<float>(),
+                                              0.0 * glm::two_pi<float>()};
 
-        leafEnemy.enableEntity();
+                m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntity(leafEnemy.getEntityId());
+                auto &leafEnemyMaterialProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.getWriteableDataReference(
+                        leafEnemy.getEntityId());
+                leafEnemyMaterialProperties.m_fragmentTextures[0].m_texture = aeImage;
+                leafEnemyMaterialProperties.m_fragmentTextures[0].m_sampler = m_aeSamplers.getDefaultSampler();
+
+                leafEnemy.enableEntity();
+            }
+        }
 
 
         auto leafEnemy2 = GameObjectEntity(m_aeECS,m_gameComponents);

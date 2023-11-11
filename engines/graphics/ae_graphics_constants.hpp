@@ -22,7 +22,7 @@ namespace ae {
     static constexpr int MAX_TEXTURES = 8;
     static constexpr int MAX_TEXTURES_PER_MATERIAL = 10;
     static constexpr int MAX_MATERIALS = 20;
-    static constexpr int MAX_OBJECTS = 20;
+    static constexpr int MAX_OBJECTS = 16384;
 
     static constexpr uint32_t DRAW_INDEXED_INDIRECT_STRING = sizeof(VkDrawIndexedIndirectCommand);
 
