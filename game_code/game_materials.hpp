@@ -45,6 +45,7 @@ namespace ae {
 
             // Add the simple material to the material list.
             m_materials.push_back(&m_simpleMaterial);
+            m_materials.push_back(&m_newMaterial);
 
             // Check that the number of materials does not exceed the maximum number of allowed materials. The maximum
             // can be changed.
@@ -56,7 +57,7 @@ namespace ae {
             }
         };
 
-        ~GameMaterials(){};
+        ~GameMaterials()= default;
 
         // Variables to easily declare new materials
         ae_ecs::AeECS& m_ecs;
@@ -72,6 +73,13 @@ namespace ae {
                                                          "Not Used",
                                                          "Not Used"};
         SimpleMaterial m_simpleMaterial{m_device,
+                                        m_game_components,
+                                        m_renderPass,
+                                        m_ecs,
+                                        simpleMaterialShaderFiles,
+                                        m_descriptorSetLayouts};
+
+        SimpleMaterial m_newMaterial{m_device,
                                         m_game_components,
                                         m_renderPass,
                                         m_ecs,

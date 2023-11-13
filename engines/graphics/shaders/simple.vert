@@ -16,7 +16,7 @@ struct PointLight{
     vec4 color;
 };
 
-//layout (constant_id = 0) const int MATERIAL_ID = 0;
+layout (constant_id = 0) const int MATERIAL_ID = 0;
 
 layout(set = 0, binding = 0) uniform GlobalUbo {
     mat4 projection;
@@ -31,7 +31,7 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
 struct ObjectData{
 	mat4 modelMatrix;
 	mat4 normalMatrix;
-	uint textureIndex;
+	uint textureIndex[20][10];
 };
 
 layout(set = 2, binding = 0) readonly buffer ObjectBuffer{

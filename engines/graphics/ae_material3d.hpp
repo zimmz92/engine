@@ -247,8 +247,8 @@ namespace ae {
                     // Check if the object has a texture. If not set it such that the model is rendered using only its
                     // vertex colors.
                     if(t_shaderTextures[i].m_texture == nullptr){
-                        //t_entity3DSSBOData[t_entitySSBOIndex].textureIndex[m_material.getMaterialId()][t_entityTextureIndex] = MAX_TEXTURES + 1;
-                        t_entity3DSSBOData[t_entitySSBOIndex].textureIndex = MAX_TEXTURES + 1;
+                        t_entity3DSSBOData[t_entitySSBOIndex].textureIndex[m_material.getMaterialId()][t_entityTextureIndex] = MAX_TEXTURES + 1;
+                        //t_entity3DSSBOData[t_entitySSBOIndex].textureIndex = MAX_TEXTURES + 1;
                         t_entityTextureIndex++;
                         continue;
                     }
@@ -272,8 +272,8 @@ namespace ae {
                                                  ImageBufferInfo(newImageIndex,t_entityId,m_material.getMaterialId())});
 
                         // Set the texture information in the entities SSBO object.
-                        //t_entity3DSSBOData[t_entitySSBOIndex].textureIndex[m_material.getMaterialId()][t_entityTextureIndex] = newImageIndex;
-                        t_entity3DSSBOData[t_entitySSBOIndex].textureIndex = newImageIndex;
+                        t_entity3DSSBOData[t_entitySSBOIndex].textureIndex[m_material.getMaterialId()][t_entityTextureIndex] = newImageIndex;
+                        //t_entity3DSSBOData[t_entitySSBOIndex].textureIndex = newImageIndex;
 
                     } else{
 
@@ -297,8 +297,8 @@ namespace ae {
                         };
 
                         // Since the image was already in the image buffer, update the entities SSBO index data accordingly.
-                        //t_entity3DSSBOData[t_entitySSBOIndex].textureIndex[m_material.getMaterialId()][t_entityTextureIndex] = imageSearchIterator->second.m_imageBufferIndex;
-                        t_entity3DSSBOData[t_entitySSBOIndex].textureIndex = imageSearchIterator->second.m_imageBufferIndex;
+                        t_entity3DSSBOData[t_entitySSBOIndex].textureIndex[m_material.getMaterialId()][t_entityTextureIndex] = imageSearchIterator->second.m_imageBufferIndex;
+                        //t_entity3DSSBOData[t_entitySSBOIndex].textureIndex = imageSearchIterator->second.m_imageBufferIndex;
                     };
                 };
             };

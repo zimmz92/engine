@@ -29,23 +29,6 @@ namespace ae {
     static constexpr uint32_t DRAW_INDEXED_INDIRECT_STRING = sizeof(VkDrawIndexedIndirectCommand);
 
     /// A structure for the 3D SSBO Entity Data.
-//    struct Entity3DSSBOData{
-//
-//        // TODO: Make angles Quaternion
-//
-//        /// Matrix corresponds to WorldPosition * Ry * Rx * Rz * Scale
-//        /// Rotations correspond to Tait-bryan angles of Y(1), X(2), Z(3)
-//        /// https://en.wikipedia.org/wiki/Euler_angles#Rotation_matrix
-//        alignas(16) glm::mat4 modelMatrix{ 1.0f };
-//
-//        /// Rotations correspond to Tait-bryan angles of Y(1), X(2), Z(3)
-//        /// https://en.wikipedia.org/wiki/Euler_angles#Rotation_matrix
-//        alignas(16) glm::mat4 normalMatrix{ 1.0f };
-//
-//        /// The index of the objects texture;
-//        alignas(1024) uint32_t textureIndex[MAX_MATERIALS][MAX_TEXTURES_PER_MATERIAL]{};
-//    };
-
     struct Entity3DSSBOData{
 
         // TODO: Make angles Quaternion
@@ -60,7 +43,7 @@ namespace ae {
         alignas(16) glm::mat4 normalMatrix{ 1.0f };
 
         /// The index of the objects texture;
-        alignas(4) uint32_t textureIndex = MAX_TEXTURES + 1;
+        alignas(32) uint32_t textureIndex[MAX_MATERIALS][MAX_TEXTURES_PER_MATERIAL]{};
     };
 
     /// A structure for tracking relevant image buffer information.

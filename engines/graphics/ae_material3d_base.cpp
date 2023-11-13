@@ -73,21 +73,21 @@ namespace ae {
         pipelineConfig.pipelineLayout = m_pipelineLayout;
 
         // Create the point light render system pipeline.
-        m_aePipeline = std::make_unique<AePipeline>(
-                m_aeDevice,
-                m_materialShaderFiles.vertexShaderFilepath,
-                m_materialShaderFiles.fragmentShaderFilepath,
-                m_materialShaderFiles.tessellationShaderFilepath,
-                m_materialShaderFiles.geometryShaderFilepath,
-                pipelineConfig);
 //        m_aePipeline = std::make_unique<AePipeline>(
 //                m_aeDevice,
 //                m_materialShaderFiles.vertexShaderFilepath,
 //                m_materialShaderFiles.fragmentShaderFilepath,
 //                m_materialShaderFiles.tessellationShaderFilepath,
 //                m_materialShaderFiles.geometryShaderFilepath,
-//                pipelineConfig,
-//                m_materialID);
+//                pipelineConfig);
+        m_aePipeline = std::make_unique<AePipeline>(
+                m_aeDevice,
+                m_materialShaderFiles.vertexShaderFilepath,
+                m_materialShaderFiles.fragmentShaderFilepath,
+                m_materialShaderFiles.tessellationShaderFilepath,
+                m_materialShaderFiles.geometryShaderFilepath,
+                pipelineConfig,
+                m_materialID);
     };
 
     material_id AeMaterial3DBase::getMaterialId(){
