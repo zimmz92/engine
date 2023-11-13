@@ -41,7 +41,7 @@ namespace ae {
     // Creates the pipeline layout for the point light render system.
     void AeMaterial3DLayerBase::createPipelineLayout(std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts) {
 
-        // Define the specific layout of the point light renderer.
+        // Define the layout of the material layer.
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
         pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(t_descriptorSetLayouts.size());
@@ -59,7 +59,7 @@ namespace ae {
     };
 
 
-    // Creates the pipeline for the point light render system.
+    // Creates the pipeline.
     void AeMaterial3DLayerBase::createPipeline(VkRenderPass t_renderPass) {
 
         // Ensure the pipeline layout has already been created, cannot create a pipeline otherwise.
@@ -72,14 +72,7 @@ namespace ae {
         pipelineConfig.renderPass = t_renderPass;
         pipelineConfig.pipelineLayout = m_pipelineLayout;
 
-        // Create the point light render system pipeline.
-//        m_aePipeline = std::make_unique<AePipeline>(
-//                m_aeDevice,
-//                m_materialShaderFiles.vertexShaderFilepath,
-//                m_materialShaderFiles.fragmentShaderFilepath,
-//                m_materialShaderFiles.tessellationShaderFilepath,
-//                m_materialShaderFiles.geometryShaderFilepath,
-//                pipelineConfig);
+        // Create the material layer pipeline.
         m_pipeline = std::make_unique<AePipeline>(
                 m_aeDevice,
                 m_materialShaderFiles.vertexShaderFilepath,

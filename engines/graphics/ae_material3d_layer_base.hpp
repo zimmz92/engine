@@ -76,7 +76,7 @@ namespace ae {
         /// The graphics device this render system will be using.
         AeDevice& m_aeDevice;
 
-        // The name of the material.
+        /// The name of the material.
         std::string m_materialName="JON-DOE";
 
         /// The layout of this render system's pipeline.
