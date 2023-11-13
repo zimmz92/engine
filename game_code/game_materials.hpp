@@ -5,14 +5,14 @@
 #pragma once
 
 #include "ae_ecs_include.hpp"
-#include "ae_material3d.hpp"
+#include "ae_material3d_layer.hpp"
 #include "ae_image.hpp"
 
 #include <memory>
 
 namespace ae {
 
-    class SimpleMaterial : public AeMaterial3D<0,1,0,0>{
+    class SimpleMaterial : public AeMaterial3DLayer<0,1,0,0>{
     public:
         SimpleMaterial(AeDevice &t_aeDevice,
                        GameComponents& t_game_components,
@@ -20,12 +20,12 @@ namespace ae {
                        ae_ecs::AeECS& t_ecs,
                        MaterialShaderFiles& t_materialShaderFiles,
                        std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts):
-                AeMaterial3D(t_aeDevice,
-                             t_game_components,
-                             t_renderPass,
-                             t_ecs,
-                             t_materialShaderFiles,
-                             t_descriptorSetLayouts) {};
+                AeMaterial3DLayer(t_aeDevice,
+                                  t_game_components,
+                                  t_renderPass,
+                                  t_ecs,
+                                  t_materialShaderFiles,
+                                  t_descriptorSetLayouts) {};
         ~SimpleMaterial()=default;
     };
 
@@ -65,7 +65,7 @@ namespace ae {
         AeDevice& m_device;
         VkRenderPass m_renderPass;
         std::vector<VkDescriptorSetLayout>& m_descriptorSetLayouts;
-        std::vector<AeMaterial3DBase*> m_materials;
+        std::vector<AeMaterial3DLayerBase*> m_materials;
 
         // Materials
         MaterialShaderFiles simpleMaterialShaderFiles = {"engines/graphics/shaders/simple.vert.spv",

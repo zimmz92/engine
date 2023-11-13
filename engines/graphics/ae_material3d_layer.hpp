@@ -6,7 +6,7 @@
 #include "ae_ecs_include.hpp"
 #include "ae_pipeline.hpp"
 #include "ae_model.hpp"
-#include "ae_material3d_base.hpp"
+#include "ae_material3d_layer_base.hpp"
 #include "game_components.hpp"
 #include "pre_allocated_stack.hpp"
 
@@ -45,7 +45,7 @@ namespace ae {
     };
 
     template <uint32_t numVertTexts, uint32_t numFragTexts, uint32_t numTessTexts, uint32_t numGeometryTexts>
-    class AeMaterial3D : public AeMaterial3DBase{
+    class AeMaterial3DLayer : public AeMaterial3DLayerBase{
         static_assert(numVertTexts+numFragTexts+numTessTexts+numGeometryTexts<=MAX_TEXTURES_PER_MATERIAL,
                       "The total number of textures specified to create a material is greater than the maximum allowed number "
                       "of textures per material, MAX_TEXTURES_PER_MATERIAL.");
@@ -55,27 +55,27 @@ namespace ae {
 
         /// This component is used to allow entities to store specific information required for this material to
         /// correctly function.
-        class MaterialComponent : public ae_ecs::AeComponent<T>{
+        class MaterialLayerComponent : public ae_ecs::AeComponent<T>{
         public:
             /// The MaterialComponent constructor uses the AeComponent constructor with no additions.
-            explicit MaterialComponent(ae_ecs::AeECS& t_ecs) : ae_ecs::AeComponent<T>(t_ecs)  {
+            explicit MaterialLayerComponent(ae_ecs::AeECS& t_ecs) : ae_ecs::AeComponent<T>(t_ecs)  {
             };
 
             /// The destructor of the MaterialComponent class. The MaterialComponent destructor
             /// uses the AeComponent constructor with no additions.
-            ~MaterialComponent() = default;
+            ~MaterialLayerComponent() = default;
         };
 
 
         /// This system is used to organized all the models and entity SSBO index data that use this material.
-        class MaterialSystem : public ae_ecs::AeSystem<MaterialSystem>{
+        class MaterialLayerSystem : public ae_ecs::AeSystem<MaterialLayerSystem>{
         public:
             // Constructor implementation
-            MaterialSystem(ae_ecs::AeECS& t_ecs,
-                           GameComponents& t_game_components,
-                           MaterialComponent& t_materialComponent,
-                           AeMaterial3D<numVertTexts,numFragTexts,numTessTexts,numGeometryTexts>& t_material) :
-                           ae_ecs::AeSystem<MaterialSystem>(t_ecs),
+            MaterialLayerSystem(ae_ecs::AeECS& t_ecs,
+                                GameComponents& t_game_components,
+                                MaterialLayerComponent& t_materialComponent,
+                                AeMaterial3DLayer<numVertTexts,numFragTexts,numTessTexts,numGeometryTexts>& t_material) :
+                           ae_ecs::AeSystem<MaterialLayerSystem>(t_ecs),
                                    m_modelComponent{t_game_components.modelComponent},
                                    m_materialComponent{t_materialComponent},
                                    m_worldPositionComponent{t_game_components.worldPositionComponent},
@@ -93,7 +93,7 @@ namespace ae {
             };
 
             // Destructor implementation
-            ~MaterialSystem() = default;
+            ~MaterialLayerSystem() = default;
 
             // Update the time difference between the current execution and the previous.
             const std::vector<VkDrawIndexedIndirectCommand>& updateMaterialEntities(std::vector<Entity3DSSBOData>& t_entity3DSSBOData,
@@ -358,10 +358,10 @@ namespace ae {
             WorldPositionComponent& m_worldPositionComponent;
 
             /// A reference to the material component this system is associated with.
-            MaterialComponent& m_materialComponent;
+            MaterialLayerComponent& m_materialComponent;
 
             /// A reference to the material that this system supports.
-            AeMaterial3D<numVertTexts,numFragTexts,numTessTexts,numGeometryTexts>& m_material;
+            AeMaterial3DLayer<numVertTexts,numFragTexts,numTessTexts,numGeometryTexts>& m_material;
 
             /// A vector to track unique models, and a list of which entities use them.
             std::map<std::shared_ptr<AeModel>,std::map<ecs_id,VkDrawIndexedIndirectCommand>> m_uniqueModelMap;
@@ -381,22 +381,22 @@ namespace ae {
 
         /// Constructor of the SimpleRenderSystem
         /// \param t_game_components The game components available that this system may require.
-        explicit AeMaterial3D(AeDevice &t_aeDevice,
-                              GameComponents& t_game_components,
-                              VkRenderPass t_renderPass,
-                              ae_ecs::AeECS& t_ecs,
-                              MaterialShaderFiles& t_materialShaderFiles,
-                              std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts) :
+        explicit AeMaterial3DLayer(AeDevice &t_aeDevice,
+                                   GameComponents& t_game_components,
+                                   VkRenderPass t_renderPass,
+                                   ae_ecs::AeECS& t_ecs,
+                                   MaterialShaderFiles& t_materialShaderFiles,
+                                   std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts) :
                 m_ecs{t_ecs},
                 m_gameComponents{t_game_components},
-                AeMaterial3DBase(t_aeDevice,
-                                 t_renderPass,
-                                 t_materialShaderFiles,
-                                 t_descriptorSetLayouts) {
+                AeMaterial3DLayerBase(t_aeDevice,
+                                      t_renderPass,
+                                      t_materialShaderFiles,
+                                      t_descriptorSetLayouts) {
         };
 
         /// Destructor of the SimpleRenderSystem
-        ~AeMaterial3D()= default;
+        ~AeMaterial3DLayer()= default;
 
         void executeSystem(VkCommandBuffer& t_commandBuffer,
                            VkBuffer t_drawIndirectBuffer,
@@ -438,13 +438,13 @@ namespace ae {
     public:
         /// Create a component for the material to track entities that use the material and specify
         /// textures/properties specific to that entity.
-        MaterialComponent m_materialComponent{m_ecs};
+        MaterialLayerComponent m_materialComponent{m_ecs};
 
     private:
 
         /// Create a system to deal with organizing the models and entity information the material is responsible for
         /// rendering.
-        MaterialSystem m_materialSystem{m_ecs,m_gameComponents,m_materialComponent,*this};
+        MaterialLayerSystem m_materialSystem{m_ecs, m_gameComponents, m_materialComponent, *this};
 
 
     protected:

@@ -1,6 +1,6 @@
 /// \file ae_material3d.cpp
 /// The ## class is implemented.
-#include "ae_material3d.hpp"
+#include "ae_material3d_layer_base.hpp"
 
 // dependencies
 
@@ -13,10 +13,10 @@
 namespace ae {
 
     // Constructor implementation
-    AeMaterial3DBase::AeMaterial3DBase(AeDevice &t_aeDevice,
-                               VkRenderPass t_renderPass,
-                               MaterialShaderFiles& t_materialShaderFiles,
-                               std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts)
+    AeMaterial3DLayerBase::AeMaterial3DLayerBase(AeDevice &t_aeDevice,
+                                                 VkRenderPass t_renderPass,
+                                                 MaterialShaderFiles& t_materialShaderFiles,
+                                                 std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts)
             : m_aeDevice{t_aeDevice},
               m_materialShaderFiles{t_materialShaderFiles}{
 
@@ -33,13 +33,13 @@ namespace ae {
 
 
     // Destructor implementation
-    AeMaterial3DBase::~AeMaterial3DBase() {
+    AeMaterial3DLayerBase::~AeMaterial3DLayerBase() {
         vkDestroyPipelineLayout(m_aeDevice.device(), m_pipelineLayout, nullptr);
     };
 
 
     // Creates the pipeline layout for the point light render system.
-    void AeMaterial3DBase::createPipelineLayout(std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts) {
+    void AeMaterial3DLayerBase::createPipelineLayout(std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts) {
 
         // Define the specific layout of the point light renderer.
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
@@ -60,7 +60,7 @@ namespace ae {
 
 
     // Creates the pipeline for the point light render system.
-    void AeMaterial3DBase::createPipeline(VkRenderPass t_renderPass) {
+    void AeMaterial3DLayerBase::createPipeline(VkRenderPass t_renderPass) {
 
         // Ensure the pipeline layout has already been created, cannot create a pipeline otherwise.
         assert(m_pipelineLayout != nullptr &&
@@ -80,7 +80,7 @@ namespace ae {
 //                m_materialShaderFiles.tessellationShaderFilepath,
 //                m_materialShaderFiles.geometryShaderFilepath,
 //                pipelineConfig);
-        m_aePipeline = std::make_unique<AePipeline>(
+        m_pipeline = std::make_unique<AePipeline>(
                 m_aeDevice,
                 m_materialShaderFiles.vertexShaderFilepath,
                 m_materialShaderFiles.fragmentShaderFilepath,
@@ -90,7 +90,7 @@ namespace ae {
                 m_materialID);
     };
 
-    material_id AeMaterial3DBase::getMaterialId(){
+    material_id AeMaterial3DLayerBase::getMaterialId(){
         return m_materialID;
     };
 

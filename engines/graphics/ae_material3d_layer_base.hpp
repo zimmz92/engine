@@ -25,17 +25,17 @@ namespace ae {
         std::string geometryShaderFilepath =  "Not Used";
     };
 
-    class AeMaterial3DBase{
+    class AeMaterial3DLayerBase{
     public:
         /// Constructor of the SimpleRenderSystem
         /// \param t_game_components The game components available that this system may require.
-        explicit AeMaterial3DBase(AeDevice &t_aeDevice,
-                     VkRenderPass t_renderPass,
-                     MaterialShaderFiles& t_materialShaderFiles,
-                     std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts);
+        explicit AeMaterial3DLayerBase(AeDevice &t_aeDevice,
+                                       VkRenderPass t_renderPass,
+                                       MaterialShaderFiles& t_materialShaderFiles,
+                                       std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts);
 
         /// Destructor of the SimpleRenderSystem
-        ~AeMaterial3DBase();
+        ~AeMaterial3DLayerBase();
 
         virtual void executeSystem(VkCommandBuffer& t_commandBuffer,
                                    VkBuffer t_drawIndirectBuffer,
@@ -54,7 +54,7 @@ namespace ae {
         material_id getMaterialId();
 
         void bindPipeline(VkCommandBuffer& t_commandBuffer){
-            m_aePipeline->bind(t_commandBuffer);
+            m_pipeline->bind(t_commandBuffer);
         }
 
         VkPipelineLayout& getPipelineLayout(){
@@ -76,11 +76,14 @@ namespace ae {
         /// The graphics device this render system will be using.
         AeDevice& m_aeDevice;
 
+        // The name of the material.
+        std::string m_materialName="JON-DOE";
+
         /// The layout of this render system's pipeline.
         VkPipelineLayout m_pipelineLayout;
 
         /// The pipeline created for this render system.
-        std::unique_ptr<AePipeline> m_aePipeline;
+        std::unique_ptr<AePipeline> m_pipeline;
 
         /// A structure specifying the shader files this material uses.
         MaterialShaderFiles m_materialShaderFiles;
