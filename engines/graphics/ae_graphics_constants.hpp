@@ -11,18 +11,20 @@
 #include <unordered_set>
 #include <vulkan/vulkan_core.h>
 
+
+// If MAX_TEXTURES is changed here it also needs to be changed in the shaders!
+// TODO Make the shaders automatically update their values if this value is updated.v
+#define MAX_FRAMES_IN_FLIGHT 2
+#define MAX_TEXTURES 8
+#define MAX_TEXTURES_PER_MATERIAL 10
+#define MAX_MATERIALS 20
+
+// TODO Find out why making this bigger is segment faulting DarkMind! Trying to set it to 16384 causes segment fault.
+#define MAX_OBJECTS 4096
+
 namespace ae {
 
     using material_id = std::uint32_t;
-
-    static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
-
-    // If MAX_TEXTURES is changed here it also needs to be changed in the shaders!
-    // TODO Make the shaders automatically update their values if this value is updated.
-    static constexpr int MAX_TEXTURES = 8;
-    static constexpr int MAX_TEXTURES_PER_MATERIAL = 10;
-    static constexpr int MAX_MATERIALS = 20;
-    static constexpr int MAX_OBJECTS = 16384;
 
     static constexpr uint32_t DRAW_INDEXED_INDIRECT_STRING = sizeof(VkDrawIndexedIndirectCommand);
 
