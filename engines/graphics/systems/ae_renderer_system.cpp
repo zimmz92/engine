@@ -197,7 +197,7 @@ namespace ae {
             m_drawIndirectBuffers.push_back(std::make_unique<AeBuffer>(
                     m_aeDevice,
                     sizeof(VkDrawIndexedIndirectCommand),
-                    MAX_OBJECTS*MAX_MATERIALS,
+                    MAX_OBJECTS * MAX_3D_MATERIALS,
                     VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |  VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT,
                     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT));
 
@@ -312,7 +312,7 @@ namespace ae {
         // Create a list of the available material component IDs for quick reference when making/updating the model
         // matrix data.
         for(auto material : m_gameMaterials->m_materials){
-            m_materialComponentIds.push_back(material->getComponentId());
+            m_materialComponentIds.push_back(material->getMaterialLayerComponentId());
         };
 
 
@@ -403,17 +403,17 @@ namespace ae {
             // organize the model objects for each of the materials to use draw indirect.
             uint64_t drawIndirectCount = 0;
             //auto* frameDrawIndirectCommands  = static_cast<VkDrawIndexedIndirectCommand *>(m_drawIndirectBuffers[m_frameIndex]->getMappedMemory());
-            VkDrawIndexedIndirectCommand frameDrawIndirectCommands[MAX_OBJECTS*MAX_MATERIALS]  = {};
+            VkDrawIndexedIndirectCommand frameDrawIndirectCommands[MAX_OBJECTS * MAX_3D_MATERIALS]  = {};
             for(auto material : m_gameMaterials->m_materials){
                 // TODO: Much of this information does not change every cycle. Should pass the references in on material
                 //  creation.
                 const std::vector<VkDrawIndexedIndirectCommand>& materialCommands =
-                        material->updateMaterialEntities(m_object3DBufferData,
-                                                         m_object3DBufferEntityMap,
-                                                         m_imageBufferData,
-                                                         m_imageBufferEntityMaterialMap,
-                                                         m_imageBufferDataIndexStack,
-                                                         drawIndirectCount);
+                        material->updateMaterialLayerEntities(m_object3DBufferData,
+                                                              m_object3DBufferEntityMap,
+                                                              m_imageBufferData,
+                                                              m_imageBufferEntityMaterialMap,
+                                                              m_imageBufferDataIndexStack,
+                                                              drawIndirectCount);
                 for(auto command : materialCommands){
                     frameDrawIndirectCommands[drawIndirectCount] = command;
                     drawIndirectCount++;
@@ -439,8 +439,7 @@ namespace ae {
             for(auto material : m_gameMaterials->m_materials){
                 material->executeSystem(m_commandBuffer,
                                         m_drawIndirectBuffers[m_frameIndex]->getBuffer(),
-                                        m_frameDescriptorSets[m_frameIndex],
-                                        m_simpleRenderSystem->getSystemId());
+                                        m_frameDescriptorSets[m_frameIndex]);
             }
 
             // Call subservient render systems. Order matters here to maintain object transparencies.

@@ -83,7 +83,7 @@ namespace ae {
                 m_materialID);
     };
 
-    material_id AeMaterial3DLayerBase::getMaterialId(){
+    material_id AeMaterial3DLayerBase::getMaterialLayerId(){
         return m_materialID;
     };
 

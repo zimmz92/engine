@@ -46,7 +46,7 @@ namespace ae {
 
     template <uint32_t numVertTexts, uint32_t numFragTexts, uint32_t numTessTexts, uint32_t numGeometryTexts>
     class AeMaterial3DLayer : public AeMaterial3DLayerBase{
-        static_assert(numVertTexts+numFragTexts+numTessTexts+numGeometryTexts<=MAX_TEXTURES_PER_MATERIAL,
+        static_assert(numVertTexts+numFragTexts+numTessTexts+numGeometryTexts <= MAX_3D_MATERIAL_TEXTURES,
                       "The total number of textures specified to create a material is greater than the maximum allowed number "
                       "of textures per material, MAX_TEXTURES_PER_MATERIAL.");
         using T = MaterialTextures<numVertTexts,numFragTexts,numTessTexts,numGeometryTexts>;
@@ -247,7 +247,7 @@ namespace ae {
                     // Check if the object has a texture. If not set it such that the model is rendered using only its
                     // vertex colors.
                     if(t_shaderTextures[i].m_texture == nullptr){
-                        t_entity3DSSBOData[t_entitySSBOIndex].textureIndex[m_material.getMaterialId()][t_entityTextureIndex] = MAX_TEXTURES + 1;
+                        t_entity3DSSBOData[t_entitySSBOIndex].textureIndex[m_material.getMaterialLayerId()][t_entityTextureIndex] = MAX_TEXTURES + 1;
                         //t_entity3DSSBOData[t_entitySSBOIndex].textureIndex = MAX_TEXTURES + 1;
                         t_entityTextureIndex++;
                         continue;
@@ -269,10 +269,11 @@ namespace ae {
                         // Add the image and the entity/material relation into the map.
                         // TODO need to make this also account for the sampler used for the texture.....
                         t_imageBufferMap.insert({t_shaderTextures[i].m_texture,
-                                                 ImageBufferInfo(newImageIndex,t_entityId,m_material.getMaterialId())});
+                                                 ImageBufferInfo(newImageIndex,t_entityId,
+                                                                 m_material.getMaterialLayerId())});
 
                         // Set the texture information in the entities SSBO object.
-                        t_entity3DSSBOData[t_entitySSBOIndex].textureIndex[m_material.getMaterialId()][t_entityTextureIndex] = newImageIndex;
+                        t_entity3DSSBOData[t_entitySSBOIndex].textureIndex[m_material.getMaterialLayerId()][t_entityTextureIndex] = newImageIndex;
                         //t_entity3DSSBOData[t_entitySSBOIndex].textureIndex = newImageIndex;
 
                     } else{
@@ -283,21 +284,21 @@ namespace ae {
                                 m_entityMaterialMap.
                                 insert(std::pair<ecs_id,
                                        std::unordered_set<material_id>>(t_entityId,
-                                               m_material.
-                                               getMaterialId()));
+                                                                        m_material.
+                                                                                getMaterialLayerId()));
 
                         // Check to see if the insertion was successful.
                         if(!entityImageSearchIterator.second){
 
                             // If the insertion was not successful check to see if the material ID is already in the
                             // list if not add it.
-                            if (entityImageSearchIterator.first->second.find(m_material.getMaterialId()) == entityImageSearchIterator.first->second.end()){
-                                entityImageSearchIterator.first->second.insert(m_material.getMaterialId());
+                            if (entityImageSearchIterator.first->second.find(m_material.getMaterialLayerId()) == entityImageSearchIterator.first->second.end()){
+                                entityImageSearchIterator.first->second.insert(m_material.getMaterialLayerId());
                             };
                         };
 
                         // Since the image was already in the image buffer, update the entities SSBO index data accordingly.
-                        t_entity3DSSBOData[t_entitySSBOIndex].textureIndex[m_material.getMaterialId()][t_entityTextureIndex] = imageSearchIterator->second.m_imageBufferIndex;
+                        t_entity3DSSBOData[t_entitySSBOIndex].textureIndex[m_material.getMaterialLayerId()][t_entityTextureIndex] = imageSearchIterator->second.m_imageBufferIndex;
                         //t_entity3DSSBOData[t_entitySSBOIndex].textureIndex = imageSearchIterator->second.m_imageBufferIndex;
                     };
                 };
@@ -306,8 +307,7 @@ namespace ae {
             // Set up the system prior to execution. Currently not used.
             void executeSystem(VkCommandBuffer& t_commandBuffer,
                                VkBuffer t_drawIndirectBuffer,
-                               std::vector<VkDescriptorSet>& t_descriptorSets,
-                               ecs_id test) {
+                               std::vector<VkDescriptorSet>& t_descriptorSets) {
 
                 // Bind this material's pipeline to the command buffer.
                 m_material.bindPipeline(t_commandBuffer);
@@ -336,7 +336,7 @@ namespace ae {
                     VkDeviceSize indirect_offset = indirectBufferIndex * sizeof(VkDrawIndexedIndirectCommand);
 
                     // Draw all instances of the model with this material.
-                    vkCmdDrawIndexedIndirect(t_commandBuffer, t_drawIndirectBuffer, indirect_offset, model.second.size(), DRAW_INDEXED_INDIRECT_STRING);
+                    vkCmdDrawIndexedIndirect(t_commandBuffer, t_drawIndirectBuffer, indirect_offset, model.second.size(), DRAW_INDEXED_INDIRECT_COMMAND_SIZE);
 
                     // Increment the offset by the number of entities drawn that had the current model.
                     indirectBufferIndex += model.second.size();
@@ -400,21 +400,19 @@ namespace ae {
 
         void executeSystem(VkCommandBuffer& t_commandBuffer,
                            VkBuffer t_drawIndirectBuffer,
-                           std::vector<VkDescriptorSet>& t_descriptorSets,
-                           ecs_id test) override {
+                           std::vector<VkDescriptorSet>& t_descriptorSets) override {
 
             m_materialSystem.executeSystem(t_commandBuffer,
                                            t_drawIndirectBuffer,
-                                           t_descriptorSets,
-                                           test);
+                                           t_descriptorSets);
         };
 
-        const std::vector<VkDrawIndexedIndirectCommand>& updateMaterialEntities(std::vector<Entity3DSSBOData>& t_entity3DSSBOData,
-                                   std::map<ecs_id, uint32_t>& t_entity3DSSBOMap,
-                                   VkDescriptorImageInfo t_imageBuffer[MAX_TEXTURES],
-                                   std::map<std::shared_ptr<AeImage>,ImageBufferInfo>& t_imageBufferMap,
-                                   PreAllocatedStack<uint64_t,MAX_TEXTURES>& t_imageBufferStack,
-                                   uint64_t t_drawIndirectCommandBufferIndex) override {
+        const std::vector<VkDrawIndexedIndirectCommand>& updateMaterialLayerEntities(std::vector<Entity3DSSBOData>& t_entity3DSSBOData,
+                                                                                     std::map<ecs_id, uint32_t>& t_entity3DSSBOMap,
+                                                                                     VkDescriptorImageInfo t_imageBuffer[8],
+                                                                                     std::map<std::shared_ptr<AeImage>,ImageBufferInfo>& t_imageBufferMap,
+                                                                                     PreAllocatedStack<uint64_t,MAX_TEXTURES>& t_imageBufferStack,
+                                                                                     uint64_t t_drawIndirectCommandBufferIndex) override {
 
             return m_materialSystem.updateMaterialEntities(t_entity3DSSBOData,
                                            t_entity3DSSBOMap,
@@ -425,7 +423,7 @@ namespace ae {
         };
 
         ecs_id getMaterialSystemId(){return m_materialSystem.getSystemId();};
-        ecs_id getComponentId() override {return m_materialComponent.getComponentId();};
+        ecs_id getMaterialLayerComponentId() override {return m_materialComponent.getComponentId();};
 
     private:
 

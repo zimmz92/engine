@@ -51,7 +51,7 @@ namespace ae {
             // can be changed.
             // TODO Figure out how to dynamically create the texture index object... or some other way of indexing into
             //  the texture SSBO.
-            if(m_materials.size()>MAX_MATERIALS){
+            if(m_materials.size() > MAX_3D_MATERIALS){
                 throw std::runtime_error("Too many materials are being created! Either this is an error or the maximum "
                                          "number of allowed materials needs to be increased!");
             }
