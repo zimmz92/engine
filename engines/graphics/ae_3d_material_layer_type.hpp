@@ -6,7 +6,7 @@
 #include "ae_ecs_include.hpp"
 #include "ae_pipeline.hpp"
 #include "ae_model.hpp"
-#include "ae_material3d_layer_base.hpp"
+#include "ae_3d_material_layer_base.hpp"
 #include "game_components.hpp"
 #include "pre_allocated_stack.hpp"
 
@@ -68,7 +68,7 @@ namespace ae {
     /// \tparam numTessTexts The number of textures required for the material layer's tessellation shader.
     /// \tparam numGeometryTexts The number of textures required for the material layer's geometry shader.
     template <uint32_t numVertTexts, uint32_t numFragTexts, uint32_t numTessTexts, uint32_t numGeometryTexts>
-    class AeMaterial3DLayer : public AeMaterial3DLayerBase{
+    class Ae3DMaterialLayerType : public Ae3DMaterialLayerBase{
 
         /// Ensure that the number of textures is less than the total number of textures allowed for each material
         /// layer.
@@ -86,14 +86,14 @@ namespace ae {
 
         /// This component is used to allow entities to store specific information required for the material layer to
         /// correctly render the entity.
-        class MaterialLayerComponent : public ae_ecs::AeComponent<T>{
+        class Ae3DMaterialLayerComponent : public ae_ecs::AeComponent<T>{
         public:
             /// The MaterialLayerComponent constructor. Uses the AeComponent constructor with no additions.
-            explicit MaterialLayerComponent(ae_ecs::AeECS& t_ecs) : ae_ecs::AeComponent<T>(t_ecs){};
+            explicit Ae3DMaterialLayerComponent(ae_ecs::AeECS& t_ecs) : ae_ecs::AeComponent<T>(t_ecs){};
 
             /// The destructor of the MaterialLayerComponent class. The MaterialComponent destructor
             /// uses the AeComponent constructor with no additions.
-            ~MaterialLayerComponent() = default;
+            ~Ae3DMaterialLayerComponent() = default;
         };
 
 
@@ -102,7 +102,7 @@ namespace ae {
         /// entities that use this material layer. Since draw calls are done using draw indexed indirect commands unique
         /// models are managed and mapped to their dependent entities. Additionally, textures used by entities that use
         /// this material layer are added tracked and managed within the texture SSBO.
-        class MaterialLayerSystem : public ae_ecs::AeSystem<MaterialLayerSystem>{
+        class Ae3DMaterialLayerSystem : public ae_ecs::AeSystem<Ae3DMaterialLayerSystem>{
 
         public:
 
@@ -113,11 +113,11 @@ namespace ae {
             /// \param t_game_components The game components that may be utilized by this system.
             /// \param t_materialComponent The material component for the material layer this system is associated with.
             /// \param t_materialLayer The material layer this system is associated with.
-            MaterialLayerSystem(ae_ecs::AeECS& t_ecs,
-                                GameComponents& t_game_components,
-                                MaterialLayerComponent& t_materialComponent,
-                                AeMaterial3DLayer<numVertTexts,numFragTexts,numTessTexts,numGeometryTexts>& t_materialLayer) :
-                           ae_ecs::AeSystem<MaterialLayerSystem>(t_ecs),
+            Ae3DMaterialLayerSystem(ae_ecs::AeECS& t_ecs,
+                                    GameComponents& t_game_components,
+                                    Ae3DMaterialLayerComponent& t_materialComponent,
+                                    Ae3DMaterialLayerType<numVertTexts,numFragTexts,numTessTexts,numGeometryTexts>& t_materialLayer) :
+                           ae_ecs::AeSystem<Ae3DMaterialLayerSystem>(t_ecs),
                                    m_modelComponent{t_game_components.modelComponent},
                                    m_materialComponent{t_materialComponent},
                                    m_worldPositionComponent{t_game_components.worldPositionComponent},
@@ -139,7 +139,7 @@ namespace ae {
 
 
             /// Destructor of the MaterialLayerSystem. Uses the default destructor.
-            ~MaterialLayerSystem() = default;
+            ~Ae3DMaterialLayerSystem() = default;
 
 
 
@@ -465,10 +465,10 @@ namespace ae {
             WorldPositionComponent& m_worldPositionComponent;
 
             /// A reference to the material component this system is associated with.
-            MaterialLayerComponent& m_materialComponent;
+            Ae3DMaterialLayerComponent& m_materialComponent;
 
             /// A reference to the material that this system supports.
-            AeMaterial3DLayer<numVertTexts,numFragTexts,numTessTexts,numGeometryTexts>& m_material;
+            Ae3DMaterialLayerType<numVertTexts,numFragTexts,numTessTexts,numGeometryTexts>& m_material;
 
             /// A vector to track unique models, and a list of which entities use them.
             std::map<std::shared_ptr<AeModel>,std::map<ecs_id,VkDrawIndexedIndirectCommand>> m_uniqueModelMap;
@@ -499,15 +499,15 @@ namespace ae {
         /// specify the dynamic stages of it's graphics pipeline.
         /// \param t_descriptorSetLayouts The layouts of the descriptor sets that will be required by the shaders of the
         /// material layer being created.
-        explicit AeMaterial3DLayer(AeDevice &t_aeDevice,
-                                   GameComponents& t_game_components,
-                                   VkRenderPass t_renderPass,
-                                   ae_ecs::AeECS& t_ecs,
-                                   MaterialShaderFiles& t_materialLayerShaderFiles,
-                                   std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts) :
+        explicit Ae3DMaterialLayerType(AeDevice &t_aeDevice,
+                                       GameComponents& t_game_components,
+                                       VkRenderPass t_renderPass,
+                                       ae_ecs::AeECS& t_ecs,
+                                       MaterialShaderFiles& t_materialLayerShaderFiles,
+                                       std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts) :
                 m_ecs{t_ecs},
                 m_gameComponents{t_game_components},
-                AeMaterial3DLayerBase(t_aeDevice,
+                Ae3DMaterialLayerBase(t_aeDevice,
                                       t_renderPass,
                                       t_materialLayerShaderFiles,
                                       t_descriptorSetLayouts) {
@@ -520,7 +520,7 @@ namespace ae {
 
 
         /// The destructor is default.
-        ~AeMaterial3DLayer()= default;
+        ~Ae3DMaterialLayerType()= default;
 
 
         /// Loop through the unique models that entities that utilize this material layer have and use
@@ -599,13 +599,13 @@ namespace ae {
     public:
         /// Create a component for the material to track entities that use the material and specify
         /// textures/properties specific to that entity.
-        MaterialLayerComponent m_materialComponent{m_ecs};
+        Ae3DMaterialLayerComponent m_materialComponent{m_ecs};
 
     private:
 
         /// Create a system to deal with organizing the models and entity information the material is responsible for
         /// rendering.
-        MaterialLayerSystem m_materialSystem{m_ecs, m_gameComponents, m_materialComponent, *this};
+        Ae3DMaterialLayerSystem m_materialSystem{m_ecs, m_gameComponents, m_materialComponent, *this};
 
 
     protected:

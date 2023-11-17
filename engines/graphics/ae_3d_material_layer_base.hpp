@@ -37,7 +37,7 @@ namespace ae {
         std::string geometryShaderFilepath =  "Not Used";
     };
 
-    class AeMaterial3DLayerBase{
+    class Ae3DMaterialLayerBase{
     public:
         /// Constructs the graphics pipeline for the 3D material layer given the graphics device, render pass, shader
         /// files, and descriptor sets the material layer will be interfacing with.
@@ -47,14 +47,14 @@ namespace ae {
         /// the dynamic pipeline stages.
         /// \param t_descriptorSetLayouts The descriptor sets that the pipeline, and the pipeline shaders, will be
         /// utilizing in their operation.
-        explicit AeMaterial3DLayerBase(AeDevice &t_aeDevice,
+        explicit Ae3DMaterialLayerBase(AeDevice &t_aeDevice,
                                        VkRenderPass t_renderPass,
                                        MaterialShaderFiles& t_materialShaderFiles,
                                        std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts);
 
 
         /// Destructor of the AeMaterial3DLayerBase.
-        ~AeMaterial3DLayerBase();
+        ~Ae3DMaterialLayerBase();
 
 
         /// Loop through the unique models that entities that utilize this material layer have and use

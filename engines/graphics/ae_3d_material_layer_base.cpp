@@ -1,6 +1,6 @@
 /// \file ae_material3d.cpp
 /// The ## class is implemented.
-#include "ae_material3d_layer_base.hpp"
+#include "ae_3d_material_layer_base.hpp"
 
 // dependencies
 
@@ -13,7 +13,7 @@
 namespace ae {
 
     // Constructor implementation
-    AeMaterial3DLayerBase::AeMaterial3DLayerBase(AeDevice &t_aeDevice,
+    Ae3DMaterialLayerBase::Ae3DMaterialLayerBase(AeDevice &t_aeDevice,
                                                  VkRenderPass t_renderPass,
                                                  MaterialShaderFiles& t_materialShaderFiles,
                                                  std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts)
@@ -35,13 +35,13 @@ namespace ae {
 
 
     // Destructor implementation
-    AeMaterial3DLayerBase::~AeMaterial3DLayerBase() {
+    Ae3DMaterialLayerBase::~Ae3DMaterialLayerBase() {
         vkDestroyPipelineLayout(m_aeDevice.device(), m_pipelineLayout, nullptr);
     };
 
 
     // Creates the pipeline layout for the point light render system.
-    void AeMaterial3DLayerBase::createPipelineLayout(std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts) {
+    void Ae3DMaterialLayerBase::createPipelineLayout(std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts) {
 
         // Define the layout of the material layer.
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
@@ -62,7 +62,7 @@ namespace ae {
 
 
     // Creates the pipeline.
-    void AeMaterial3DLayerBase::createPipeline(VkRenderPass t_renderPass) {
+    void Ae3DMaterialLayerBase::createPipeline(VkRenderPass t_renderPass) {
 
         // Ensure the pipeline layout has already been created, cannot create a pipeline otherwise.
         assert(m_pipelineLayout != nullptr &&
@@ -86,17 +86,17 @@ namespace ae {
     };
 
     // Get the material layer's ID.
-    material_id AeMaterial3DLayerBase::getMaterialLayerId() const{
+    material_id Ae3DMaterialLayerBase::getMaterialLayerId() const{
         return m_materialID;
     };
 
     // Bind the pipeline to the specified command buffer.
-    void AeMaterial3DLayerBase::bindPipeline(VkCommandBuffer& t_commandBuffer){
+    void Ae3DMaterialLayerBase::bindPipeline(VkCommandBuffer& t_commandBuffer){
         m_pipeline->bind(t_commandBuffer);
     }
 
     // Get the material layer's pipeline layout.
-    VkPipelineLayout& AeMaterial3DLayerBase::getPipelineLayout(){
+    VkPipelineLayout& Ae3DMaterialLayerBase::getPipelineLayout(){
         return m_pipelineLayout;
     }
 

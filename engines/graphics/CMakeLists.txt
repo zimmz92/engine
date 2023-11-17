@@ -24,9 +24,9 @@ target_sources(mySrcFiles
         ae_samplers.hpp
         ae_samplers.cpp
         ae_graphics_constants.hpp
-        ae_material3d_layer.hpp
-        ae_material3d_layer_base.hpp
-        ae_material3d_layer_base.cpp
+        ae_3d_material_layer_type.hpp
+        ae_3d_material_layer_base.hpp
+        ae_3d_material_layer_base.cpp
     PUBLIC
 )
 

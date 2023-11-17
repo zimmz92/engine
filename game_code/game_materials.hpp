@@ -5,28 +5,28 @@
 #pragma once
 
 #include "ae_ecs_include.hpp"
-#include "ae_material3d_layer.hpp"
+#include "ae_3d_material_layer_type.hpp"
 #include "ae_image.hpp"
 
 #include <memory>
 
 namespace ae {
 
-    class SimpleMaterial : public AeMaterial3DLayer<0,1,0,0>{
+    class ExampleMaterialLayerType : public Ae3DMaterialLayerType<0,1,0,0>{
     public:
-        SimpleMaterial(AeDevice &t_aeDevice,
-                       GameComponents& t_game_components,
-                       VkRenderPass t_renderPass,
-                       ae_ecs::AeECS& t_ecs,
-                       MaterialShaderFiles& t_materialShaderFiles,
-                       std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts):
-                AeMaterial3DLayer(t_aeDevice,
-                                  t_game_components,
-                                  t_renderPass,
-                                  t_ecs,
-                                  t_materialShaderFiles,
-                                  t_descriptorSetLayouts) {};
-        ~SimpleMaterial()=default;
+        ExampleMaterialLayerType(AeDevice &t_aeDevice,
+                                 GameComponents& t_game_components,
+                                 VkRenderPass t_renderPass,
+                                 ae_ecs::AeECS& t_ecs,
+                                 MaterialShaderFiles& t_materialShaderFiles,
+                                 std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts):
+                Ae3DMaterialLayerType(t_aeDevice,
+                                      t_game_components,
+                                      t_renderPass,
+                                      t_ecs,
+                                      t_materialShaderFiles,
+                                      t_descriptorSetLayouts) {};
+        ~ExampleMaterialLayerType()=default;
     };
 
     /// A structure to declare the materials available to the game.
@@ -65,25 +65,25 @@ namespace ae {
         AeDevice& m_device;
         VkRenderPass m_renderPass;
         std::vector<VkDescriptorSetLayout>& m_descriptorSetLayouts;
-        std::vector<AeMaterial3DLayerBase*> m_materials;
+        std::vector<Ae3DMaterialLayerBase*> m_materials;
 
         // Materials
         MaterialShaderFiles simpleMaterialShaderFiles = {"engines/graphics/shaders/simple.vert.spv",
                                                          "engines/graphics/shaders/simple.frag.spv",
                                                          "Not Used",
                                                          "Not Used"};
-        SimpleMaterial m_simpleMaterial{m_device,
-                                        m_game_components,
-                                        m_renderPass,
-                                        m_ecs,
-                                        simpleMaterialShaderFiles,
-                                        m_descriptorSetLayouts};
+        ExampleMaterialLayerType m_simpleMaterial{m_device,
+                                                  m_game_components,
+                                                  m_renderPass,
+                                                  m_ecs,
+                                                  simpleMaterialShaderFiles,
+                                                  m_descriptorSetLayouts};
 
-        SimpleMaterial m_newMaterial{m_device,
-                                        m_game_components,
-                                        m_renderPass,
-                                        m_ecs,
-                                        simpleMaterialShaderFiles,
-                                        m_descriptorSetLayouts};
+        ExampleMaterialLayerType m_newMaterial{m_device,
+                                               m_game_components,
+                                               m_renderPass,
+                                               m_ecs,
+                                               simpleMaterialShaderFiles,
+                                               m_descriptorSetLayouts};
     };
 }
