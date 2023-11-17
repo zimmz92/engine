@@ -20,46 +20,72 @@
 
 namespace ae {
 
+    /// Specifies a texture and the sampler that should be used with it.
     struct TextureSamplerPair{
+        /// The texture being sampled.
         std::shared_ptr<AeImage> m_texture = nullptr;
+
+        /// The sampler which defines how to sample the texture.
         VkSampler m_sampler= nullptr;
     };
 
+
+    /// Defines the textures, and the samplers, required for each shader stage of a material layer for an entity.
+    /// \tparam numVertTexts The number of textures required for the material layer's vertex shader.
+    /// \tparam numFragTexts The number of textures required for the material layer's fragment shader.
+    /// \tparam numTessTexts The number of textures required for the material layer's tessellation shader.
+    /// \tparam numGeometryTexts The number of textures required for the material layer's geometry shader.
     template <uint32_t numVertTexts, uint32_t numFragTexts, uint32_t numTessTexts, uint32_t numGeometryTexts>
-    struct MaterialTextures{
+    struct MaterialLayerTextures{
 
+        /// The entities texture(s) for the material layer's vertex shader.
         TextureSamplerPair m_vertexTextures[numVertTexts]{};
-        uint32_t m_numVertexTextures = numVertTexts;
+        /// The number of textures required for the material layer's vertex shader.
+        static const uint32_t m_numVertexTextures = numVertTexts;
 
+        /// The entities texture(s) for the material layer's fragment shader.
         TextureSamplerPair m_fragmentTextures[numFragTexts]{};
-        uint32_t m_numFragmentTextures = numFragTexts;
+        /// The number of textures required for the material layer's fragment shader.
+        static const uint32_t m_numFragmentTextures = numFragTexts;
 
+        /// The entities texture(s) for the material layer's tessellation shader.
         TextureSamplerPair m_tessellationTextures[numTessTexts]{};
-        uint32_t m_numTessellationTextures = numTessTexts;
+        /// The number of textures required for the material layer's tessellation shader.
+        static const uint32_t m_numTessellationTextures = numTessTexts;
 
+        /// The entities texture(s) for the material layer's geometry shader.
         TextureSamplerPair m_geometryTextures[numGeometryTexts]{};
-        uint32_t m_numGeometryTextures = numGeometryTexts;
+        /// The number of textures required for the material layer's geometry shader.
+        static const uint32_t m_numGeometryTextures = numGeometryTexts;
 
         // TODO: make functions to add/get shader image/sampler pairs to enforce only adding information to the
         //  materials where the textures are supposed to exist.
     };
 
+    /// Defines the textures, and the samplers, required for each shader stage of a material layer for an entity.
+    /// \tparam numVertTexts The number of textures required for the material layer's vertex shader.
+    /// \tparam numFragTexts The number of textures required for the material layer's fragment shader.
+    /// \tparam numTessTexts The number of textures required for the material layer's tessellation shader.
+    /// \tparam numGeometryTexts The number of textures required for the material layer's geometry shader.
     template <uint32_t numVertTexts, uint32_t numFragTexts, uint32_t numTessTexts, uint32_t numGeometryTexts>
     class AeMaterial3DLayer : public AeMaterial3DLayerBase{
+
         static_assert(numVertTexts+numFragTexts+numTessTexts+numGeometryTexts <= MAX_3D_MATERIAL_TEXTURES,
                       "The total number of textures specified to create a material is greater than the maximum allowed number "
                       "of textures per material, MAX_TEXTURES_PER_MATERIAL.");
-        using T = MaterialTextures<numVertTexts,numFragTexts,numTessTexts,numGeometryTexts>;
+
+        using T = MaterialLayerTextures<numVertTexts,numFragTexts,numTessTexts,numGeometryTexts>;
+
+
 
     public:
 
-        /// This component is used to allow entities to store specific information required for this material to
-        /// correctly function.
+        /// This component is used to allow entities to store specific information required for the material layer to
+        /// correctly render the entity.
         class MaterialLayerComponent : public ae_ecs::AeComponent<T>{
         public:
             /// The MaterialComponent constructor uses the AeComponent constructor with no additions.
-            explicit MaterialLayerComponent(ae_ecs::AeECS& t_ecs) : ae_ecs::AeComponent<T>(t_ecs)  {
-            };
+            explicit MaterialLayerComponent(ae_ecs::AeECS& t_ecs) : ae_ecs::AeComponent<T>(t_ecs){};
 
             /// The destructor of the MaterialComponent class. The MaterialComponent destructor
             /// uses the AeComponent constructor with no additions.
@@ -67,7 +93,11 @@ namespace ae {
         };
 
 
-        /// This system is used to organized all the models and entity SSBO index data that use this material.
+
+        /// Organizes, tracks, creates draw indexed indirect commands, and submits draw indexed indirect command for the
+        /// entities that use this material layer. Since draw calls are done using draw indexed indirect commands unique
+        /// models are managed and mapped to their dependent entities. Additionally, textures used by entities that use
+        /// this material layer are added tracked and managed within the texture SSBO.
         class MaterialLayerSystem : public ae_ecs::AeSystem<MaterialLayerSystem>{
         public:
             // Constructor implementation
