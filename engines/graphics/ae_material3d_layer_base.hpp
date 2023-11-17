@@ -57,49 +57,48 @@ namespace ae {
         ~AeMaterial3DLayerBase();
 
 
-        /// Executes the material layer pipeline. This base function is to be overridden, and implemented, by the
-        /// AeMaterial3DLayer that extends this class. The material layer is rendered using draw indirect commands to
-        /// group as many objects in the scene that share a common model and material.
-        /// \param t_commandBuffer The command buffer that the draw indirect commands for the objects using this
-        /// material layer are to be submitted to.
-        /// \param t_drawIndirectBuffer The buffer of draw indirect commands that contain the draw indirect commands for
-        /// this material layer.
-        /// \param t_descriptorSets The descriptor sets that contain the data required for the shaders comprising the
-        /// material layer to properly render the objects in the scene.
+        /// Loop through the unique models that entities that utilize this material layer have and use
+        /// drawIndexedIndirect to render all entities that use a unique model using a single drawIndexedIndirect
+        /// call.
+        /// \param t_commandBuffer The command buffer where the drawIndexedIndirect commands will be recorded to.
+        /// \param t_drawIndexedIndirectBuffer The buffer that stores the drawIndexedIndirect commands.
+        /// \param t_descriptorSets The descriptor sets that the shaders of this material layer need access to for
+        /// rendering their entities.
         virtual void executeSystem(VkCommandBuffer& t_commandBuffer,
-                                   VkBuffer t_drawIndirectBuffer,
+                                   VkBuffer t_drawIndexedIndirectBuffer,
                                    std::vector<VkDescriptorSet>& t_descriptorSets){};
 
 
 
-        /// Updates the data sets the material layer utilizes to store the data required to render the associated
-        /// objects. This base function is to be overridden, and implemented, by the AeMaterial3DLayer that extends this class.
-        /// \param t_entity3DSSBOData The SSBO data for the unique models that are to be rendered.
-        /// \param t_entity3DSSBOMap The map of entities to their models in the SSBO data.
-        /// \param t_imageBuffer The image buffer that stores textures for the render system.
-        /// \param t_imageBufferMap The map of images in the image buffer to the entities and material layers that
-        /// utilize them.
-        /// \param t_imageBufferStack The stack that tracks the available positions in the image buffer for new images
-        /// to be added.
-        /// \param t_drawIndirectCommandBufferIndex The current index of the buffer that compiles the
-        /// drawIndexedIndirect commands. This is track the correct indexing into the buffer upon material layer
-        /// execution.
+        /// Updates the material layer entity data trackers and the image buffer for entity information that has
+        /// updated and/or entities that have been removed or had this material layer removed.
+        /// \param t_entity3DSSBOData The model matrix and texture indices data for an entity that is in the 3D-SSBO
+        /// that will be accessed by the material layer shaders when rendering.
+        /// \param t_entity3DSSBOMap The map of where entities data are within the 3D-SSBO.
+        /// \param t_imageBuffer The buffer that stores the images and their samplers that will be accessed by the
+        /// material layer shaders when rendering.
+        /// \param t_imageBufferMap The map of images and their samplers and which entities use them with which
+        /// materials.
+        /// \param t_imageBufferStack The stack of available positions within the imageBufferMap where new images
+        /// can be placed. When no entities utilize a specific image the image's position within the imageBufferMap
+        /// is placed at the top of this stack.
+        /// \param t_drawIndexedIndirectCommandBufferIndex The position within the drawIndexedIndirectCommandBuffer
+        /// that the drawIndexedIndirectCommands required for this material layer will start. This position will be
+        /// required when executing the drawIndexedIndirect commands for this material.
         virtual const std::vector<VkDrawIndexedIndirectCommand>& updateMaterialLayerEntities(std::vector<Entity3DSSBOData>& t_entity3DSSBOData,
                                                                                              std::map<ecs_id, uint32_t>& t_entity3DSSBOMap,
-                                                                                             VkDescriptorImageInfo t_imageBuffer[8],
+                                                                                             VkDescriptorImageInfo t_imageBuffer[MAX_TEXTURES],
                                                                                              std::map<std::shared_ptr<AeImage>,ImageBufferInfo>& t_imageBufferMap,
                                                                                              PreAllocatedStack<uint64_t,MAX_TEXTURES>& t_imageBufferStack,
-                                                                                             uint64_t t_drawIndirectCommandBufferIndex)=0;
+                                                                                             uint64_t t_drawIndexedIndirectCommandBufferIndex)=0;
 
 
-        /// Performs any required clean up of the material layer system that is required after it's execution. This base
-        /// function is to be overridden, and implemented, by the AeMaterial3DLayer that extends this class.
+        /// Performs any required clean up of the material layer system that is required after it's execution.
         virtual void cleanupSystem()=0;
 
 
         /// Returns the ID of the ECS component that this material layer uses to track entity specific information
-        /// required for this material layer. This base function is to be overridden, and implemented, by the
-        /// AeMaterial3DLayer that extends this class.
+        /// required for this material layer.
         /// \return The ID of the material layer component.
         virtual ecs_id getMaterialLayerComponentId()=0;
 

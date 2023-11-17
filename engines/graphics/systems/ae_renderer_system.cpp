@@ -436,10 +436,16 @@ namespace ae {
             // Start the render pass.
             m_renderer.beginSwapChainRenderPass(m_commandBuffer);
 
+            // Loop through each material and have them draw their entities.
             for(auto material : m_gameMaterials->m_materials){
+
+                // Draw the material's entities.
                 material->executeSystem(m_commandBuffer,
                                         m_drawIndirectBuffers[m_frameIndex]->getBuffer(),
                                         m_frameDescriptorSets[m_frameIndex]);
+
+                // Clean up the system after it executes.
+                material->cleanupSystem();
             }
 
             // Call subservient render systems. Order matters here to maintain object transparencies.

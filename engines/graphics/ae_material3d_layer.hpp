@@ -70,10 +70,14 @@ namespace ae {
     template <uint32_t numVertTexts, uint32_t numFragTexts, uint32_t numTessTexts, uint32_t numGeometryTexts>
     class AeMaterial3DLayer : public AeMaterial3DLayerBase{
 
+        /// Ensure that the number of textures is less than the total number of textures allowed for each material
+        /// layer.
         static_assert(numVertTexts+numFragTexts+numTessTexts+numGeometryTexts <= MAX_3D_MATERIAL_TEXTURES,
                       "The total number of textures specified to create a material is greater than the maximum allowed number "
                       "of textures per material, MAX_TEXTURES_PER_MATERIAL.");
 
+        /// Represent the MaterialLayerTextures structure that represents the entity data for this material layer as T
+        /// to to make it easier to read the rest of this class definition.
         using T = MaterialLayerTextures<numVertTexts,numFragTexts,numTessTexts,numGeometryTexts>;
 
 
@@ -84,10 +88,10 @@ namespace ae {
         /// correctly render the entity.
         class MaterialLayerComponent : public ae_ecs::AeComponent<T>{
         public:
-            /// The MaterialComponent constructor uses the AeComponent constructor with no additions.
+            /// The MaterialLayerComponent constructor. Uses the AeComponent constructor with no additions.
             explicit MaterialLayerComponent(ae_ecs::AeECS& t_ecs) : ae_ecs::AeComponent<T>(t_ecs){};
 
-            /// The destructor of the MaterialComponent class. The MaterialComponent destructor
+            /// The destructor of the MaterialLayerComponent class. The MaterialComponent destructor
             /// uses the AeComponent constructor with no additions.
             ~MaterialLayerComponent() = default;
         };
@@ -99,17 +103,27 @@ namespace ae {
         /// models are managed and mapped to their dependent entities. Additionally, textures used by entities that use
         /// this material layer are added tracked and managed within the texture SSBO.
         class MaterialLayerSystem : public ae_ecs::AeSystem<MaterialLayerSystem>{
+
         public:
-            // Constructor implementation
+
+
+            /// Constructs the MaterialLayerSystem to organize, track, create draw indexed indirect commands, and submit
+            /// draw indexed indirect command for the entities that use this material layer.
+            /// \param t_ecs The entity component system that will be responsible for this system.
+            /// \param t_game_components The game components that may be utilized by this system.
+            /// \param t_materialComponent The material component for the material layer this system is associated with.
+            /// \param t_materialLayer The material layer this system is associated with.
             MaterialLayerSystem(ae_ecs::AeECS& t_ecs,
                                 GameComponents& t_game_components,
                                 MaterialLayerComponent& t_materialComponent,
-                                AeMaterial3DLayer<numVertTexts,numFragTexts,numTessTexts,numGeometryTexts>& t_material) :
+                                AeMaterial3DLayer<numVertTexts,numFragTexts,numTessTexts,numGeometryTexts>& t_materialLayer) :
                            ae_ecs::AeSystem<MaterialLayerSystem>(t_ecs),
                                    m_modelComponent{t_game_components.modelComponent},
                                    m_materialComponent{t_materialComponent},
                                    m_worldPositionComponent{t_game_components.worldPositionComponent},
-                                   m_material{t_material}{
+                                   m_material{t_materialLayer}{
+
+
                 // Register component dependencies
                 m_modelComponent.requiredBySystem(this->m_systemId);
                 m_materialComponent.requiredBySystem(this->m_systemId);
@@ -122,26 +136,48 @@ namespace ae {
                 this->enableSystem();
             };
 
-            // Destructor implementation
+
+
+            /// Destructor of the MaterialLayerSystem. Uses the default destructor.
             ~MaterialLayerSystem() = default;
 
-            // Update the time difference between the current execution and the previous.
+
+
+            /// Updates the material layer entity data trackers and the image buffer for entity information that has
+            /// updated and/or entities that have been removed or had this material layer removed.
+            /// \param t_entity3DSSBOData The model matrix and texture indices data for an entity that is in the 3D-SSBO
+            /// that will be accessed by the material layer shaders when rendering.
+            /// \param t_entity3DSSBOMap The map of where entities data are within the 3D-SSBO.
+            /// \param t_imageBuffer The buffer that stores the images and their samplers that will be accessed by the
+            /// material layer shaders when rendering.
+            /// \param t_imageBufferMap The map of images and their samplers and which entities use them with which
+            /// materials.
+            /// \param t_imageBufferStack The stack of available positions within the imageBufferMap where new images
+            /// can be placed. When no entities utilize a specific image the image's position within the imageBufferMap
+            /// is placed at the top of this stack.
+            /// \param t_drawIndexedIndirectCommandBufferIndex The position within the drawIndexedIndirectCommandBuffer
+            /// that the drawIndexedIndirectCommands required for this material layer will start. This position will be
+            /// required when executing the drawIndexedIndirect commands for this material.
             const std::vector<VkDrawIndexedIndirectCommand>& updateMaterialEntities(std::vector<Entity3DSSBOData>& t_entity3DSSBOData,
-                               std::map<ecs_id, uint32_t>& t_entity3DSSBOMap,
-                               VkDescriptorImageInfo t_imageBuffer[MAX_TEXTURES],
-                               std::map<std::shared_ptr<AeImage>,ImageBufferInfo>& t_imageBufferMap,
-                               PreAllocatedStack<uint64_t,MAX_TEXTURES>& t_imageBufferStack,
-                               uint64_t t_drawIndirectCommandBufferIndex) {
+                                                                                    std::map<ecs_id, uint32_t>& t_entity3DSSBOMap,
+                                                                                    VkDescriptorImageInfo t_imageBuffer[MAX_TEXTURES],
+                                                                                    std::map<std::shared_ptr<AeImage>,ImageBufferInfo>& t_imageBufferMap,
+                                                                                    PreAllocatedStack<uint64_t,MAX_TEXTURES>& t_imageBufferStack,
+                                                                                    uint64_t t_drawIndexedIndirectCommandBufferIndex) {
 
-                m_drawIndirectCommandBufferIndex = t_drawIndirectCommandBufferIndex;
+                // Store the current index of the indexed indirect command buffer so when this material executes it
+                // knows where it's commands start in the buffer.
+                m_drawIndexedIndirectCommandBufferIndex = t_drawIndexedIndirectCommandBufferIndex;
 
-                bool remakeCommandMap = false;
+                // Set the flag to false, if no entities were updated or destroyed then no need to remake the command
+                // vector.
+                m_remakeCommandVector = false;
 
                 // Delete the destroyed entities from the list first.
                 std::vector<ecs_id> destroyedEntityIds = this->m_systemManager.getDestroyedSystemEntities(this->m_systemId);
                 for(ecs_id entityId: destroyedEntityIds){
                     // An update occurred to an entity, remake the command array for this material.
-                    remakeCommandMap = true;
+                    m_remakeCommandVector = true;
 
                     // Check if entity's model is already in the unique model map.
                     auto entityModel = m_modelComponent.getReadOnlyDataReference(entityId);
@@ -161,7 +197,7 @@ namespace ae {
                 // updated with the new information.
                 for(auto entityId:updatedEntityIds){
                     // An update occurred to an entity, remake the command array for this material.
-                    remakeCommandMap = true;
+                    m_remakeCommandVector = true;
 
                     // Get the model for the entity that was updated.
                     auto entityModel = m_modelComponent.getReadOnlyDataReference(entityId);
@@ -241,20 +277,52 @@ namespace ae {
                                        t_imageBufferStack);
                 };
 
-                if(remakeCommandMap){
-                    m_entityCommandCount = 0;
+
+                // TODO find a better way to do this where the entire vector does not need to be recreated every time
+                //  one entity updates, or at least the memory does not need to be reallocated for the vector.
+                // If entities have updated then the drawIndexedIndirect commands need to be updated. This is to ensure
+                // that they are properly packed in the drawIndexedIndirectCommandBuffer for drawIndexedIndirect to
+                // draw all entities that use the same model, and this material layer, in a row since
+                // drawIndexedIndirect assumes a starting position, and a fixed stride, to draw a fixed set of entities
+                // with commands stored in the drawIndexedIndirectCommandBuffer.
+                if(m_remakeCommandVector){
+                    // Clear the vector to start over packing the drawIndexedIndirect commands.
                     m_materialDrawIndexedCommands.clear();
+
+                    // Loop through each of the models, and entities that use the model, to reform the command vector.
                     for(const auto& model : m_uniqueModelMap){
                         for(const auto& entityCommands : model.second){
                             m_materialDrawIndexedCommands.push_back(entityCommands.second);
-                            m_entityCommandCount++;
                         }
                     }
                 }
 
+                // Return the drawIndexedIndirect commands to be integrated into the drawIndexedIndirect command buffer.
                 return m_materialDrawIndexedCommands;
             };
 
+
+
+            /// Ensures the images for an entity, and material layer shader, are properly stored within the image buffer
+            /// and the location of the image in the image buffer is stored within the entities 3D-SSBO data structure
+            /// to be accessible during rendering.
+            /// \param t_entitySSBOIndex The location of the entities data in the 3D-SSBO.
+            /// \param t_entityTextureIndex The current index into the 3D-SSBO structure material layer texture index
+            /// array.
+            /// \param t_entityId The ID of the entity which images for this material layer, and shader, are currently
+            /// being handled.
+            /// \param t_shaderTextures The textures the entity uses for the current shader being handled.
+            /// \param t_numShaderTextures The number of textures the material layer requires for the current shader
+            /// being handled.
+            /// \param t_entity3DSSBOData The 3D-SSBO where the entities data is stored and texture indices must be
+            /// recorded for the shader to access the correct shader during rendering.
+            /// \param t_imageBuffer The image buffer where the textures for the entity must be stored to be accessible
+            /// by the shaders.
+            /// \param t_imageBufferMap The map of which entities, and which of their materials, utilize which images in
+            /// the image buffer.
+            /// \param t_imageBufferStack The stack of available positions in the imageBuffer where new images may be
+            /// placed and where indices for images that were removed from the imageBuffer need to be placed on top of
+            /// for reuse.
             void handleShaderImages(uint32_t& t_entitySSBOIndex,
                                     uint32_t& t_entityTextureIndex,
                                     ecs_id& t_entityId,
@@ -272,13 +340,13 @@ namespace ae {
                 // TODO: Might need to remove all information related to the updated entity before updating...
                 //  otherwise if the entity has a new texture for something the old one never is dropped.
 
+                // Loop through all the textures required for the shader being processed for this entity.
                 for(int i = 0; i<t_numShaderTextures; i++){
 
                     // Check if the object has a texture. If not set it such that the model is rendered using only its
                     // vertex colors.
                     if(t_shaderTextures[i].m_texture == nullptr){
                         t_entity3DSSBOData[t_entitySSBOIndex].textureIndex[m_material.getMaterialLayerId()][t_entityTextureIndex] = MAX_TEXTURES + 1;
-                        //t_entity3DSSBOData[t_entitySSBOIndex].textureIndex = MAX_TEXTURES + 1;
                         t_entityTextureIndex++;
                         continue;
                     }
@@ -304,7 +372,6 @@ namespace ae {
 
                         // Set the texture information in the entities SSBO object.
                         t_entity3DSSBOData[t_entitySSBOIndex].textureIndex[m_material.getMaterialLayerId()][t_entityTextureIndex] = newImageIndex;
-                        //t_entity3DSSBOData[t_entitySSBOIndex].textureIndex = newImageIndex;
 
                     } else{
 
@@ -329,14 +396,21 @@ namespace ae {
 
                         // Since the image was already in the image buffer, update the entities SSBO index data accordingly.
                         t_entity3DSSBOData[t_entitySSBOIndex].textureIndex[m_material.getMaterialLayerId()][t_entityTextureIndex] = imageSearchIterator->second.m_imageBufferIndex;
-                        //t_entity3DSSBOData[t_entitySSBOIndex].textureIndex = imageSearchIterator->second.m_imageBufferIndex;
                     };
                 };
             };
 
-            // Set up the system prior to execution. Currently not used.
+
+
+            /// Loop through the unique models that entities that utilize this material layer have and use
+            /// drawIndexedIndirect to render all entities that use a unique model using a single drawIndexedIndirect
+            /// call.
+            /// \param t_commandBuffer The command buffer where the drawIndexedIndirect commands will be recorded to.
+            /// \param t_drawIndexedIndirectBuffer The buffer that stores the drawIndexedIndirect commands.
+            /// \param t_descriptorSets The descriptor sets that the shaders of this material layer need access to for
+            /// rendering their entities.
             void executeSystem(VkCommandBuffer& t_commandBuffer,
-                               VkBuffer t_drawIndirectBuffer,
+                               VkBuffer t_drawIndexedIndirectBuffer,
                                std::vector<VkDescriptorSet>& t_descriptorSets) {
 
                 // Bind this material's pipeline to the command buffer.
@@ -353,8 +427,12 @@ namespace ae {
                         0,
                         nullptr);
 
-                // Initialize the index into the
-                uint64_t indirectBufferIndex = m_drawIndirectCommandBufferIndex;
+                // Set the buffer index to the correct offset in the command buffer where the commands for this
+                // material layer start.
+                uint64_t indirectBufferIndex = m_drawIndexedIndirectCommandBufferIndex;
+
+                // Pre-allocate the memory for this.
+                VkDeviceSize indirect_offset;
 
                 // Loop through each of the unique models
                 for(const auto& model : m_uniqueModelMap){
@@ -363,22 +441,21 @@ namespace ae {
                     model.first->bind(t_commandBuffer);
 
                     // Calculate the offset value.
-                    VkDeviceSize indirect_offset = indirectBufferIndex * sizeof(VkDrawIndexedIndirectCommand);
+                    indirect_offset = indirectBufferIndex * sizeof(VkDrawIndexedIndirectCommand);
 
                     // Draw all instances of the model with this material.
-                    vkCmdDrawIndexedIndirect(t_commandBuffer, t_drawIndirectBuffer, indirect_offset, model.second.size(), DRAW_INDEXED_INDIRECT_COMMAND_SIZE);
+                    vkCmdDrawIndexedIndirect(t_commandBuffer, t_drawIndexedIndirectBuffer, indirect_offset, model.second.size(), DRAW_INDEXED_INDIRECT_COMMAND_SIZE);
 
                     // Increment the offset by the number of entities drawn that had the current model.
                     indirectBufferIndex += model.second.size();
                 }
             };
 
-            // Clean up the system after execution. Currently not used.
+            /// Clean up the system after execution.
             void cleanupSystem() {
+                // Clear the material layer system's update/destroy flags since they have been handled.
                 this->m_systemManager.clearSystemEntityUpdateSignatures(this->m_systemId);
             };
-
-            ecs_id getComponentId(){return m_modelComponent.getComponentId();};
 
         private:
             /// A reference to the model component this system is associated with.
@@ -399,62 +476,116 @@ namespace ae {
             /// Compiles the commands to be called by draw indexed indirect command for each frame.
             std::vector<VkDrawIndexedIndirectCommand> m_materialDrawIndexedCommands;
 
-            /// A count of the number of materialDrawIndexedCommands this material has.
-            uint64_t m_entityCommandCount = 0;
-
             /// The starting position in the indirect command buffer where this materials commands start.
-            uint64_t m_drawIndirectCommandBufferIndex = 0;
+            uint64_t m_drawIndexedIndirectCommandBufferIndex = 0;
+
+            /// A flag to indicate if the draw indexed indirect command vector needs to be recreated for the material
+            /// layer.
+            bool m_remakeCommandVector = false;
         };
 
 
 
 
-        /// Constructor of the SimpleRenderSystem
+        /// Creates a material layer for the specified shaders. This will create a graphics pipeline that implements the
+        /// shaders, a component that entities can utilize to specify the textures required for the shader, and a system
+        /// which manages entities that use the material and submits drawIndexedIndirect calls to render them.
+        /// \param t_aeDevice The graphics device that this material layer will be implemented on.
         /// \param t_game_components The game components available that this system may require.
+        /// \param t_renderPass The render pass that this material layer will executed by.
+        /// \param t_ecs The entity component system the Component and System this material layer implements and
+        /// utilizes will be managed by.
+        /// \param t_materialLayerShaderFiles The shader files which are to be implemented by this material layer and
+        /// specify the dynamic stages of it's graphics pipeline.
+        /// \param t_descriptorSetLayouts The layouts of the descriptor sets that will be required by the shaders of the
+        /// material layer being created.
         explicit AeMaterial3DLayer(AeDevice &t_aeDevice,
                                    GameComponents& t_game_components,
                                    VkRenderPass t_renderPass,
                                    ae_ecs::AeECS& t_ecs,
-                                   MaterialShaderFiles& t_materialShaderFiles,
+                                   MaterialShaderFiles& t_materialLayerShaderFiles,
                                    std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts) :
                 m_ecs{t_ecs},
                 m_gameComponents{t_game_components},
                 AeMaterial3DLayerBase(t_aeDevice,
                                       t_renderPass,
-                                      t_materialShaderFiles,
+                                      t_materialLayerShaderFiles,
                                       t_descriptorSetLayouts) {
+
+            // All setup of the material layer pipeline is handled by the AeMaterial3DLayerBase. Everything else is done
+            // by initialization of member variables by reference.
+
         };
 
-        /// Destructor of the SimpleRenderSystem
+
+
+        /// The destructor is default.
         ~AeMaterial3DLayer()= default;
 
+
+        /// Loop through the unique models that entities that utilize this material layer have and use
+        /// drawIndexedIndirect to render all entities that use a unique model using a single drawIndexedIndirect
+        /// call.
+        /// \param t_commandBuffer The command buffer where the drawIndexedIndirect commands will be recorded to.
+        /// \param t_drawIndexedIndirectBuffer The buffer that stores the drawIndexedIndirect commands.
+        /// \param t_descriptorSets The descriptor sets that the shaders of this material layer need access to for
+        /// rendering their entities.
         void executeSystem(VkCommandBuffer& t_commandBuffer,
-                           VkBuffer t_drawIndirectBuffer,
+                           VkBuffer t_drawIndexedIndirectBuffer,
                            std::vector<VkDescriptorSet>& t_descriptorSets) override {
 
+            // Call the material system's executeSystem function. The system tracks which compatible
+            // entities have been updated/destroyed and need to be acted upon.
             m_materialSystem.executeSystem(t_commandBuffer,
-                                           t_drawIndirectBuffer,
+                                           t_drawIndexedIndirectBuffer,
                                            t_descriptorSets);
         };
 
-        void cleanupSystem() override {};
 
-        const std::vector<VkDrawIndexedIndirectCommand>& updateMaterialLayerEntities(std::vector<Entity3DSSBOData>& t_entity3DSSBOData,
-                                                                                     std::map<ecs_id, uint32_t>& t_entity3DSSBOMap,
-                                                                                     VkDescriptorImageInfo t_imageBuffer[8],
-                                                                                     std::map<std::shared_ptr<AeImage>,ImageBufferInfo>& t_imageBufferMap,
-                                                                                     PreAllocatedStack<uint64_t,MAX_TEXTURES>& t_imageBufferStack,
-                                                                                     uint64_t t_drawIndirectCommandBufferIndex) override {
 
-            return m_materialSystem.updateMaterialEntities(t_entity3DSSBOData,
-                                           t_entity3DSSBOMap,
-                                           t_imageBuffer,
-                                           t_imageBufferMap,
-                                           t_imageBufferStack,
-                                           t_drawIndirectCommandBufferIndex);
+        /// Performs any required clean up of the material layer system that is required after it's execution.
+        void cleanupSystem() override {
+            m_materialSystem.cleanupSystem();
         };
 
-        ecs_id getMaterialSystemId(){return m_materialSystem.getSystemId();};
+
+        /// Updates the material layer entity data trackers and the image buffer for entity information that has
+        /// updated and/or entities that have been removed or had this material layer removed.
+        /// \param t_entity3DSSBOData The model matrix and texture indices data for an entity that is in the 3D-SSBO
+        /// that will be accessed by the material layer shaders when rendering.
+        /// \param t_entity3DSSBOMap The map of where entities data are within the 3D-SSBO.
+        /// \param t_imageBuffer The buffer that stores the images and their samplers that will be accessed by the
+        /// material layer shaders when rendering.
+        /// \param t_imageBufferMap The map of images and their samplers and which entities use them with which
+        /// materials.
+        /// \param t_imageBufferStack The stack of available positions within the imageBufferMap where new images
+        /// can be placed. When no entities utilize a specific image the image's position within the imageBufferMap
+        /// is placed at the top of this stack.
+        /// \param t_drawIndexedIndirectCommandBufferIndex The position within the drawIndexedIndirectCommandBuffer
+        /// that the drawIndexedIndirectCommands required for this material layer will start. This position will be
+        /// required when executing the drawIndexedIndirect commands for this material.
+        const std::vector<VkDrawIndexedIndirectCommand>& updateMaterialLayerEntities(std::vector<Entity3DSSBOData>& t_entity3DSSBOData,
+                                                                                     std::map<ecs_id, uint32_t>& t_entity3DSSBOMap,
+                                                                                     VkDescriptorImageInfo t_imageBuffer[MAX_TEXTURES],
+                                                                                     std::map<std::shared_ptr<AeImage>,ImageBufferInfo>& t_imageBufferMap,
+                                                                                     PreAllocatedStack<uint64_t,MAX_TEXTURES>& t_imageBufferStack,
+                                                                                     uint64_t t_drawIndexedIndirectCommandBufferIndex) override {
+
+            // Call the material system's updateMaterialLayerEntities function. The system tracks which compatible
+            // entities have been updated/destroyed and need to be acted upon.
+            return m_materialSystem.updateMaterialEntities(t_entity3DSSBOData,
+                                                           t_entity3DSSBOMap,
+                                                           t_imageBuffer,
+                                                           t_imageBufferMap,
+                                                           t_imageBufferStack,
+                                                           t_drawIndexedIndirectCommandBufferIndex);
+        };
+
+
+
+        /// Returns the ID of the ECS component that this material layer uses to track entity specific information
+        /// required for this material layer.
+        /// \return The ID of the material layer component.
         ecs_id getMaterialLayerComponentId() override {return m_materialComponent.getComponentId();};
 
     private:
