@@ -106,22 +106,18 @@ namespace ae {
 
         /// Returns the material layer ID for this material layer.
         /// \return The material layer ID for this material layer.
-        material_id getMaterialLayerId();
+        [[nodiscard]] material_id getMaterialLayerId() const;
 
 
         /// Binds the pipeline to the specified command buffer so commands submitted after this are associated with this
         /// material layer's pipeline.
         /// \param t_commandBuffer The command buffer this pipeline should be bound to.
-        void bindPipeline(VkCommandBuffer& t_commandBuffer){
-            m_pipeline->bind(t_commandBuffer);
-        }
+        void bindPipeline(VkCommandBuffer& t_commandBuffer);
 
 
         /// Returns the pipeline layout for this material layer.
         /// \return A reference to the VkPipelineLayout of this material layer.
-        VkPipelineLayout& getPipelineLayout(){
-            return m_pipelineLayout;
-        }
+        VkPipelineLayout& getPipelineLayout();
 
     private:
 

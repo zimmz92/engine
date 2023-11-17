@@ -20,7 +20,9 @@ namespace ae {
             : m_aeDevice{t_aeDevice},
               m_materialShaderFiles{t_materialShaderFiles}{
 
+        // Create a counter for the material layer IDs. This will allow them to be identified by the renderer.
         static material_id materialIdCounter = 0;
+        // Increment the counter for each material that is created.
         this->m_materialID = materialIdCounter++;
 
         // Creates the pipeline layout accounting for the global layout and sets the m_pipelineLayout member variable.
@@ -83,8 +85,19 @@ namespace ae {
                 m_materialID);
     };
 
-    material_id AeMaterial3DLayerBase::getMaterialLayerId(){
+    // Get the material layer's ID.
+    material_id AeMaterial3DLayerBase::getMaterialLayerId() const{
         return m_materialID;
     };
+
+    // Bind the pipeline to the specified command buffer.
+    void AeMaterial3DLayerBase::bindPipeline(VkCommandBuffer& t_commandBuffer){
+        m_pipeline->bind(t_commandBuffer);
+    }
+
+    // Get the material layer's pipeline layout.
+    VkPipelineLayout& AeMaterial3DLayerBase::getPipelineLayout(){
+        return m_pipelineLayout;
+    }
 
 } //namespace ae
