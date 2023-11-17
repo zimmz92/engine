@@ -407,6 +407,8 @@ namespace ae {
                                            t_descriptorSets);
         };
 
+        void cleanupSystem() override {};
+
         const std::vector<VkDrawIndexedIndirectCommand>& updateMaterialLayerEntities(std::vector<Entity3DSSBOData>& t_entity3DSSBOData,
                                                                                      std::map<ecs_id, uint32_t>& t_entity3DSSBOMap,
                                                                                      VkDescriptorImageInfo t_imageBuffer[8],
