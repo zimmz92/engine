@@ -14,6 +14,7 @@
 #include "cycle_point_lights_system.hpp"
 #include "update_ubo_system.hpp"
 #include "systems/ae_renderer_system.hpp"
+#include "Test_entity-create-destroy_system.hpp"
 
 namespace ae {
 
@@ -27,6 +28,7 @@ namespace ae {
                     AeDevice& t_device,
                     AeRenderer& t_renderer,
                     AeSamplers& t_samplers) {
+
             timingSystem = new TimingSystem(t_ecs);
             playerInputSystem = new PlayerInputSystem(t_ecs, t_game_components, *timingSystem, t_window);
             cameraUpdateSystem = new CameraUpdateSystem(t_ecs, t_game_components, *playerInputSystem, t_renderer);
@@ -39,6 +41,14 @@ namespace ae {
                                                          t_renderer,
                                                          t_device,
                                                          t_samplers);
+
+
+            createDestroyTestSystem = new CreateDestroyTestSystem(t_window,
+                                                                  t_device,
+                                                                  t_ecs,
+                                                                  t_game_components,
+                                                                  rendererSystem->getGameMaterials(),
+                                                                  t_samplers);
         };
 
         /// Destructor for this struct.
@@ -79,5 +89,8 @@ namespace ae {
         // Temporary Systems
         /// The CyclePointLightsSystem instance for the game.
         CyclePointLightsSystem* cyclePointLightsSystem;
+
+        ///
+        CreateDestroyTestSystem* createDestroyTestSystem;
     };
 }

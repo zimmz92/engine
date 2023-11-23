@@ -83,6 +83,7 @@ add_subdirectory(assets_NOTPRODUCTION/audio)
 add_subdirectory(assets_NOTPRODUCTION/materials)
 add_subdirectory(assets_NOTPRODUCTION/models)
 add_subdirectory(assets_NOTPRODUCTION/ui_textures)
+add_subdirectory(test_code_NOTPRODUCTION)
 
 target_sources(mySrcFiles
     PRIVATE
