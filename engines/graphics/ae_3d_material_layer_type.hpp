@@ -185,9 +185,16 @@ namespace ae {
                     if (pos != m_uniqueModelMap.end()) {
                         // The model was already in the map, as it should have been. Now remove the entity from the map.
                         pos->second.erase(entityId);
+
+                        // Check to see if there are no more entities using that model. If that is the case remove the
+                        // model from the map.
+                        if(pos->second.empty()){
+                           m_uniqueModelMap.erase(pos);
+                        }
                     }
 
                     //TODO: Need to ensure that the material information gets destroyed as well.
+
                 }
 
                 // Get the entities that have been updated that use this system.
