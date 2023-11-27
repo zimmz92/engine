@@ -6,6 +6,8 @@
 
 namespace ae {
 
+    bool CreateDestroyTestSystem::m_buttonPressed = false;
+
     // Constructor implementation
     CreateDestroyTestSystem::CreateDestroyTestSystem(GLFWwindow* t_window,
                                          AeDevice& t_aeDevice,
@@ -21,6 +23,8 @@ namespace ae {
              m_window{t_window},
              ae_ecs::AeSystem<CreateDestroyTestSystem>(t_aeECS) {
 
+        glfwSetKeyCallback(t_window,key_callback);
+
         // Enable the system so it will run.
         this->enableSystem();
 
@@ -29,7 +33,7 @@ namespace ae {
 
 
     // Destructor implementation
-    CreateDestroyTestSystem::~CreateDestroyTestSystem(){};
+    CreateDestroyTestSystem::~CreateDestroyTestSystem()= default;
 
 
 
@@ -40,16 +44,14 @@ namespace ae {
 
     // Check for player inputs and apply them to controlled entities.
     void CreateDestroyTestSystem::executeSystem(){
-
-        // Get the key presses that represent the players desire to rotate the model.
-        if (glfwGetKey(m_window, keys.destroyCreate) == GLFW_PRESS){
-            if(m_entitiesCreated){
+        if(m_buttonPressed) {
+            if (m_entitiesCreated) {
                 destroyEntities();
-            }else{
+            } else {
                 createEntities();
             };
+            m_buttonPressed = false;
         };
-
     };
 
 
@@ -98,5 +100,13 @@ namespace ae {
         }
 
         m_entitiesCreated = false;
+    }
+
+    void CreateDestroyTestSystem::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+    {
+        if (key == destroyCreate && action == GLFW_PRESS)
+        {
+            m_buttonPressed = true;
+        }
     }
 }

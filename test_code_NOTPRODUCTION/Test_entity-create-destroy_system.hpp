@@ -25,6 +25,8 @@
 
 namespace ae {
 
+    static const int destroyCreate = GLFW_KEY_APOSTROPHE;
+
     /// A system that retrieves the player's inputs and moves/rotates the currently controlled entity.
     class CreateDestroyTestSystem : public ae_ecs::AeSystem<CreateDestroyTestSystem> {
     public:
@@ -55,15 +57,7 @@ namespace ae {
 
     private:
 
-        static const int numberOfEntities = 50;
-
-        /// Define structure that sets the key mapping of the keyboard keys to player controlled entity movement.
-        struct KeyMappings {
-            int destroyCreate = GLFW_KEY_APOSTROPHE;
-        };
-
-        /// Structure that sets the key mapping of the keyboard keys to player controlled entity movement.
-        KeyMappings keys{};
+        static const int numberOfEntities = 2;
 
         /// The GLFW
         GLFWwindow* m_window;
@@ -73,6 +67,9 @@ namespace ae {
 
         /// Tracks if this system currently has entities created.
         bool m_entitiesCreated = false;
+
+        /// Tracks if this system currently has entities created.
+        static bool m_buttonPressed;
 
         AeDevice& m_aeDevice;
         ae_ecs::AeECS& m_aeECS;
@@ -97,6 +94,8 @@ namespace ae {
         /// Destroy all the entities that were created by this system.  This is to test how the engine handles a large
         /// amount of entity destruction.
         void destroyEntities();
+
+        static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
     };
 }
