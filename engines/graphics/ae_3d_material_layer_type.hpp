@@ -195,6 +195,43 @@ namespace ae {
 
                     //TODO: Need to ensure that the material information gets destroyed as well.
 
+                    //TODO: This all could be significantly simplified for the image+sampler tracking. Instead of a
+                    // direct map of image/sampler to entity ID just use a counter for the number of existing
+                    // entity/material combinations that use an it. Then all that needs to be done when an entity
+                    // updates their material component is that the counter for that image is decremented.
+
+                    // Check each image in the map to ensure that the entity is removed from it.
+                    for(auto uniqueImage : t_imageBufferMap){
+                        // Check to see if the image has the entity in the map.
+                        auto entityPosition = uniqueImage.second.m_entityMaterialMap.find(entityId);
+                        if(entityPosition != uniqueImage.second.m_entityMaterialMap.end()){
+
+                            // Check to see if the entity is using the image with this material.
+                            auto materialLayerPosition = entityPosition->second.find(this->m_material.getMaterialLayerId());
+                            if(materialLayerPosition != entityPosition->second.end()){
+
+                                // Remove the material from the entity list tracing which materials for an entity use
+                                // the current image.
+                                entityPosition->second.erase(materialLayerPosition);
+                            }
+
+                            // If the entity no longer has any materials which use the image remove the entity from the
+                            // image's list of entities that use it.
+                            if(entityPosition->second.empty()){
+                                uniqueImage.second.m_entityMaterialMap.erase(entityPosition);
+                            }
+
+                            // If the image no longer has any entities that are using it then remove the image from the
+                            // buffer. This is currently done by giving back the image buffer index back to the stack so
+                            // a new unique image can take its position in the buffer. Then the image is erased from the
+                            // buffer map.
+                            if(uniqueImage.second.m_entityMaterialMap.empty()){
+                                t_imageBufferStack.push(uniqueImage.second.m_imageBufferIndex);
+                                t_imageBufferMap.erase(uniqueImage.first);
+                            }
+                        }
+                    }
+
                 }
 
                 // Get the entities that have been updated that use this system.
