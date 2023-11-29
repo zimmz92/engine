@@ -99,6 +99,11 @@ namespace ae_ecs {
         /// \param t_systemId The ID of the system.
         void clearSystemEntityUpdateSignatures(ecs_id t_systemId);
 
+        /// Clears the system entity destroyed signature for the specified system. Usually used at the end of a system's
+        /// execution loop.
+        /// \param t_systemId The ID of the system.
+        void clearSystemEntityDestroyedSignatures(ecs_id t_systemId);
+
         /// A function to remove a systems component usage information from the component manager.
         /// \param t_systemId The ID of the system to be removed.
         void removeSystem(ecs_id t_systemId);

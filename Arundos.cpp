@@ -135,27 +135,6 @@ namespace ae {
         vikingRoomProperties.m_fragmentTextures[0].m_sampler = m_aeSamplers.getDefaultSampler();
 
         vikingRoom.enableEntity();
-
-
-        // Load the leaf enemy object model from the file
-        aeModel = AeModel::createModelFromFile(m_aeDevice, "assets/models/leaf_enemy_w_tongue.obj");
-        aeImage = AeImage::createModelFromFile(m_aeDevice, "assets/models/leaf_enemy_body_w_tongue.png");
-
-
-        auto leafEnemy2 = GameObjectEntity(m_aeECS,m_gameComponents);
-        leafEnemy2.m_worldPosition = {-2.0f, 0.5f, 1.0f };
-        leafEnemy2.m_model.m_texture = aeImage;
-        leafEnemy2.m_model.m_sampler = m_aeSamplers.getDefaultSampler();
-        leafEnemy2.m_model.m_model = aeModel;
-        leafEnemy2.m_model.scale = {0.5f, 0.5f, 0.5f };
-        leafEnemy2.m_model.rotation = {0.0 * glm::two_pi<float>(), 0.0 * glm::two_pi<float>(), 0.0* glm::two_pi<float>()};
-
-        m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntity(leafEnemy2.getEntityId());
-        auto& leafEnemyMaterialProperties2 = m_gameMaterials.m_simpleMaterial.m_materialComponent.getWriteableDataReference(leafEnemy2.getEntityId());
-        leafEnemyMaterialProperties2.m_fragmentTextures[0].m_texture = aeImage;
-        leafEnemyMaterialProperties2.m_fragmentTextures[0].m_sampler = m_aeSamplers.getDefaultSampler();
-
-        leafEnemy2.enableEntity();
         //==============================================================================================================
 
         // Escher solid, first stellation of the rhombic dodecahedron

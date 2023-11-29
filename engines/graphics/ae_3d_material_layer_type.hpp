@@ -499,6 +499,7 @@ namespace ae {
             void cleanupSystem() {
                 // Clear the material layer system's update/destroy flags since they have been handled.
                 this->m_systemManager.clearSystemEntityUpdateSignatures(this->m_systemId);
+                this->m_systemManager.clearSystemEntityDestroyedSignatures(this->m_systemId);
             };
 
         private:

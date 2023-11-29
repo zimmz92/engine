@@ -239,6 +239,12 @@ namespace ae_ecs {
     };
 
 
+    // Clear the system's entity destroyed signature so the entities do not keep attempting to be destroyed.
+    void AeComponentManager::clearSystemEntityDestroyedSignatures(ecs_id t_systemId){
+        m_systemEntityDestroyedSignatures[t_systemId].clear();
+    };
+
+
 
 	// TODO: Implement this function
 	void AeComponentManager::removeSystem(ecs_id t_systemId) {

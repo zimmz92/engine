@@ -49,6 +49,11 @@ namespace ae_ecs {
         m_componentManager.clearSystemEntityUpdateSignatures(t_systemId);
     };
 
+    // Request that the component manager clears the entity update data for the system.
+    void AeSystemManager::clearSystemEntityDestroyedSignatures(ecs_id t_systemId){
+        m_componentManager.clearSystemEntityDestroyedSignatures(t_systemId);
+    };
+
 
 
     // Enable the system by adding it to the enabled systems map and alerting the component manager that the system has
