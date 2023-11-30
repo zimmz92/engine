@@ -180,11 +180,15 @@ namespace ae {
                     m_remakeCommandVector = true;
 
                     // Find where the entity is in the model map and remove it.
-                    for(auto& model : m_uniqueModelMap){
-                        if(model.second.erase(entityId) > 0){
+                    for(auto model_it=m_uniqueModelMap.begin(),next_model_it = model_it;
+                        model_it != m_uniqueModelMap.cend();
+                        model_it=next_model_it){
+
+                        ++next_model_it;
+                        if(model_it->second.erase(entityId) > 0){
                             // Check to see if the model should also be removed from the model map.
-                            if(model.second.empty()){
-                                m_uniqueModelMap.erase(model.first);
+                            if(model_it->second.empty()){
+                                m_uniqueModelMap.erase(model_it);
                             }
                             break;
                         }
@@ -198,10 +202,15 @@ namespace ae {
                     // updates their material component is that the counter for that image is decremented.
 
                     // Check each image in the map to ensure that the entity is removed from it.
-                    for(auto& uniqueImage : t_imageBufferMap){
+                    for(auto uniqueImage_it=t_imageBufferMap.begin(),next_uniqueImage_it = uniqueImage_it;
+                        uniqueImage_it != t_imageBufferMap.cend();
+                        uniqueImage_it=next_uniqueImage_it){
+
+                        ++next_uniqueImage_it;
+
                         // Check to see if the image has the entity in the map.
-                        auto entityPosition = uniqueImage.second.m_entityMaterialMap.find(entityId);
-                        if(entityPosition != uniqueImage.second.m_entityMaterialMap.end()){
+                        auto entityPosition = uniqueImage_it->second.m_entityMaterialMap.find(entityId);
+                        if(entityPosition != uniqueImage_it->second.m_entityMaterialMap.end()){
 
                             // Check to see if the entity is using the image with this material.
                             auto materialLayerPosition = entityPosition->second.find(this->m_material.getMaterialLayerId());
@@ -215,20 +224,19 @@ namespace ae {
                             // If the entity no longer has any materials which use the image remove the entity from the
                             // image's list of entities that use it.
                             if(entityPosition->second.empty()){
-                                uniqueImage.second.m_entityMaterialMap.erase(entityPosition);
+                                uniqueImage_it->second.m_entityMaterialMap.erase(entityPosition);
                             }
 
                             // If the image no longer has any entities that are using it then remove the image from the
                             // buffer. This is currently done by giving back the image buffer index back to the stack so
                             // a new unique image can take its position in the buffer. Then the image is erased from the
                             // buffer map.
-                            if(uniqueImage.second.m_entityMaterialMap.empty()){
-                                t_imageBufferStack.push(uniqueImage.second.m_imageBufferIndex);
-                                t_imageBufferMap.erase(uniqueImage.first);
+                            if(uniqueImage_it->second.m_entityMaterialMap.empty()){
+                                t_imageBufferStack.push(uniqueImage_it->second.m_imageBufferIndex);
+                                t_imageBufferMap.erase(uniqueImage_it);
                             }
                         }
                     }
-
                 }
 
                 // Get the entities that have been updated that use this system.
