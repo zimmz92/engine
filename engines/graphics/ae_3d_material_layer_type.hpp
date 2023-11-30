@@ -179,17 +179,14 @@ namespace ae {
                     // An update occurred to an entity, remake the command array for this material.
                     m_remakeCommandVector = true;
 
-                    // Check if entity's model is already in the unique model map.
-                    auto entityModel = m_modelComponent.getReadOnlyDataReference(entityId);
-                    auto pos = m_uniqueModelMap.find(entityModel.m_model);
-                    if (pos != m_uniqueModelMap.end()) {
-                        // The model was already in the map, as it should have been. Now remove the entity from the map.
-                        pos->second.erase(entityId);
-
-                        // Check to see if there are no more entities using that model. If that is the case remove the
-                        // model from the map.
-                        if(pos->second.empty()){
-                           m_uniqueModelMap.erase(pos);
+                    // Find where the entity is in the model map and remove it.
+                    for(auto& model : m_uniqueModelMap){
+                        if(model.second.erase(entityId) > 0){
+                            // Check to see if the model should also be removed from the model map.
+                            if(model.second.empty()){
+                                m_uniqueModelMap.erase(model.first);
+                            }
+                            break;
                         }
                     }
 
@@ -201,7 +198,7 @@ namespace ae {
                     // updates their material component is that the counter for that image is decremented.
 
                     // Check each image in the map to ensure that the entity is removed from it.
-                    for(auto uniqueImage : t_imageBufferMap){
+                    for(auto& uniqueImage : t_imageBufferMap){
                         // Check to see if the image has the entity in the map.
                         auto entityPosition = uniqueImage.second.m_entityMaterialMap.find(entityId);
                         if(entityPosition != uniqueImage.second.m_entityMaterialMap.end()){

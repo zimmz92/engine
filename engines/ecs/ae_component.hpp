@@ -58,7 +58,7 @@ namespace ae_ecs {
         /// Removes an entities data from the component. This must be defined but does not actually have to
         /// delete/initialize any data.
         /// \param t_entityId
-        void removeEntityData(ecs_id t_entityId) override {
+        virtual void removeEntityData(ecs_id t_entityId) override {
             T templateComponentData;
             m_componentData[t_entityId] = templateComponentData;
         };

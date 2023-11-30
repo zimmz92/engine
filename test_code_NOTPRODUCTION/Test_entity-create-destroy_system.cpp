@@ -74,9 +74,7 @@ namespace ae {
                 leafEnemy.m_model.rotation = {0.0 * glm::two_pi<float>(), 0.0 * glm::two_pi<float>(),
                                               0.0 * glm::two_pi<float>()};
 
-                m_gameMaterials.m_newMaterial.m_materialComponent.requiredByEntityReference(leafEnemy.getEntityId());
-                auto &leafEnemyMaterialProperties = m_gameMaterials.m_newMaterial.m_materialComponent.getWriteableDataReference(
-                        leafEnemy.getEntityId());
+                auto &leafEnemyMaterialProperties = m_gameMaterials.m_newMaterial.m_materialComponent.requiredByEntityReference(leafEnemy.getEntityId());
                 leafEnemyMaterialProperties.m_fragmentTextures[0].m_texture = m_aeImage;
                 leafEnemyMaterialProperties.m_fragmentTextures[0].m_sampler = m_aeSamplers.getDefaultSampler();
 

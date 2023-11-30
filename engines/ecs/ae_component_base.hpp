@@ -30,7 +30,7 @@ namespace ae_ecs {
 
         /// Gets the ID of the component.
         /// \return The ID of the component.
-		const ecs_id getComponentId();
+		ecs_id getComponentId() const;
 
 
         /// Alerts the component manager that a specific entity uses a component.

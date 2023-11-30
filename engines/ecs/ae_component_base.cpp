@@ -24,7 +24,7 @@ namespace ae_ecs {
     };
 
     // Gets the ID of the component.
-    const ecs_id AeComponentBase::getComponentId() { return m_componentId; }
+    ecs_id AeComponentBase::getComponentId() const { return m_componentId; }
 
     // Alerts the component manager that a specific entity uses a component.
     void AeComponentBase::requiredByEntity(ecs_id t_entityId) {

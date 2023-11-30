@@ -88,15 +88,17 @@ namespace ae_ecs {
             // Before changing the entities component signature search which systems the entity is compatible with
             // currently.
 
-            // Need to isolate the entity component signature since the &= operator puts the result back into the
-            // left hand variable.
-            std::bitset<MAX_NUM_COMPONENTS + 1> entityComponentSignature = m_entityComponentSignatures[t_entityId];
-            if (m_systemComponentSignatures[systemId].operator==(
-                    entityComponentSignature.operator&=(m_systemComponentSignatures[systemId]))) {
+            // Check to ensure that the system also requires the component being removed. Only systems that require
+            // the component being removed should be impacted by the entity removing the specified component.
+            if(m_systemComponentSignatures[systemId].test(t_componentId)){
 
-                // Check to ensure that the system also requires the component being removed. Only systems that require
-                // the component being removed should be impacted by the entity removing the specified component.
-                if(m_systemComponentSignatures[systemId].test(t_componentId)){
+                // Need to isolate the entity component signature since the &= operator puts the result back into the
+                // left hand variable.
+                std::bitset<MAX_NUM_COMPONENTS + 1> entityComponentSignature = m_entityComponentSignatures[t_entityId];
+                if (m_systemComponentSignatures[systemId].operator==(
+                        entityComponentSignature.operator&=(m_systemComponentSignatures[systemId]))) {
+
+
 
                     // If the entity is currently already in the system's list of entities that have been updated and needs
                     // to be acted upon it should be removed from that list since it no longer has one of the required
@@ -107,11 +109,11 @@ namespace ae_ecs {
 
                     if (it != m_systemEntityUpdateSignatures[systemId].end()) {
                         m_systemEntityUpdateSignatures[systemId].erase(it);
-                    }
+                    };
 
                     // Flag that this entity has been destroyed to this system.
                     m_systemEntityDestroyedSignatures[systemId].push_back(t_entityId);
-                }
+                };
             };
         };
 
@@ -176,32 +178,17 @@ namespace ae_ecs {
     void AeComponentManager::destroyEntity(ecs_id t_entityId){
 
         // Ensure all the data for the entity is deleted or reset properly for its components.
-        for(ecs_id componentId=0; componentId < m_entityComponentSignatures[t_entityId].size()-1; componentId++){
-            if(m_entityComponentSignatures[t_entityId].test(componentId)){
-                m_components[componentId]->unrequiredByEntity(t_entityId);
+        for(auto component:m_components){
+            if(m_entityComponentSignatures[t_entityId].test(component.second->getComponentId())){
+                // Let all the components that this entity uses know that it no longer uses it and let the component
+                // clean up the entity as needed.
+                component.second->unrequiredByEntity(t_entityId);
             };
-        };
-
-        // Reset the component signature for the entity so the next entity that is assigned the ID has a fresh slate.
-        m_entityComponentSignatures[t_entityId].reset();
-
-        for(ecs_id systemId=0; systemId < m_systemComponentSignatures.size() ; systemId++) {
-
-            // If the entity had been updated by a previous system before being deleted ensure that a future system does
-            // not think this entity still exists and needs to be updated.
-            auto it = find(m_systemEntityUpdateSignatures[systemId].begin(),
-                           m_systemEntityUpdateSignatures[systemId].end(),
-                           t_entityId);
-
-            if (it != m_systemEntityUpdateSignatures[systemId].end()) {
-                m_systemEntityUpdateSignatures[systemId].erase(it);
-            }
-
-
-            // Flag that this entity has been destroyed to all systems.
-            m_systemEntityDestroyedSignatures[systemId].push_back(t_entityId);
         }
-        // TODO: With certain memory management there will need to be memory cleanup done here eventually.
+
+        // Reset the component signature for the entity so the next entity that is assigned the ID has a fresh slate. If
+        // the for loop above worked properly this should only be resetting the last bit.
+        m_entityComponentSignatures[t_entityId].reset();
     };
 
 
