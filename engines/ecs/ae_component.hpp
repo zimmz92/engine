@@ -4,6 +4,7 @@
 #pragma once
 
 #include "ae_ecs.hpp"
+#include "ae_component_base.hpp"
 
 #include <cstdint>
 
@@ -11,7 +12,7 @@ namespace ae_ecs {
 
     /// The template class for a component
 	template <typename T>
-	class AeComponent {
+	class AeComponent : public AeComponentBase {
 
 		/// ID for the specific component
 		static const ecs_id m_componentTypeId;
@@ -21,9 +22,7 @@ namespace ae_ecs {
         /// Function to create a component, specify the specific manager for the component, and allocate memory for the
         /// component data.
         /// \param t_componentManager The component manager that will manage this component.
-		explicit AeComponent(AeECS& t_ecs) : m_componentManager{ t_ecs.m_ecsComponentManager } {
-            // Get an ID for the component from the component manager
-			m_componentId = m_componentManager.allocateComponentId();
+		explicit AeComponent(AeECS& t_ecs) : AeComponentBase(t_ecs) {
 
 			// TODO: Allow the use of different memory architectures
             // TODO: Allow for a stack instead of allocating memory for every entity even if every entity will never
@@ -35,69 +34,38 @@ namespace ae_ecs {
             };
 		};
 
-        /// Component destructor. Ensures that the component ID and the memory of the component are released.
+        /// Component destructor. Ensures that the memory of the component is released.
 		~AeComponent() {
-            m_componentManager.releaseComponentId(m_componentId);
+
 			delete[] m_componentData;
             m_componentData = nullptr;
 		};
 
-        /// Gets the ID of the component.
-        /// \return The ID of the component.
-		ecs_id getComponentId() const { return m_componentId; }
-
         /// Gets the ID of the component type.
         /// \return The type ID of the component.
-        ecs_id getComponentTypeId() const { return m_componentTypeId; }
+        [[nodiscard]] ecs_id getComponentTypeId() const { return m_componentTypeId; }
 
         /// Alerts the component manager that a specific entity uses a component and returns a reference to the location
         /// allocated in memory for the storage of the entities data.
         /// \param t_entityId The ID of the entity using the component.
-        T& requiredByEntity(ecs_id t_entityId) {
+        T& requiredByEntityReference(ecs_id t_entityId) {
             m_componentManager.entityUsesComponent(t_entityId, m_componentId);
 
             return getWriteableDataReference(t_entityId);
             // TODO: If stack type component allocate additional memory for the entity on the stack.
         };
 
-
-        /// Alerts the component manager that a specific entity no longer uses a component.
-        /// \param t_entityId The ID of the entity that no longer uses this component.
-		void unrequiredByEntity(ecs_id t_entityId) {
-            m_componentManager.entityErstUsesComponent(t_entityId, m_componentId);
-			// TODO: Alert system manager that this entity no longer uses this component.
-		};
-
-        /// Checks with the component manager if an entity uses this component.
-        /// \param t_entityId The ID of the entity that may use this component
-        /// \return True if the entity uses this component.
-        bool doesEntityUseThis(ecs_id t_entityId){
-            return m_componentManager.isComponentUsed(t_entityId, this->m_componentId);
+        /// Removes an entities data from the component. This must be defined but does not actually have to
+        /// delete/initialize any data.
+        /// \param t_entityId
+        void removeEntityData(ecs_id t_entityId) override {
+            T templateComponentData;
+            m_componentData[t_entityId] = templateComponentData;
         };
 
-        /// Fetches the entities that use this component.
-        /// \return A vector of entity IDs that use this component.
-        std::vector<ecs_id> getMyEntities(){
-            return m_componentManager.getComponentEntities(this->m_componentId);
-        };
-
-        /// Alerts the component manager that a system requires this component to operate.
-        /// \param t_systemId The ID of the system that requires this component to operate.
-        void requiredBySystem(ecs_id t_systemId) {
-            m_componentManager.setSystemComponentSignature(t_systemId, m_componentId);
-            // TODO: Alert system manager that this system uses this component.
-        };
-
-        /// Alerts the component manager that a system does not require this component to operate.
-        /// \param t_systemId The ID of the system that no longer requires this component to operate.
-        void unrequiredBySystem(ecs_id t_systemId) {
-            m_componentManager.unsetSystemComponentSignature(t_systemId, m_componentId);
-            // TODO: Alert system manager that this system uses this component.
-        };
-
-        virtual /// Get data for a specific entity.
+        /// Get data for a specific entity.
 		/// \param t_entityID The ID of the entity to return the component data for.
-		T& getWriteableDataReference(ecs_id t_entityId) {
+        virtual T& getWriteableDataReference(ecs_id t_entityId) {
             m_componentManager.entitiesComponentUpdated(t_entityId, m_componentId);
 			return m_componentData[t_entityId];
 		};
@@ -111,11 +79,6 @@ namespace ae_ecs {
 	private:
 
 	protected:
-        /// ID for the unique component created
-        ecs_id m_componentId;
-
-		/// Pointer to the component manager
-		AeComponentManager& m_componentManager;
 
         /// Pointer to the data the component is storing.
         T* m_componentData;

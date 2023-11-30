@@ -7,8 +7,8 @@ namespace ae {
 
     // Constructor implementation of the GameObjectEntity
 	GameObjectEntity::GameObjectEntity(ae_ecs::AeECS& t_ecs, GameComponents& t_gameComponents) :
-            m_worldPosition{t_gameComponents.worldPositionComponent.requiredByEntity(this->m_entityId)},
-            m_model{t_gameComponents.modelComponent.requiredByEntity(this->m_entityId)},
+            m_worldPosition{t_gameComponents.worldPositionComponent.requiredByEntityReference(this->m_entityId)},
+            m_model{t_gameComponents.modelComponent.requiredByEntityReference(this->m_entityId)},
             AeEntity(t_ecs) {};
 
     // Destructor implementation of the GameObjectEntity

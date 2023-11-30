@@ -11,7 +11,7 @@ namespace ae {
             AeEntity(t_ecs) {
 
         // Specify the components that define this entity and where this entity will store data.
-        t_gameComponents.model2DComponent.requiredByEntity(this->m_entityId);
+        t_gameComponents.model2DComponent.requiredByEntityReference(this->m_entityId);
 
 	};
 

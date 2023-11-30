@@ -15,6 +15,7 @@ namespace ae_ecs {
         friend class AeSystemBase;
         template<class T> friend class AeEntity;
         template<class T> friend class AeComponent;
+        friend class AeComponentBase;
 
     public:
         AeECS(){

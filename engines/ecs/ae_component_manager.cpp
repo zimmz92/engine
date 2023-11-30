@@ -2,6 +2,7 @@
 /// \brief The script implementing the component manager class.
 /// The component manager class is implemented.
 #include "ae_component_manager.hpp"
+#include "ae_component_base.hpp"
 
 #include <stdexcept>
 #include <bits/stdc++.h>
@@ -37,13 +38,14 @@ namespace ae_ecs {
 
 	// Allocate a component ID by popping the component ID off the stack, indicated by the top of stack pointer, then
 	// decrementing the top of stack pointer to point to the next available component ID.
-	ecs_id AeComponentManager::allocateComponentId() {
+	ecs_id AeComponentManager::allocateComponentId(AeComponentBase* t_component) {
 		if (m_componentIdStackTop <= -1) {
 			throw std::runtime_error("Component ID Stack Underflow! No more component IDs to give out!");
 		}
 		else {
-			return m_componentIdStack[m_componentIdStackTop--];
-
+            ecs_id allocatedId = m_componentIdStack[m_componentIdStackTop--];
+            m_components[allocatedId] = t_component;
+			return allocatedId;
 		}
 	};
 
@@ -172,6 +174,15 @@ namespace ae_ecs {
 	// Removes the entity by clearing the component signature of the entity so the next entity that is allocated the
     // same ID as the one to be removed it will not have the same components, and component data, by default.
     void AeComponentManager::destroyEntity(ecs_id t_entityId){
+
+        // Ensure all the data for the entity is deleted or reset properly for its components.
+        for(ecs_id componentId=0; componentId < m_entityComponentSignatures[t_entityId].size()-1; componentId++){
+            if(m_entityComponentSignatures[t_entityId].test(componentId)){
+                m_components[componentId]->unrequiredByEntity(t_entityId);
+            };
+        };
+
+        // Reset the component signature for the entity so the next entity that is assigned the ID has a fresh slate.
         m_entityComponentSignatures[t_entityId].reset();
 
         for(ecs_id systemId=0; systemId < m_systemComponentSignatures.size() ; systemId++) {

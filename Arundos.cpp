@@ -77,7 +77,7 @@ namespace ae {
         testFlatVase.m_model.m_model = aeModel;
         testFlatVase.m_model.scale = {3.0f, 1.5f, 3.0f };
 
-        m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntity(testFlatVase.getEntityId());
+        m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntityReference(testFlatVase.getEntityId());
         auto& testFlatVaseProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.getWriteableDataReference(testFlatVase.getEntityId());
         testFlatVaseProperties.m_fragmentTextures[0].m_texture = nullptr;
         testFlatVaseProperties.m_fragmentTextures[0].m_sampler = nullptr;
@@ -93,7 +93,7 @@ namespace ae {
         testSmoothVase.m_model.m_model = aeModel;
         testSmoothVase.m_model.scale = {3.0f, 1.5f, 3.0f };
 
-        m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntity(testSmoothVase.getEntityId());
+        m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntityReference(testSmoothVase.getEntityId());
         auto& testSmoothVaseProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.getWriteableDataReference(testSmoothVase.getEntityId());
         testSmoothVaseProperties.m_fragmentTextures[0].m_texture = nullptr;
         testSmoothVaseProperties.m_fragmentTextures[0].m_sampler = nullptr;
@@ -109,7 +109,7 @@ namespace ae {
         testFloor.m_model.m_model = aeModel;
         testFloor.m_model.scale = {3.0f, 1.0f, 3.0f };
 
-        m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntity(testFloor.getEntityId());
+        m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntityReference(testFloor.getEntityId());
         auto& testFloorProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.getWriteableDataReference(testFloor.getEntityId());
         testFloorProperties.m_fragmentTextures[0].m_texture = nullptr;
         testFloorProperties.m_fragmentTextures[0].m_sampler = nullptr;
@@ -129,7 +129,7 @@ namespace ae {
         vikingRoom.m_model.scale = {1.0f, 1.0f, 1.0f };
         vikingRoom.m_model.rotation = {0.25 * glm::two_pi<float>(), 0.75 * glm::two_pi<float>(), 0.5* glm::two_pi<float>()};
 
-        m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntity(vikingRoom.getEntityId());
+        m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntityReference(vikingRoom.getEntityId());
         auto& vikingRoomProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.getWriteableDataReference(vikingRoom.getEntityId());
         vikingRoomProperties.m_fragmentTextures[0].m_texture = aeImage;
         vikingRoomProperties.m_fragmentTextures[0].m_sampler = m_aeSamplers.getDefaultSampler();

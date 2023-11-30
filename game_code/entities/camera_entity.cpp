@@ -14,9 +14,9 @@ namespace ae {
             GameObjectEntity(t_ecs, t_gameComponents) {
 
         // Specify the components that define this entity and where this entity will store data.
-        t_gameComponents.cameraComponent.requiredByEntity(this->m_entityId);
-        t_gameComponents.playerControlledComponent.requiredByEntity(this->m_entityId);
-        t_gameComponents.uboDataFlagsComponent.requiredByEntity(this->m_entityId);
+        t_gameComponents.cameraComponent.requiredByEntityReference(this->m_entityId);
+        t_gameComponents.playerControlledComponent.requiredByEntityReference(this->m_entityId);
+        t_gameComponents.uboDataFlagsComponent.requiredByEntityReference(this->m_entityId);
 
 	};
 

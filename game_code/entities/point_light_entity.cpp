@@ -12,8 +12,8 @@ namespace ae {
             GameObjectEntity(t_ecs, t_gameComponents) {
 
         // Specify the components that define this entity and where this entity will store data.
-        t_gameComponents.pointLightComponent.requiredByEntity(this->m_entityId);
-        t_gameComponents.uboDataFlagsComponent.requiredByEntity(this->m_entityId);
+        t_gameComponents.pointLightComponent.requiredByEntityReference(this->m_entityId);
+        t_gameComponents.uboDataFlagsComponent.requiredByEntityReference(this->m_entityId);
 
 	};
 

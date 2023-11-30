@@ -14,6 +14,8 @@
 
 namespace ae_ecs {
 
+    class AeComponentBase;
+
     /// A class that is used to register and organize components and correlate them to entities and systems.
 	class AeComponentManager {
 
@@ -34,7 +36,7 @@ namespace ae_ecs {
 
         /// Assign a component ID by taking the next available off the stack.
         /// \return A component ID.
-		ecs_id allocateComponentId();
+		ecs_id allocateComponentId(AeComponentBase* t_component);
 
         /// Gets the number of components that have not been allocated from the stack and are therefore available for
         /// use.
@@ -149,6 +151,9 @@ namespace ae_ecs {
 
         /// The component ID stack current top value pointer.
         ecs_id m_componentIdStackTop = -1;
+
+        /// Map of enabled systems
+        std::unordered_map<ecs_id ,AeComponentBase*> m_components;
 
 		/// Vector storing the components used for each entity, last bit is to indicate that the entity is fully
         /// initialized and ready to go live. After initialization adding or removing a component forces

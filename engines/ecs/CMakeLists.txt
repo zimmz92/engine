@@ -10,6 +10,8 @@ target_sources(mySrcFiles
         ae_system_manager.hpp
         ae_entity.hpp
         ae_component.hpp
+        ae_component_base.hpp
+        ae_component_base.cpp
         ae_system_base.cpp
         ae_system_base.hpp
         ae_system.hpp
