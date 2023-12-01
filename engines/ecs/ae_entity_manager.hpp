@@ -66,6 +66,9 @@ namespace ae_ecs {
             return staticTypeId;
         };
 
+        /// Destroys all the entities tracked by this entity manager.
+        void destroyAllEntities();
+
 	private:
 
 		/// This is the entity ID stack

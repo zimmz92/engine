@@ -18,15 +18,7 @@ namespace ae_ecs {
 
 
 	// Destroy the entity manager.
-	AeEntityManager::~AeEntityManager() {
-        ecs_id entityId = 0;
-        for(auto livingEntity : m_livingEntities){
-            if(livingEntity){
-                destroyEntity(entityId);
-                entityId++;
-            };
-        };
-    };
+	AeEntityManager::~AeEntityManager() {};
 
 
 
@@ -82,6 +74,17 @@ namespace ae_ecs {
     void AeEntityManager::destroyEntity(ecs_id t_entityId){
         m_componentManager.destroyEntity(t_entityId);
         unRegisterEntity(t_entityId);
+    };
+
+    //
+    void AeEntityManager::destroyAllEntities(){
+        ecs_id entityId = 0;
+        for(auto livingEntity : m_livingEntities){
+            if(livingEntity){
+                destroyEntity(entityId);
+            };
+            entityId++;
+        };
     };
 
 

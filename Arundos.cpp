@@ -48,6 +48,8 @@ namespace ae {
 
         // Wait for the completion of all outstanding queue operations.
         vkDeviceWaitIdle(m_aeDevice.device());
+
+        m_aeECS.destroyAllEntities();
     }
 
 

@@ -33,7 +33,10 @@ namespace ae {
 
 
     // Destructor implementation
-    CreateDestroyTestSystem::~CreateDestroyTestSystem()= default;
+    CreateDestroyTestSystem::~CreateDestroyTestSystem() {
+        m_aeModel = nullptr;
+        m_aeImage = nullptr;
+    };
 
 
 

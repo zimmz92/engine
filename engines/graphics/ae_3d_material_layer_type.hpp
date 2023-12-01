@@ -245,6 +245,7 @@ namespace ae {
                 // For the entities that have updated ensure they exist in the list and their drawIndirect command is
                 // updated with the new information.
                 for(auto entityId:updatedEntityIds){
+
                     // An update occurred to an entity, remake the command array for this material.
                     m_remakeCommandVector = true;
 
@@ -262,16 +263,18 @@ namespace ae {
                     // Check if entity's model is already in the unique model map.
                     auto modelInsertionResult = m_uniqueModelMap.insert( std::make_pair(entityModel.m_model, std::map<ecs_id,VkDrawIndexedIndirectCommand>()));
                     if (modelInsertionResult.second) {
+
                         // The model was not already in the map and was added. Now add the entity ID and model matrix
                         // index relation.
                         modelInsertionResult.first->second.insert(std::make_pair(entityId,entityCommand));
                     } else {
+
                         // The model was in the map already. Now see if the entity-model relation is already in the map.
                         auto entityInsertionResult = modelInsertionResult.first->second.insert(std::make_pair(entityId,entityCommand));
                         if(!entityInsertionResult.second){
                             entityInsertionResult.first->second = entityCommand;
                         }
-                    }
+                    };
 
                     // Get the material properties for the entity.
                     auto entityMaterialProperties = m_materialComponent.getReadOnlyDataReference(entityId);

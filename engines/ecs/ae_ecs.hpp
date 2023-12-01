@@ -33,6 +33,10 @@ namespace ae_ecs {
             m_ecsEntityManager.destroyEntity(t_entityId);
         };
 
+        void destroyAllEntities(){
+            m_ecsEntityManager.destroyAllEntities();
+        }
+
     private:
         AeComponentManager m_ecsComponentManager;
         AeSystemManager m_ecsSystemManager{m_ecsComponentManager};
