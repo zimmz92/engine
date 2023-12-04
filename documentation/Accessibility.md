@@ -1,0 +1,1 @@
+Shall have accessibility for color blind and hard of hearing individuals.
