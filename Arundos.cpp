@@ -140,7 +140,22 @@ namespace ae {
         //==============================================================================================================
 
         // Escher solid, first stellation of the rhombic dodecahedron
+        aeModel = AeModel::createModelFromFile(m_aeDevice, "assets/models/escher_solid.obj");
+        // ECS version of the floor
+        auto escherSolid = GameObjectEntity(m_aeECS,m_gameComponents);
+        escherSolid.m_worldPosition = {-2.0f, -0.5f, 1.5f };
+        escherSolid.m_model.m_texture = aeImage;
+        escherSolid.m_model.m_sampler = m_aeSamplers.getDefaultSampler();
+        escherSolid.m_model.m_model = aeModel;
+        escherSolid.m_model.scale = {0.5f, 0.5f, 0.5f };
+        escherSolid.m_model.rotation = {0.0f, 0.0f, 0.0f};
 
+        m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntityReference(escherSolid.getEntityId());
+        auto& escherSolidProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.getWriteableDataReference(escherSolid.getEntityId());
+        escherSolidProperties.m_fragmentTextures[0].m_texture = aeImage;
+        escherSolidProperties.m_fragmentTextures[0].m_sampler = m_aeSamplers.getDefaultSampler();
+
+        escherSolid.enableEntity();
 
         //==============================================================================================================
         // Make the point lights using the ECS for testing
