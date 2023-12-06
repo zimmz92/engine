@@ -7,6 +7,7 @@ target_sources(mySrcFiles
         camera_component.hpp
         ubo_data_flags_component.hpp
         point_light_component.hpp
+        world_voxel_component.hpp
     PUBLIC
 )
 

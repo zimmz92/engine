@@ -13,6 +13,7 @@
 #include "point_light_component.hpp"
 #include "model_2d_component.hpp"
 #include "graphics_update_flags_component.hpp"
+#include "world_voxel_component.hpp"
 
 namespace ae {
 
@@ -32,5 +33,6 @@ namespace ae {
         PointLightComponent pointLightComponent{ecs};
         Model2dComponent model2DComponent{ecs};
         GraphicsUpdateFlagsComponent graphicsUpdateFlagsComponent{ecs};
+        WorldVoxelComponent worldVoxelComponent{ecs};
     };
 }

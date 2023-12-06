@@ -8,6 +8,8 @@ target_sources(mySrcFiles
         point_light_entity.hpp
         two_d_entity.hpp
         two_d_entity.cpp
+        world_voxel_entity.hpp
+        world_voxel_entity.cpp
     PUBLIC
 )
 
