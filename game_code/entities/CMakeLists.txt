@@ -10,6 +10,8 @@ target_sources(mySrcFiles
         two_d_entity.cpp
         world_voxel_entity.hpp
         world_voxel_entity.cpp
+        world_chunk_entity.hpp
+        world_chunk_entity.cpp
     PUBLIC
 )
 

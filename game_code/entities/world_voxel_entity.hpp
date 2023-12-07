@@ -24,6 +24,9 @@ namespace ae {
         /// A reference to the world position of the voxel.
         WorldPositionComponentStruct& m_worldPosition;
 
+        /// A reference to the model representing the voxel.
+        ModelComponentStruct& m_model;
+
         /// A reference to the properties of the voxel.
         WorldVoxelComponentStruct& m_worldVoxelProperties;
 

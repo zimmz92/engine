@@ -14,6 +14,7 @@
 #include "model_2d_component.hpp"
 #include "graphics_update_flags_component.hpp"
 #include "world_voxel_component.hpp"
+#include "world_chunk_component.hpp"
 
 namespace ae {
 
@@ -34,5 +35,6 @@ namespace ae {
         Model2dComponent model2DComponent{ecs};
         GraphicsUpdateFlagsComponent graphicsUpdateFlagsComponent{ecs};
         WorldVoxelComponent worldVoxelComponent{ecs};
+        WorldChunkComponent worldChunkComponent{ecs};
     };
 }
