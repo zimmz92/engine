@@ -165,16 +165,16 @@ namespace ae {
 
         for (int x = 0; x < sphere_size; x++) {
             for (int y = 0; y < sphere_size; y++) {
-                for (int z = 0; z < sphere_size; z++){
+                for (int z = 0; z < sphere_size*2; z++){
                     if(x>0 && y==2 && x<3){
                         continue;
                     }
-                    if (sqrt(((float)x - sphere_size_float / 2) *
+                    if (sqrt(((float)x - sphere_size_float / 2.0f) *
                     ((float)x - sphere_size_float / 2.0f) +
                     ((float)y - sphere_size_float / 2.0f) *
                     ((float)y - sphere_size_float / 2.0f) +
-                    ((float)z - sphere_size_float / 2.0f) *
-                    ((float)z - sphere_size_float / 2.0f)) <= (double)sphere_size_float / 2.0f) {
+                    ((float)z/ 2.0f - sphere_size_float / 2.0f) *
+                    ((float)z/ 2.0f - sphere_size_float / 2.0f)) <= (double)sphere_size_float / 2.0f) {
                         auto escherSolid = GameObjectEntity(m_aeECS, m_gameComponents);
                         escherSolid.m_worldPosition = {0.0f + (0.5f * (float) x) + 0.25f * (float) (z % 2),
                                                        0.0f - (0.5f * (float) y) - 0.25f * (float) (z % 2),

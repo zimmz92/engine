@@ -15,24 +15,23 @@
 /// The maximum number of frames allowed to be in the rendering queue at a given time.
 /// If MAX_TEXTURES is changed here it also needs to be changed in the shaders!
 // TODO Make the shaders automatically update their values if this value is updated.v
-#define MAX_FRAMES_IN_FLIGHT 2
+static const std::size_t MAX_FRAMES_IN_FLIGHT = 2;
 
 /// The maximum number of textures the engine will support loaded into the texture SSBO.
-#define MAX_TEXTURES 8
+static const std::size_t MAX_TEXTURES = 8;
 
 /// Defines the maximum allowed materials that are applicable to 3D objects, and the maximum number of textures that any
 /// one 3D material may have as part of it's pipeline shaders.
-#define MAX_3D_MATERIALS 20
-#define MAX_3D_MATERIAL_TEXTURES 10
+static const std::size_t MAX_3D_MATERIALS = 20;
+static const std::size_t MAX_3D_MATERIAL_TEXTURES = 10;
 
 /// Defines the maximum allowed materials that are applicable to 2D objects, and the maximum number of textures that any
 /// one 2D material may have as part of it's pipeline shaders.
-#define MAX_2D_MATERIALS 20
-#define MAX_2D_MATERIAL_TEXTURES 10
+static const std::size_t MAX_2D_MATERIALS = 20;
+static const std::size_t MAX_2D_MATERIAL_TEXTURES = 10;
 
 /// The maximum number of objects that are allowed to be rendered at a given time.
-// TODO Find out why making this bigger is segment faulting DarkMind! Trying to set it to 16384 causes segment fault.
-#define MAX_OBJECTS 4096
+static const std::size_t MAX_OBJECTS = 16384;
 
 namespace ae {
 
