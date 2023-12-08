@@ -59,7 +59,7 @@ namespace ae {
 
         //==============================================================================================================
         // Make the game camera using ECS
-        CameraEntity cameraECS{m_aeECS,m_gameComponents};
+        CameraEntity cameraECS{m_aeECS, m_gameComponents};
         cameraECS.m_playerControlledData.isCurrentlyControlled = true;
         cameraECS.m_worldPosition.phi = -2.5f;
         cameraECS.m_cameraData.usePerspectiveProjection = true;
@@ -72,15 +72,17 @@ namespace ae {
 
         //==============================================================================================================
         // Load the flat vase object model from the file
-        std::shared_ptr<AeModel> aeModel = AeModel::createModelFromFile(m_aeDevice, "assets_NOTPRODUCTION/models/TEMP_flat_vase.obj");
+        std::shared_ptr<AeModel> aeModel = AeModel::createModelFromFile(m_aeDevice,
+                                                                        "assets_NOTPRODUCTION/models/TEMP_flat_vase.obj");
         // ECS version of flatVase
-        auto testFlatVase = GameObjectEntity(m_aeECS,m_gameComponents);
-        testFlatVase.m_worldPosition = {-0.5f, 0.5f, 0.0f };
+        auto testFlatVase = GameObjectEntity(m_aeECS, m_gameComponents);
+        testFlatVase.m_worldPosition = {-0.5f, 0.5f, 0.0f};
         testFlatVase.m_model.m_model = aeModel;
-        testFlatVase.m_model.scale = {3.0f, 1.5f, 3.0f };
+        testFlatVase.m_model.scale = {3.0f, 1.5f, 3.0f};
 
         m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntityReference(testFlatVase.getEntityId());
-        auto& testFlatVaseProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.getWriteableDataReference(testFlatVase.getEntityId());
+        auto &testFlatVaseProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.getWriteableDataReference(
+                testFlatVase.getEntityId());
         testFlatVaseProperties.m_fragmentTextures[0].m_texture = nullptr;
         testFlatVaseProperties.m_fragmentTextures[0].m_sampler = nullptr;
 
@@ -90,13 +92,14 @@ namespace ae {
         // Load the smooth vase object model from the file
         aeModel = AeModel::createModelFromFile(m_aeDevice, "assets_NOTPRODUCTION/models/TEMP_smooth_vase.obj");
         // ECS version of smoothVase
-        auto testSmoothVase = GameObjectEntity(m_aeECS,m_gameComponents);
-        testSmoothVase.m_worldPosition = {0.5f, 0.5f, 0.0f };
+        auto testSmoothVase = GameObjectEntity(m_aeECS, m_gameComponents);
+        testSmoothVase.m_worldPosition = {0.5f, 0.5f, 0.0f};
         testSmoothVase.m_model.m_model = aeModel;
-        testSmoothVase.m_model.scale = {3.0f, 1.5f, 3.0f };
+        testSmoothVase.m_model.scale = {3.0f, 1.5f, 3.0f};
 
         m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntityReference(testSmoothVase.getEntityId());
-        auto& testSmoothVaseProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.getWriteableDataReference(testSmoothVase.getEntityId());
+        auto &testSmoothVaseProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.getWriteableDataReference(
+                testSmoothVase.getEntityId());
         testSmoothVaseProperties.m_fragmentTextures[0].m_texture = nullptr;
         testSmoothVaseProperties.m_fragmentTextures[0].m_sampler = nullptr;
 
@@ -106,13 +109,14 @@ namespace ae {
         // Load the floor object model from the file
         aeModel = AeModel::createModelFromFile(m_aeDevice, "assets_NOTPRODUCTION/models/TEMP_quad.obj");
         // ECS version of the floor
-        auto testFloor = GameObjectEntity(m_aeECS,m_gameComponents);
-        testFloor.m_worldPosition = {0.0f, 0.5f, 0.0f };
+        auto testFloor = GameObjectEntity(m_aeECS, m_gameComponents);
+        testFloor.m_worldPosition = {0.0f, 0.5f, 0.0f};
         testFloor.m_model.m_model = aeModel;
-        testFloor.m_model.scale = {3.0f, 1.0f, 3.0f };
+        testFloor.m_model.scale = {3.0f, 1.0f, 3.0f};
 
         m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntityReference(testFloor.getEntityId());
-        auto& testFloorProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.getWriteableDataReference(testFloor.getEntityId());
+        auto &testFloorProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.getWriteableDataReference(
+                testFloor.getEntityId());
         testFloorProperties.m_fragmentTextures[0].m_texture = nullptr;
         testFloorProperties.m_fragmentTextures[0].m_sampler = nullptr;
 
@@ -121,18 +125,21 @@ namespace ae {
 
         // Load the viking object model from the file
         aeModel = AeModel::createModelFromFile(m_aeDevice, "assets_NOTPRODUCTION/models/TEMP_viking_room.obj");
-        std::shared_ptr<AeImage> aeImage = AeImage::createModelFromFile(m_aeDevice,"assets_NOTPRODUCTION/models/TEMP_viking_room.png");
+        std::shared_ptr<AeImage> aeImage = AeImage::createModelFromFile(m_aeDevice,
+                                                                        "assets_NOTPRODUCTION/models/TEMP_viking_room.png");
         // ECS version of the floor
-        auto vikingRoom = GameObjectEntity(m_aeECS,m_gameComponents);
-        vikingRoom.m_worldPosition = {0.0f, 0.25f, 1.5f };
+        auto vikingRoom = GameObjectEntity(m_aeECS, m_gameComponents);
+        vikingRoom.m_worldPosition = {0.0f, 0.25f, 1.5f};
         vikingRoom.m_model.m_texture = aeImage;
         vikingRoom.m_model.m_sampler = m_aeSamplers.getDefaultSampler();
         vikingRoom.m_model.m_model = aeModel;
-        vikingRoom.m_model.scale = {1.0f, 1.0f, 1.0f };
-        vikingRoom.m_model.rotation = {0.25 * glm::two_pi<float>(), 0.75 * glm::two_pi<float>(), 0.5* glm::two_pi<float>()};
+        vikingRoom.m_model.scale = {1.0f, 1.0f, 1.0f};
+        vikingRoom.m_model.rotation = {0.25 * glm::two_pi<float>(), 0.75 * glm::two_pi<float>(),
+                                       0.5 * glm::two_pi<float>()};
 
         m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntityReference(vikingRoom.getEntityId());
-        auto& vikingRoomProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.getWriteableDataReference(vikingRoom.getEntityId());
+        auto &vikingRoomProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.getWriteableDataReference(
+                vikingRoom.getEntityId());
         vikingRoomProperties.m_fragmentTextures[0].m_texture = aeImage;
         vikingRoomProperties.m_fragmentTextures[0].m_sampler = m_aeSamplers.getDefaultSampler();
 
@@ -140,22 +147,60 @@ namespace ae {
         //==============================================================================================================
 
         // Escher solid, first stellation of the rhombic dodecahedron
-        aeModel = AeModel::createModelFromFile(m_aeDevice, "assets/models/escher_solid.obj");
-        // ECS version of the floor
-        auto escherSolid = GameObjectEntity(m_aeECS,m_gameComponents);
-        escherSolid.m_worldPosition = {-2.0f, -0.5f, 1.5f };
-        escherSolid.m_model.m_texture = aeImage;
-        escherSolid.m_model.m_sampler = m_aeSamplers.getDefaultSampler();
-        escherSolid.m_model.m_model = aeModel;
-        escherSolid.m_model.scale = {0.5f, 0.5f, 0.5f };
-        escherSolid.m_model.rotation = {0.0f, 0.0f, 0.0f};
+        aeModel = AeModel::createModelFromFile(m_aeDevice, "assets/models/truncated_octahedron.obj");
 
-        m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntityReference(escherSolid.getEntityId());
-        auto& escherSolidProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.getWriteableDataReference(escherSolid.getEntityId());
-        escherSolidProperties.m_fragmentTextures[0].m_texture = aeImage;
-        escherSolidProperties.m_fragmentTextures[0].m_sampler = m_aeSamplers.getDefaultSampler();
+//        auto escherSolid = GameObjectEntity(m_aeECS,m_gameComponents);
+//        escherSolid.m_worldPosition = {-2.0f, -0.5f, 1.5f };
+//        escherSolid.m_model.m_texture = aeImage;
+//        escherSolid.m_model.m_sampler = m_aeSamplers.getDefaultSampler();
+//        escherSolid.m_model.m_model = aeModel;
+//        escherSolid.m_model.scale = {0.5f, 0.5f, 0.5f };
+//        escherSolid.m_model.rotation = {0.0f, 0.0f, 0.0f};
+//
+//        m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntityReference(escherSolid.getEntityId());
+//        auto& escherSolidProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.getWriteableDataReference(escherSolid.getEntityId());
+//        escherSolidProperties.m_fragmentTextures[0].m_texture = aeImage;
+//        escherSolidProperties.m_fragmentTextures[0].m_sampler = m_aeSamplers.getDefaultSampler();
+//
+//        escherSolid.enableEntity();
 
-        escherSolid.enableEntity();
+        int sphere_size = 16;
+        auto sphere_size_float = (float) sphere_size;
+
+        for (int x = 0; x < sphere_size; x++) {
+            for (int y = 0; y < sphere_size; y++) {
+                for (int z = 0; z < sphere_size; z++){
+                    if(x>0 && y==2 && x<3){
+                        continue;
+                    }
+                    if (sqrt(((float)x - sphere_size_float / 2) *
+                    ((float)x - sphere_size_float / 2.0f) +
+                    ((float)y - sphere_size_float / 2.0f) *
+                    ((float)y - sphere_size_float / 2.0f) +
+                    ((float)z - sphere_size_float / 2.0f) *
+                    ((float)z - sphere_size_float / 2.0f)) <= (double)sphere_size_float / 2.0f) {
+                        auto escherSolid = GameObjectEntity(m_aeECS, m_gameComponents);
+                        escherSolid.m_worldPosition = {0.0f + (0.5f * (float) x) + 0.25f * (float) (z % 2),
+                                                       0.0f - (0.5f * (float) y) - 0.25f * (float) (z % 2),
+                                                       0.0f + (0.25f * (float) z)};
+                        escherSolid.m_model.m_texture = aeImage;
+                        escherSolid.m_model.m_sampler = m_aeSamplers.getDefaultSampler();
+                        escherSolid.m_model.m_model = aeModel;
+                        escherSolid.m_model.scale = {0.25f, 0.25f, 0.25f};
+                        escherSolid.m_model.rotation = {0.0f, 0.0f, 0.0f};
+
+                        m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntityReference(
+                                escherSolid.getEntityId());
+                        auto &escherSolidProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.getWriteableDataReference(
+                                escherSolid.getEntityId());
+                        escherSolidProperties.m_fragmentTextures[0].m_texture = aeImage;
+                        escherSolidProperties.m_fragmentTextures[0].m_sampler = m_aeSamplers.getDefaultSampler();
+
+                        escherSolid.enableEntity();
+                    }
+            }
+        }
+    }
 
         //==============================================================================================================
         // Make the point lights using the ECS for testing
