@@ -347,23 +347,26 @@ namespace ae {
 
     // Destructor class of the RendererStartPassSystem
     RendererStartPassSystem::~RendererStartPassSystem(){
-        delete m_model3DBufferSystem;
-        m_model3DBufferSystem = nullptr;
-
-        delete m_gameMaterials;
-        m_gameMaterials = nullptr;
-
-        delete m_simpleRenderSystem;
-        m_simpleRenderSystem = nullptr;
-
-        //delete m_pointLightRenderSystem;
-        //m_pointLightRenderSystem = nullptr;
 
         delete m_uiRenderSystem;
         m_uiRenderSystem = nullptr;
 
+        //delete m_pointLightRenderSystem;
+        //m_pointLightRenderSystem = nullptr;
+
+        delete m_simpleRenderSystem;
+        m_simpleRenderSystem = nullptr;
+
+        delete m_gameMaterials;
+        m_gameMaterials = nullptr;
+
+        delete m_model3DBufferSystem;
+        m_model3DBufferSystem = nullptr;
+
         delete m_textureDescriptorWriter;
         m_textureDescriptorWriter = nullptr;
+
+
 
     };
 
@@ -402,8 +405,7 @@ namespace ae {
             // After the indexes have been updated for textures entities utilize, call each of the material's system to
             // organize the model objects for each of the materials to use draw indirect.
             uint64_t drawIndirectCount = 0;
-            //auto* frameDrawIndirectCommands  = static_cast<VkDrawIndexedIndirectCommand *>(m_drawIndirectBuffers[m_frameIndex]->getMappedMemory());
-            VkDrawIndexedIndirectCommand frameDrawIndirectCommands[MAX_OBJECTS * MAX_3D_MATERIALS]  = {};
+            auto* frameDrawIndirectCommands  = static_cast<VkDrawIndexedIndirectCommand *>(m_drawIndirectBuffers[m_frameIndex]->getMappedMemory());
             for(auto material : m_gameMaterials->m_materials){
                 // TODO: Much of this information does not change every cycle. Should pass the references in on material
                 //  creation.
@@ -419,9 +421,6 @@ namespace ae {
                     drawIndirectCount++;
                 }
             }
-
-            m_drawIndirectBuffers[m_frameIndex]->writeToBuffer(&frameDrawIndirectCommands);
-            m_drawIndirectBuffers[m_frameIndex]->flush();
 
             // Write the texture array to the descriptor set.
             m_textureDescriptorWriter->clearWriteData();
