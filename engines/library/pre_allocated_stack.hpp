@@ -1,5 +1,5 @@
-/// \file ##.hpp
-/// The ## class is defined.
+/// \file pre_allocated_stack.hpp
+/// The PreAllocatedStack class is defined.
 #pragma once
 
 // dependencies
@@ -12,29 +12,32 @@
 
 namespace ae {
 
-    template <typename T, uint64_t stackSize>
+    template <typename T, std::size_t stackSize>
     class PreAllocatedStack{
     public:
 
         PreAllocatedStack(){
-            for (uint64_t i = 0; i < stackSize; i++) {
-                m_stackValues[m_topOfStack] = stackSize - 1 - i;
-                if(m_topOfStack<stackSize-1){
-                    m_topOfStack = m_topOfStack + 1;
-                };
+            m_stackValues = new T[stackSize];
+
+            for (m_topOfStack = 0; m_topOfStack < stackSize;m_topOfStack++) {
+                m_stackValues[m_topOfStack] = stackSize - 1 - m_topOfStack;
             };
+            m_topOfStack=m_topOfStack-1;
         };
 
-        ~PreAllocatedStack() = default;
+        ~PreAllocatedStack() {
+            delete[] m_stackValues;
+            m_stackValues = nullptr;
+        };
 
         /// Push the input value onto the top of the stack.
         /// \param t_pushValue Value to be pushed to the top of the stack.
         void push(T t_pushValue){
-            unsigned long overflow_test;
+            std::size_t overflow_test;
             if (__builtin_add_overflow(m_topOfStack, 1, &overflow_test))
             {
-                throw std::runtime_error("3D object buffer Stack Overflow! Returning another object buffer positions means "
-                                         "there were more objects than should have been able to exist!");
+                throw std::runtime_error("Pre-allocated Stack Overflow! Pushing another object means "
+                                         "there were more objects than should have been able to exist in the stack!");
             }
             else
             {
@@ -47,10 +50,10 @@ namespace ae {
         /// Pop the value from the top of the stack.
         /// \return The value that was at the top of the stack.
         T pop() {
-            unsigned long overflow_test;
+            std::size_t overflow_test;
             if (__builtin_sub_overflow(m_topOfStack, 1, &overflow_test))
             {
-                throw std::runtime_error("3D object buffer Stack Overflow! No more object buffer positions to give out!");
+                throw std::runtime_error("Pre-allocated Stack Overflow! No more positions to give out!");
             }
             else
             {
@@ -64,11 +67,11 @@ namespace ae {
         };
 
     private:
-        /// The data stack itself as a pre-allocated array.
-        T m_stackValues[stackSize];
+        /// The data stack itself.
+        T* m_stackValues;
 
         /// Points to what value in pre-allocated array is the current top of the stack.
-        uint64_t m_topOfStack = 0;
+        std::size_t m_topOfStack = 0;
 
     protected:
 
