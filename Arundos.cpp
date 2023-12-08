@@ -80,9 +80,8 @@ namespace ae {
         testFlatVase.m_model.m_model = aeModel;
         testFlatVase.m_model.scale = {3.0f, 1.5f, 3.0f};
 
-        m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntityReference(testFlatVase.getEntityId());
-        auto &testFlatVaseProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.getWriteableDataReference(
-                testFlatVase.getEntityId());
+
+        auto &testFlatVaseProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntityReference(testFlatVase.getEntityId());
         testFlatVaseProperties.m_fragmentTextures[0].m_texture = nullptr;
         testFlatVaseProperties.m_fragmentTextures[0].m_sampler = nullptr;
 
@@ -97,9 +96,8 @@ namespace ae {
         testSmoothVase.m_model.m_model = aeModel;
         testSmoothVase.m_model.scale = {3.0f, 1.5f, 3.0f};
 
-        m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntityReference(testSmoothVase.getEntityId());
-        auto &testSmoothVaseProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.getWriteableDataReference(
-                testSmoothVase.getEntityId());
+
+        auto &testSmoothVaseProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntityReference(testSmoothVase.getEntityId());
         testSmoothVaseProperties.m_fragmentTextures[0].m_texture = nullptr;
         testSmoothVaseProperties.m_fragmentTextures[0].m_sampler = nullptr;
 
@@ -114,9 +112,8 @@ namespace ae {
         testFloor.m_model.m_model = aeModel;
         testFloor.m_model.scale = {3.0f, 1.0f, 3.0f};
 
-        m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntityReference(testFloor.getEntityId());
-        auto &testFloorProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.getWriteableDataReference(
-                testFloor.getEntityId());
+
+        auto &testFloorProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntityReference(testFloor.getEntityId());
         testFloorProperties.m_fragmentTextures[0].m_texture = nullptr;
         testFloorProperties.m_fragmentTextures[0].m_sampler = nullptr;
 
@@ -137,9 +134,8 @@ namespace ae {
         vikingRoom.m_model.rotation = {0.25 * glm::two_pi<float>(), 0.75 * glm::two_pi<float>(),
                                        0.5 * glm::two_pi<float>()};
 
-        m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntityReference(vikingRoom.getEntityId());
-        auto &vikingRoomProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.getWriteableDataReference(
-                vikingRoom.getEntityId());
+
+        auto &vikingRoomProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntityReference(vikingRoom.getEntityId());
         vikingRoomProperties.m_fragmentTextures[0].m_texture = aeImage;
         vikingRoomProperties.m_fragmentTextures[0].m_sampler = m_aeSamplers.getDefaultSampler();
 
@@ -157,8 +153,8 @@ namespace ae {
 //        escherSolid.m_model.scale = {0.5f, 0.5f, 0.5f };
 //        escherSolid.m_model.rotation = {0.0f, 0.0f, 0.0f};
 //
-//        m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntityReference(escherSolid.getEntityId());
-//        auto& escherSolidProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.getWriteableDataReference(escherSolid.getEntityId());
+//
+//        auto& escherSolidProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntityReference(escherSolid.getEntityId());
 //        escherSolidProperties.m_fragmentTextures[0].m_texture = aeImage;
 //        escherSolidProperties.m_fragmentTextures[0].m_sampler = m_aeSamplers.getDefaultSampler();
 //
@@ -189,10 +185,8 @@ namespace ae {
                         escherSolid.m_model.scale = {0.25f, 0.25f, 0.25f};
                         escherSolid.m_model.rotation = {0.0f, 0.0f, 0.0f};
 
-                        m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntityReference(
-                                escherSolid.getEntityId());
-                        auto &escherSolidProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.getWriteableDataReference(
-                                escherSolid.getEntityId());
+
+                        auto &escherSolidProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntityReference(escherSolid.getEntityId());
                         escherSolidProperties.m_fragmentTextures[0].m_texture = aeImage;
                         escherSolidProperties.m_fragmentTextures[0].m_sampler = m_aeSamplers.getDefaultSampler();
 
