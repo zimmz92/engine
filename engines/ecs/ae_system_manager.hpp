@@ -5,6 +5,7 @@
 
 #include "ae_ecs_constants.hpp"
 #include "ae_component_manager.hpp"
+#include "pre_allocated_stack.hpp"
 
 #include <cstdint>
 #include <bitset>
@@ -96,19 +97,8 @@ namespace ae_ecs {
 
     private:
 
-        /// Release the system ID and put it back on the top of the stack.
-        /// \param t_systemId The system ID to be released.
-        void releaseSystemId(ecs_id t_systemId);
-
-        /// Assign a system ID by taking the next available off the stack.
-        /// \return A system ID.
-        ecs_id allocateSystemId();
-
         /// System ID stack and a counter used for the stack
-        ecs_id m_systemIdStack[MAX_NUM_SYSTEMS];
-
-        /// The system ID stack current top value pointer.
-        ecs_id m_systemIdStackTop = -1;
+        ae::PreAllocatedStack<ecs_id,MAX_NUM_SYSTEMS> m_systemIdStack{};
 
         /// Array storing the dependencies of systems on each other.
         std::bitset<MAX_NUM_SYSTEMS> m_systemDependencySignatures[MAX_NUM_SYSTEMS] = {0};

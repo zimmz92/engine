@@ -7,51 +7,38 @@
 
 namespace ae_ecs {
 
-	// Create the component manager and initialize the entity ID stack.
-	AeEntityManager::AeEntityManager(AeComponentManager& t_componentManager) : m_componentManager{t_componentManager} {
-		// Initialize the entity ID array with all allowed entity IDs
-		for (ecs_id i = 0; i < MAX_NUM_ENTITIES; i++) {
-            unRegisterEntity(MAX_NUM_ENTITIES - 1 - i);
-		}
-	};
+    // Create the component manager and initialize the entity ID stack.
+    AeEntityManager::AeEntityManager(AeComponentManager& t_componentManager) : m_componentManager{t_componentManager} {
+        m_livingEntities = new bool[MAX_NUM_ENTITIES]();
+    };
 
 
 
-	// Destroy the entity manager.
-	AeEntityManager::~AeEntityManager() {};
+    // Destroy the entity manager.
+    AeEntityManager::~AeEntityManager() {
+        delete[] m_livingEntities;
+        m_livingEntities = nullptr;
+    };
 
 
 
     // Release the entity ID by incrementing the top of stack pointer and putting the entity ID being released
     // at that location.
-	void AeEntityManager::unRegisterEntity(ecs_id t_entityId) {
-		if (m_entityIdStackTop >= MAX_NUM_ENTITIES - 1) {
-			throw std::runtime_error("Entity ID Stack Overflow! Releasing more entities than should have been able to exist!");
-		}
-		else {
-			// Increment the entity stack pointer then set the top of the stack to the newly released entity ID
-			// and remove that entity ID from the living entities array.
-			m_entityIdStackTop = m_entityIdStackTop + 1;
-			m_entityIdStack[m_entityIdStackTop] = t_entityId;
-			m_livingEntities[t_entityId] = false;
-		}
-	};
+    void AeEntityManager::unRegisterEntity(ecs_id t_entityId) {
+        m_entityIdStack.push(t_entityId);
+        m_livingEntities[t_entityId] = false;
+    };
 
 
 
     // Allocate an entity ID by popping the entity ID off the stack, indicated by the top of stack pointer, then
     // decrementing the top of stack pointer to point to the next available entity ID.
     ecs_id AeEntityManager::registerEntity() {
-        if (m_entityIdStackTop <= -1) {
-            throw std::runtime_error("Entity ID Stack Underflow! No more entities to give out!");
-        } else {
-            // Get the new entity ID being allocated from the top of the stack and add the popped entity ID to the living
-            // entities array then decrement the stack counter.
-            ecs_id allocatedId = m_entityIdStack[m_entityIdStackTop];
-            m_livingEntities[allocatedId] = true;
-            m_entityIdStackTop = m_entityIdStackTop - 1;
-            return allocatedId;
-        }
+        // Get the new entity ID being allocated from the top of the stack and add the popped entity ID to the living
+        // entities array then decrement the stack counter.
+        ecs_id allocatedId = m_entityIdStack.pop();
+        m_livingEntities[allocatedId] = true;
+        return allocatedId;
     };
 
 
@@ -78,19 +65,12 @@ namespace ae_ecs {
 
     //
     void AeEntityManager::destroyAllEntities(){
-        ecs_id entityId = 0;
-        for(auto livingEntity : m_livingEntities){
-            if(livingEntity){
+        for(ecs_id entityId=0; entityId<MAX_NUM_ENTITIES;entityId++){
+            if(m_livingEntities[entityId]){
                 destroyEntity(entityId);
             };
-            entityId++;
         };
     };
-
-
-    // Gets the number of available entities that can be allocated by returning the current value of the top of stack
-    // pointer and adding one since the stack array starts at 0.
-    ecs_id AeEntityManager::getNumEntitiesAvailable() { return m_entityIdStackTop + 1; };
 
 
 

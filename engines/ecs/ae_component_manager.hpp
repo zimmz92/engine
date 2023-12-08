@@ -4,6 +4,7 @@
 #pragma once
 
 #include "ae_ecs_constants.hpp"
+#include "pre_allocated_stack.hpp"
 
 #include <cstdint>
 #include <bitset>
@@ -37,11 +38,6 @@ namespace ae_ecs {
         /// Assign a component ID by taking the next available off the stack.
         /// \return A component ID.
 		ecs_id allocateComponentId(AeComponentBase* t_component);
-
-        /// Gets the number of components that have not been allocated from the stack and are therefore available for
-        /// use.
-        /// \return Number of components still available to be used.
-		ecs_id getNumAvailableComponents();
 
         /// Gets the component signature for an entity.
         /// \param t_entityId The ID of the entity.
@@ -147,10 +143,7 @@ namespace ae_ecs {
 	private:
 
 		/// Component ID stack and a counter used for the stack
-		ecs_id m_componentIdStack[MAX_NUM_COMPONENTS];
-
-        /// The component ID stack current top value pointer.
-        ecs_id m_componentIdStackTop = -1;
+        ae::PreAllocatedStack<ecs_id,MAX_NUM_COMPONENTS> m_componentIdStack{};
 
         /// Map of enabled systems
         std::unordered_map<ecs_id ,AeComponentBase*> m_components;

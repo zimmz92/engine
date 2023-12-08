@@ -9,10 +9,6 @@ namespace ae_ecs {
 
     // Create the system manager and initialize the system ID stack.
     AeSystemManager::AeSystemManager(AeComponentManager& t_componentManager) : m_componentManager{t_componentManager} {
-        // Initialize the system ID array with all allowed system IDs
-        for (ecs_id i = 0; i < MAX_NUM_SYSTEMS; i++) {
-            releaseSystemId(MAX_NUM_SYSTEMS - 1 - i);
-        }
     };
 
 
@@ -24,7 +20,7 @@ namespace ae_ecs {
 
     // Give the system an ID and inform the component manager that a new system exists.
     ecs_id AeSystemManager::registerSystem(){
-        ecs_id new_system_id = allocateSystemId();
+        ecs_id new_system_id = m_systemIdStack.pop();
         m_componentManager.registerSystem(new_system_id);
         return new_system_id;
     };
@@ -113,8 +109,9 @@ namespace ae_ecs {
 
         disableSystem(t_system);
         m_componentManager.removeSystem(t_system->m_systemId);
-        this->releaseSystemId(t_system->m_systemId);
 
+        // Give the system ID back to the stack of available systems.
+        m_systemIdStack.push(t_system->m_systemId);
     };
 
     std::vector<ecs_id> AeSystemManager::getEnabledSystemsEntities(ecs_id t_systemId){
@@ -240,34 +237,6 @@ namespace ae_ecs {
                 };
             };
         };
-    };
-
-
-
-    // Release the system ID by incrementing the top of stack pointer and putting the system ID being released
-    // at that location.
-    void AeSystemManager::releaseSystemId(ecs_id t_systemId) {
-        if (m_systemIdStackTop >= MAX_NUM_SYSTEMS - 1) {
-            throw std::runtime_error("System ID Stack Overflow!");
-        }
-        else {
-            m_systemIdStackTop++;
-            m_systemIdStack[m_systemIdStackTop] = t_systemId;
-        }
-    };
-
-
-
-    // Allocate a system ID by popping the system ID off the stack, indicated by the top of stack pointer, then
-    // decrementing the top of stack pointer to point to the next available system ID.
-    ecs_id AeSystemManager::allocateSystemId() {
-        if (m_systemIdStackTop <= -1) {
-            throw std::runtime_error("System ID Stack Underflow! No more system IDs to give out!");
-        }
-        else {
-            return m_systemIdStack[m_systemIdStackTop--];
-
-        }
     };
 
 

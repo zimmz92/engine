@@ -10,13 +10,7 @@
 namespace ae_ecs {
 
 	// Initialize the component manager.
-	AeComponentManager::AeComponentManager(){
-		// Initialize the component ID array with all allowed component IDs
-		for (ecs_id i = 0; i < MAX_NUM_COMPONENTS; i++) {
-			releaseComponentId(MAX_NUM_COMPONENTS - 1 - i);
-		};
-	};
-
+	AeComponentManager::AeComponentManager(){};
 
 
 	// Destroy the component manager.
@@ -25,13 +19,7 @@ namespace ae_ecs {
 	// Release the component ID by incrementing the top of stack pointer and putting the component ID being released
 	// at that location.
 	void AeComponentManager::releaseComponentId(ecs_id t_componentId) {
-		if (m_componentIdStackTop >= MAX_NUM_COMPONENTS - 1) {
-			throw std::runtime_error("Component ID Stack Overflow!");
-		}
-		else {
-			m_componentIdStackTop++;
-			m_componentIdStack[m_componentIdStackTop] = t_componentId;
-		}
+        m_componentIdStack.push(t_componentId);
 	};
 
 
@@ -39,22 +27,9 @@ namespace ae_ecs {
 	// Allocate a component ID by popping the component ID off the stack, indicated by the top of stack pointer, then
 	// decrementing the top of stack pointer to point to the next available component ID.
 	ecs_id AeComponentManager::allocateComponentId(AeComponentBase* t_component) {
-		if (m_componentIdStackTop <= -1) {
-			throw std::runtime_error("Component ID Stack Underflow! No more component IDs to give out!");
-		}
-		else {
-            ecs_id allocatedId = m_componentIdStack[m_componentIdStackTop--];
+            ecs_id allocatedId = m_componentIdStack.pop();
             m_components[allocatedId] = t_component;
 			return allocatedId;
-		}
-	};
-
-
-
-	// Gets the number of available components that can be allocated by returning the current value of the top of stack
-	// pointer and adding one since the stack array starts at 0.
-	ecs_id AeComponentManager::getNumAvailableComponents() {
-		return m_componentIdStackTop + 1;
 	};
 
 

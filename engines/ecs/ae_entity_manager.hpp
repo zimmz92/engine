@@ -5,6 +5,7 @@
 
 #include "ae_ecs_constants.hpp"
 #include "ae_component_manager.hpp"
+#include "pre_allocated_stack.hpp"
 
 #include <cstdint>
 #include <stack>
@@ -71,14 +72,11 @@ namespace ae_ecs {
 
 	private:
 
-		/// This is the entity ID stack
-		ecs_id m_entityIdStack[MAX_NUM_ENTITIES];
-
-		/// Tracks the current top of the entity ID stack
-		ecs_id m_entityIdStackTop = -1;
+        /// The entity ID stack.
+        ae::PreAllocatedStack<ecs_id,MAX_NUM_ENTITIES> m_entityIdStack{};
 
 		/// Tracks which entities are currently "still alive"
-		bool m_livingEntities[MAX_NUM_ENTITIES] = { false };
+		bool* m_livingEntities;
 
         /// The component manager the entity manager works with
         AeComponentManager& m_componentManager;
