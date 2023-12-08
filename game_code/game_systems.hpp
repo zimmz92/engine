@@ -54,6 +54,9 @@ namespace ae {
         /// Destructor for this struct.
         ~GameSystems(){
             // Delete systems in the reverse order of how they were declared.
+            delete createDestroyTestSystem;
+            createDestroyTestSystem = nullptr;
+
             delete rendererSystem;
             rendererSystem = nullptr;
 
@@ -68,6 +71,9 @@ namespace ae {
 
             delete playerInputSystem;
             playerInputSystem = nullptr;
+
+            delete timingSystem;
+            timingSystem = nullptr;
         };
 
         /// The TimingSystem instance for the game.
