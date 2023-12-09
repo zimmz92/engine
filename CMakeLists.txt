@@ -55,6 +55,8 @@ add_subdirectory(Libraries/glm)
 # Add source to this project's executable.
 add_library(mySrcFiles "")
 
+add_subdirectory(engines/memory)
+
 add_subdirectory(engines/graphics)
 add_subdirectory(engines/graphics/systems)
 add_subdirectory(engines/graphics/systems/render_systems)
