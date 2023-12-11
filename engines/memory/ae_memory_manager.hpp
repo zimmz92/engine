@@ -1,5 +1,5 @@
-/// \file ##.hpp
-/// The ## class is defined.
+/// \file ae_memory_manager.hpp
+/// The AeMemoryManager class is defined.
 #pragma once
 
 // dependencies
@@ -9,7 +9,7 @@
 
 // std
 #include <cstdlib>
-#include <unordered_set>
+#include <forward_list>
 
 namespace ae_memory {
 
@@ -31,10 +31,10 @@ namespace ae_memory {
         /// The base pointer to the block of allocated memory.
         void* m_allocatedMemoryPtr;
 
-        /// A
-        std::unordered_set<AeAllocatorBase*> m_managedAllocators;
+        /// A list of which allocators are being managed.
+        std::forward_list<AeAllocatorBase*> m_managedAllocators;
 
-        ///
+        /// The amount of memory allocated to this manager.
         std::size_t m_memoryBlockSize;
     };
 

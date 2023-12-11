@@ -19,6 +19,7 @@ namespace ae {
 
     // The constructor of the Arundos application. Sets up the base application.
     Arundos::Arundos() {
+
         // Load the default game objects into the scene.
         loadGameObjects();
 

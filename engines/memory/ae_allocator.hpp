@@ -1,5 +1,5 @@
-/// \file ##.hpp
-/// The ## class is defined.
+/// \file ae_allocator.hpp
+/// The AeAllocator class is defined.
 #pragma once
 
 // dependencies
@@ -12,6 +12,7 @@
 #include <memory>
 
 namespace ae_memory {
+
     template <class T>
     class AeAllocator {
     public:

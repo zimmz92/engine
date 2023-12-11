@@ -1,5 +1,5 @@
-/// \file ##.cpp
-/// The ## class is implemented.
+/// \file ae_memory_manager.cpp
+/// The AeMemoryManager class is implemented.
 #include "ae_memory_manager.hpp"
 
 // dependencies

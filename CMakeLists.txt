@@ -7,6 +7,15 @@ project (Arundos VERSION 1.0)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    message(STATUS "64-bit architecture detected.")
+    add_compile_definitions( ARCH_64BIT )
+else ()
+    message(STATUS "32-bit architecture detected.")
+    add_compile_definitions( ARCH_32BIT )
+endif ()
+
+
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     #add_compile_definitions( MY_DEBUG )
     #add_compile_definitions( ECS_DEBUG )
