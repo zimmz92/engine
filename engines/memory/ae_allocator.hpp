@@ -14,13 +14,13 @@
 namespace ae_memory {
 
     template <class T>
-    class AeAllocator {
+    class AeStackAllocator {
     public:
         /// Constructor of AeAllocator. Currently Default.
-        AeAllocator() noexcept {};
+        AeStackAllocator() noexcept {};
 
         /// Copy Constructor. Currently Default.
-        template <class U> AeAllocator(AeAllocator<U> const&) noexcept {};
+        template <class U> AeStackAllocator(AeStackAllocator<U> const&) noexcept {};
 
         /// Allocate memory for the array.
         /// \param numElements The number of array elements being created.
@@ -59,12 +59,12 @@ namespace ae_memory {
         };
 
         /// Implements the equals comparison operator.
-        template<class U> bool operator==(const AeAllocator<U>&) const noexcept {
+        template<class U> bool operator==(const AeStackAllocator<U>&) const noexcept {
             return true;
         };
 
         /// Implements the not equals comparison operator.
-        template<class U> bool operator!=(const AeAllocator<U>&) const noexcept {
+        template<class U> bool operator!=(const AeStackAllocator<U>&) const noexcept {
             return false;
         };
     };

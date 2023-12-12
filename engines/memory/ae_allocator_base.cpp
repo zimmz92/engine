@@ -7,14 +7,15 @@
 // libraries
 
 // std
-#include <stdexcept>
-#include <limits>
+#include <cassert>
 
 namespace ae_memory {
 
     AeAllocatorBase::AeAllocatorBase(std::size_t t_allocatedMemorySize, void* t_allocatedMemoryPtr) noexcept :
             m_allocatedMemoryPtr{t_allocatedMemoryPtr},
-            m_allocatedMemorySize{t_allocatedMemorySize}{};
+            m_allocatedMemorySize{t_allocatedMemorySize}{
+
+    };
 
 
 
@@ -30,11 +31,17 @@ namespace ae_memory {
 
 
 
-    void* AeAllocatorBase::getAllocatedMemoryPtr(){return m_allocatedMemoryPtr;};
+    void* AeAllocatorBase::getAllocatedMemoryPtr(){
+        return m_allocatedMemoryPtr;
+    };
 
 
 
     void* AeAllocatorBase::getAlignedAddress(void* t_addressToAlign, std::size_t t_byteAlignment){
+
+        // If the requested alignment is zero then this function call makes no sense and will error out as a result.
+        assert(t_byteAlignment!=0 && "getAlignedAddressWithStoredOffset: Cannot align to 0 bytes!");
+
         // Let's break this down:
         // 1) A reinterpret cast is done to t_addressToAlign in order to get the address location in a form that
         // math can be nicely done on it.
@@ -49,11 +56,15 @@ namespace ae_memory {
         //return (void*)((addressToAlign + byteOffset) & byteMask);
 
         return (void*)((reinterpret_cast<std::size_t>(t_addressToAlign) + (t_byteAlignment - 1)) & (~(t_byteAlignment - 1)));
-    }
+    };
 
 
 
     std::size_t AeAllocatorBase::getAlignmentOffset(void* t_addressToAlign, size_t t_byteAlignment){
+
+        // If the requested alignment is zero then this function call makes no sense and will error out as a result.
+        assert(t_byteAlignment!=0 && "getAlignedAddressWithStoredOffset: Cannot align to 0 bytes!");
+
 
         // Calculate the required memory offset to align the supplied address as desired. Mask the LSBs representing
         // the "remainder" of current address that is not aligned as desired. Then subtract that "remainder" from the
@@ -73,10 +84,11 @@ namespace ae_memory {
 
     void* AeAllocatorBase::getAlignedAddressWithStoredOffset(void* t_addressToAlign, std::size_t t_byteAlignment ){
 
+        // If the requested alignment is zero then this function call makes no sense and will error out as a result.
+        assert(t_byteAlignment!=0 && "getAlignedAddressWithStoredOffset: Cannot align to 0 bytes!");
+
         // Error out if an alignment greater than 256 bytes is requested.
-        if(t_byteAlignment>256){
-            throw std::runtime_error("getAlignedAddressWithStoredOffset only works with t_byteAlignment inputs up to 256 bytes!");
-        }
+        assert(t_byteAlignment<257 && "getAlignedAddressWithStoredOffset only works with t_byteAlignment inputs up to 256 bytes!");
 
         // Get the pointer as a uint8_t type for doing the pointer maths.
         auto* alignedAddress = reinterpret_cast<uint8_t*>(t_addressToAlign);
@@ -141,4 +153,4 @@ namespace ae_memory {
         return (void*)(reinterpret_cast<std::size_t>(t_alignedAddress) - alignmentOffset - t_minimumOffsetUsed);
     };
 
-} //namespace ae
+}; //namespace ae
