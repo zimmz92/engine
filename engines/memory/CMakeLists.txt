@@ -1,6 +1,7 @@
 target_sources(mySrcFiles
     PRIVATE
         ae_allocator_base.hpp
+        ae_allocator_base.cpp
         ae_memory_manager.hpp
         ae_memory_manager.cpp
         ae_allocator.hpp
