@@ -10,7 +10,6 @@
 #include "point_light_entity.hpp"
 #include "two_d_entity.hpp"
 #include "ae_image.hpp"
-#include "ae_allocator.hpp"
 
 // libraries
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -22,8 +21,6 @@ namespace ae {
 
         // Load the default game objects into the scene.
         loadGameObjects();
-
-        ae_memory::AeAllocator<uint64_t> test{};
 
     };
 

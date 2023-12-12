@@ -2,6 +2,7 @@ target_sources(mySrcFiles
     PRIVATE
         Test_entity-create-destroy_system.hpp
         Test_entity-create-destroy_system.cpp
+        test_memory_pointer_functions.hpp
     PUBLIC
 )
 
