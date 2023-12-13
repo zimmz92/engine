@@ -11,7 +11,7 @@
 
 namespace ae_memory {
 
-    AeAllocatorBase::AeAllocatorBase(std::size_t t_allocatedMemorySize, void* t_allocatedMemoryPtr) noexcept :
+    AeAllocatorBase::AeAllocatorBase(std::size_t const t_allocatedMemorySize, void* const t_allocatedMemoryPtr) noexcept :
             m_allocatedMemoryPtr{t_allocatedMemoryPtr},
             m_allocatedMemorySize{t_allocatedMemorySize}{
 
@@ -19,7 +19,7 @@ namespace ae_memory {
 
 
 
-    AeAllocatorBase::~AeAllocatorBase(){
+    AeAllocatorBase::~AeAllocatorBase() noexcept{
         m_allocatedMemoryPtr = nullptr;
     };
 
@@ -37,7 +37,7 @@ namespace ae_memory {
 
 
 
-    void* AeAllocatorBase::getAlignedAddress(void* t_addressToAlign, std::size_t t_byteAlignment){
+    void* AeAllocatorBase::getAlignedAddress(void* const t_addressToAlign, std::size_t const t_byteAlignment){
 
         // If the requested alignment is zero then this function call makes no sense and will error out as a result.
         assert(t_byteAlignment!=0 && "getAlignedAddressWithStoredOffset: Cannot align to 0 bytes!");
@@ -60,7 +60,7 @@ namespace ae_memory {
 
 
 
-    std::size_t AeAllocatorBase::getAlignmentOffset(void* t_addressToAlign, size_t t_byteAlignment){
+    std::size_t AeAllocatorBase::getAlignmentOffset(void* const t_addressToAlign, size_t const t_byteAlignment){
 
         // If the requested alignment is zero then this function call makes no sense and will error out as a result.
         assert(t_byteAlignment!=0 && "getAlignedAddressWithStoredOffset: Cannot align to 0 bytes!");
@@ -82,7 +82,7 @@ namespace ae_memory {
 
 
 
-    void* AeAllocatorBase::getAlignedAddressWithStoredOffset(void* t_addressToAlign, std::size_t t_byteAlignment ){
+    void* AeAllocatorBase::getAlignedAddressWithStoredOffset(void* const t_addressToAlign, std::size_t const t_byteAlignment ){
 
         // If the requested alignment is zero then this function call makes no sense and will error out as a result.
         assert(t_byteAlignment!=0 && "getAlignedAddressWithStoredOffset: Cannot align to 0 bytes!");
@@ -122,9 +122,9 @@ namespace ae_memory {
 
 
 
-    void* AeAllocatorBase::getAlignedAddressWithMinimumOffset(void* t_addressToAlign,
-                                                              std::size_t t_minimumOffset,
-                                                              std::size_t t_byteAlignment){
+    void* AeAllocatorBase::getAlignedAddressWithMinimumOffset(void* const t_addressToAlign,
+                                                              std::size_t const t_minimumOffset,
+                                                              std::size_t const t_byteAlignment){
 
         // Add the specified minimum offset to ensure that memory will be available after address alignment.
         auto* minimallyOffsetAddress = (void*)(reinterpret_cast<std::size_t>(t_addressToAlign) + t_minimumOffset);
@@ -135,9 +135,9 @@ namespace ae_memory {
 
 
 
-    void* AeAllocatorBase::getAlignedAddressWithVoidPtrOffsets(void* t_addressToAlign,
-                                                               std::size_t t_numVoidPtrOffsets,
-                                                               std::size_t t_byteAlignment){
+    void* AeAllocatorBase::getAlignedAddressWithVoidPtrOffsets(void* const t_addressToAlign,
+                                                               std::size_t const t_numVoidPtrOffsets,
+                                                               std::size_t const t_byteAlignment){
 
         // Align the address which accounted for the specified number of void pointer offsets.
         return getAlignedAddressWithMinimumOffset(t_addressToAlign, t_numVoidPtrOffsets * sizeof(void*), t_byteAlignment);
@@ -145,12 +145,39 @@ namespace ae_memory {
 
 
 
-    void* AeAllocatorBase::getBaseAddressFromAlignedAddress(void* t_alignedAddress, std::size_t t_minimumOffsetUsed){
+    void* AeAllocatorBase::getBaseAddressFromAlignedAddress(void* const t_alignedAddress,
+                                                            std::size_t const t_minimumOffsetUsed){
         // Get the alignment that was stored in the byte just behind the aligned address.
         std::size_t alignmentOffset = reinterpret_cast<std::uint8_t*>(t_alignedAddress)[-1];
 
         // The base address is the aligned address minus the alignment offset minus any required minimum offset.
         return (void*)(reinterpret_cast<std::size_t>(t_alignedAddress) - alignmentOffset - t_minimumOffsetUsed);
+    };
+
+
+
+    void* AeAllocatorBase::addToPointer(std::size_t const t_bytesToAdd, void* const t_pointer){
+        // Add the specified number of bytes to the supplied pointer.
+        return (void*)(reinterpret_cast<std::size_t>(t_pointer) + t_bytesToAdd);
+    };
+
+
+
+    void* AeAllocatorBase::subtractFromPointer(std::size_t const t_bytesToSubtract, void* const t_pointer){
+        // Subtract the specified number of bytes to the supplied pointer.
+        return (void*)(reinterpret_cast<std::size_t>(t_pointer) - t_bytesToSubtract);
+    }
+
+
+
+    size_t AeAllocatorBase::pointerDifference(void* t_pointerA, void* t_pointerB){
+        // Check to make sure that pointerA is greater than pointerB before attempting the subtraction.
+        auto addressPointerA = reinterpret_cast<std::size_t>(t_pointerA);
+        auto addressPointerB = reinterpret_cast<std::size_t>(t_pointerB);
+
+        assert(addressPointerA>addressPointerB);
+
+        return  (addressPointerA - addressPointerB);
     };
 
 }; //namespace ae

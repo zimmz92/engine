@@ -25,13 +25,22 @@ namespace ae_memory {
         AeAllocatorBase(std::size_t t_allocatedMemorySize, void* t_allocatedMemoryPtr) noexcept;
 
         /// Destructor of the AeAllocatorBase. Will free the pointer to the memory it was managing.
-        ~AeAllocatorBase();
+        virtual ~AeAllocatorBase() noexcept;
 
-        /// Allocate memory for the array.
+        /// Do not allow this class to be copied (2 lines below).
+        AeAllocatorBase(const AeAllocatorBase&) = delete;
+        AeAllocatorBase& operator=(const AeAllocatorBase&) = delete;
+
+
+        /// Do not allow this class to be moved (2 lines below)
+        AeAllocatorBase(AeAllocatorBase&&) = delete;
+        AeAllocatorBase& operator=(AeAllocatorBase&&) = delete;
+
+        /// Allocates the specified amount of memory.
         /// \param t_allocationSize The size of the memory in bytes to be allocated.
-        virtual void* allocate(std::size_t t_allocationSize)=0;
+        virtual void* allocate(std::size_t t_allocationSize, std::size_t t_byteAlignment)=0;
 
-        /// Deallocates the memory for an array allocated memory by this allocator.
+        /// Deallocates the allocated memory by this allocator at this pointer.
         /// \param t_allocatedMemoryPtr The pointer to the allocated memory which is to be freed.
         virtual void deallocate(void* t_allocatedMemoryPtr)=0;
 
@@ -102,6 +111,27 @@ namespace ae_memory {
         /// \param t_minimumOffsetUsed Defaults to 0. If a minimum offset was supplied when the address was originally
         /// aligned it must be provided here to correctly calculate the base address.
         static void* getBaseAddressFromAlignedAddress(void* t_alignedAddress, std::size_t t_minimumOffsetUsed = 0);
+
+        /// Returns a new pointer that has been incremented by the number of specified bytes from the specified pointer .
+        /// \param t_bytesToAdd The number of bytes to add to the specified pointer points to.
+        /// \param t_pointer The pointer which the number of bytes should be added to.
+        static void* addToPointer(std::size_t t_bytesToAdd, void* t_pointer);
+
+        /// Returns a new pointer that has been decremented by the number of specified bytes from the specified pointer.
+        /// \param t_bytesToSubtract The number of bytes to subtract from the specified pointer points to.
+        /// \param t_pointer The pointer which the number of bytes should be subtracted from.
+        static void* subtractFromPointer(std::size_t t_bytesToSubtract, void* t_pointer);
+
+        /// Returns the difference in bytes between pointerA and pointerB (t_pointerA-t_pointerB).
+        /// \param t_pointerA The higher value pointer which t_pointerB will be subtracted from.
+        /// \param t_pointerB The lower value pointer which will be subtracted from t_pointerA.
+        static size_t pointerDifference(void* t_pointerA, void* t_pointerB);
+
+        /// Implements the equals comparison operator.
+        bool operator==(const AeAllocatorBase&) const noexcept { return true;};
+
+        /// Implements the not equals comparison operator.
+        bool operator!=(const AeAllocatorBase&) const noexcept { return false;};
 
     private:
 
