@@ -8,6 +8,7 @@
 
 // std
 #include <cassert>
+#include <stdexcept>
 
 namespace ae_memory {
 
@@ -147,6 +148,7 @@ namespace ae_memory {
 
     void* AeAllocatorBase::getBaseAddressFromAlignedAddress(void* const t_alignedAddress,
                                                             std::size_t const t_minimumOffsetUsed){
+
         // Get the alignment that was stored in the byte just behind the aligned address.
         std::size_t alignmentOffset = reinterpret_cast<std::uint8_t*>(t_alignedAddress)[-1];
 
@@ -157,20 +159,39 @@ namespace ae_memory {
 
 
     void* AeAllocatorBase::addToPointer(std::size_t const t_bytesToAdd, void* const t_pointer){
+
+        // TODO make the overflow detection only for the debug build. For release this should not be an issue....?
+
         // Add the specified number of bytes to the supplied pointer.
-        return (void*)(reinterpret_cast<std::size_t>(t_pointer) + t_bytesToAdd);
+        std::size_t overflow_addition_result;
+        if (__builtin_add_overflow(reinterpret_cast<std::size_t>(t_pointer), t_bytesToAdd, &overflow_addition_result))
+        {
+            throw std::runtime_error("Overflow during pointer addition!");
+        }
+
+        return (void*)(overflow_addition_result);
     };
 
 
 
     void* AeAllocatorBase::subtractFromPointer(std::size_t const t_bytesToSubtract, void* const t_pointer){
+
+        // TODO make the overflow detection only for the debug build. For release this should not be an issue....?
+
         // Subtract the specified number of bytes to the supplied pointer.
-        return (void*)(reinterpret_cast<std::size_t>(t_pointer) - t_bytesToSubtract);
+        std::size_t overflow_sub_result;
+        if (__builtin_sub_overflow(reinterpret_cast<std::size_t>(t_pointer), t_bytesToSubtract, &overflow_sub_result))
+        {
+            throw std::runtime_error("Overflow during pointer subtraction!");
+        };
+
+        return (void*)(overflow_sub_result);
     }
 
 
 
     size_t AeAllocatorBase::pointerDifference(void* t_pointerA, void* t_pointerB){
+
         // Check to make sure that pointerA is greater than pointerB before attempting the subtraction.
         auto addressPointerA = reinterpret_cast<std::size_t>(t_pointerA);
         auto addressPointerB = reinterpret_cast<std::size_t>(t_pointerB);

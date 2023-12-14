@@ -61,12 +61,12 @@ namespace ae_memory {
         bool operator!=(const AeDeStackAllocator&) const noexcept { return false;};
 
         //==================================================================================================================
-        // Bottom-Up Functions
+        // Bottom Stack Functions
         //==================================================================================================================
 
         /// Returns a marker which represents the current top of the stack. A marker must be used to free memory from
         /// the stack allocator.
-        BottomStackMarker getBottomUpMarker() noexcept;
+        BottomStackMarker getBottomStackMarker() noexcept;
 
         /// Allocates the specified amount of memory from the bottom portion of the stack.
         /// \param t_allocationSize The size of the memory in bytes to be allocated.
@@ -82,12 +82,12 @@ namespace ae_memory {
 
 
         //==================================================================================================================
-        // Top-Down Functions
+        // Top Stack Functions
         //==================================================================================================================
 
         /// Returns a marker which represents the current top of the stack. A marker must be used to free memory from
         /// the stack allocator.
-        TopStackMarker getTopMarker() noexcept;
+        TopStackMarker getTopStackMarker() noexcept;
 
         /// Allocates the specified amount of memory from the top portion of the stack.
         /// \param t_allocationSize The size of the memory in bytes to be allocated.
@@ -109,16 +109,16 @@ namespace ae_memory {
     protected:
 
         /// Tracks the current top of the stack for the bottom-up portion of the stack memory being managed.
-        void* m_stackTopPtrBottomUp;
+        void* m_bottomStackPtr;
 
         /// Tracks the current "top", bottom, of the stack for the top-down portion of the stack memory being managed.
-        void* m_stackBottomPtrTopDown;
+        void* m_topStackPtr;
 
         /// Tracks how much of the stack's memory is currently being used by the bottom-up portion.
-        std::size_t m_memoryInUseBottomUp = 0;
+        std::size_t m_bottomStackMemoryUsage = 0;
 
         /// Tracks how much of the stack's memory is currently being used by the top-down portion.
-        std::size_t m_memoryInUseTopDown = 0;
+        std::size_t m_topStackMemoryUsage = 0;
 
         /// A pointer to the top of the allocated memory for quick reference when doing math for the top-down portion of
         /// the stack.
