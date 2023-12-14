@@ -1,5 +1,5 @@
-/// \file ae_allocator.hpp
-/// The AeStackAllocator class is defined.
+/// \file ae_de_stack_allocator.hpp
+/// The AeDeStackAllocator class is defined.
 #pragma once
 
 // dependencies
@@ -12,7 +12,7 @@
 
 namespace ae_memory {
 
-    /// A AeStackAllocator implements a double-ended stack allocator. Memory can be allocated in a bottom-up fashion as
+    /// A AeDeStackAllocator implements a double-ended stack allocator. Memory can be allocated in a bottom-up fashion as
     /// a typical stack would (default when allocate is called) or in a top-down fashion. Deallocation may only be done
     /// by passing back either a BottomUpStackMarker, if deallocating memory from the bottom-up portion of the stack, or
     /// a TopDownStackMarker if deallocating memory from the top-down portion of the stack.
@@ -22,12 +22,12 @@ namespace ae_memory {
         /// This is used to ensure that only a retrieved marker can be used when calling deallocateToMarkerBottomUp to
         /// help enforce that a returned pointer for allocation is not suitable for deallocation since it will not
         /// account for any alignment requirements.
-        typedef struct{void* m_ptr;} BottomUpStackMarker;
+        typedef struct{void* m_ptr;} BottomStackMarker;
 
         /// This is used to ensure that only a retrieved marker can be used when calling deallocateToMarkerTopDown to
         /// help enforce that a returned pointer for allocation is not suitable for deallocation since it will not
         /// account for any alignment requirements.
-        typedef struct{void* m_ptr;} TopDownStackMarker;
+        typedef struct{void* m_ptr;} TopStackMarker;
 
         /// Constructor of AeStackAllocator.
         AeDeStackAllocator(std::size_t t_allocatedMemorySize, void* t_allocatedMemoryPtr) noexcept;
@@ -52,7 +52,7 @@ namespace ae_memory {
         void deallocate(void* t_allocatedMemoryPtr) noexcept override;
 
         /// Deallocates all the memory in the stack.
-        void clearStack() noexcept;
+        void clearDoubleEndedStack() noexcept;
 
         /// Implements the equals comparison operator.
         bool operator==(const AeDeStackAllocator&) const noexcept { return true;};
@@ -66,15 +66,19 @@ namespace ae_memory {
 
         /// Returns a marker which represents the current top of the stack. A marker must be used to free memory from
         /// the stack allocator.
-        BottomUpStackMarker getBottomUpMarker() noexcept;
+        BottomStackMarker getBottomUpMarker() noexcept;
+
+        /// Allocates the specified amount of memory from the bottom portion of the stack.
+        /// \param t_allocationSize The size of the memory in bytes to be allocated.
+        void* allocateFromBottom(std::size_t t_allocationSize, std::size_t t_byteAlignment);
 
         /// Deallocates all memory from the current top of the bottom-up portion of the stack to the provided marker.
         /// \param t_marker The marker representing the memory location that the bottom-up portion of the stack shall be
         /// rolled down to.
-        void deallocateToMarkerBottomUp(BottomUpStackMarker t_marker) noexcept;
+        void deallocateToBottomMarker(BottomStackMarker t_marker) noexcept;
 
         /// Deallocates only the bottom-up portion of the stack.
-        void clearBottomUp() noexcept;
+        void clearBottomStack() noexcept;
 
 
         //==================================================================================================================
@@ -83,16 +87,20 @@ namespace ae_memory {
 
         /// Returns a marker which represents the current top of the stack. A marker must be used to free memory from
         /// the stack allocator.
-        TopDownStackMarker getTopDownMarker() noexcept;
+        TopStackMarker getTopMarker() noexcept;
+
+        /// Allocates the specified amount of memory from the top portion of the stack.
+        /// \param t_allocationSize The size of the memory in bytes to be allocated.
+        void* allocateFromTop(std::size_t t_allocationSize, std::size_t t_byteAlignment);
 
         /// Deallocates all memory from the current "top", bottom, of the top-down portion of the stack to the provided
         /// marker.
         /// \param t_marker The marker representing the memory location that the top-down portion of the stack shall be
         /// rolled up to.
-        void deallocateToMarkerTopDown(TopDownStackMarker t_marker) noexcept;
+        void deallocateToTopMarker(TopStackMarker t_marker) noexcept;
 
         /// Deallocates only the top-down portion of the stack.
-        void clearTopDown() noexcept;
+        void clearTopStack() noexcept;
 
 
 
@@ -114,6 +122,6 @@ namespace ae_memory {
 
         /// A pointer to the top of the allocated memory for quick reference when doing math for the top-down portion of
         /// the stack.
-        void* t_topOfAllocatedMemoryPtr;
+        void* m_allocatedMemoryTopPtr;
     };
 } // namespace ae_memory

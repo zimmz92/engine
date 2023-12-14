@@ -1,4 +1,4 @@
-/// \file ae_allocator.hpp
+/// \file ae_stack_allocator.hpp
 /// The AeStackAllocator class is defined.
 #pragma once
 
