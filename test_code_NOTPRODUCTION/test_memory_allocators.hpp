@@ -138,6 +138,45 @@ namespace ae {
         // Test both top and bottom stacks
         //==============================================================================================================
 
+        // Test that the stack allocator properly gives out memory and the proper stack markers.
+        testIntegerArrayA = (int*)testStackAllocator->allocateFromTop(sizeof(int)*5,sizeof(int));
+        ae_memory::AeDeStackAllocator::TopStackMarker postADeMarker = testStackAllocator->getTopStackMarker();
+
+        testIntegerArrayB = (int*)testStackAllocator->allocateFromBottom(sizeof(int)*5,sizeof(int));
+        ae_memory::AeDeStackAllocator::BottomStackMarker postBDeMarker = testStackAllocator->getBottomStackMarker();
+
+        testIntegerArrayC = (int*)testStackAllocator->allocateFromTop(sizeof(int)*3,sizeof(int));
+        ae_memory::AeDeStackAllocator::TopStackMarker postCDeMarker = testStackAllocator->getTopStackMarker();
+
+        int* testIntegerArrayD = (int*)testStackAllocator->allocateFromBottom(sizeof(int)*5,sizeof(int));
+        ae_memory::AeDeStackAllocator::BottomStackMarker postDDeMarker = testStackAllocator->getBottomStackMarker();
+
+        int* testIntegerArrayE = (int*)testStackAllocator->allocateFromTop(sizeof(int)*3,sizeof(int));
+        ae_memory::AeDeStackAllocator::TopStackMarker postEDeMarker = testStackAllocator->getTopStackMarker();
+
+        int* testIntegerArrayF = (int*)testStackAllocator->allocateFromBottom(sizeof(int)*5,sizeof(int));
+
+        // Ensure deallocation to markers works properly.
+        testStackAllocator->deallocateToTopMarker(postEDeMarker);
+        testStackAllocator->deallocateToBottomMarker(postDDeMarker);
+        testStackAllocator->deallocateToTopMarker(postCDeMarker);
+        testStackAllocator->deallocateToBottomMarker(postBDeMarker);
+        testStackAllocator->deallocateToTopMarker(postADeMarker);
+
+
+        // Check to see if clearing the stack works.
+        testIntegerArrayC = (int*)testStackAllocator->allocateFromTop(sizeof(int)*7,sizeof(int));
+        testIntegerArrayF = (int*)testStackAllocator->allocateFromBottom(sizeof(int)*5,sizeof(int));
+        testStackAllocator->clearDoubleEndedStack();
+
+        // Ensure that the stack will throw an error as expected if too much memory is being allocated from it.
+        testIntegerArrayA = (int*)testStackAllocator->allocateFromTop(sizeof(int)*15,sizeof(int));
+        testIntegerArrayB = (int*)testStackAllocator->allocateFromBottom(sizeof(int)*15,sizeof(int));
+        //testIntegerArrayC = (int*)testStackAllocator->allocateFromTop(sizeof(int)*3,sizeof(int));
+        testIntegerArrayE = (int*)testStackAllocator->allocateFromBottom(sizeof(int)*3,sizeof(int));
+
+
+        // Clear the pointers
         delete(testStackAllocator);
         testStackAllocator = nullptr;
 

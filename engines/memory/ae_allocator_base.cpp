@@ -196,7 +196,7 @@ namespace ae_memory {
         auto addressPointerA = reinterpret_cast<std::size_t>(t_pointerA);
         auto addressPointerB = reinterpret_cast<std::size_t>(t_pointerB);
 
-        assert(addressPointerA>addressPointerB);
+        assert(addressPointerA>=addressPointerB);
 
         return  (addressPointerA - addressPointerB);
     };
