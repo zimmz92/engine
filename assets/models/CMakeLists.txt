@@ -4,4 +4,5 @@ configure_file(leaf_enemy_body_w_tongue.png ${CMAKE_CURRENT_BINARY_DIR}/leaf_ene
 
 configure_file(escher_solid.obj ${CMAKE_CURRENT_BINARY_DIR}/escher_solid.obj COPYONLY)
 configure_file(truncated_octahedron.obj ${CMAKE_CURRENT_BINARY_DIR}/truncated_octahedron.obj COPYONLY)
+configure_file(cube.obj ${CMAKE_CURRENT_BINARY_DIR}/cube.obj COPYONLY)
 

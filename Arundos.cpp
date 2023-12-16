@@ -142,10 +142,12 @@ namespace ae {
         vikingRoomProperties.m_fragmentTextures[0].m_sampler = m_aeSamplers.getDefaultSampler();
 
         vikingRoom.enableEntity();
-        //==============================================================================================================
 
+
+        //==============================================================================================================
         // Escher solid, first stellation of the rhombic dodecahedron
-        aeModel = AeModel::createModelFromFile(m_aeDevice, "assets/models/truncated_octahedron.obj");
+        //==============================================================================================================
+//        aeModel = AeModel::createModelFromFile(m_aeDevice, "assets/models/escher_solid.obj");
 
 //        auto escherSolid = GameObjectEntity(m_aeECS,m_gameComponents);
 //        escherSolid.m_worldPosition = {-2.0f, -0.5f, 1.5f };
@@ -162,41 +164,86 @@ namespace ae {
 //
 //        escherSolid.enableEntity();
 
+        //==============================================================================================================
+        // Truncated Octahedron Sphere
+        //==============================================================================================================
+//        aeModel = AeModel::createModelFromFile(m_aeDevice, "assets/models/truncated_octahedron.obj");
+//
+//        int sphere_size = 8;
+//        auto sphere_size_float = (float) sphere_size;
+//
+//        for (int x = 0; x < sphere_size; x++) {
+//            for (int y = 0; y < sphere_size; y++) {
+//                for (int z = 0; z < sphere_size*2; z++){
+//                    if(x>0 && y==2 && x<3){
+//                        continue;
+//                    }
+//                    if (sqrt(((float)x - sphere_size_float / 2.0f) *
+//                    ((float)x - sphere_size_float / 2.0f) +
+//                    ((float)y - sphere_size_float / 2.0f) *
+//                    ((float)y - sphere_size_float / 2.0f) +
+//                    ((float)z/ 2.0f - sphere_size_float / 2.0f) *
+//                    ((float)z/ 2.0f - sphere_size_float / 2.0f)) <= (double)sphere_size_float / 2.0f) {
+//                        auto escherSolid = GameObjectEntity(m_aeECS, m_gameComponents);
+//                        escherSolid.m_worldPosition = {0.0f + (0.5f * (float) x) + 0.25f * (float) (z % 2),
+//                                                       0.0f - (0.5f * (float) y) - 0.25f * (float) (z % 2),
+//                                                       0.0f + (0.25f * (float) z)};
+//                        escherSolid.m_model.m_texture = aeImage;
+//                        escherSolid.m_model.m_sampler = m_aeSamplers.getDefaultSampler();
+//                        escherSolid.m_model.m_model = aeModel;
+//                        escherSolid.m_model.scale = {0.25f, 0.25f, 0.25f};
+//                        escherSolid.m_model.rotation = {0.0f, 0.0f, 0.0f};
+//
+//
+//                        auto &escherSolidProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntityReference(escherSolid.getEntityId());
+//                        escherSolidProperties.m_fragmentTextures[0].m_texture = aeImage;
+//                        escherSolidProperties.m_fragmentTextures[0].m_sampler = m_aeSamplers.getDefaultSampler();
+//
+//                        escherSolid.enableEntity();
+//                    }
+//            }
+//        }
+//    }
+
+        //==============================================================================================================
+        // Cubes Sphere
+        //==============================================================================================================
+        aeModel = AeModel::createModelFromFile(m_aeDevice, "assets/models/cube.obj");
+
         int sphere_size = 8;
-        auto sphere_size_float = (float) sphere_size;
+        float cubeScaling = 0.25f;
+        auto sphere_size_float = (double) sphere_size;
 
         for (int x = 0; x < sphere_size; x++) {
             for (int y = 0; y < sphere_size; y++) {
-                for (int z = 0; z < sphere_size*2; z++){
-                    if(x>0 && y==2 && x<3){
-                        continue;
-                    }
-                    if (sqrt(((float)x - sphere_size_float / 2.0f) *
-                    ((float)x - sphere_size_float / 2.0f) +
-                    ((float)y - sphere_size_float / 2.0f) *
-                    ((float)y - sphere_size_float / 2.0f) +
-                    ((float)z/ 2.0f - sphere_size_float / 2.0f) *
-                    ((float)z/ 2.0f - sphere_size_float / 2.0f)) <= (double)sphere_size_float / 2.0f) {
-                        auto escherSolid = GameObjectEntity(m_aeECS, m_gameComponents);
-                        escherSolid.m_worldPosition = {0.0f + (0.5f * (float) x) + 0.25f * (float) (z % 2),
-                                                       0.0f - (0.5f * (float) y) - 0.25f * (float) (z % 2),
-                                                       0.0f + (0.25f * (float) z)};
-                        escherSolid.m_model.m_texture = aeImage;
-                        escherSolid.m_model.m_sampler = m_aeSamplers.getDefaultSampler();
-                        escherSolid.m_model.m_model = aeModel;
-                        escherSolid.m_model.scale = {0.25f, 0.25f, 0.25f};
-                        escherSolid.m_model.rotation = {0.0f, 0.0f, 0.0f};
+                for (int z = 0; z < sphere_size; z++){
+                    if (sqrt(((double)x - sphere_size_float / 2.0f) *
+                    ((double)x - sphere_size_float / 2.0f) +
+                    ((double)y - sphere_size_float / 2.0f) *
+                    ((double)y - sphere_size_float / 2.0f) +
+                    ((double)z - sphere_size_float / 2.0f) *
+                    ((double)z - sphere_size_float / 2.0f)) <= (double)sphere_size_float / 2.0f) {
+                        auto cubeSolid = GameObjectEntity(m_aeECS, m_gameComponents);
+                        cubeSolid.m_worldPosition = {0.0f + (cubeScaling * 2 * (float) x),
+                                                       0.0f - (cubeScaling * 2 * (float) y),
+                                                       0.0f + (cubeScaling * 2 * (float) z)};
+                        cubeSolid.m_model.m_texture = aeImage;
+                        cubeSolid.m_model.m_sampler = m_aeSamplers.getDefaultSampler();
+                        cubeSolid.m_model.m_model = aeModel;
+                        cubeSolid.m_model.scale = {cubeScaling, cubeScaling, cubeScaling};
+                        cubeSolid.m_model.rotation = {0.0f, 0.0f, 0.0f};
 
 
-                        auto &escherSolidProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntityReference(escherSolid.getEntityId());
-                        escherSolidProperties.m_fragmentTextures[0].m_texture = aeImage;
-                        escherSolidProperties.m_fragmentTextures[0].m_sampler = m_aeSamplers.getDefaultSampler();
+                        auto &cubeSolidProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntityReference(cubeSolid.getEntityId());
+                        //cubeSolidProperties.m_fragmentTextures[0].m_texture = aeImage;
+                        //cubeSolidProperties.m_fragmentTextures[0].m_sampler = m_aeSamplers.getDefaultSampler();
 
-                        escherSolid.enableEntity();
+                        cubeSolid.enableEntity();
                     }
             }
         }
     }
+
 
         //==============================================================================================================
         // Make the point lights using the ECS for testing
