@@ -8,6 +8,9 @@ target_sources(mySrcFiles
         ae_stack_allocator.cpp
         ae_de_stack_allocator.hpp
         ae_de_stack_allocator.cpp
+        ae_pool_allocator.hpp
+        ae_pool_allocator.cpp
+        ae_allocator_stl_adapter.hpp
     PUBLIC
 )
 
