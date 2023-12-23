@@ -7,6 +7,7 @@
 #include "ae_stack_allocator.hpp"
 #include "ae_de_stack_allocator.hpp"
 #include "ae_allocator_stl_adapter.hpp"
+#include "ae_pool_allocator.hpp"
 
 // libraries
 
@@ -205,6 +206,21 @@ namespace ae {
 
         free(preAllocatedMemoryPtr);
         preAllocatedMemoryPtr = nullptr;
+    };
+
+    void test_pool_allocator(){
+        // In bytes.
+        std::size_t preAllocatedSize = 128;
+        void* preAllocatedMemoryPtr = malloc(preAllocatedSize);
+
+        struct testStruct{
+            int x = 5;
+            float y = 5.0f;
+        };
+
+        ae_memory::AePoolAllocator testPoolAllocator = ae_memory::AePoolAllocator(preAllocatedSize,
+                                                                                  preAllocatedMemoryPtr,
+                                                                                  sizeof(testStruct));
     };
 
 } // namespace ae

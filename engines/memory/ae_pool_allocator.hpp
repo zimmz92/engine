@@ -23,7 +23,10 @@ namespace ae_memory {
         typedef struct{void* m_ptr;} StackMarker;
 
         /// Constructor of AeStackAllocator.
-        AePoolAllocator(std::size_t t_allocatedMemorySize, void* t_allocatedMemoryPtr) noexcept;
+        AePoolAllocator(std::size_t t_allocatedMemorySize,
+                        void* t_allocatedMemoryPtr,
+                        std::size_t t_chunkSize,
+                        std::size_t t_byteAlignment = MEMORY_ALIGNMENT) noexcept;
 
         /// Destructor of the AeStackAllocator.
         ~AePoolAllocator() noexcept override;
@@ -37,24 +40,13 @@ namespace ae_memory {
         AePoolAllocator& operator=(AePoolAllocator&&) = delete;
 
         /// Allocates the specified amount of memory.
-        /// \param t_allocationSize The size of the memory in bytes to be allocated.
-        void* allocate(std::size_t t_allocationSize, std::size_t t_byteAlignment) override;
+        /// \param t_allocationSize The number of chunks of the memory to be allocated.
+        /// \param t_byteAlignment Unused by this allocator.
+        void* allocate(std::size_t t_allocationSize, [[maybe_unused]] std::size_t t_byteAlignment) override;
 
         /// Deallocates the allocated memory by this allocator at this pointer.
         /// \param t_allocatedMemoryPtr The pointer to the allocated memory which is to be freed.
         void deallocate(void* t_allocatedMemoryPtr) noexcept override;
-
-        /// Returns a marker which represents the current top of the stack. A marker must be used to free memory from
-        /// the stack allocator.
-        StackMarker getMarker() noexcept;
-
-        /// Deallocates all memory from the current top of the stack to the provided marker.
-        /// \param t_marker The marker representing the memory location that the stack shall be
-        /// rolled back to.
-        void deallocateToMarker(StackMarker t_marker) noexcept;
-
-        /// Deallocates all the memory in the stack.
-        void clearStack() noexcept;
 
         /// Implements the equals comparison operator.
         bool operator==(const AePoolAllocator&) const noexcept { return true;};
@@ -66,10 +58,14 @@ namespace ae_memory {
 
     protected:
 
-        /// Tracks the current top of the stack of memory being managed.
-        void* m_stackTopPtr;
+        /// Tracks the first free chunk of unit size memory for the allocated memory being managed.
+        void* m_firstFreeChunkPtr;
 
         /// Tracks how much of the stack's memory is currently being used.
         std::size_t m_memoryInUse = 0;
+
+        std::size_t m_chunkSize;
+
+        std::size_t m_byteAlignment;
     };
 } // namespace ae_memory
