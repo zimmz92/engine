@@ -63,10 +63,13 @@ namespace ae_memory {
         /// Tracks how much of the stack's memory is currently being used.
         std::size_t m_memoryInUse = 0;
 
+        /// The base size of individual chunks.
         std::size_t m_chunkSize;
 
+        /// The alignment for each chunk.
         std::size_t m_byteAlignment;
 
+        /// The final size of a chunk accounting for the alignment requirements.
         std::size_t m_alignedChunkSize;
     };
 } // namespace ae_memory
