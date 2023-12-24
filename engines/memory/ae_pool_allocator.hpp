@@ -60,6 +60,10 @@ namespace ae_memory {
         /// Tracks the first free chunk of unit size memory for the allocated memory being managed.
         void* m_firstFreeChunkPtr;
 
+        /// A pointer to the top of the allocated memory for quick reference when doing math for the top-down portion of
+        /// the stack.
+        void* m_allocatedMemoryTopPtr;
+
         /// Tracks how much of the stack's memory is currently being used.
         std::size_t m_memoryInUse = 0;
 

@@ -22,6 +22,11 @@ namespace ae_memory {
         // Make sure there will be enough size in each block to point to the next free block once freed.
         assert(m_chunkSize >= sizeof(void*) && "Cannot fit the pointer to the next free chunk in a chunk of this size!");
 
+
+        // Calculate the top of the memory range that was allocated. This gets used to ensure this allocator does not
+        // attempt to manage memory that does not belong to it.
+        m_allocatedMemoryTopPtr = addToPointer(m_allocatedMemorySize,m_allocatedMemoryPtr);
+
         // Keep track of where the beginning of the memory allocated to this allocator starts.
         m_firstFreeChunkPtr = t_allocatedMemoryPtr;
 
@@ -45,8 +50,17 @@ namespace ae_memory {
         // Initialize each chunk with a pointer to the next free chunk.
         void** initialPointer = static_cast<void **>(m_firstFreeChunkPtr);
         for(int i=0;i<maxChunks;i++){
-            *initialPointer = addToPointer(m_alignedChunkSize,initialPointer);
-            initialPointer = (void**)addToPointer(m_alignedChunkSize,initialPointer);
+            if(i==maxChunks-1){
+                // If this is the last chunk of memory available there is no "next available" so set it to nullptr.
+                *initialPointer = nullptr;
+            } else{
+                // Calculate, and store, the pointer to the next available chunk of memory in the current chunk of memory.
+                *initialPointer = addToPointer(m_alignedChunkSize,initialPointer);
+
+                // Move to the next chunk of memory.
+                initialPointer = (void**)addToPointer(m_alignedChunkSize,initialPointer);
+            }
+
         };
     };
 
@@ -57,33 +71,44 @@ namespace ae_memory {
 
 
     void *AePoolAllocator::allocate(std::size_t const t_allocationSize, std::size_t const t_byteAlignment) {
+
+        // Ensure the right allocator is being used for the allocation.
         assert(t_allocationSize == m_chunkSize && t_byteAlignment == m_byteAlignment);
 
-        // Calculate the total memory that will be used, in bytes, to allocate the desired amount of memory and
-        // align the memory.
-        std::size_t alignmentOffset = getAlignmentOffset(m_firstFreeChunkPtr, t_byteAlignment);
-        std::size_t totalAllocation = alignmentOffset + t_allocationSize;
-
-        // Ensure that this allocation will not exceed the total available memory this stack has available.
-        if (totalAllocation + m_memoryInUse > m_allocatedMemorySize) {
+        // If the stored pointer is a nullptr then there is not more memory to give out.
+        if(m_firstFreeChunkPtr == nullptr || m_memoryInUse >= m_allocatedMemorySize){
             throw std::bad_alloc();
         }
 
-        // Get the aligned address.
-        void *alignedAddress = addToPointer(alignmentOffset, m_firstFreeChunkPtr);
+        // Get the pointer value to return to the first free chunk of memory.
+        void* chunkAllocationPtr = m_firstFreeChunkPtr;
 
-        // Increment the top of stack pointer by the total allocation.
-        m_firstFreeChunkPtr = addToPointer(totalAllocation, m_firstFreeChunkPtr);
+        // Set the first free chunk pointer to the address of the next free chunk of memory which is stored in the
+        // initial portion of the current first free chunk of memory.
+        m_firstFreeChunkPtr = *(void**)m_firstFreeChunkPtr;
 
-        // Track the additional memory used.
-        m_memoryInUse += totalAllocation;
+        // Increment the memory in use for the allocated memory.
+        m_memoryInUse += m_alignedChunkSize;
 
-        // Return the aligned address for the allocation.
-        return alignedAddress;
+        // Return for the allocation.
+        return chunkAllocationPtr;
     };
 
 
-    void AePoolAllocator::deallocate([[maybe_unused]] void *const t_allocatedMemoryPtr) noexcept {
-        // Traditional deallocation does not work with the stack allocator.
+    void AePoolAllocator::deallocate(void* const t_allocatedMemoryPtr) noexcept {
+
+        // Ensure the address being deallocated is actually controlled by the allocator.
+        assert(t_allocatedMemoryPtr > m_allocatedMemoryPtr && t_allocatedMemoryPtr < m_allocatedMemoryTopPtr);
+        assert(m_memoryInUse > 0 && "Cannot deallocate more memory, currently 0 memory is allocated.")
+
+        // Set the initial portion of the memory being deallocated to be a pointer to what is currently the next free
+        // memory location.
+        *(void**)t_allocatedMemoryPtr = m_firstFreeChunkPtr;
+
+        // Set the next available free chunk to the one that was just returned.
+        m_firstFreeChunkPtr = t_allocatedMemoryPtr;
+
+        // Decrement the memory in use for the memory being deallocated.
+        m_memoryInUse -= m_alignedChunkSize;
     };
 } //namespace ae_memory

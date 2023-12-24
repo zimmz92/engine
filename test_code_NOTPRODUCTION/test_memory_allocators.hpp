@@ -210,7 +210,7 @@ namespace ae {
 
     void test_pool_allocator(){
         // In bytes.
-        std::size_t preAllocatedSize = 128;
+        std::size_t preAllocatedSize = 32;
         void* preAllocatedMemoryPtr = malloc(preAllocatedSize);
 
         // Create a test structure to allocate pools from.
@@ -224,6 +224,20 @@ namespace ae {
                                                                                   preAllocatedMemoryPtr,
                                                                                   sizeof(testStruct));
 
+        void* test_allocationA = testPoolAllocator.allocate(sizeof(testStruct),
+                                                            ae_memory::MEMORY_ALIGNMENT);
+        void* test_allocationB = testPoolAllocator.allocate(sizeof(testStruct),
+                                                            ae_memory::MEMORY_ALIGNMENT);
+        void* test_allocationC = testPoolAllocator.allocate(sizeof(testStruct),
+                                                            ae_memory::MEMORY_ALIGNMENT);
+        void* test_allocationD = testPoolAllocator.allocate(sizeof(testStruct),
+                                                            ae_memory::MEMORY_ALIGNMENT);
+
+        testPoolAllocator.deallocate(test_allocationB);
+        testPoolAllocator.deallocate(test_allocationC);
+
+        void* test_allocationE = testPoolAllocator.allocate(sizeof(testStruct),
+                                                            ae_memory::MEMORY_ALIGNMENT);
 
         // Clear the memory
         free(preAllocatedMemoryPtr);
