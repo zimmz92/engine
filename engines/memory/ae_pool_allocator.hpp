@@ -41,8 +41,7 @@ namespace ae_memory {
 
         /// Allocates the specified amount of memory.
         /// \param t_allocationSize The number of chunks of the memory to be allocated.
-        /// \param t_byteAlignment Unused by this allocator.
-        void* allocate(std::size_t t_allocationSize, [[maybe_unused]] std::size_t t_byteAlignment) override;
+        void* allocate(std::size_t t_allocationSize, std::size_t t_byteAlignment) override;
 
         /// Deallocates the allocated memory by this allocator at this pointer.
         /// \param t_allocatedMemoryPtr The pointer to the allocated memory which is to be freed.
@@ -67,5 +66,7 @@ namespace ae_memory {
         std::size_t m_chunkSize;
 
         std::size_t m_byteAlignment;
+
+        std::size_t m_alignedChunkSize;
     };
 } // namespace ae_memory

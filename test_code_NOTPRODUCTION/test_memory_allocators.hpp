@@ -213,14 +213,21 @@ namespace ae {
         std::size_t preAllocatedSize = 128;
         void* preAllocatedMemoryPtr = malloc(preAllocatedSize);
 
+        // Create a test structure to allocate pools from.
         struct testStruct{
             int x = 5;
             float y = 5.0f;
         };
 
+        // Create a pool allocator to test.
         ae_memory::AePoolAllocator testPoolAllocator = ae_memory::AePoolAllocator(preAllocatedSize,
                                                                                   preAllocatedMemoryPtr,
                                                                                   sizeof(testStruct));
+
+
+        // Clear the memory
+        free(preAllocatedMemoryPtr);
+        preAllocatedMemoryPtr = nullptr;
     };
 
 } // namespace ae

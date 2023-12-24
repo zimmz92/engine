@@ -27,9 +27,12 @@ namespace ae_memory {
 
         // See if the input chunk size works properly with the desired alignment. If not make the chunk size larger to
         // properly align the start of each block with the desired alignment.
-        std::size_t chunkSizeAlignmentRemainder = m_chunkSize % m_byteAlignment;
-        if(chunkSizeAlignmentRemainder != 0){
-            m_chunkSize = m_chunkSize + (m_byteAlignment-chunkSizeAlignmentRemainder);
+        std::size_t chunkAlignment = m_chunkSize % m_byteAlignment;
+
+        if(chunkAlignment != 0){
+            m_alignedChunkSize = m_chunkSize + (m_byteAlignment - chunkAlignment);
+        } else{
+            m_alignedChunkSize = m_chunkSize;
         }
 
         // Ensure the starting pointer works with the desired alignment. If not, offset it.
@@ -37,14 +40,14 @@ namespace ae_memory {
         m_firstFreeChunkPtr = addToPointer(requiredAlignment,m_allocatedMemoryPtr);
 
         // Calculate the number of chunks that can fit into the allocated memory with the required alignment.
-        std::size_t maxChunks = (m_allocatedMemorySize-requiredAlignment)/m_chunkSize;
+        std::size_t maxChunks = (m_allocatedMemorySize-requiredAlignment)/m_alignedChunkSize;
 
         // Initialize each chunk with a pointer to the next free chunk.
         void** initialPointer = static_cast<void **>(m_firstFreeChunkPtr);
         for(int i=0;i<maxChunks;i++){
-            *initialPointer = addToPointer(m_chunkSize,initialPointer);
-            initialPointer = (void**)addToPointer(m_chunkSize,initialPointer);
-        }
+            *initialPointer = addToPointer(m_alignedChunkSize,initialPointer);
+            initialPointer = (void**)addToPointer(m_alignedChunkSize,initialPointer);
+        };
     };
 
 
@@ -54,7 +57,7 @@ namespace ae_memory {
 
 
     void *AePoolAllocator::allocate(std::size_t const t_allocationSize, std::size_t const t_byteAlignment) {
-        assert(t_allocationSize > 0);
+        assert(t_allocationSize == m_chunkSize && t_byteAlignment == m_byteAlignment);
 
         // Calculate the total memory that will be used, in bytes, to allocate the desired amount of memory and
         // align the memory.
