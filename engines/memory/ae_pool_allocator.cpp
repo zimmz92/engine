@@ -99,7 +99,7 @@ namespace ae_memory {
 
         // Ensure the address being deallocated is actually controlled by the allocator.
         assert(t_allocatedMemoryPtr > m_allocatedMemoryPtr && t_allocatedMemoryPtr < m_allocatedMemoryTopPtr);
-        assert(m_memoryInUse > 0 && "Cannot deallocate more memory, currently 0 memory is allocated.")
+        assert(m_memoryInUse > 0 && "Cannot deallocate more memory, currently 0 memory is allocated.");
 
         // Set the initial portion of the memory being deallocated to be a pointer to what is currently the next free
         // memory location.
