@@ -239,6 +239,14 @@ namespace ae {
         void* test_allocationE = testPoolAllocator.allocate(sizeof(testStruct),
                                                             ae_memory::MEMORY_ALIGNMENT);
 
+        void* test_allocationF = testPoolAllocator.allocate(sizeof(testStruct),
+                                                            ae_memory::MEMORY_ALIGNMENT);
+
+        // This should fail so comment out after testing this due to the lack of memory available.
+//        void* test_allocationG = testPoolAllocator.allocate(sizeof(testStruct),
+//                                                            ae_memory::MEMORY_ALIGNMENT);
+
+
         // Clear the memory
         free(preAllocatedMemoryPtr);
         preAllocatedMemoryPtr = nullptr;
