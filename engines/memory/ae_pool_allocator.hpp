@@ -12,23 +12,18 @@
 
 namespace ae_memory {
 
-    /// A AeStackAllocator implements a stack allocator. Memory will always be allocated from the top of the stack.
-    /// Deallocation may only be done by passing back a pointer to where
+    /// A AePoolAllocator implements a pool allocator. The allocations from this allocator will always be in multiples
+    /// of the pool's memory chuck size.
     class AePoolAllocator: public AeAllocatorBase {
     public:
 
-        /// This is used to ensure that only a retrieved marker can be used when calling deallocateToMarker to help
-        /// enforce that a returned pointer for allocation is not suitable for deallocation since it will not account
-        /// for any alignment requirements.
-        typedef struct{void* m_ptr;} StackMarker;
-
-        /// Constructor of AeStackAllocator.
+        /// Constructor of AePoolAllocator.
         AePoolAllocator(std::size_t t_allocatedMemorySize,
                         void* t_allocatedMemoryPtr,
                         std::size_t t_chunkSize,
                         std::size_t t_byteAlignment = MEMORY_ALIGNMENT) noexcept;
 
-        /// Destructor of the AeStackAllocator.
+        /// Destructor of the AePoolAllocator.
         ~AePoolAllocator() noexcept override;
 
         /// Do not allow this class to be copied (2 lines below).
