@@ -66,7 +66,10 @@ namespace ae_memory {
 
 
     AePoolAllocator::~AePoolAllocator() noexcept {
+        assert(m_memoryInUse==0 && "Huston we have a leak... in a pool... allocator!");
+
         m_firstFreeChunkPtr = nullptr;
+        m_allocatedMemoryTopPtr = nullptr;
     };
 
 
@@ -81,7 +84,7 @@ namespace ae_memory {
         }
 
         // Get the pointer value to return to the first free chunk of memory.
-        void* chunkAllocationPtr = m_firstFreeChunkPtr;
+        m_chunkAllocationPtr = m_firstFreeChunkPtr;
 
         // Set the first free chunk pointer to the address of the next free chunk of memory which is stored in the
         // initial portion of the current first free chunk of memory.
@@ -91,18 +94,22 @@ namespace ae_memory {
         m_memoryInUse += m_alignedChunkSize;
 
         // Return for the allocation.
-        return chunkAllocationPtr;
+        return m_chunkAllocationPtr;
     };
 
 
     void AePoolAllocator::deallocate(void* const t_allocatedMemoryPtr) noexcept {
 
         // Ensure the address being deallocated is actually controlled by the allocator.
-        assert(t_allocatedMemoryPtr > m_allocatedMemoryPtr && t_allocatedMemoryPtr < m_allocatedMemoryTopPtr);
+        assert(t_allocatedMemoryPtr > m_allocatedMemoryPtr &&
+               t_allocatedMemoryPtr < m_allocatedMemoryTopPtr &&
+               "Memory being deallocated not in range of memory this allocator controls!");
+
         assert(m_memoryInUse > 0 && "Cannot deallocate more memory, currently 0 memory is allocated.");
 
         // Set the initial portion of the memory being deallocated to be a pointer to what is currently the next free
-        // memory location.
+        // memory location. AKA store the pointer to what is currently the first free chunk of memory in the chunk of
+        // memory that is being deallocated.
         *(void**)t_allocatedMemoryPtr = m_firstFreeChunkPtr;
 
         // Set the next available free chunk to the one that was just returned.

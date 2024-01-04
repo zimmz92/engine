@@ -75,5 +75,8 @@ namespace ae_memory {
 
         /// The final size of a chunk accounting for the alignment requirements.
         std::size_t m_alignedChunkSize;
+
+        /// A pointer that is used during allocation to store the pointer to the new chunk being allocated.
+        void* m_chunkAllocationPtr;
     };
 } // namespace ae_memory
