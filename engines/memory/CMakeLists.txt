@@ -10,6 +10,8 @@ target_sources(mySrcFiles
         ae_de_stack_allocator.cpp
         ae_pool_allocator.hpp
         ae_pool_allocator.cpp
+        ae_free_linked_list_allocator.hpp
+        ae_free_linked_list_allocator.cpp
         ae_allocator_stl_adapter.hpp
     PUBLIC
 )
