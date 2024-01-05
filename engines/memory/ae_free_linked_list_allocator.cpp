@@ -12,56 +12,21 @@
 namespace ae_memory {
 
     AeFreeLinkedListAllocator::AeFreeLinkedListAllocator(std::size_t const t_allocatedMemorySize,
-                                                         void *const t_allocatedMemoryPtr,
-                                                         std::size_t const t_chunkSize,
-                                                         std::size_t const t_byteAlignment) noexcept:
-            m_chunkSize{t_chunkSize},
-            m_byteAlignment{t_byteAlignment},
+                                                         void *const t_allocatedMemoryPtr) noexcept:
             AeAllocatorBase(t_allocatedMemorySize, t_allocatedMemoryPtr) {
 
-        // Make sure there will be enough size in each block to point to the next free block once freed.
-        assert(m_chunkSize >= sizeof(void*) && "Cannot fit the pointer to the next free chunk in a chunk of this size!");
-
+        assert(t_allocatedMemorySize>sizeof(FreeChunkInfo) && "Memory allocated to AeFreeLinkedListAllocator is not"
+                                                              " big enough for the FreeChunkInfo struct.");
 
         // Calculate the top of the memory range that was allocated. This gets used to ensure this allocator does not
         // attempt to manage memory that does not belong to it.
-        m_allocatedMemoryTopPtr = addToPointer(m_allocatedMemorySize,m_allocatedMemoryPtr);
+        m_allocatedMemoryTail = addToPointer(m_allocatedMemorySize,m_allocatedMemoryPtr);
 
-        // Keep track of where the beginning of the memory allocated to this allocator starts.
-        m_firstFreeChunkPtr = t_allocatedMemoryPtr;
-
-        // See if the input chunk size works properly with the desired alignment. If not make the chunk size larger to
-        // properly align the start of each block with the desired alignment.
-        std::size_t chunkAlignment = m_chunkSize % m_byteAlignment;
-
-        if(chunkAlignment != 0){
-            m_alignedChunkSize = m_chunkSize + (m_byteAlignment - chunkAlignment);
-        } else{
-            m_alignedChunkSize = m_chunkSize;
-        }
-
-        // Ensure the starting pointer works with the desired alignment. If not, offset it.
-        std::size_t requiredAlignment = getAlignmentOffset(m_allocatedMemoryPtr, t_byteAlignment);
-        m_firstFreeChunkPtr = addToPointer(requiredAlignment,m_allocatedMemoryPtr);
-
-        // Calculate the number of chunks that can fit into the allocated memory with the required alignment.
-        std::size_t maxChunks = (m_allocatedMemorySize-requiredAlignment)/m_alignedChunkSize;
-
-        // Initialize each chunk with a pointer to the next free chunk.
-        void** initialPointer = static_cast<void **>(m_firstFreeChunkPtr);
-        for(int i=0;i<maxChunks;i++){
-            if(i==maxChunks-1){
-                // If this is the last chunk of memory available there is no "next available" so set it to nullptr.
-                *initialPointer = nullptr;
-            } else{
-                // Calculate, and store, the pointer to the next available chunk of memory in the current chunk of memory.
-                *initialPointer = addToPointer(m_alignedChunkSize,initialPointer);
-
-                // Move to the next chunk of memory.
-                initialPointer = (void**)addToPointer(m_alignedChunkSize,initialPointer);
-            }
-
-        };
+        // Create the initial free chunk which is just the entire memory that has been given to this allocator to
+        // manage.
+        m_firstFreeChunkPtr = static_cast<FreeChunkInfo*>(t_allocatedMemoryPtr);
+        m_firstFreeChunkPtr->m_chunkSize = t_allocatedMemorySize;
+        m_firstFreeChunkPtr->m_nextFreeChunk = nullptr;
     };
 
 
@@ -69,7 +34,7 @@ namespace ae_memory {
         assert(m_memoryInUse==0 && "Huston we have a leak... in a pool... allocator!");
 
         m_firstFreeChunkPtr = nullptr;
-        m_allocatedMemoryTopPtr = nullptr;
+        m_allocatedMemoryTail = nullptr;
     };
 
 

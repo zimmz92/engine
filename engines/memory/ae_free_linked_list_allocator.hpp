@@ -14,13 +14,12 @@ namespace ae_memory {
 
     /// A AeFreeListAllocator implements a free list allocator utilizing a linked list.
     class AeFreeLinkedListAllocator: public AeAllocatorBase {
+
     public:
 
         /// Constructor of AeStackAllocator.
         AeFreeLinkedListAllocator(std::size_t t_allocatedMemorySize,
-                                  void* t_allocatedMemoryPtr,
-                                  std::size_t t_chunkSize,
-                                  std::size_t t_byteAlignment = MEMORY_ALIGNMENT) noexcept;
+                                  void* t_allocatedMemoryPtr) noexcept;
 
         /// Destructor of the AeStackAllocator.
         ~AeFreeLinkedListAllocator() noexcept override;
@@ -51,26 +50,33 @@ namespace ae_memory {
 
     protected:
 
-        /// Tracks the first free chunk of unit size memory for the allocated memory being managed.
-        void* m_firstFreeChunkPtr;
+        /// Stores the information required for a chunk that is part of the free list to keep track of it's own size
+        /// and whee the next free chunk of memory is.
+        struct FreeChunkInfo{
+            size_t m_chunkSize;
+            FreeChunkInfo* m_nextFreeChunk = nullptr;
+        };
 
-        /// A pointer to the top of the allocated memory for quick reference when doing math for the top-down portion of
-        /// the stack.
-        void* m_allocatedMemoryTopPtr;
+        /// Stores the information required for a chunk that that is currently allocated to keep track of it's own size.
+        /// The padding is to ensure that when the chunk of memory is deallocated there is enough room to store the
+        /// pointer to the next free chunk.
+        struct AllocatedChunkInfo{
+            size_t m_chunkSize;
+            FreeChunkInfo* m_padding = nullptr;
+        };
+
+        /// Tracks the first free chunk of memory for the allocated memory being managed.
+        FreeChunkInfo* m_firstFreeChunkPtr;
+
+        /// A pointer to the top of the allocated memory for quick reference when doing math.
+        void* m_allocatedMemoryTail;
 
         /// Tracks how much of the stack's memory is currently being used.
         std::size_t m_memoryInUse = 0;
 
-        /// The base size of individual chunks.
-        std::size_t m_chunkSize;
-
-        /// The alignment for each chunk.
-        std::size_t m_byteAlignment;
-
-        /// The final size of a chunk accounting for the alignment requirements.
-        std::size_t m_alignedChunkSize;
-
         /// A pointer that is used during allocation to store the pointer to the new chunk being allocated.
         void* m_chunkAllocationPtr;
+
+
     };
 } // namespace ae_memory
