@@ -64,6 +64,8 @@ namespace ae_memory {
 
         void* getBestFit(std::size_t t_allocationSize, std::size_t t_byteAlignment);
 
+        /// Allocates the first free chunk of memory that will fit the desired allocation. It will attempt to split the
+        /// free chunk if it is big enough that the FreeChunkInfo can fit into the new chunk that will be created.
         void* getFirstFit(std::size_t t_allocationSize, std::size_t t_byteAlignment);
 
         /// Tracks the first free chunk of memory for the allocated memory being managed.
@@ -75,12 +77,19 @@ namespace ae_memory {
         /// Tracks how much of the stack's memory is currently being used.
         std::size_t m_memoryInUse = 0;
 
+        /// Tracks the total number of free blocks available.
+        std::size_t m_numFreeChunks = 1;
+
+        /// Used to allocate and split chunks.
         FreeChunkInfo* m_prevFreeChunk;
         FreeChunkInfo* m_currentFreeChunk;
         FreeChunkInfo* m_newFreeChunk;
+        void* m_pointerCalculation;
 
+        /// The chunk that is chosen for allocation and needs to be initialized.
         AllocatedChunkInfo* m_allocatedChunk;
 
+        /// Used to calculate the actual size of the allocation including the chunk information and alignment padding.
         std::size_t m_fullAllocationSize;
 
     protected:

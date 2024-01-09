@@ -261,7 +261,7 @@ namespace ae {
 
     void test_free_linked_list_allocator(){
         // In bytes.
-        std::size_t preAllocatedSize = 32;
+        std::size_t preAllocatedSize = 128;
         void* preAllocatedMemoryPtr = malloc(preAllocatedSize);
 
         // Create a test structure to allocate pools from.
@@ -271,30 +271,36 @@ namespace ae {
         };
 
         // Create a pool allocator to test.
-        ae_memory::AeFreeLinkedListAllocator testPoolAllocator = ae_memory::AeFreeLinkedListAllocator(preAllocatedSize,
-                                                                                  preAllocatedMemoryPtr);
+        ae_memory::AeFreeLinkedListAllocator testFreeLinkedListAllocator = ae_memory::AeFreeLinkedListAllocator(preAllocatedSize,
+                                                                                                                preAllocatedMemoryPtr);
 
-        void* test_allocationA = testPoolAllocator.allocate(sizeof(testStruct),
-                                                            ae_memory::MEMORY_ALIGNMENT);
-        void* test_allocationB = testPoolAllocator.allocate(sizeof(testStruct),
-                                                            ae_memory::MEMORY_ALIGNMENT);
-        void* test_allocationC = testPoolAllocator.allocate(sizeof(testStruct),
-                                                            ae_memory::MEMORY_ALIGNMENT);
-        void* test_allocationD = testPoolAllocator.allocate(sizeof(testStruct),
-                                                            ae_memory::MEMORY_ALIGNMENT);
+        void* test_allocationA = testFreeLinkedListAllocator.allocate(sizeof(testStruct),
+                                                                      ae_memory::MEMORY_ALIGNMENT);
+        void* test_allocationB = testFreeLinkedListAllocator.allocate(sizeof(testStruct),
+                                                                      ae_memory::MEMORY_ALIGNMENT);
+        void* test_allocationC = testFreeLinkedListAllocator.allocate(sizeof(testStruct),
+                                                                      ae_memory::MEMORY_ALIGNMENT);
+        void* test_allocationD = testFreeLinkedListAllocator.allocate(sizeof(testStruct),
+                                                                      ae_memory::MEMORY_ALIGNMENT);
 
-        testPoolAllocator.deallocate(test_allocationB);
-        testPoolAllocator.deallocate(test_allocationC);
+        testFreeLinkedListAllocator.deallocate(test_allocationB);
+        testFreeLinkedListAllocator.deallocate(test_allocationC);
 
-        void* test_allocationE = testPoolAllocator.allocate(sizeof(testStruct),
-                                                            ae_memory::MEMORY_ALIGNMENT);
+        void* test_allocationE = testFreeLinkedListAllocator.allocate(sizeof(testStruct),
+                                                                      ae_memory::MEMORY_ALIGNMENT);
 
-        void* test_allocationF = testPoolAllocator.allocate(sizeof(testStruct),
-                                                            ae_memory::MEMORY_ALIGNMENT);
+        void* test_allocationF = testFreeLinkedListAllocator.allocate(sizeof(testStruct),
+                                                                      ae_memory::MEMORY_ALIGNMENT);
 
         // This should fail so comment out after testing this due to the lack of memory available.
 //        void* test_allocationG = testPoolAllocator.allocate(sizeof(testStruct),
 //                                                            ae_memory::MEMORY_ALIGNMENT);
+
+        // Clear the memory
+        testFreeLinkedListAllocator.deallocate(test_allocationA);
+        testFreeLinkedListAllocator.deallocate(test_allocationD);
+        testFreeLinkedListAllocator.deallocate(test_allocationE);
+        testFreeLinkedListAllocator.deallocate(test_allocationF);
 
 
         // Clear the memory
