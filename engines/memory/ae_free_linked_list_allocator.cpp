@@ -18,7 +18,7 @@ namespace ae_memory {
         assert(t_allocatedMemorySize>sizeof(FreeChunkInfo) && "Memory allocated to AeFreeLinkedListAllocator is not"
                                                               " big enough for the FreeChunkInfo struct.");
 
-        // Calculate the top of the memory range that was allocated. This gets used to ensure this allocator does not
+        // Calculate the top of the range of memory that was allocated. This gets used to ensure this allocator does not
         // attempt to manage memory that does not belong to it.
         m_allocatedMemoryTail = addToPointer(m_allocatedMemorySize,m_allocatedMemoryPtr);
 
@@ -39,9 +39,6 @@ namespace ae_memory {
 
 
     void *AeFreeLinkedListAllocator::allocate(std::size_t const t_allocationSize, std::size_t const t_byteAlignment) {
-
-        // Ensure the right allocator is being used for the allocation.
-        assert(t_allocationSize == m_chunkSize && t_byteAlignment == m_byteAlignment);
 
         // If the stored pointer is a nullptr then there is not more memory to give out.
         if(m_firstFreeChunkPtr == nullptr || m_memoryInUse >= m_allocatedMemorySize){
@@ -83,4 +80,74 @@ namespace ae_memory {
         // Decrement the memory in use for the memory being deallocated.
         m_memoryInUse -= m_alignedChunkSize;
     };
+
+
+    void* AeFreeLinkedListAllocator::getBestFit(std::size_t const t_allocationSize,
+                                                std::size_t const t_byteAlignment){
+
+    };
+
+    void* AeFreeLinkedListAllocator::getFirstFit(std::size_t const t_allocationSize,
+                                                 std::size_t const t_byteAlignment){
+
+        // Initialize the loop variables.
+        m_prevFreeChunk = nullptr;
+        m_currentFreeChunk = m_firstFreeChunkPtr;
+
+        // TODO Not sure I like this being a while loop, perhaps this should be made into a for look and I should keep
+        //  track of the number of free blocks available.
+        while(m_currentFreeChunk!= nullptr){
+
+            // Calculate the full allocation size including the allocation information and the alignment offset.
+            m_fullAllocationSize = getAlignmentOffset(addToPointer(sizeof(AllocatedChunkInfo),m_currentFreeChunk),t_byteAlignment);
+
+
+            if(m_currentFreeChunk->m_chunkSize >= m_fullAllocationSize) {
+
+                // If the chunk is bigger than what we need then we should split it as long as the new chunk resulting
+                // from the split is at least big enough to fit the freeChunkInfo.
+                if (m_currentFreeChunk->m_chunkSize > m_fullAllocationSize &&
+                    m_currentFreeChunk->m_chunkSize - m_fullAllocationSize > sizeof(AllocatedChunkInfo)) {
+
+                    // Create a new chunk by splitting the old one.
+                    m_newFreeChunk = (FreeChunkInfo *) addToPointer(m_fullAllocationSize, m_currentFreeChunk);
+                    m_newFreeChunk->m_chunkSize = m_currentFreeChunk->m_chunkSize - m_fullAllocationSize;
+                    m_newFreeChunk->m_nextFreeChunk = m_currentFreeChunk->m_nextFreeChunk;
+
+                    // Make the previous chunk now point to the new chunk instead of the current one.
+                    m_prevFreeChunk->m_nextFreeChunk = m_newFreeChunk;
+
+                } else {
+                    // Point the previous free chunk to the next free chunk after the current one since the current
+                    // chunk is being allocated.
+                    if (m_prevFreeChunk != nullptr) {
+                        m_prevFreeChunk->m_nextFreeChunk = m_currentFreeChunk->m_nextFreeChunk;
+                    }
+                };
+
+                // Allocate the current chunk and create and fill in the newly allocated chunk information.
+                m_allocatedChunk = (AllocatedChunkInfo *) m_currentFreeChunk;
+                m_allocatedChunk->m_chunkSize = t_allocationSize;
+                m_allocatedChunk->m_padding = nullptr;
+
+                // Track the memory being allocated.
+                m_memoryInUse += m_fullAllocationSize;
+
+                return getAlignedAddressWithMinimumOffset(m_allocatedChunk,
+                                                          sizeof(AllocatedChunkInfo),
+                                                          t_byteAlignment);
+            };
+
+            // Otherwise the current chunk of memory does not have enough space for the desired allocation then go to
+            // the next one.
+            m_prevFreeChunk = m_currentFreeChunk;
+            m_currentFreeChunk = m_currentFreeChunk->m_nextFreeChunk;
+        };
+
+        // If no chunk with a large enough size is found throw and allocation error.
+        throw std::bad_alloc();
+    };
+
+
+
 } //namespace ae_memory

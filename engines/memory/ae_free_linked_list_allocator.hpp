@@ -47,13 +47,10 @@ namespace ae_memory {
         bool operator!=(const AeFreeLinkedListAllocator&) const noexcept { return false;};
 
     private:
-
-    protected:
-
         /// Stores the information required for a chunk that is part of the free list to keep track of it's own size
         /// and whee the next free chunk of memory is.
         struct FreeChunkInfo{
-            size_t m_chunkSize;
+            size_t m_chunkSize=0;
             FreeChunkInfo* m_nextFreeChunk = nullptr;
         };
 
@@ -61,9 +58,13 @@ namespace ae_memory {
         /// The padding is to ensure that when the chunk of memory is deallocated there is enough room to store the
         /// pointer to the next free chunk.
         struct AllocatedChunkInfo{
-            size_t m_chunkSize;
+            size_t m_chunkSize=0;
             FreeChunkInfo* m_padding = nullptr;
         };
+
+        void* getBestFit(std::size_t t_allocationSize, std::size_t t_byteAlignment);
+
+        void* getFirstFit(std::size_t t_allocationSize, std::size_t t_byteAlignment);
 
         /// Tracks the first free chunk of memory for the allocated memory being managed.
         FreeChunkInfo* m_firstFreeChunkPtr;
@@ -74,9 +75,15 @@ namespace ae_memory {
         /// Tracks how much of the stack's memory is currently being used.
         std::size_t m_memoryInUse = 0;
 
-        /// A pointer that is used during allocation to store the pointer to the new chunk being allocated.
-        void* m_chunkAllocationPtr;
+        FreeChunkInfo* m_prevFreeChunk;
+        FreeChunkInfo* m_currentFreeChunk;
+        FreeChunkInfo* m_newFreeChunk;
 
+        AllocatedChunkInfo* m_allocatedChunk;
+
+        std::size_t m_fullAllocationSize;
+
+    protected:
 
     };
 } // namespace ae_memory
