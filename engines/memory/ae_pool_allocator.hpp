@@ -35,7 +35,8 @@ namespace ae_memory {
         AePoolAllocator& operator=(AePoolAllocator&&) = delete;
 
         /// Allocates the specified amount of memory.
-        /// \param t_allocationSize The number of chunks of the memory to be allocated.
+        /// \param t_allocationSize The size of chunk of the memory to be allocated, this must match the size of the
+        /// chunks of memory this allocator manages.
         void* allocate(std::size_t t_allocationSize, std::size_t t_byteAlignment) override;
 
         /// Deallocates the allocated memory by this allocator at this pointer.

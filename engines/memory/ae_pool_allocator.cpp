@@ -101,7 +101,7 @@ namespace ae_memory {
     void AePoolAllocator::deallocate(void* const t_allocatedMemoryPtr) noexcept {
 
         // Ensure the address being deallocated is actually controlled by the allocator.
-        assert(t_allocatedMemoryPtr > m_allocatedMemoryPtr &&
+        assert(t_allocatedMemoryPtr >= m_allocatedMemoryPtr &&
                t_allocatedMemoryPtr < m_allocatedMemoryTopPtr &&
                "Memory being deallocated not in range of memory this allocator controls!");
 
