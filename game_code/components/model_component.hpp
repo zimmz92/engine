@@ -46,14 +46,6 @@ namespace ae {
         /// constructor with no additions.
         ~ModelComponent() = default;
 
-        /// Change the model component.
-        /// Get data for a specific entity.
-        /// \param t_entityID The ID of the entity to return the component data for.
-        ModelComponentStruct& getWriteableDataReference(ecs_id t_entityId) override {
-            m_componentManager.entitiesComponentUpdated(t_entityId, m_componentId);
-            return m_componentData[t_entityId];
-        };
-
     private:
 
     protected:
