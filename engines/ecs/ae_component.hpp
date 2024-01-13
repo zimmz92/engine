@@ -5,8 +5,11 @@
 
 #include "ae_ecs.hpp"
 #include "ae_component_base.hpp"
+#include "ae_allocator_stl_adapter.hpp"
+#include "ae_allocator_base.hpp"
 
 #include <cstdint>
+#include <unordered_map>
 
 namespace ae_ecs {
 
@@ -19,26 +22,43 @@ namespace ae_ecs {
 
 	public:
 
+        enum ComponentStorageMethod{
+            componentStorageMethod_fixedSizeArray = 0,
+            componentStorageMethod_unorderedMap,
+            componentStorageMethod_dynamicArray
+        };
+
         /// Function to create a component, specify the specific manager for the component, and allocate memory for the
         /// component data.
         /// \param t_componentManager The component manager that will manage this component.
-		explicit AeComponent(AeECS& t_ecs) : AeComponentBase(t_ecs) {
+		explicit AeComponent(AeECS& t_ecs, ae_memory::AeAllocatorBase& t_allocator, std::size_t t_numInitialElements=MAX_NUM_ENTITIES,ComponentStorageMethod t_componentStorageMethod=componentStorageMethod_fixedSizeArray) : m_allocator{t_allocator}, m_componentStorageMethod{t_componentStorageMethod}, AeComponentBase(t_ecs) {
 
+            switch (m_componentStorageMethod) {
+                case componentStorageMethod_fixedSizeArray:{
+                    m_componentDataPtr = new T[t_numInitialElements];
+                    for(ecs_id i = 1; i<t_numInitialElements; i++){
+                        T templateComponentData;
+                        ((T*)m_componentDataPtr)[i] = templateComponentData;
+                    };
+                };
+                case componentStorageMethod_unorderedMap:{
+                    m_componentDataPtr = unorderedMapData(t_numInitialElements,t_allocator);
+                };
+                case componentStorageMethod_dynamicArray:{
+
+                };
+            }
 			// TODO: Allow the use of different memory architectures
             // TODO: Allow for a stack instead of allocating memory for every entity even if every entity will never
             //  have a component, for instance there will not be a ton of cameras.
-			m_componentData = new T[MAX_NUM_ENTITIES];
-            for(ecs_id i = 1; i<MAX_NUM_ENTITIES; i++){
-                T templateComponentData;
-                m_componentData[i] = templateComponentData;
-            };
+
 		};
 
         /// Component destructor. Ensures that the memory of the component is released.
 		~AeComponent() {
 
-			delete[] m_componentData;
-            m_componentData = nullptr;
+			delete[] ((T*)m_componentDataPtr);
+            m_componentDataPtr = nullptr;
 		};
 
         /// Gets the ID of the component type.
@@ -58,30 +78,64 @@ namespace ae_ecs {
         /// Removes an entities data from the component. This must be defined but does not actually have to
         /// delete/initialize any data.
         /// \param t_entityId
-        virtual void removeEntityData(ecs_id t_entityId) override {
+        void removeEntityData(ecs_id t_entityId) override {
             T templateComponentData;
-            m_componentData[t_entityId] = templateComponentData;
+            ((T*)m_componentDataPtr)[t_entityId] = templateComponentData;
         };
 
         /// Get data for a specific entity.
 		/// \param t_entityID The ID of the entity to return the component data for.
         virtual T& getWriteableDataReference(ecs_id t_entityId) {
             m_componentManager.entitiesComponentUpdated(t_entityId, m_componentId);
-			return m_componentData[t_entityId];
+			return ((T*)m_componentDataPtr)[t_entityId];
 		};
 
         /// Get data for a specific entity.
         /// \param t_entityID The ID of the entity to return the component data for.
         const T& getReadOnlyDataReference (ecs_id t_entityID) const {
-            return m_componentData[t_entityID];
+            return ((T*)m_componentDataPtr)[t_entityID];
         };
 
 	private:
 
+        struct  unorderedMapData{
+            unorderedMapData(std::size_t t_numOfElements,ae_memory::AeAllocatorBase& t_allocator) : m_allocator{t_allocator}{
+                m_componentData = std::unordered_map<ecs_id,T,ae_memory::AeAllocatorStlAdaptor<std::pair<ecs_id,T>,ae_memory::AeAllocatorBase>>(t_numOfElements, m_allocator);
+            };
+
+            ~unorderedMapData(){
+                m_componentData->clear();
+                m_allocator.deallocate(m_componentData);
+            };
+
+            ae_memory::AeAllocatorBase& m_allocator;
+            std::unordered_map<ecs_id,T>* m_componentData;
+        };
+
+//        struct  dynamicArrayData{
+//            dynamicArrayData(std::size_t t_numOfElements,ae_memory::AeAllocatorBase& t_allocator) : m_allocator{t_allocator}{
+//                m_componentData = std::vector<T,ae_memory::AeAllocatorStlAdaptor<std::pair<ecs_id,T>,ae_memory::AeAllocatorBase>>(t_numOfElements, m_allocator);
+//            };
+//
+//            ~dynamicArrayData(){
+//                m_componentData->clear();
+//                m_allocator.deallocate(m_componentData);
+//            };
+//
+//            ae_memory::AeAllocatorBase& m_allocator;
+//            std::unordered_map<ecs_id,T>* m_componentData;
+//        };
+
 	protected:
 
+        /// Defines how the component data will be stored.
+        ComponentStorageMethod m_componentStorageMethod;
+
         /// Pointer to the data the component is storing.
-        T* m_componentData;
+        void* m_componentDataPtr;
+
+        /// Reference to the allocator used for this component.
+        ae_memory::AeAllocatorBase& m_allocator;
 	};
 
 	/// When a derivative of the AeComponent class is defined the type ID will be set for the derivative class
