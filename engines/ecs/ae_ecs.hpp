@@ -8,6 +8,8 @@
 #include "ae_entity_manager.hpp"
 #include "ae_system_manager.hpp"
 
+#include "ae_allocator_base.hpp"
+
 namespace ae_ecs {
 
     class AeECS {
@@ -18,12 +20,11 @@ namespace ae_ecs {
         friend class AeComponentBase;
 
     public:
-        AeECS(){
-        };
+        AeECS(ae_memory::AeAllocatorBase& t_stackAllocator,ae_memory::AeAllocatorBase& t_freeListAllocator) :
+        m_stackAllocator{t_stackAllocator},
+        m_freeListAllocator{t_freeListAllocator}{};
 
-
-        ~AeECS(){
-        };
+        ~AeECS()= default;
 
         void runSystems(){
             m_ecsSystemManager.runSystems();
@@ -38,7 +39,11 @@ namespace ae_ecs {
         }
 
     private:
-        AeComponentManager m_ecsComponentManager;
+
+        ae_memory::AeAllocatorBase& m_stackAllocator;
+        ae_memory::AeAllocatorBase& m_freeListAllocator;
+
+        AeComponentManager m_ecsComponentManager{};
         AeSystemManager m_ecsSystemManager{m_ecsComponentManager};
         AeEntityManager m_ecsEntityManager{m_ecsComponentManager};
 

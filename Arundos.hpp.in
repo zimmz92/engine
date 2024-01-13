@@ -14,6 +14,8 @@
 #include "ae_renderer.hpp"
 
 #include "ae_ecs_include.hpp"
+#include "ae_de_stack_allocator.hpp"
+#include "ae_free_linked_list_allocator.hpp"
 
 #include "game_components.hpp"
 #include "game_systems.hpp"
@@ -48,6 +50,16 @@ namespace ae {
         /// Loads game objects into the game.
         void loadGameObjects();
 
+        /// Primary Stack Allocator for the game
+        std::size_t m_deStackAllocationSize = 1000000;
+        void* m_deStackAllocation = malloc(m_deStackAllocationSize);
+        ae_memory::AeDeStackAllocator m_deStackAllocator{m_deStackAllocationSize,m_deStackAllocation};
+
+        /// Primary Free List Allocator for the game
+        std::size_t m_freeLinkedListAllocationSize = 1000000;
+        void* m_freeLinkedListAllocation = malloc(m_freeLinkedListAllocationSize);
+        ae_memory::AeFreeLinkedListAllocator m_freeLinkedListAllocator{m_freeLinkedListAllocationSize,m_freeLinkedListAllocation};
+
         /// Declare the application window.
         AeWindow m_aeWindow{ WIDTH, HEIGHT, "Arundos" };
 
@@ -61,7 +73,7 @@ namespace ae {
         AeSamplers m_aeSamplers{m_aeDevice};
 
         /// Declare the ECS of the game.
-        ae_ecs::AeECS m_aeECS{};
+        ae_ecs::AeECS m_aeECS{m_deStackAllocator,m_freeLinkedListAllocator};
 
         /// Declare the game components, the "C" in ECS.
         GameComponents m_gameComponents{m_aeECS};
