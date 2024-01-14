@@ -1,6 +1,7 @@
 target_sources(mySrcFiles
     PRIVATE
         pre_allocated_stack.hpp
+        stl_wrappers.hpp
     PUBLIC
 )
 

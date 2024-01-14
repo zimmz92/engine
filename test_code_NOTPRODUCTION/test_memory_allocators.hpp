@@ -9,11 +9,13 @@
 #include "ae_allocator_stl_adapter.hpp"
 #include "ae_pool_allocator.hpp"
 #include "ae_free_linked_list_allocator.hpp"
+#include "stl_wrappers.hpp"
 
 // libraries
 
 // std
 #include <vector>
+#include <cmath>
 
 namespace ae {
 
@@ -204,6 +206,17 @@ namespace ae {
 
 
         testStackAllocator.clearStack();
+
+        struct TestStruct {
+            std::float_t rho = 0.0f;
+            std::float_t theta = 0.0f;
+            std::float_t phi = 0.0f;
+        };
+
+        unordered_map<int,TestStruct,ae_memory::AeAllocatorBase> myUnorderedMap(testStackAllocator);
+
+        myUnorderedMap.reserve(10);
+        myUnorderedMap[1] = TestStruct();
 
         free(preAllocatedMemoryPtr);
         preAllocatedMemoryPtr = nullptr;

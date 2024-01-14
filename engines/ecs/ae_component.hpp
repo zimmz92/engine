@@ -5,8 +5,7 @@
 
 #include "ae_ecs.hpp"
 #include "ae_component_base.hpp"
-#include "ae_allocator_stl_adapter.hpp"
-#include "ae_allocator_base.hpp"
+#include "stl_wrappers.hpp"
 
 #include <cstdint>
 #include <unordered_map>
@@ -38,25 +37,38 @@ namespace ae_ecs {
                              AeComponentBase(t_ecs) {
 
             switch (m_componentStorageMethod) {
-                case componentStorageMethod_fixedSizeArray:{
+                case componentStorageMethod_fixedSizeArray: {
                     m_componentDataArray = new T[t_numInitialElements];
-                    for(ecs_id i = 1; i<t_numInitialElements; i++){
+                    for (ecs_id i = 1; i < t_numInitialElements; i++) {
                         T templateComponentData;
                         m_componentDataArray[i] = templateComponentData;
                     };
-                };
-                case componentStorageMethod_unorderedMap:{
-                    auto test = std::unordered_map<ecs_id,T,ae_memory::AeAllocatorStlAdaptor<std::pair<ecs_id,T>,ae_memory::AeAllocatorBase>>(t_numInitialElements, m_ecs.m_freeListAllocator);
-                    m_componentDataMap = &test;
-                };
+                    break;
+                }
+                case componentStorageMethod_unorderedMap: {
+                    m_componentDataMap = std::make_unique<ae::unordered_map<ecs_id, T, ae_memory::AeAllocatorBase>>(
+                            t_numInitialElements, m_ecs.m_freeListAllocator);
+                    break;
+                }
             };
 		};
 
         /// Component destructor. Ensures that the memory of the component is released.
 		~AeComponent() {
 
-			delete[] ((T*)m_componentDataArray);
-            m_componentDataArray = nullptr;
+            switch (m_componentStorageMethod) {
+                case componentStorageMethod_fixedSizeArray: {
+                    delete[] m_componentDataArray;
+                    m_componentDataArray = nullptr;
+                    break;
+                }
+                case componentStorageMethod_unorderedMap: {
+                    m_componentDataMap->clear();
+                    m_componentDataMap = nullptr;
+                    break;
+                }
+            };
+
 		};
 
         /// Gets the ID of the component type.
@@ -69,29 +81,73 @@ namespace ae_ecs {
         T& requiredByEntityReference(ecs_id t_entityId) {
             m_componentManager.entityUsesComponent(t_entityId, m_componentId);
 
-            return getWriteableDataReference(t_entityId);
-            // TODO: If stack type component allocate additional memory for the entity on the stack.
+            switch (m_componentStorageMethod) {
+                case componentStorageMethod_fixedSizeArray: {
+                    return getWriteableDataReference(t_entityId);
+                    break;
+                }
+                case componentStorageMethod_unorderedMap: {
+                    T templateComponentData;
+                    m_componentDataMap->operator[](t_entityId) = templateComponentData;
+                    return getWriteableDataReference(t_entityId);
+                    break;
+                }
+                default:
+                    throw std::runtime_error("No valid component storage method specified.");
+            };
         };
 
         /// Removes an entities data from the component. This must be defined but does not actually have to
         /// delete/initialize any data.
         /// \param t_entityId
         void removeEntityData(ecs_id t_entityId) override {
-            T templateComponentData;
-            m_componentDataArray[t_entityId] = templateComponentData;
+            switch (m_componentStorageMethod) {
+                case componentStorageMethod_fixedSizeArray: {
+                    T templateComponentData;
+                    m_componentDataArray[t_entityId] = templateComponentData;
+                    break;
+                }
+                case componentStorageMethod_unorderedMap: {
+                    m_componentDataMap->erase(t_entityId);
+                    break;
+                }
+            };
         };
 
         /// Get data for a specific entity.
 		/// \param t_entityID The ID of the entity to return the component data for.
         virtual T& getWriteableDataReference(ecs_id t_entityId) {
             m_componentManager.entitiesComponentUpdated(t_entityId, m_componentId);
-			return m_componentDataArray[t_entityId];
+
+            switch (m_componentStorageMethod) {
+                case componentStorageMethod_fixedSizeArray: {
+                    return m_componentDataArray[t_entityId];
+                    break;
+                }
+                case componentStorageMethod_unorderedMap: {
+                    return m_componentDataMap->at(t_entityId);
+                    break;
+                }
+                default:
+                    throw std::runtime_error("No valid component storage method specified.");
+            };
 		};
 
         /// Get data for a specific entity.
         /// \param t_entityID The ID of the entity to return the component data for.
-        const T& getReadOnlyDataReference (ecs_id t_entityID) const {
-            return m_componentDataArray[t_entityID];
+        const T& getReadOnlyDataReference (ecs_id t_entityId) const {
+            switch (m_componentStorageMethod) {
+                case componentStorageMethod_fixedSizeArray: {
+                    return m_componentDataArray[t_entityId];
+                    break;
+                }
+                case componentStorageMethod_unorderedMap: {
+                    return m_componentDataMap->at(t_entityId);
+                    break;
+                }
+                default:
+                    throw std::runtime_error("No valid component storage method specified.");
+            };
         };
 
 	private:
@@ -105,7 +161,7 @@ namespace ae_ecs {
         T* m_componentDataArray = nullptr;
 
         /// Pointer to the component data if storing using an unordered map.
-        std::unordered_map<ecs_id,T,ae_memory::AeAllocatorStlAdaptor<std::pair<ecs_id,T>,ae_memory::AeAllocatorBase>>* m_componentDataMap = nullptr;
+        std::unique_ptr<ae::unordered_map<ecs_id,T,ae_memory::AeAllocatorBase>> m_componentDataMap = nullptr;
 
         /// Reference to ECS that manages this component.
         ae_ecs::AeECS& m_ecs;
