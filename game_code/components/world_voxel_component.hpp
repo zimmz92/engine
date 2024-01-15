@@ -34,7 +34,7 @@ namespace ae {
     public:
         /// The WorldVoxelComponent constructor uses the AeComponent constructor with no additions.
         /// \param t_ecs The entity component system this component will be handled by.
-        WorldVoxelComponent(ae_ecs::AeECS& t_ecs) : AeComponent(t_ecs) {};
+        WorldVoxelComponent(ae_ecs::AeECS& t_ecs) : AeComponent(t_ecs,1,componentStorageMethod_unorderedMap) {};
 
         /// The destructor of the WorldVoxelComponent class. The WorldVoxelComponent destructor
         /// uses the AeComponent constructor with no additions.

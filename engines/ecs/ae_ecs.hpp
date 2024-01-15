@@ -9,6 +9,7 @@
 #include "ae_system_manager.hpp"
 
 #include "ae_allocator_base.hpp"
+#include "ae_de_stack_allocator.hpp"
 
 namespace ae_ecs {
 
@@ -20,8 +21,8 @@ namespace ae_ecs {
         friend class AeComponentBase;
 
     public:
-        AeECS(ae_memory::AeAllocatorBase& t_stackAllocator,ae_memory::AeAllocatorBase& t_freeListAllocator) :
-        m_stackAllocator{t_stackAllocator},
+        AeECS(ae_memory::AeDeStackAllocator& t_deStackAllocator,ae_memory::AeAllocatorBase& t_freeListAllocator) :
+        m_deStackAllocator{t_deStackAllocator},
         m_freeListAllocator{t_freeListAllocator}{};
 
         ~AeECS()= default;
@@ -40,7 +41,7 @@ namespace ae_ecs {
 
     private:
 
-        ae_memory::AeAllocatorBase& m_stackAllocator;
+        ae_memory::AeDeStackAllocator& m_deStackAllocator;
         ae_memory::AeAllocatorBase& m_freeListAllocator;
 
         AeComponentManager m_ecsComponentManager{};

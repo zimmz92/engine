@@ -70,7 +70,7 @@ namespace ae_memory {
 
         /// Allocates the specified amount of memory from the bottom portion of the stack.
         /// \param t_allocationSize The size of the memory in bytes to be allocated.
-        void* allocateFromBottom(std::size_t t_allocationSize, std::size_t t_byteAlignment);
+        void* allocateFromBottom(std::size_t t_allocationSize, std::size_t t_byteAlignment=MEMORY_ALIGNMENT);
 
         /// Deallocates all memory from the current top of the bottom-up portion of the stack to the provided marker.
         /// \param t_marker The marker representing the memory location that the bottom-up portion of the stack shall be
@@ -91,7 +91,7 @@ namespace ae_memory {
 
         /// Allocates the specified amount of memory from the top portion of the stack.
         /// \param t_allocationSize The size of the memory in bytes to be allocated.
-        void* allocateFromTop(std::size_t t_allocationSize, std::size_t t_byteAlignment);
+        void* allocateFromTop(std::size_t t_allocationSize, std::size_t t_byteAlignment=MEMORY_ALIGNMENT);
 
         /// Deallocates all memory from the current "top", bottom, of the top-down portion of the stack to the provided
         /// marker.

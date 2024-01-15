@@ -51,7 +51,7 @@ namespace ae {
         void loadGameObjects();
 
         /// Primary Stack Allocator for the game
-        std::size_t m_deStackAllocationSize = 1000000;
+        std::size_t m_deStackAllocationSize = 4000000000;
         void* m_deStackAllocation = malloc(m_deStackAllocationSize);
         ae_memory::AeDeStackAllocator m_deStackAllocator{m_deStackAllocationSize,m_deStackAllocation};
 

@@ -6,6 +6,7 @@
 #include "ae_ecs.hpp"
 #include "ae_component_base.hpp"
 #include "stl_wrappers.hpp"
+#include "ae_de_stack_allocator.hpp"
 
 #include <cstdint>
 #include <unordered_map>
@@ -22,7 +23,7 @@ namespace ae_ecs {
 	public:
 
         enum ComponentStorageMethod{
-            componentStorageMethod_fixedSizeArray = 0,
+            componentStorageMethod_maxEntityArray = 0,
             componentStorageMethod_unorderedMap
         };
 
@@ -31,16 +32,17 @@ namespace ae_ecs {
         /// \param t_componentManager The component manager that will manage this component.
 		explicit AeComponent(AeECS& t_ecs,
                              std::size_t t_numInitialElements=MAX_NUM_ENTITIES,
-                             ComponentStorageMethod t_componentStorageMethod=componentStorageMethod_fixedSizeArray) :
+                             ComponentStorageMethod t_componentStorageMethod=componentStorageMethod_maxEntityArray) :
                              m_ecs{t_ecs},
                              m_componentStorageMethod{t_componentStorageMethod},
                              AeComponentBase(t_ecs) {
 
             switch (m_componentStorageMethod) {
-                case componentStorageMethod_fixedSizeArray: {
-                    m_componentDataArray = new T[t_numInitialElements];
-                    for (ecs_id i = 1; i < t_numInitialElements; i++) {
-                        T templateComponentData;
+                case componentStorageMethod_maxEntityArray: {
+                    m_bottomStackMarker = m_ecs.m_deStackAllocator.getBottomStackMarker();
+                    m_componentDataArray = static_cast<T*>(m_ecs.m_deStackAllocator.allocateFromBottom(sizeof(T)*MAX_NUM_ENTITIES));
+                    T templateComponentData;
+                    for (ecs_id i = 1; i < MAX_NUM_ENTITIES; i++) {
                         m_componentDataArray[i] = templateComponentData;
                     };
                     break;
@@ -57,8 +59,8 @@ namespace ae_ecs {
 		~AeComponent() {
 
             switch (m_componentStorageMethod) {
-                case componentStorageMethod_fixedSizeArray: {
-                    delete[] m_componentDataArray;
+                case componentStorageMethod_maxEntityArray: {
+                    m_ecs.m_deStackAllocator.deallocateToBottomMarker(m_bottomStackMarker);
                     m_componentDataArray = nullptr;
                     break;
                 }
@@ -82,7 +84,7 @@ namespace ae_ecs {
             m_componentManager.entityUsesComponent(t_entityId, m_componentId);
 
             switch (m_componentStorageMethod) {
-                case componentStorageMethod_fixedSizeArray: {
+                case componentStorageMethod_maxEntityArray: {
                     return getWriteableDataReference(t_entityId);
                     break;
                 }
@@ -102,7 +104,7 @@ namespace ae_ecs {
         /// \param t_entityId
         void removeEntityData(ecs_id t_entityId) override {
             switch (m_componentStorageMethod) {
-                case componentStorageMethod_fixedSizeArray: {
+                case componentStorageMethod_maxEntityArray: {
                     T templateComponentData;
                     m_componentDataArray[t_entityId] = templateComponentData;
                     break;
@@ -120,7 +122,7 @@ namespace ae_ecs {
             m_componentManager.entitiesComponentUpdated(t_entityId, m_componentId);
 
             switch (m_componentStorageMethod) {
-                case componentStorageMethod_fixedSizeArray: {
+                case componentStorageMethod_maxEntityArray: {
                     return m_componentDataArray[t_entityId];
                     break;
                 }
@@ -137,7 +139,7 @@ namespace ae_ecs {
         /// \param t_entityID The ID of the entity to return the component data for.
         const T& getReadOnlyDataReference (ecs_id t_entityId) const {
             switch (m_componentStorageMethod) {
-                case componentStorageMethod_fixedSizeArray: {
+                case componentStorageMethod_maxEntityArray: {
                     return m_componentDataArray[t_entityId];
                     break;
                 }
@@ -159,6 +161,7 @@ namespace ae_ecs {
 
         /// Pointer to the data the component is storing if using an array.
         T* m_componentDataArray = nullptr;
+        ae_memory::AeDeStackAllocator::BottomStackMarker m_bottomStackMarker;
 
         /// Pointer to the component data if storing using an unordered map.
         std::unique_ptr<ae::unordered_map<ecs_id,T,ae_memory::AeAllocatorBase>> m_componentDataMap = nullptr;
