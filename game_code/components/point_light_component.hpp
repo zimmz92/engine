@@ -22,7 +22,7 @@ namespace ae {
     class PointLightComponent : public ae_ecs::AeComponent<PointLightComponentStruct> {
     public:
         /// The PointLightComponent constructor uses the AeComponent constructor with no additions.
-        PointLightComponent(ae_ecs::AeECS& t_ecs) : AeComponent(t_ecs) {};
+        PointLightComponent(ae_ecs::AeECS& t_ecs) : AeComponent(t_ecs,20,componentStorageMethod_unorderedMap) {};
 
         /// The destructor of the PointLightComponent class. The PointLightComponent destructor
         /// uses the AeComponent constructor with no additions.

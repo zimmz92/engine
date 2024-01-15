@@ -24,7 +24,7 @@ namespace ae {
     class PlayerControlledComponent : public ae_ecs::AeComponent<PlayerControlledComponentStruct> {
     public:
         /// The PlayerControlledComponent constructor uses the AeComponent constructor with no additions.
-        PlayerControlledComponent(ae_ecs::AeECS& t_ecs) : AeComponent(t_ecs) {};
+        PlayerControlledComponent(ae_ecs::AeECS& t_ecs) : AeComponent(t_ecs,1,componentStorageMethod_unorderedMap) {};
 
         /// The destructor of the PlayerControlledComponent class. The PlayerControlledComponent destructor
         /// uses the AeComponent constructor with no additions.

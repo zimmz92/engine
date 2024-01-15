@@ -36,7 +36,7 @@ namespace ae {
     class Model2dComponent : public ae_ecs::AeComponent<Model2dComponentStruct> {
     public:
         /// The ModelComponent constructor uses the AeComponent constructor with no additions.
-        Model2dComponent(ae_ecs::AeECS& t_ecs) : AeComponent(t_ecs) {};
+        Model2dComponent(ae_ecs::AeECS& t_ecs) : AeComponent(t_ecs,20,componentStorageMethod_unorderedMap) {};
 
         /// The destructor of the modelComponent class. The ModelComponent destructor uses the AeComponent
         /// constructor with no additions.
