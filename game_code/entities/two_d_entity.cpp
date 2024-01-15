@@ -7,13 +7,8 @@ namespace ae {
 
     // Constructor implementation of the TwoDEntity
     TwoDEntity::TwoDEntity(ae_ecs::AeECS& t_ecs, GameComponents& t_gameComponents) :
-            m_model{t_gameComponents.model2DComponent.getWriteableDataReference(this->m_entityId)},
-            AeEntity(t_ecs) {
-
-        // Specify the components that define this entity and where this entity will store data.
-        t_gameComponents.model2DComponent.requiredByEntityReference(this->m_entityId);
-
-	};
+            m_model{t_gameComponents.model2DComponent.requiredByEntityReference(this->m_entityId)},
+            AeEntity(t_ecs) {};
 
 
 

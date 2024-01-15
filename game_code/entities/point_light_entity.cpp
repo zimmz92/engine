@@ -7,15 +7,9 @@ namespace ae {
 
     // The constructor of the point light entity.
     PointLightEntity::PointLightEntity(ae_ecs::AeECS& t_ecs, GameComponents& t_gameComponents) :
-            m_pointLightData{t_gameComponents.pointLightComponent.getWriteableDataReference(this->m_entityId) },
-            m_uboDataFlags{t_gameComponents.uboDataFlagsComponent.getWriteableDataReference(this->m_entityId) },
-            GameObjectEntity(t_ecs, t_gameComponents) {
-
-        // Specify the components that define this entity and where this entity will store data.
-        t_gameComponents.pointLightComponent.requiredByEntityReference(this->m_entityId);
-        t_gameComponents.uboDataFlagsComponent.requiredByEntityReference(this->m_entityId);
-
-	};
+            m_pointLightData{t_gameComponents.pointLightComponent.requiredByEntityReference(this->m_entityId) },
+            m_uboDataFlags{t_gameComponents.uboDataFlagsComponent.requiredByEntityReference(this->m_entityId) },
+            GameObjectEntity(t_ecs, t_gameComponents) {};
 
 
 
