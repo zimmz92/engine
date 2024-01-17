@@ -81,7 +81,8 @@ namespace ae {
         std::shared_ptr<AeModel> m_aeModel = AeModel::createModelFromFile(m_aeDevice, "assets/models/leaf_enemy_w_tongue.obj");;
 
         /// The texture which will be used with the model.
-        std::shared_ptr<AeImage> m_aeImage = AeImage::createModelFromFile(m_aeDevice, "assets/models/leaf_enemy_body_w_tongue.png");
+        std::shared_ptr<AeImage> m_aeImage = AeImage::createImageFromFile(m_aeDevice,
+                                                                          "assets/models/leaf_enemy_body_w_tongue.png");
 
         // Components this system utilizes.
 

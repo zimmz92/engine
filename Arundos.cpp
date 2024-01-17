@@ -124,7 +124,7 @@ namespace ae {
 
         // Load the viking object model from the file
         aeModel = AeModel::createModelFromFile(m_aeDevice, "assets_NOTPRODUCTION/models/TEMP_viking_room.obj");
-        std::shared_ptr<AeImage> aeImage = AeImage::createModelFromFile(m_aeDevice,
+        std::shared_ptr<AeImage> aeImage = AeImage::createImageFromFile(m_aeDevice,
                                                                         "assets_NOTPRODUCTION/models/TEMP_viking_room.png");
         // ECS version of the floor
         auto vikingRoom = GameObjectEntity(m_aeECS, m_gameComponents);
@@ -287,7 +287,7 @@ namespace ae {
                 {{0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}}
         };
 
-        aeImage = AeImage::createModelFromFile(m_aeDevice,"assets_NOTPRODUCTION/ui_textures/TEMP_statue.jpg");
+        aeImage = AeImage::createImageFromFile(m_aeDevice, "assets_NOTPRODUCTION/ui_textures/TEMP_statue.jpg");
         std::shared_ptr<Ae2DModel> ae2DModel = Ae2DModel::createModelFromFile(m_aeDevice, vertices);
         // ECS version of the floor
         auto triangle = TwoDEntity(m_aeECS,m_gameComponents);

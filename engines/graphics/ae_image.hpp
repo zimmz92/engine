@@ -67,7 +67,7 @@ namespace ae {
         /// specified GPU.
         /// \param t_device The GPU the created image will be compatible with and will have buffer created for.
         /// \param t_filepath The location of the file defining the image.
-        static std::unique_ptr<AeImage> createModelFromFile(AeDevice& t_device, const std::string& t_filepath);
+        static std::unique_ptr<AeImage> createImageFromFile(AeDevice& t_device, const std::string& t_filepath);
 
         /// Get the image view for the image.
         /// \return The image view for the image.

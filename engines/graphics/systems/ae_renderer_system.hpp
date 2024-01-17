@@ -137,6 +137,16 @@ namespace ae {
         std::map<std::shared_ptr<AeImage>,ImageBufferInfo> m_imageBufferEntityMaterialMap{};
 
         //==============================================================================================================
+        // Compute Stage
+        //==============================================================================================================
+        /// The compute descriptor set.
+        std::vector<VkDescriptorSet> m_computesDescriptorSets;
+
+        /// The object buffers for each frame
+        std::vector<std::unique_ptr<AeBuffer>> m_computeBuffers;
+
+
+        //==============================================================================================================
         // 3D Object Buffer
         //==============================================================================================================
         /// The object descriptor sets used for storing the model matrices and texture indexes.

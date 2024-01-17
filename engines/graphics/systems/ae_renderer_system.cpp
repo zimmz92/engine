@@ -38,10 +38,10 @@ namespace ae {
 
         // Create the global pool
         m_globalPool = AeDescriptorPool::Builder(m_aeDevice)
-                .setMaxSets(MAX_FRAMES_IN_FLIGHT*6)
+                .setMaxSets(MAX_FRAMES_IN_FLIGHT*8)
                 .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MAX_FRAMES_IN_FLIGHT)
                 .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MAX_TEXTURES * MAX_FRAMES_IN_FLIGHT)
-                .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, MAX_FRAMES_IN_FLIGHT*4)
+                .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, MAX_FRAMES_IN_FLIGHT*6)
                 .build();
 
         //==============================================================================================================
@@ -82,6 +82,32 @@ namespace ae {
                     .build(m_globalDescriptorSets[i]);
         }
 
+
+        //==============================================================================================================
+        // Collision Detection Descriptor Set Initialization
+        //==============================================================================================================
+        auto collisionSetLayout = AeDescriptorSetLayout::Builder(m_aeDevice)
+                .addBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_COMPUTE_BIT, 1)
+                .addBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_COMPUTE_BIT, 1)
+                .build();
+
+        // Allocate memory for the compute buffers
+        m_computeBuffers.reserve(MAX_FRAMES_IN_FLIGHT);
+        for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            // Create a new buffer and push it to the back of the vector of uboBuffers.
+            m_computeBuffers.push_back(std::make_unique<AeBuffer>(
+                    m_aeDevice,
+                    sizeof(Particle),
+                    MAX_PARTICLES,
+                    VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+                    VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
+
+            // Attempt to map memory for the object buffer.
+            //if (m_computeBuffers.back()->map() != VK_SUCCESS) {
+            //    throw std::runtime_error("Failed to map the compute buffer to memory!");
+            //};
+        };
+
         //==============================================================================================================
         // Texture Descriptor Set Initialization
         //==============================================================================================================
@@ -91,7 +117,7 @@ namespace ae {
                 .build();
 
         // Reserve space for and then initialize the texture descriptors for each frame.
-        m_defaultImage = AeImage::createModelFromFile(m_aeDevice,"assets/ui_textures/default.jpg");
+        m_defaultImage = AeImage::createImageFromFile(m_aeDevice, "assets/ui_textures/default.jpg");
         m_textureDescriptorSets.reserve(MAX_FRAMES_IN_FLIGHT);
         VkDescriptorImageInfo imageInfo{};
         imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;

@@ -52,7 +52,7 @@ namespace ae {
 
 
     // Create the image from the specified file using the builder class. This
-    std::unique_ptr<AeImage> AeImage::createModelFromFile(AeDevice& t_device, const std::string& t_filepath){
+    std::unique_ptr<AeImage> AeImage::createImageFromFile(AeDevice& t_device, const std::string& t_filepath){
 
         // Create a new builder object to store the temporary data required to build the image from the file.
         Builder builder{};
