@@ -29,20 +29,26 @@ namespace ae {
     /// Structure that stores the desired queue families and their device information.
 	struct QueueFamilyIndices {
         /// Index of the graphics queue family on the device.
-		uint32_t graphicsFamily;
+		uint32_t graphicsFamily = 0;
 
-        /// Index of the present family queue on the device.
-		uint32_t presentFamily;
+        /// Index of the present queue family on the device.
+		uint32_t presentFamily = 0;
 
-        /// Represents if the graphics queue family has been found.
+        /// Index of the compute queue family on the device.
+        uint32_t computeFamily = 0;
+
+        /// Represents if a graphics queue family has been found.
 		bool graphicsFamilyHasValue = false;
 
-        /// Represents if the present queue family has been found.
+        /// Represents if a present queue family has been found.
 		bool presentFamilyHasValue = false;
+
+        /// Represents if a compute queue family has been found.
+        bool computeFamilyHasValue = true;
 
         /// Checks to see if all the desire queue families have been found.
         /// \return True if all the required queue families have been found and indexes populated.
-		bool isComplete() { return graphicsFamilyHasValue && presentFamilyHasValue; }
+		[[nodiscard]] bool isComplete() const { return graphicsFamilyHasValue && presentFamilyHasValue && computeFamilyHasValue; }
 	};
 
     /// A vulkan device interface object.

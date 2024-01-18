@@ -476,8 +476,13 @@ namespace ae {
                 indices.presentFamilyHasValue = true;
             }
 
+            if (queueFamily.queueCount > 0 && queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT) {
+                indices.computeFamily = i;
+                indices.graphicsFamilyHasValue = true;
+            }
+
             // Once a queue family is found that supports drawing and presentation we no longer need to search.
-            if (indices.isComplete() && (indices.presentFamily == indices.graphicsFamily)) {
+            if (indices.isComplete() && (indices.presentFamily == indices.graphicsFamily == indices.computeFamily)) {
                 break;
             }
 
