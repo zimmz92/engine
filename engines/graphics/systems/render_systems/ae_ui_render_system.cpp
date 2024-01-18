@@ -149,14 +149,15 @@ namespace ae {
         pipelineConfig.bindingDescriptions = Ae2DModel::Vertex2D::getBindingDescriptions();
         pipelineConfig.attributeDescriptions = Ae2DModel::Vertex2D::getAttributeDescriptions();
 
+        shaderFilesPaths shaderPaths{};
+        shaderPaths.vertFilepath = "engines/graphics/shaders/ui_shader.vert.spv";
+        shaderPaths.fragFilepath = "engines/graphics/shaders/ui_shader.frag.spv";
+
 
         // Create the point light render system pipeline.
         m_aePipeline = std::make_unique<AePipeline>(
                 m_aeDevice,
-                "engines/graphics/shaders/ui_shader.vert.spv",
-                "engines/graphics/shaders/ui_shader.frag.spv",
-                "Not Used",
-                "Not Used",
+                shaderPaths,
                 pipelineConfig);
     };
 

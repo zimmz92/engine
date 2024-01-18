@@ -2,6 +2,8 @@ target_sources(mySrcFiles
     PRIVATE
         ae_renderer_system.hpp
         ae_renderer_system.cpp
+        ae_particle_system.hpp
+        ae_particle_system.cpp
     PUBLIC
 )
 

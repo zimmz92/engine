@@ -74,13 +74,16 @@ namespace ae {
         pipelineConfig.renderPass = t_renderPass;
         pipelineConfig.pipelineLayout = m_pipelineLayout;
 
+        shaderFilesPaths shaderPaths{};
+        shaderPaths.vertFilepath = m_materialShaderFiles.vertexShaderFilepath;
+        shaderPaths.fragFilepath = m_materialShaderFiles.fragmentShaderFilepath;
+        shaderPaths.tessFilepath = m_materialShaderFiles.tessellationShaderFilepath;
+        shaderPaths.geometryFilepath = m_materialShaderFiles.geometryShaderFilepath;
+
         // Create the material layer pipeline.
         m_pipeline = std::make_unique<AePipeline>(
                 m_aeDevice,
-                m_materialShaderFiles.vertexShaderFilepath,
-                m_materialShaderFiles.fragmentShaderFilepath,
-                m_materialShaderFiles.tessellationShaderFilepath,
-                m_materialShaderFiles.geometryShaderFilepath,
+                shaderPaths,
                 pipelineConfig,
                 m_materialID);
     };

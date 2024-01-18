@@ -133,13 +133,14 @@ namespace ae {
         pipelineConfig.renderPass = t_renderPass;
         pipelineConfig.pipelineLayout = m_pipelineLayout;
 
+        shaderFilesPaths shaderPaths{};
+        shaderPaths.vertFilepath = "engines/graphics/shaders/shader.vert.spv";
+        shaderPaths.fragFilepath = "engines/graphics/shaders/shader.frag.spv";
+
         // Create the point light render system pipeline.
         m_aePipeline = std::make_unique<AePipeline>(
                 m_aeDevice,
-                "engines/graphics/shaders/shader.vert.spv",
-                "engines/graphics/shaders/shader.frag.spv",
-                "Not Used",
-                "Not Used",
+                shaderPaths,
                 pipelineConfig);
     };
 

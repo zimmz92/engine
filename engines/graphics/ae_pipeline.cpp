@@ -16,23 +16,17 @@ namespace ae {
     // Create the Vulkan pipeline object
     AePipeline::AePipeline(
         AeDevice& t_device,
-        const std::string& t_vertFilepath,
-        const std::string& t_fragFilepath,
-        const std::string& t_tessFilepath,
-        const std::string& t_geometryFilepath,
+        const shaderFilesPaths& t_shaderFilePaths,
         const PipelineConfigInfo& t_configInfo) : m_aeDevice{ t_device } {
 
-        createGraphicsPipeline(t_vertFilepath, t_fragFilepath, t_tessFilepath, t_geometryFilepath, t_configInfo,nullptr);
+        createGraphicsPipeline(t_shaderFilePaths, t_configInfo,nullptr);
 
     }
 
     // Create the Vulkan pipeline object
     AePipeline::AePipeline(
             AeDevice& t_device,
-            const std::string& t_vertFilepath,
-            const std::string& t_fragFilepath,
-            const std::string& t_tessFilepath,
-            const std::string& t_geometryFilepath,
+            const shaderFilesPaths& t_shaderFilePaths,
             const PipelineConfigInfo& t_configInfo,
             uint32_t& t_materialId) : m_aeDevice{ t_device } {
 
@@ -44,7 +38,7 @@ namespace ae {
                 &t_materialId
         };
 
-        createGraphicsPipeline(t_vertFilepath, t_fragFilepath, t_tessFilepath, t_geometryFilepath, t_configInfo, &spec_info);
+        createGraphicsPipeline(t_shaderFilePaths, t_configInfo, &spec_info);
 
     }
 
@@ -67,7 +61,7 @@ namespace ae {
         }
 
         // Since the file was opened and by default seeked the end of file the current position is the size of the file.
-        size_t fileSize = static_cast<size_t>(file.tellg());
+        std::streamsize fileSize = file.tellg();
 
         // Create a local variable to store file contents.
         std::vector<char> buffer(fileSize);
@@ -85,12 +79,9 @@ namespace ae {
 
     // Function to create a Vulkan graphics pipeline
     void AePipeline::createGraphicsPipeline(
-        const std::string& t_vertFilepath,
-        const std::string& t_fragFilepath,
-        const std::string& t_tessFilepath,
-        const std::string& t_geometryFilepath,
-        const PipelineConfigInfo& t_configInfo,
-        VkSpecializationInfo* spec_info) {
+            const shaderFilesPaths& t_shaderFilePaths,
+            const PipelineConfigInfo& t_configInfo,
+            VkSpecializationInfo* spec_info) {
 
         assert(
             t_configInfo.pipelineLayout != nullptr &&
@@ -105,10 +96,10 @@ namespace ae {
 
         // If a vertex shader has been provided create the information for it.
         VkShaderModule vertShaderModule;
-        if(t_vertFilepath != "Not Used"){
+        if(t_shaderFilePaths.vertFilepath != "Not Used"){
 
             // Read in the vertex shader code from the specified file.
-            auto vertCode = readFile(t_vertFilepath);
+            auto vertCode = readFile(t_shaderFilePaths.vertFilepath);
 
             // Create the vertex shader module the imported shader code
             createShaderModule(vertCode, &vertShaderModule);
@@ -130,10 +121,10 @@ namespace ae {
 
         // If a fragment shader has been provided, create the information for it.
         VkShaderModule fragShaderModule;
-        if(t_fragFilepath != "Not Used"){
+        if(t_shaderFilePaths.fragFilepath != "Not Used"){
 
             // Read in the fragment shader code from the specified file.
-            auto fragCode = readFile(t_fragFilepath);
+            auto fragCode = readFile(t_shaderFilePaths.fragFilepath);
 
             // Create the fragment shader module the imported shader code
             createShaderModule(fragCode, &fragShaderModule);
@@ -155,10 +146,10 @@ namespace ae {
 
         // If a tesselation control shader has been provided, create the information for it.
         VkShaderModule tessShaderModule;
-        if(t_tessFilepath != "Not Used"){
+        if(t_shaderFilePaths.tessFilepath != "Not Used"){
 
             // Read in the fragment shader code from the specified file.
-            auto tessCode = readFile(t_tessFilepath);
+            auto tessCode = readFile(t_shaderFilePaths.tessFilepath);
 
             // Create the fragment shader module the imported shader code
             createShaderModule(tessCode, &tessShaderModule);
@@ -178,10 +169,10 @@ namespace ae {
 
         // If a tesselation control shader has been provided, create the information for it.
         VkShaderModule geometryShaderModule;
-        if(t_geometryFilepath != "Not Used"){
+        if(t_shaderFilePaths.geometryFilepath != "Not Used"){
 
             // Read in the fragment shader code from the specified file.
-            auto geometryCode = readFile(t_geometryFilepath);
+            auto geometryCode = readFile(t_shaderFilePaths.geometryFilepath);
 
             // Create the fragment shader module the imported shader code
             createShaderModule(geometryCode, &geometryShaderModule);
@@ -238,22 +229,22 @@ namespace ae {
         }
 
         // Clean up the shader modules now that they have been loaded into the pipeline.
-        if(t_vertFilepath != "Not Used") {
+        if(t_shaderFilePaths.vertFilepath != "Not Used") {
             vkDestroyShaderModule(m_aeDevice.device(), fragShaderModule, nullptr);
             fragShaderModule = VK_NULL_HANDLE;
         }
 
-        if(t_fragFilepath != "Not Used") {
+        if(t_shaderFilePaths.fragFilepath != "Not Used") {
             vkDestroyShaderModule(m_aeDevice.device(), vertShaderModule, nullptr);
             vertShaderModule = VK_NULL_HANDLE;
         }
 
-        if(t_tessFilepath != "Not Used") {
+        if(t_shaderFilePaths.tessFilepath != "Not Used") {
             vkDestroyShaderModule(m_aeDevice.device(), tessShaderModule, nullptr);
             tessShaderModule = VK_NULL_HANDLE;
         }
 
-        if(t_geometryFilepath != "Not Used") {
+        if(t_shaderFilePaths.geometryFilepath != "Not Used") {
             vkDestroyShaderModule(m_aeDevice.device(), geometryShaderModule, nullptr);
             geometryShaderModule = VK_NULL_HANDLE;
         }

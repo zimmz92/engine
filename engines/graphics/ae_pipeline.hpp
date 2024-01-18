@@ -39,6 +39,14 @@ namespace ae {
         uint32_t subpass = 0;
     };
 
+    struct shaderFilesPaths{
+        std::string vertFilepath = "Not Used";
+        std::string fragFilepath = "Not Used";
+        std::string tessFilepath = "Not Used";
+        std::string geometryFilepath = "Not Used";
+        std::string computeFilepath = "Not Used";
+    };
+
     /// Class for the Vulkan pipeline object
     class AePipeline {
     public:
@@ -50,18 +58,12 @@ namespace ae {
         /// pipeline to be created.
         AePipeline(
             AeDevice& t_device,
-            const std::string& t_vertFilepath,
-            const std::string& t_fragFilepath,
-            const std::string& t_tessFilepath,
-            const std::string& t_geometryFilepath,
+            const shaderFilesPaths& t_shaderFilePaths,
             const PipelineConfigInfo& t_configInfo);
 
         AePipeline(
                 AeDevice& t_device,
-                const std::string& t_vertFilepath,
-                const std::string& t_fragFilepath,
-                const std::string& t_tessFilepath,
-                const std::string& t_geometryFilepath,
+                const shaderFilesPaths& t_shaderFilePaths,
                 const PipelineConfigInfo& t_configInfo,
                 uint32_t& t_materialId);
 
@@ -99,12 +101,9 @@ namespace ae {
         /// \param t_configInfo The PipelineConfigInfo struct that defines the required vulkan properties of the
         /// pipeline to be created.
         void createGraphicsPipeline(
-            const std::string& t_vertFilepath,
-            const std::string& t_fragFilepath,
-            const std::string& t_tessFilepath,
-            const std::string& t_geometryFilepath,
-            const PipelineConfigInfo& t_configInfo,
-            VkSpecializationInfo* spec_info);
+                const shaderFilesPaths& t_shaderFilePaths,
+                const PipelineConfigInfo& t_configInfo,
+                VkSpecializationInfo* spec_info);
 
         /// Function to create a Vulkan shader module from the supplied reference of code vector variable.
         /// \param t_code The vector containing the code for the shader module to be created.

@@ -17,7 +17,11 @@ namespace ae {
     };
 
     // Constructor implementation
-    PointLightRenderSystem::PointLightRenderSystem(ae_ecs::AeECS& t_ecs, GameComponents& t_game_components, AeDevice& t_aeDevice, VkRenderPass t_renderPass, VkDescriptorSetLayout t_globalSetLayout)
+    PointLightRenderSystem::PointLightRenderSystem(ae_ecs::AeECS& t_ecs,
+                                                   GameComponents& t_game_components,
+                                                   AeDevice& t_aeDevice,
+                                                   VkRenderPass t_renderPass,
+                                                   VkDescriptorSetLayout t_globalSetLayout)
     : m_worldPositionComponent{t_game_components.worldPositionComponent},
       m_pointLightComponent{t_game_components.pointLightComponent},
       m_cameraComponent{t_game_components.cameraComponent},
@@ -191,13 +195,14 @@ namespace ae {
         pipelineConfig.renderPass = t_renderPass;
         pipelineConfig.pipelineLayout = m_pipelineLayout;
 
+        shaderFilesPaths shaderPaths{};
+        shaderPaths.vertFilepath = "engines/graphics/shaders/point_light.vert.spv";
+        shaderPaths.fragFilepath = "engines/graphics/shaders/point_light.frag.spv";
+
         // Create the point light render system pipeline.
         m_aePipeline = std::make_unique<AePipeline>(
                 m_aeDevice,
-                "engines/graphics/shaders/point_light.vert.spv",
-                "engines/graphics/shaders/point_light.frag.spv",
-                "Not Used",
-                "Not Used",
+                shaderPaths,
                 pipelineConfig);
     };
 }
