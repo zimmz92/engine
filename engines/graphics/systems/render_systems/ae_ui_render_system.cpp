@@ -149,7 +149,7 @@ namespace ae {
         pipelineConfig.bindingDescriptions = Ae2DModel::Vertex2D::getBindingDescriptions();
         pipelineConfig.attributeDescriptions = Ae2DModel::Vertex2D::getAttributeDescriptions();
 
-        graphicsShaderFilesPaths shaderPaths{};
+        GraphicsShaderFilesPaths shaderPaths{};
         shaderPaths.vertFilepath = "engines/graphics/shaders/ui_shader.vert.spv";
         shaderPaths.fragFilepath = "engines/graphics/shaders/ui_shader.frag.spv";
 

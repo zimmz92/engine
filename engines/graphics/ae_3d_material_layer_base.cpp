@@ -74,7 +74,7 @@ namespace ae {
         pipelineConfig.renderPass = t_renderPass;
         pipelineConfig.pipelineLayout = m_pipelineLayout;
 
-        graphicsShaderFilesPaths shaderPaths{};
+        GraphicsShaderFilesPaths shaderPaths{};
         shaderPaths.vertFilepath = m_materialShaderFiles.vertexShaderFilepath;
         shaderPaths.fragFilepath = m_materialShaderFiles.fragmentShaderFilepath;
         shaderPaths.tessFilepath = m_materialShaderFiles.tessellationShaderFilepath;

@@ -8,6 +8,8 @@ target_sources(mySrcFiles
         ae_model.hpp
         ae_graphics_pipeline.cpp
         ae_graphics_pipeline.hpp
+        ae_compute_pipeline.hpp
+        ae_compute_pipeline.cpp
         ae_window.cpp
         ae_window.hpp
         ae_swap_chain.cpp

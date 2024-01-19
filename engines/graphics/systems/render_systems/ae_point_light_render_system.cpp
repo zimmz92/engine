@@ -195,7 +195,7 @@ namespace ae {
         pipelineConfig.renderPass = t_renderPass;
         pipelineConfig.pipelineLayout = m_pipelineLayout;
 
-        graphicsShaderFilesPaths shaderPaths{};
+        GraphicsShaderFilesPaths shaderPaths{};
         shaderPaths.vertFilepath = "engines/graphics/shaders/point_light.vert.spv";
         shaderPaths.fragFilepath = "engines/graphics/shaders/point_light.frag.spv";
 

@@ -133,7 +133,7 @@ namespace ae {
         pipelineConfig.renderPass = t_renderPass;
         pipelineConfig.pipelineLayout = m_pipelineLayout;
 
-        graphicsShaderFilesPaths shaderPaths{};
+        GraphicsShaderFilesPaths shaderPaths{};
         shaderPaths.vertFilepath = "engines/graphics/shaders/shader.vert.spv";
         shaderPaths.fragFilepath = "engines/graphics/shaders/shader.frag.spv";
 

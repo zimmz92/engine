@@ -39,7 +39,7 @@ namespace ae {
         uint32_t subpass = 0;
     };
 
-    struct graphicsShaderFilesPaths{
+    struct GraphicsShaderFilesPaths{
         std::string vertFilepath = "Not Used";
         std::string fragFilepath = "Not Used";
         std::string tessFilepath = "Not Used";
@@ -57,12 +57,12 @@ namespace ae {
         /// pipeline to be created.
         AeGraphicsPipeline(
             AeDevice& t_device,
-            const graphicsShaderFilesPaths& t_shaderFilePaths,
+            const GraphicsShaderFilesPaths& t_shaderFilePaths,
             const GraphicsPipelineConfigInfo& t_configInfo);
 
         AeGraphicsPipeline(
                 AeDevice& t_device,
-                const graphicsShaderFilesPaths& t_shaderFilePaths,
+                const GraphicsShaderFilesPaths& t_shaderFilePaths,
                 const GraphicsPipelineConfigInfo& t_configInfo,
                 uint32_t& t_materialId);
 
@@ -100,7 +100,7 @@ namespace ae {
         /// \param t_configInfo The GraphicsPipelineConfigInfo struct that defines the required vulkan properties of the
         /// pipeline to be created.
         void createGraphicsPipeline(
-                const graphicsShaderFilesPaths& t_shaderFilePaths,
+                const GraphicsShaderFilesPaths& t_shaderFilePaths,
                 const GraphicsPipelineConfigInfo& t_configInfo,
                 VkSpecializationInfo* spec_info);
 

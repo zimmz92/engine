@@ -62,7 +62,7 @@ namespace ae {
         pipelineConfig.renderPass = t_renderPass;
         pipelineConfig.pipelineLayout = m_pipelineLayout;
 
-        graphicsShaderFilesPaths shaderPaths{};
+        GraphicsShaderFilesPaths shaderPaths{};
         //shaderPaths.computeFilepath = "engines/graphics/shaders/particles.comp.spv";
 
         // Create the point light render system pipeline.

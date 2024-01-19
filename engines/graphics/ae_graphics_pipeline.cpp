@@ -16,7 +16,7 @@ namespace ae {
     // Create the Vulkan pipeline object
     AeGraphicsPipeline::AeGraphicsPipeline(
         AeDevice& t_device,
-        const graphicsShaderFilesPaths& t_shaderFilePaths,
+        const GraphicsShaderFilesPaths& t_shaderFilePaths,
         const GraphicsPipelineConfigInfo& t_configInfo) : m_aeDevice{t_device } {
 
         createGraphicsPipeline(t_shaderFilePaths, t_configInfo,nullptr);
@@ -26,7 +26,7 @@ namespace ae {
     // Create the Vulkan pipeline object
     AeGraphicsPipeline::AeGraphicsPipeline(
             AeDevice& t_device,
-            const graphicsShaderFilesPaths& t_shaderFilePaths,
+            const GraphicsShaderFilesPaths& t_shaderFilePaths,
             const GraphicsPipelineConfigInfo& t_configInfo,
             uint32_t& t_materialId) : m_aeDevice{ t_device } {
 
@@ -79,7 +79,7 @@ namespace ae {
 
     // Function to create a Vulkan graphics pipeline
     void AeGraphicsPipeline::createGraphicsPipeline(
-            const graphicsShaderFilesPaths& t_shaderFilePaths,
+            const GraphicsShaderFilesPaths& t_shaderFilePaths,
             const GraphicsPipelineConfigInfo& t_configInfo,
             VkSpecializationInfo* spec_info) {
 
