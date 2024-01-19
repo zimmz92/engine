@@ -142,7 +142,7 @@ namespace ae {
 
         // Define the pipeline to be created.
         PipelineConfigInfo pipelineConfig{};
-        AePipeline::defaultPipelineConfigInfo(pipelineConfig);
+        AeGraphicsPipeline::defaultPipelineConfigInfo(pipelineConfig);
         pipelineConfig.renderPass = t_renderPass;
         pipelineConfig.pipelineLayout = m_pipelineLayout;
         // Specify that this pipeline will be dealing with the 2D vertexes.
@@ -155,7 +155,7 @@ namespace ae {
 
 
         // Create the point light render system pipeline.
-        m_aePipeline = std::make_unique<AePipeline>(
+        m_aePipeline = std::make_unique<AeGraphicsPipeline>(
                 m_aeDevice,
                 shaderPaths,
                 pipelineConfig);

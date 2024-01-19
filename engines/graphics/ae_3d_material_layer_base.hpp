@@ -142,7 +142,7 @@ namespace ae {
         VkPipelineLayout m_pipelineLayout;
 
         /// The pipeline created for this render system.
-        std::unique_ptr<AePipeline> m_pipeline;
+        std::unique_ptr<AeGraphicsPipeline> m_pipeline;
 
         /// A structure specifying the shader files this material uses.
         MaterialShaderFiles m_materialShaderFiles;

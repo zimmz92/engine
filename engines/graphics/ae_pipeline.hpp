@@ -44,11 +44,10 @@ namespace ae {
         std::string fragFilepath = "Not Used";
         std::string tessFilepath = "Not Used";
         std::string geometryFilepath = "Not Used";
-        std::string computeFilepath = "Not Used";
     };
 
     /// Class for the Vulkan pipeline object
-    class AePipeline {
+    class AeGraphicsPipeline {
     public:
         /// Create a Vulkan pipeline object.
         /// \param t_device The graphics device the pipeline will be implemented by.
@@ -56,23 +55,23 @@ namespace ae {
         /// \param t_fragFilepath The relative path to the SPIR-V file which defines the pipeline's fragment shader.
         /// \param t_configInfo The PipelineConfigInfo struct that defines the required vulkan properties of the
         /// pipeline to be created.
-        AePipeline(
+        AeGraphicsPipeline(
             AeDevice& t_device,
             const shaderFilesPaths& t_shaderFilePaths,
             const PipelineConfigInfo& t_configInfo);
 
-        AePipeline(
+        AeGraphicsPipeline(
                 AeDevice& t_device,
                 const shaderFilesPaths& t_shaderFilePaths,
                 const PipelineConfigInfo& t_configInfo,
                 uint32_t& t_materialId);
 
         /// Destroy a Vulkan pipeline object
-        ~AePipeline();
+        ~AeGraphicsPipeline();
 
         /// Do not allow this class to be copied
-        AePipeline(const AePipeline&) = delete;
-        AePipeline& operator=(const AePipeline&) = delete;
+        AeGraphicsPipeline(const AeGraphicsPipeline&) = delete;
+        AeGraphicsPipeline& operator=(const AeGraphicsPipeline&) = delete;
 
         /// Bind a command buffer to this pipeline.
         /// \param t_commandBuffer The command buffer to bind to this pipeline.

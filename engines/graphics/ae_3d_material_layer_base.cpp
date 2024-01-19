@@ -70,7 +70,7 @@ namespace ae {
 
         // Define the pipeline to be created.
         PipelineConfigInfo pipelineConfig{};
-        AePipeline::defaultPipelineConfigInfo(pipelineConfig);
+        AeGraphicsPipeline::defaultPipelineConfigInfo(pipelineConfig);
         pipelineConfig.renderPass = t_renderPass;
         pipelineConfig.pipelineLayout = m_pipelineLayout;
 
@@ -81,7 +81,7 @@ namespace ae {
         shaderPaths.geometryFilepath = m_materialShaderFiles.geometryShaderFilepath;
 
         // Create the material layer pipeline.
-        m_pipeline = std::make_unique<AePipeline>(
+        m_pipeline = std::make_unique<AeGraphicsPipeline>(
                 m_aeDevice,
                 shaderPaths,
                 pipelineConfig,

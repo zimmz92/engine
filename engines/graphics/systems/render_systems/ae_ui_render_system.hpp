@@ -107,7 +107,7 @@ namespace ae {
         VkPipelineLayout m_pipelineLayout;
 
         /// The pipeline created for this render system.
-        std::unique_ptr<AePipeline> m_aePipeline;
+        std::unique_ptr<AeGraphicsPipeline> m_aePipeline;
 
     };
 }

@@ -14,7 +14,7 @@
 namespace ae {
 
     // Create the Vulkan pipeline object
-    AePipeline::AePipeline(
+    AeGraphicsPipeline::AeGraphicsPipeline(
         AeDevice& t_device,
         const shaderFilesPaths& t_shaderFilePaths,
         const PipelineConfigInfo& t_configInfo) : m_aeDevice{ t_device } {
@@ -24,7 +24,7 @@ namespace ae {
     }
 
     // Create the Vulkan pipeline object
-    AePipeline::AePipeline(
+    AeGraphicsPipeline::AeGraphicsPipeline(
             AeDevice& t_device,
             const shaderFilesPaths& t_shaderFilePaths,
             const PipelineConfigInfo& t_configInfo,
@@ -45,12 +45,12 @@ namespace ae {
 
 
     // Destroy the Vulkan pipeline object
-    AePipeline::~AePipeline() {
+    AeGraphicsPipeline::~AeGraphicsPipeline() {
         vkDestroyPipeline(m_aeDevice.device(), m_graphicsPipeline, nullptr);
     }
 
     // Function to read a text file into a variable.
-    std::vector<char> AePipeline::readFile(const std::string& t_filepath) {
+    std::vector<char> AeGraphicsPipeline::readFile(const std::string& t_filepath) {
         // Create an input file stream. Go to the end of the file to start and when reading in the file do so in binary
         // format.
         std::ifstream file{ t_filepath, std::ios::ate | std::ios::binary };
@@ -78,7 +78,7 @@ namespace ae {
     }
 
     // Function to create a Vulkan graphics pipeline
-    void AePipeline::createGraphicsPipeline(
+    void AeGraphicsPipeline::createGraphicsPipeline(
             const shaderFilesPaths& t_shaderFilePaths,
             const PipelineConfigInfo& t_configInfo,
             VkSpecializationInfo* spec_info) {
@@ -148,13 +148,13 @@ namespace ae {
         VkShaderModule tessShaderModule;
         if(t_shaderFilePaths.tessFilepath != "Not Used"){
 
-            // Read in the fragment shader code from the specified file.
+            // Read in the tesselation shader code from the specified file.
             auto tessCode = readFile(t_shaderFilePaths.tessFilepath);
 
-            // Create the fragment shader module the imported shader code
+            // Create the tesselation shader module the imported shader code
             createShaderModule(tessCode, &tessShaderModule);
 
-            // Specify the fragment shader
+            // Specify the tesselation shader
             VkPipelineShaderStageCreateInfo shaderStage;
             shaderStage.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
             shaderStage.stage = VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
@@ -167,17 +167,17 @@ namespace ae {
             shaderStagesInfo.push_back(shaderStage);
         }
 
-        // If a tesselation control shader has been provided, create the information for it.
+        // If a geometry control shader has been provided, create the information for it.
         VkShaderModule geometryShaderModule;
         if(t_shaderFilePaths.geometryFilepath != "Not Used"){
 
-            // Read in the fragment shader code from the specified file.
+            // Read in the geometry shader code from the specified file.
             auto geometryCode = readFile(t_shaderFilePaths.geometryFilepath);
 
-            // Create the fragment shader module the imported shader code
+            // Create the geometry shader module the imported shader code
             createShaderModule(geometryCode, &geometryShaderModule);
 
-            // Specify the fragment shader
+            // Specify the geometry shader
             VkPipelineShaderStageCreateInfo shaderStage;
             shaderStage.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
             shaderStage.stage = VK_SHADER_STAGE_GEOMETRY_BIT;
@@ -189,8 +189,6 @@ namespace ae {
 
             shaderStagesInfo.push_back(shaderStage);
         }
-
-
 
         // Configure the vertex shader, how to interpret the vertex buffer input.
         auto& bindingDescriptions = t_configInfo.bindingDescriptions;
@@ -251,7 +249,7 @@ namespace ae {
     }
 
     // Function to create a Vulkan shader module
-    void AePipeline::createShaderModule(const std::vector<char>& t_code, VkShaderModule* t_shaderModule) {
+    void AeGraphicsPipeline::createShaderModule(const std::vector<char>& t_code, VkShaderModule* t_shaderModule) {
         VkShaderModuleCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
         createInfo.codeSize = t_code.size();
@@ -262,11 +260,11 @@ namespace ae {
         }
     }
 
-    void AePipeline::bind(VkCommandBuffer t_commandBuffer) {
+    void AeGraphicsPipeline::bind(VkCommandBuffer t_commandBuffer) {
         vkCmdBindPipeline(t_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline);
     }
 
-    void AePipeline::defaultPipelineConfigInfo(PipelineConfigInfo& t_configInfo) {
+    void AeGraphicsPipeline::defaultPipelineConfigInfo(PipelineConfigInfo& t_configInfo) {
 
         t_configInfo.inputAssemblyInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
 
@@ -355,7 +353,7 @@ namespace ae {
         t_configInfo.attributeDescriptions = AeModel::Vertex::getAttributeDescriptions();
     }
 
-    void AePipeline::enableAlphaBlending(PipelineConfigInfo& t_configInfo) {
+    void AeGraphicsPipeline::enableAlphaBlending(PipelineConfigInfo& t_configInfo) {
         // How colors are combined in the frame buffer
         t_configInfo.colorBlendAttachment.blendEnable = VK_TRUE;
         t_configInfo.colorBlendAttachment.colorWriteMask =

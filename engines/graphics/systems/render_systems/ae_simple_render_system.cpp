@@ -129,7 +129,7 @@ namespace ae {
 
         // Define the pipeline to be created.
         PipelineConfigInfo pipelineConfig{};
-        AePipeline::defaultPipelineConfigInfo(pipelineConfig);
+        AeGraphicsPipeline::defaultPipelineConfigInfo(pipelineConfig);
         pipelineConfig.renderPass = t_renderPass;
         pipelineConfig.pipelineLayout = m_pipelineLayout;
 
@@ -138,7 +138,7 @@ namespace ae {
         shaderPaths.fragFilepath = "engines/graphics/shaders/shader.frag.spv";
 
         // Create the point light render system pipeline.
-        m_aePipeline = std::make_unique<AePipeline>(
+        m_aePipeline = std::make_unique<AeGraphicsPipeline>(
                 m_aeDevice,
                 shaderPaths,
                 pipelineConfig);

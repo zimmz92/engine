@@ -107,7 +107,7 @@ namespace ae {
         VkPipelineLayout m_pipelineLayout;
 
         /// The pipeline created for this render system.
-        std::unique_ptr<AePipeline> m_aePipeline;
+        std::unique_ptr<AeGraphicsPipeline> m_aePipeline;
 
         /// A vector to store the unique models, and the number of times they need to be drawn, for each frame.
         std::vector<SimpleIndirectBatch> draws[MAX_FRAMES_IN_FLIGHT];

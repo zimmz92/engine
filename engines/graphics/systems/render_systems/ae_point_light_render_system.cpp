@@ -188,8 +188,8 @@ namespace ae {
 
         // Define the pipeline to be created.
         PipelineConfigInfo pipelineConfig{};
-        AePipeline::defaultPipelineConfigInfo(pipelineConfig);
-        AePipeline::enableAlphaBlending(pipelineConfig);
+        AeGraphicsPipeline::defaultPipelineConfigInfo(pipelineConfig);
+        AeGraphicsPipeline::enableAlphaBlending(pipelineConfig);
         pipelineConfig.bindingDescriptions.clear();
         pipelineConfig.attributeDescriptions.clear();
         pipelineConfig.renderPass = t_renderPass;
@@ -200,7 +200,7 @@ namespace ae {
         shaderPaths.fragFilepath = "engines/graphics/shaders/point_light.frag.spv";
 
         // Create the point light render system pipeline.
-        m_aePipeline = std::make_unique<AePipeline>(
+        m_aePipeline = std::make_unique<AeGraphicsPipeline>(
                 m_aeDevice,
                 shaderPaths,
                 pipelineConfig);
