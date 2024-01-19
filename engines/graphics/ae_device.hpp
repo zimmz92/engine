@@ -97,6 +97,10 @@ namespace ae {
         /// \return The presentation queue of the device.
 		VkQueue presentQueue() { return m_presentQueue; }
 
+        /// Get the device's compute queue.
+        /// \return The compute queue of the device.
+        VkQueue computeQueue() { return m_computeQueue; }
+
 		/// Fetches the swap chain features supported by the device
 		/// \return A structure containing the device's swap chain capabilities.
 		SwapChainSupportDetails getSwapChainSupport() { return querySwapChainSupport(m_physicalDevice); }
@@ -248,6 +252,9 @@ namespace ae {
 
         /// The present queue family this device uses.
 		VkQueue m_presentQueue;
+
+        /// The compute queue family this device uses.
+        VkQueue m_computeQueue;
 
 		/// Required validation Layers
 		const std::vector<const char*> m_validationLayers = {

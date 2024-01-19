@@ -1,7 +1,17 @@
 #version 460
 
-layout (binding = 0) uniform ParameterUBO {
-    float deltaTime;
+struct PointLight{
+    vec4 position;
+    vec4 color;
+};
+
+layout(set = 0, binding = 0) uniform GlobalUbo {
+    mat4 projection;
+    mat4 view;
+    mat4 invView;
+    vec4 ambientLightColor;
+    PointLight pointLights[10]; // This, 10, could be passed in as a specialization constant
+    int numLights;
 } ubo;
 
 struct Particle {
@@ -10,11 +20,11 @@ struct Particle {
     vec4 color;
 };
 
-layout(std140, binding = 1) readonly buffer ParticleSSBOIn {
+layout(std140, set=1, binding = 0) readonly buffer ParticleSSBOIn {
    Particle particlesIn[ ];
 };
 
-layout(std140, binding = 2) buffer ParticleSSBOOut {
+layout(std140, set=1, binding = 1) buffer ParticleSSBOOut {
    Particle particlesOut[ ];
 };
 
@@ -27,6 +37,6 @@ void main()
 
     Particle particleIn = particlesIn[index];
 
-    particlesOut[index].position = particleIn.position + particleIn.velocity.xy * ubo.deltaTime;
+    particlesOut[index].position = particleIn.position + particleIn.velocity.xy * 0.00000001;
     particlesOut[index].velocity = particleIn.velocity;
 }

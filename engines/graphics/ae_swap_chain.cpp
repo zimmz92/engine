@@ -76,7 +76,10 @@ namespace ae {
         for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             vkDestroySemaphore(m_device.device(), m_renderFinishedSemaphores[i], nullptr);
             vkDestroySemaphore(m_device.device(), m_imageAvailableSemaphores[i], nullptr);
+            vkDestroySemaphore(m_device.device(), m_computeFinishedSemaphores[i], nullptr);
             vkDestroyFence(m_device.device(), m_inFlightFences[i], nullptr);
+            vkDestroyFence(m_device.device(), m_imagesInFlightFences[i], nullptr);
+            vkDestroyFence(m_device.device(), m_computeInFlightFences[i], nullptr);
         }
     }
 
@@ -104,45 +107,74 @@ namespace ae {
     }
 
     // Function to submit command buffers to the swap chain
-    VkResult AeSwapChain::submitCommandBuffers(const VkCommandBuffer* t_buffers, uint32_t* t_imageIndex) {
+    VkResult AeSwapChain::submitCommandBuffers(const VkCommandBuffer* t_graphicsBuffer, const VkCommandBuffer* t_computeBuffer, const uint32_t* t_imageIndex) {
 
         // Ensure that the previously submitted command buffers for the image have finished before submitting new ones.
-        if (m_imagesInFlight[*t_imageIndex] != VK_NULL_HANDLE) {
-            vkWaitForFences(m_device.device(), 1, &m_imagesInFlight[*t_imageIndex], VK_TRUE, UINT64_MAX);
+        if (m_imagesInFlightFences[*t_imageIndex] != VK_NULL_HANDLE) {
+            vkWaitForFences(m_device.device(), 1, &m_imagesInFlightFences[*t_imageIndex], VK_TRUE, UINT64_MAX);
         }
+
+        // Create blank info struct.
+        VkSubmitInfo submitInfo = {};
+
+
+
+        // Ensure that the compute queue has finished before submitting another. Once they are done reset the fence.
+        vkWaitForFences(m_device.device(), 1, &m_computeInFlightFences[m_currentFrame], VK_TRUE, UINT64_MAX);
+        vkResetFences(m_device.device(), 1, &m_computeInFlightFences[m_currentFrame]);
+
+        // Create the info struct to submit the command buffer to the queue
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = t_computeBuffer;
+        submitInfo.signalSemaphoreCount = 1;
+        submitInfo.pSignalSemaphores = &m_computeFinishedSemaphores[m_currentFrame];
+
+        // Attempt to submit and execute the command buffer using the compute queue.
+        if (vkQueueSubmit(m_device.computeQueue(), 1, &submitInfo, nullptr) != VK_SUCCESS) {
+            throw std::runtime_error("failed to submit compute command buffer!");
+        }
+
+
 
         // Set the fence tracking if the command buffers corresponding to the image have finished to the fence keeping
         // track of the frame command buffer status. This is useful when we have more images than frames.
-        m_imagesInFlight[*t_imageIndex] = m_inFlightFences[m_currentFrame];
+        m_imagesInFlightFences[*t_imageIndex] = m_inFlightFences[m_currentFrame];
+
+        // Reset the fences tracking the execution status of the current frame.
+        vkResetFences(m_device.device(), 1, &m_inFlightFences[m_currentFrame]);
+
+
 
         // Create the info struct to submit the command buffer to the queue
-        VkSubmitInfo submitInfo = {};
+        submitInfo = {};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
         // Specify the image tracking semaphores.
-        VkSemaphore waitSemaphores[] = { m_imageAvailableSemaphores[m_currentFrame] };
-        VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
-        submitInfo.waitSemaphoreCount = 1;
+        VkSemaphore waitSemaphores[] = { m_computeFinishedSemaphores[m_currentFrame], m_imageAvailableSemaphores[m_currentFrame] };
+        //VkSemaphore waitSemaphores[] = { m_imageAvailableSemaphores[m_currentFrame] };
+        VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+        //VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+        submitInfo.waitSemaphoreCount = 2;
+        //submitInfo.waitSemaphoreCount = 1;
         submitInfo.pWaitSemaphores = waitSemaphores;
         submitInfo.pWaitDstStageMask = waitStages;
 
         // Specify the command buffers that will be submitted and executed.
         submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = t_buffers;
+        submitInfo.pCommandBuffers = t_graphicsBuffer;
 
         // Specify the render tracking semaphores.
         VkSemaphore signalSemaphores[] = { m_renderFinishedSemaphores[m_currentFrame] };
         submitInfo.signalSemaphoreCount = 1;
         submitInfo.pSignalSemaphores = signalSemaphores;
 
-        // Reset the fences tracking the execution status of the current frame.
-        vkResetFences(m_device.device(), 1, &m_inFlightFences[m_currentFrame]);
-
         // Attempt to submit and execute the command buffer using the device queue.
-        if (vkQueueSubmit(m_device.graphicsQueue(), 1, &submitInfo, m_inFlightFences[m_currentFrame]) !=
-            VK_SUCCESS) {
+        if (vkQueueSubmit(m_device.graphicsQueue(), 1, &submitInfo, m_inFlightFences[m_currentFrame]) != VK_SUCCESS) {
             throw std::runtime_error("failed to submit draw command buffer!");
         }
+
+
+
 
         // Create the info struct to submit the rendered image to the presentation queue.
         VkPresentInfoKHR presentInfo = {};
@@ -442,8 +474,10 @@ namespace ae {
         // Make synchronization objects for each of the frames that may be being rendered.
         m_imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
         m_renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+        m_computeFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
         m_inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
-        m_imagesInFlight.resize(imageCount(), VK_NULL_HANDLE);
+        m_imagesInFlightFences.resize(imageCount(), VK_NULL_HANDLE);
+        m_computeInFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
 
         // Specify the semaphore properties. This is the same for all the frames currently.
         VkSemaphoreCreateInfo semaphoreInfo = {};
@@ -460,7 +494,11 @@ namespace ae {
                 VK_SUCCESS ||
                 vkCreateSemaphore(m_device.device(), &semaphoreInfo, nullptr, &m_renderFinishedSemaphores[i]) !=
                 VK_SUCCESS ||
-                vkCreateFence(m_device.device(), &fenceInfo, nullptr, &m_inFlightFences[i]) != VK_SUCCESS) {
+                vkCreateSemaphore(m_device.device(), &semaphoreInfo, nullptr, &m_computeFinishedSemaphores[i]) !=
+                VK_SUCCESS ||
+                vkCreateFence(m_device.device(), &fenceInfo, nullptr, &m_inFlightFences[i]) != VK_SUCCESS ||
+                vkCreateFence(m_device.device(), &fenceInfo, nullptr, &m_imagesInFlightFences[i]) != VK_SUCCESS ||
+                vkCreateFence(m_device.device(), &fenceInfo, nullptr, &m_computeInFlightFences[i]) != VK_SUCCESS){
                 throw std::runtime_error("failed to create synchronization objects for a frame!");
             }
         }

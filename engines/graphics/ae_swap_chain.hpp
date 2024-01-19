@@ -83,10 +83,10 @@ namespace ae {
         VkResult acquireNextImage(uint32_t* t_imageIndex);
 
         /// Submit command buffers to the swap chain to create the image at the specified index.
-        /// \param t_buffers The command buffers which provide the data for creating the image.
+        /// \param t_graphicsBuffer The command buffers which provide the data for creating the image.
         /// \param t_imageIndex The index of the image the command buffers are providing data to create.
         /// \return VK_SUCCESS if the command buffers were submitted successfully.
-        VkResult submitCommandBuffers(const VkCommandBuffer* t_buffers, uint32_t* t_imageIndex);
+        VkResult submitCommandBuffers(const VkCommandBuffer* t_graphicsBuffer, const VkCommandBuffer* t_computeBuffer, const uint32_t* t_imageIndex);
 
         /// Compare the specified swap chain format to this swap chain's format.
         /// \param t_swapchain The swap chain who's format is to be compared to this swap chain's format.
@@ -187,11 +187,18 @@ namespace ae {
         /// A synchronization primitive used to ensure a render has finished before presenting it.
         std::vector<VkSemaphore> m_renderFinishedSemaphores;
 
+        /// A synchronization primitive used to ensure the compute queue has finished before submitting the graphics
+        /// queue.
+        std::vector<VkSemaphore> m_computeFinishedSemaphores;
+
         /// Fence that tracks that the command buffer corresponding to a frame has finished execution.
         std::vector<VkFence> m_inFlightFences;
 
         /// Fence that tracks that the command buffers corresponding to an image have finished.
-        std::vector<VkFence> m_imagesInFlight;
+        std::vector<VkFence> m_imagesInFlightFences;
+
+        /// Fence that tracks that the command buffers compute commands have finished.
+        std::vector<VkFence> m_computeInFlightFences;
 
         /// Track which of the frames is the one that currently should be used for rendering.
         size_t m_currentFrame = 0;

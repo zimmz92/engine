@@ -112,24 +112,7 @@ namespace ae {
     }
 
     void AeComputePipeline::bind(VkCommandBuffer t_commandBuffer) {
-        vkCmdBindPipeline(t_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_computePipeline);
+        vkCmdBindPipeline(t_commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, m_computePipeline);
     }
-
-    // Creates the pipeline layout for the point light render system.
-    void AeComputePipeline::createDefaultComputePipelineLayout(std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts,
-                                                               VkPipelineLayout& t_pipelineLayout) {
-
-        // Define the specific layout of the point light renderer.
-        VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
-        pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-        pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(t_descriptorSetLayouts.size());
-        pipelineLayoutInfo.pSetLayouts = t_descriptorSetLayouts.data();
-
-        // Attempt to create the pipeline layout, if it cannot error out.
-        if (vkCreatePipelineLayout(m_aeDevice.device(), &pipelineLayoutInfo, nullptr, &t_pipelineLayout) != VK_SUCCESS) {
-            throw std::runtime_error("Failed to create the default compute pipeline layout!");
-        }
-
-    };
 
 }  // namespace ae

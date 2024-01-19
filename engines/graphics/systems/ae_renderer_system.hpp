@@ -25,6 +25,7 @@
 #include "ae_simple_render_system.hpp"
 #include "ae_point_light_render_system.hpp"
 #include "ae_ui_render_system.hpp"
+#include "ae_particle_system.hpp"
 
 #include "pre_allocated_stack.hpp"
 
@@ -69,6 +70,8 @@ namespace ae {
 
     private:
 
+        void updateParticleDescriptorSets();
+
         // Components this system utilizes.
         // None currently.
 
@@ -90,8 +93,11 @@ namespace ae {
         /// The frame index for the current render pass.
         int m_frameIndex;
 
-        /// Command buffer for the current render pass
-        VkCommandBuffer m_commandBuffer;
+        /// Graphics command buffer for the current render pass
+        VkCommandBuffer m_graphicsCommandBuffer;
+
+        /// Compute command buffer for the current render pass
+        VkCommandBuffer m_computeCommandBuffer;
 
         /// The samplers the render system utilizes.
         AeSamplers& m_aeSamplers;
@@ -108,6 +114,14 @@ namespace ae {
 
         /// The global descriptor sets used for each of the allowed frames in flight.
         std::vector<VkDescriptorSet> m_globalDescriptorSets;
+
+
+        //==============================================================================================================
+        // Particle System
+        //==============================================================================================================
+        AeParticleSystem* m_particleSystem;
+        std::vector<std::vector<VkDescriptorSet>> m_particleFrameDescriptorSets;
+
 
         //==============================================================================================================
         // UBO

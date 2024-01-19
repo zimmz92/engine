@@ -243,6 +243,7 @@ namespace ae {
         // Get pointers to the created device queues.
 		vkGetDeviceQueue(m_device, indices.graphicsFamily, 0, &m_graphicsQueue);
 		vkGetDeviceQueue(m_device, indices.presentFamily, 0, &m_presentQueue);
+        vkGetDeviceQueue(m_device, indices.computeFamily, 0, &m_computeQueue);
 	}
 
 	// Add required commands from the queue families to the device command pool.
@@ -607,7 +608,7 @@ namespace ae {
 
         // Attempt to allocate memory for the buffer.
 		if (vkAllocateMemory(m_device, &allocInfo, nullptr, &t_bufferMemory) != VK_SUCCESS) {
-			throw std::runtime_error("failed to allocate vertex buffer memory!");
+			throw std::runtime_error("failed to allocate buffer memory!");
 		}
 
         // Attach the allocated memory to the buffer object.

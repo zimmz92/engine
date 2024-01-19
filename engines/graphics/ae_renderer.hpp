@@ -41,9 +41,16 @@ namespace ae {
 
         /// If a frame is not current in progress will return the command buffer for the current frame.
         /// \return Command buffer for the current frame.
-        VkCommandBuffer getCurrentCommandBuffer() const {
+        VkCommandBuffer getCurrentGraphicsCommandBuffer() const {
             assert(m_isFrameStarted && "Cannot get command buffer when frame not in progress");
-            return m_commandBuffers[m_currentFrameIndex];
+            return m_graphicsCommandBuffers[m_currentFrameIndex];
+        }
+
+        /// If a frame is not current in progress will return the command buffer for the current frame.
+        /// \return Command buffer for the current frame.
+        VkCommandBuffer getCurrentComputeCommandBuffer() const {
+            assert(m_isFrameStarted && "Cannot get command buffer when frame not in progress");
+            return m_computeCommandBuffers[m_currentFrameIndex];
         }
 
         /// Retrieve the frame index of the frame currently being rendered.
@@ -93,7 +100,10 @@ namespace ae {
         std::unique_ptr<AeSwapChain> m_aeSwapChain;
 
         /// The command buffers this renderer utilizes and manages.
-        std::vector<VkCommandBuffer> m_commandBuffers;
+        std::vector<VkCommandBuffer> m_graphicsCommandBuffers;
+
+        /// The command buffers this renderer utilizes and manages.
+        std::vector<VkCommandBuffer> m_computeCommandBuffers;
 
         /// The index of the current image being rendered.
         uint32_t m_currentImageIndex;

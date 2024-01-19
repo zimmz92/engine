@@ -63,7 +63,8 @@ namespace ae {
     void AeRenderer::createCommandBuffers() {
 
         // Allocate enough command buffers for all the frames that could be rendered.
-        m_commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+        m_graphicsCommandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+        m_computeCommandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
 
 
         // Specify the struct for allocating a command buffer from the pool.
@@ -71,11 +72,15 @@ namespace ae {
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         allocInfo.commandPool = m_aeDevice.getCommandPool();
-        allocInfo.commandBufferCount = static_cast<uint32_t>(m_commandBuffers.size());
+        allocInfo.commandBufferCount = static_cast<uint32_t>(m_graphicsCommandBuffers.size());
 
         // Allocate the command buffer from the device command buffer pool.
-        if (vkAllocateCommandBuffers(m_aeDevice.device(), &allocInfo, m_commandBuffers.data()) != VK_SUCCESS) {
-            throw std::runtime_error("Failed to allocate command buffers!");
+        if (vkAllocateCommandBuffers(m_aeDevice.device(), &allocInfo, m_graphicsCommandBuffers.data()) != VK_SUCCESS) {
+            throw std::runtime_error("Failed to allocate graphics command buffers!");
+        }
+        // Allocate the command buffer from the device command buffer pool.
+        if (vkAllocateCommandBuffers(m_aeDevice.device(), &allocInfo, m_computeCommandBuffers.data()) != VK_SUCCESS) {
+            throw std::runtime_error("Failed to allocate compute command buffers!");
         }
     };
 
@@ -85,8 +90,8 @@ namespace ae {
     void AeRenderer::freeCommandBuffers() {
 
         // Free the command buffer and clear it out.s
-        vkFreeCommandBuffers(m_aeDevice.device(), m_aeDevice.getCommandPool(), static_cast<uint32_t>(m_commandBuffers.size()), m_commandBuffers.data());
-        m_commandBuffers.clear();
+        vkFreeCommandBuffers(m_aeDevice.device(), m_aeDevice.getCommandPool(), static_cast<uint32_t>(m_graphicsCommandBuffers.size()), m_graphicsCommandBuffers.data());
+        m_graphicsCommandBuffers.clear();
     }
 
 
@@ -115,12 +120,22 @@ namespace ae {
         m_isFrameStarted = true;
 
         // Get the command buffer to be used for rendering this image.
-        auto commandBuffer = getCurrentCommandBuffer();
+        auto commandBuffer = getCurrentGraphicsCommandBuffer();
+        vkResetCommandBuffer(commandBuffer,/*VkCommandBufferResetFlagBits*/0);
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
         // Start recording to the command buffer for this image.
         if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
+            throw std::runtime_error("Failed to begin recording command buffer!");
+        }
+
+        // Get the command buffer to be used for rendering this image.
+        auto computeCommandBuffer = getCurrentComputeCommandBuffer();
+        vkResetCommandBuffer(computeCommandBuffer,/*VkCommandBufferResetFlagBits*/0);
+
+        // Start recording to the command buffer for this image.
+        if (vkBeginCommandBuffer(computeCommandBuffer, &beginInfo) != VK_SUCCESS) {
             throw std::runtime_error("Failed to begin recording command buffer!");
         }
 
@@ -134,13 +149,19 @@ namespace ae {
         assert(m_isFrameStarted && "Cannot call endFrame while a frame is not in progress!");
 
         // Stop allowing recording to the command buffer.
-        auto commandBuffer = getCurrentCommandBuffer();
+        auto commandBuffer = getCurrentGraphicsCommandBuffer();
         if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
-            throw std::runtime_error("Failed to record command buffer.");
+            throw std::runtime_error("Failed to end recording to graphics command buffer.");
+        }
+
+        // Stop allowing recording to the compute command buffer
+        auto computeCommandBuffer = getCurrentComputeCommandBuffer();
+        if (vkEndCommandBuffer(computeCommandBuffer) != VK_SUCCESS) {
+            throw std::runtime_error("Failed to end recording to compute command buffer.");
         }
 
         // Submit the command buffer to the swap chain.
-        auto result = m_aeSwapChain->submitCommandBuffers(&commandBuffer, &m_currentImageIndex);
+        auto result = m_aeSwapChain->submitCommandBuffers(&commandBuffer, &computeCommandBuffer, &m_currentImageIndex);
 
         // Make sure that the window was not resized, if it was we will want to re-create the swap chain before
         // rendering the image.
@@ -162,7 +183,7 @@ namespace ae {
     // Start the render pass.
     void AeRenderer::beginSwapChainRenderPass(VkCommandBuffer t_commandBuffer) {
         assert(m_isFrameStarted && "Cannot call beginSwapChainRenderPass while a frame is not in progress!");
-        assert(t_commandBuffer == getCurrentCommandBuffer() && "Cannot begin render pass on a command buffer from a different frame!");
+        assert(t_commandBuffer == getCurrentGraphicsCommandBuffer() && "Cannot begin render pass on a command buffer from a different frame!");
 
         // Set up the struct for this render pass with the swap chain associated with this renderer.
         VkRenderPassBeginInfo renderPassInfo{};
@@ -203,7 +224,7 @@ namespace ae {
     // Ends the render pass.
     void AeRenderer::endSwapChainRenderPass(VkCommandBuffer t_commandBuffer) {
         assert(m_isFrameStarted && "Cannot call endSwapChainRenderPass while a frame is not in progress!");
-        assert(t_commandBuffer == getCurrentCommandBuffer() && "Cannot end render pass on a command buffer from a different frame!");
+        assert(t_commandBuffer == getCurrentGraphicsCommandBuffer() && "Cannot end render pass on a command buffer from a different frame!");
 
         // End the render pass.
         vkCmdEndRenderPass(t_commandBuffer);

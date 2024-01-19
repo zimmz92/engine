@@ -34,12 +34,6 @@ namespace ae {
         /// \param t_commandBuffer The command buffer to bind to this pipeline.
         void bind(VkCommandBuffer t_commandBuffer);
 
-        /// Creates a default pipeline layout for a compute pipeline.
-        /// \param t_descriptorSetLayouts The layouts of the descriptor set(s) the pipeline will utilize.
-        /// \param t_pipelineLayout A reference to where the pipeline layout should be created.
-        void createDefaultComputePipelineLayout(std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts,
-                                                VkPipelineLayout& t_pipelineLayout);
-
     private:
 
         /// Reads a text file a vector variable.

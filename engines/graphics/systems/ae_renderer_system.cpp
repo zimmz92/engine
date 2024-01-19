@@ -101,12 +101,32 @@ namespace ae {
                     MAX_PARTICLES,
                     VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
                     VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
-
-            // Attempt to map memory for the object buffer.
-            //if (m_computeBuffers.back()->map() != VK_SUCCESS) {
-            //    throw std::runtime_error("Failed to map the compute buffer to memory!");
-            //};
         };
+
+        // Reserve space for compute descriptor sets for each frame.
+        m_computesDescriptorSets.reserve(MAX_FRAMES_IN_FLIGHT);
+        for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            // Get the buffer information from the uboBuffers.
+            auto bufferInfo = m_computeBuffers[i]->descriptorInfo();
+
+            // Initialize the descriptor set for the current frame.
+            AeDescriptorWriter(collisionSetLayout, *m_globalPool)
+                    .writeBuffer(0, &bufferInfo)
+                    .build(m_computesDescriptorSets[i]);
+        }
+
+        // Create a particle system using the compute pipeline
+        std::vector<VkDescriptorSetLayout> collisionDescriptorSetLayouts = {globalSetLayout->getDescriptorSetLayout(),
+                                                                            collisionSetLayout->getDescriptorSetLayout()};
+        m_particleSystem = new AeParticleSystem(m_aeDevice,collisionDescriptorSetLayouts,m_computeBuffers);
+
+        m_particleFrameDescriptorSets.reserve(MAX_FRAMES_IN_FLIGHT);
+        for(int i=0;i<MAX_FRAMES_IN_FLIGHT;i++){
+            m_particleFrameDescriptorSets.push_back({m_globalDescriptorSets[i],
+                                                     m_computesDescriptorSets[i]});
+
+        }
+
 
         //==============================================================================================================
         // Texture Descriptor Set Initialization
@@ -409,7 +429,9 @@ namespace ae {
     void RendererStartPassSystem::executeSystem(){
 
         // Unless the renderer is not ready to begin a new frame and returns a nullptr start rendering a new frame.
-        if ((m_commandBuffer = m_renderer.beginFrame())) {
+        if ((m_graphicsCommandBuffer = m_renderer.beginFrame())) {
+
+            m_computeCommandBuffer = m_renderer.getCurrentGraphicsCommandBuffer();
 
             // Get the frame index for the frame the render pass is starting for.
             m_frameIndex = m_renderer.getFrameIndex();
@@ -417,6 +439,18 @@ namespace ae {
             // Write the ubo data for the shaders for this frame.
             m_uboBuffers[m_frameIndex]->writeToBuffer(m_updateUboSystem.getUbo());
             m_uboBuffers[m_frameIndex]->flush();
+
+            // Update compute descriptor sets
+            updateParticleDescriptorSets();
+
+            // Send commands to the GPU for compute
+            m_particleSystem->bindPipeline(m_computeCommandBuffer);
+            vkCmdBindDescriptorSets(m_computeCommandBuffer,
+                                    VK_PIPELINE_BIND_POINT_COMPUTE,
+                                    m_particleSystem->getPipelineLayout(),
+                                    0, 2, m_particleFrameDescriptorSets[m_frameIndex].data(), 0, nullptr);
+
+            vkCmdDispatch(m_computeCommandBuffer, MAX_PARTICLES / 256, 1, 1);
 
             // Update the texture descriptor data for the models that are being rendered.
             //updateDescriptorSets();
@@ -459,13 +493,13 @@ namespace ae {
 
 
             // Start the render pass.
-            m_renderer.beginSwapChainRenderPass(m_commandBuffer);
+            m_renderer.beginSwapChainRenderPass(m_graphicsCommandBuffer);
 
             // Loop through each material and have them draw their entities.
             for(auto material : m_gameMaterials->m_materials){
 
                 // Draw the material's entities.
-                material->executeSystem(m_commandBuffer,
+                material->executeSystem(m_graphicsCommandBuffer,
                                         m_drawIndirectBuffers[m_frameIndex]->getBuffer(),
                                         m_frameDescriptorSets[m_frameIndex]);
 
@@ -474,18 +508,18 @@ namespace ae {
             }
 
             // Call subservient render systems. Order matters here to maintain object transparencies.
-//            m_simpleRenderSystem->executeSystem(m_commandBuffer,
+//            m_simpleRenderSystem->executeSystem(m_graphicsCommandBuffer,
 //                                                m_frameDescriptorSetsOLD[m_frameIndex]);
 
-            //m_pointLightRenderSystem->executeSystem(m_commandBuffer,m_globalDescriptorSets[m_frameIndex]);
-//            m_uiRenderSystem->executeSystem(m_commandBuffer,
+            //m_pointLightRenderSystem->executeSystem(m_graphicsCommandBuffer,m_globalDescriptorSets[m_frameIndex]);
+//            m_uiRenderSystem->executeSystem(m_graphicsCommandBuffer,
 //                                            m_globalDescriptorSets[m_frameIndex],
 //                                            m_textureDescriptorSets[m_frameIndex],
 //                                            m_object2DDescriptorSets[m_frameIndex],
 //                                            m_frameIndex);
 
             // End the render pass and the frame.
-            m_renderer.endSwapChainRenderPass(m_commandBuffer);
+            m_renderer.endSwapChainRenderPass(m_graphicsCommandBuffer);
             m_renderer.endFrame();
         };
     };
@@ -650,5 +684,37 @@ namespace ae {
         m_textureDescriptorWriter->writeImage(0, imageInfos);
         m_textureDescriptorWriter->overwrite(m_textureDescriptorSets[m_frameIndex]);
     };
+
+    void RendererStartPassSystem::updateParticleDescriptorSets(){
+        std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
+
+        VkDescriptorBufferInfo storageBufferInfoLastFrame{};
+        storageBufferInfoLastFrame.buffer = m_computeBuffers[(m_frameIndex - 1) % MAX_FRAMES_IN_FLIGHT]->getBuffer();
+        storageBufferInfoLastFrame.offset = 0;
+        storageBufferInfoLastFrame.range = sizeof(Particle) * MAX_PARTICLES;
+
+        descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        descriptorWrites[0].dstSet = m_particleFrameDescriptorSets[m_frameIndex][1];
+        descriptorWrites[0].dstBinding = 0;
+        descriptorWrites[0].dstArrayElement = 0;
+        descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+        descriptorWrites[0].descriptorCount = 1;
+        descriptorWrites[0].pBufferInfo = &storageBufferInfoLastFrame;
+
+        VkDescriptorBufferInfo storageBufferInfoCurrentFrame{};
+        storageBufferInfoCurrentFrame.buffer = m_computeBuffers[m_frameIndex]->getBuffer();
+        storageBufferInfoCurrentFrame.offset = 0;
+        storageBufferInfoCurrentFrame.range = sizeof(Particle) * MAX_PARTICLES;
+
+        descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        descriptorWrites[1].dstSet = m_particleFrameDescriptorSets[m_frameIndex][1];
+        descriptorWrites[1].dstBinding = 1;
+        descriptorWrites[1].dstArrayElement = 0;
+        descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+        descriptorWrites[1].descriptorCount = 1;
+        descriptorWrites[1].pBufferInfo = &storageBufferInfoCurrentFrame;
+
+        vkUpdateDescriptorSets(m_aeDevice.device(), 2, descriptorWrites.data(), 0, nullptr);
+    }
 
 } // namespace ae
