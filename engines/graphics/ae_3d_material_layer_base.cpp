@@ -69,12 +69,12 @@ namespace ae {
                "Cannot create the simple render system's pipeline before pipeline layout!");
 
         // Define the pipeline to be created.
-        PipelineConfigInfo pipelineConfig{};
+        GraphicsPipelineConfigInfo pipelineConfig{};
         AeGraphicsPipeline::defaultPipelineConfigInfo(pipelineConfig);
         pipelineConfig.renderPass = t_renderPass;
         pipelineConfig.pipelineLayout = m_pipelineLayout;
 
-        shaderFilesPaths shaderPaths{};
+        graphicsShaderFilesPaths shaderPaths{};
         shaderPaths.vertFilepath = m_materialShaderFiles.vertexShaderFilepath;
         shaderPaths.fragFilepath = m_materialShaderFiles.fragmentShaderFilepath;
         shaderPaths.tessFilepath = m_materialShaderFiles.tessellationShaderFilepath;

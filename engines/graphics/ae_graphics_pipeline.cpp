@@ -16,8 +16,8 @@ namespace ae {
     // Create the Vulkan pipeline object
     AeGraphicsPipeline::AeGraphicsPipeline(
         AeDevice& t_device,
-        const shaderFilesPaths& t_shaderFilePaths,
-        const PipelineConfigInfo& t_configInfo) : m_aeDevice{ t_device } {
+        const graphicsShaderFilesPaths& t_shaderFilePaths,
+        const GraphicsPipelineConfigInfo& t_configInfo) : m_aeDevice{t_device } {
 
         createGraphicsPipeline(t_shaderFilePaths, t_configInfo,nullptr);
 
@@ -26,8 +26,8 @@ namespace ae {
     // Create the Vulkan pipeline object
     AeGraphicsPipeline::AeGraphicsPipeline(
             AeDevice& t_device,
-            const shaderFilesPaths& t_shaderFilePaths,
-            const PipelineConfigInfo& t_configInfo,
+            const graphicsShaderFilesPaths& t_shaderFilePaths,
+            const GraphicsPipelineConfigInfo& t_configInfo,
             uint32_t& t_materialId) : m_aeDevice{ t_device } {
 
         VkSpecializationMapEntry entry = { 0, 0, sizeof(int32_t) };
@@ -79,8 +79,8 @@ namespace ae {
 
     // Function to create a Vulkan graphics pipeline
     void AeGraphicsPipeline::createGraphicsPipeline(
-            const shaderFilesPaths& t_shaderFilePaths,
-            const PipelineConfigInfo& t_configInfo,
+            const graphicsShaderFilesPaths& t_shaderFilePaths,
+            const GraphicsPipelineConfigInfo& t_configInfo,
             VkSpecializationInfo* spec_info) {
 
         assert(
@@ -264,7 +264,7 @@ namespace ae {
         vkCmdBindPipeline(t_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline);
     }
 
-    void AeGraphicsPipeline::defaultPipelineConfigInfo(PipelineConfigInfo& t_configInfo) {
+    void AeGraphicsPipeline::defaultPipelineConfigInfo(GraphicsPipelineConfigInfo& t_configInfo) {
 
         t_configInfo.inputAssemblyInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
 
@@ -353,7 +353,7 @@ namespace ae {
         t_configInfo.attributeDescriptions = AeModel::Vertex::getAttributeDescriptions();
     }
 
-    void AeGraphicsPipeline::enableAlphaBlending(PipelineConfigInfo& t_configInfo) {
+    void AeGraphicsPipeline::enableAlphaBlending(GraphicsPipelineConfigInfo& t_configInfo) {
         // How colors are combined in the frame buffer
         t_configInfo.colorBlendAttachment.blendEnable = VK_TRUE;
         t_configInfo.colorBlendAttachment.colorWriteMask =

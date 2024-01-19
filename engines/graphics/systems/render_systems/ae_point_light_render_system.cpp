@@ -187,7 +187,7 @@ namespace ae {
         assert(m_pipelineLayout != nullptr && "Cannot create point light render system's pipeline before pipeline layout!");
 
         // Define the pipeline to be created.
-        PipelineConfigInfo pipelineConfig{};
+        GraphicsPipelineConfigInfo pipelineConfig{};
         AeGraphicsPipeline::defaultPipelineConfigInfo(pipelineConfig);
         AeGraphicsPipeline::enableAlphaBlending(pipelineConfig);
         pipelineConfig.bindingDescriptions.clear();
@@ -195,7 +195,7 @@ namespace ae {
         pipelineConfig.renderPass = t_renderPass;
         pipelineConfig.pipelineLayout = m_pipelineLayout;
 
-        shaderFilesPaths shaderPaths{};
+        graphicsShaderFilesPaths shaderPaths{};
         shaderPaths.vertFilepath = "engines/graphics/shaders/point_light.vert.spv";
         shaderPaths.fragFilepath = "engines/graphics/shaders/point_light.frag.spv";
 

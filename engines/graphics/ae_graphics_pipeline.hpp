@@ -14,14 +14,14 @@
 namespace ae {
 
     /// Information required to create the Vulkan pipeline.
-    struct PipelineConfigInfo {
+    struct GraphicsPipelineConfigInfo {
 
         /// Struct constructor, default currently.
-        PipelineConfigInfo() = default;
+        GraphicsPipelineConfigInfo() = default;
 
         /// Do not allow this structure to be copied.
-        PipelineConfigInfo(const PipelineConfigInfo&) = delete;
-        PipelineConfigInfo& operator=(const PipelineConfigInfo&) = delete;
+        GraphicsPipelineConfigInfo(const GraphicsPipelineConfigInfo&) = delete;
+        GraphicsPipelineConfigInfo& operator=(const GraphicsPipelineConfigInfo&) = delete;
 
         std::vector<VkVertexInputBindingDescription> bindingDescriptions{};
         std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
@@ -39,7 +39,7 @@ namespace ae {
         uint32_t subpass = 0;
     };
 
-    struct shaderFilesPaths{
+    struct graphicsShaderFilesPaths{
         std::string vertFilepath = "Not Used";
         std::string fragFilepath = "Not Used";
         std::string tessFilepath = "Not Used";
@@ -53,17 +53,17 @@ namespace ae {
         /// \param t_device The graphics device the pipeline will be implemented by.
         /// \param t_vertFilepath The relative path to the SPIR-V file which defines the pipeline's vertex shader.
         /// \param t_fragFilepath The relative path to the SPIR-V file which defines the pipeline's fragment shader.
-        /// \param t_configInfo The PipelineConfigInfo struct that defines the required vulkan properties of the
+        /// \param t_configInfo The GraphicsPipelineConfigInfo struct that defines the required vulkan properties of the
         /// pipeline to be created.
         AeGraphicsPipeline(
             AeDevice& t_device,
-            const shaderFilesPaths& t_shaderFilePaths,
-            const PipelineConfigInfo& t_configInfo);
+            const graphicsShaderFilesPaths& t_shaderFilePaths,
+            const GraphicsPipelineConfigInfo& t_configInfo);
 
         AeGraphicsPipeline(
                 AeDevice& t_device,
-                const shaderFilesPaths& t_shaderFilePaths,
-                const PipelineConfigInfo& t_configInfo,
+                const graphicsShaderFilesPaths& t_shaderFilePaths,
+                const GraphicsPipelineConfigInfo& t_configInfo,
                 uint32_t& t_materialId);
 
         /// Destroy a Vulkan pipeline object
@@ -80,12 +80,12 @@ namespace ae {
         /// Fills the specified configuration information reference with a default pipeline configuration.
         /// \param t_configInfo The pipeline configuration information variable that should be set to the default
         /// configuration.
-        static void defaultPipelineConfigInfo(PipelineConfigInfo& t_configInfo);
+        static void defaultPipelineConfigInfo(GraphicsPipelineConfigInfo& t_configInfo);
 
         /// Sets the pipeline configuration variables to enabled alpha blending.
         /// \param t_configInfo The configuration info object that requires alpha blending configuration variables to be
         /// set.
-        static void enableAlphaBlending(PipelineConfigInfo& t_configInfo);
+        static void enableAlphaBlending(GraphicsPipelineConfigInfo& t_configInfo);
 
     private:
 
@@ -97,11 +97,11 @@ namespace ae {
         /// Creates a Vulkan graphics pipeline.
         /// \param t_vertFilepath The relative path to the SPIR-V file which defines the pipeline's vertex shader.
         /// \param t_fragFilepath The relative path to the SPIR-V file which defines the pipeline's fragment shader.
-        /// \param t_configInfo The PipelineConfigInfo struct that defines the required vulkan properties of the
+        /// \param t_configInfo The GraphicsPipelineConfigInfo struct that defines the required vulkan properties of the
         /// pipeline to be created.
         void createGraphicsPipeline(
-                const shaderFilesPaths& t_shaderFilePaths,
-                const PipelineConfigInfo& t_configInfo,
+                const graphicsShaderFilesPaths& t_shaderFilePaths,
+                const GraphicsPipelineConfigInfo& t_configInfo,
                 VkSpecializationInfo* spec_info);
 
         /// Function to create a Vulkan shader module from the supplied reference of code vector variable.
