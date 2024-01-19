@@ -6,8 +6,8 @@ target_sources(mySrcFiles
         ae_2d_model.cpp
         ae_model.cpp
         ae_model.hpp
-        ae_pipeline.cpp
-        ae_pipeline.hpp
+        ae_graphics_pipeline.cpp
+        ae_graphics_pipeline.hpp
         ae_window.cpp
         ae_window.hpp
         ae_swap_chain.cpp

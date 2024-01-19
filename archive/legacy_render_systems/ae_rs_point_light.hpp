@@ -2,7 +2,7 @@
 
 #include "ae_device.hpp"
 #include "ae_game_object.hpp"
-#include "ae_pipeline.hpp"
+#include "ae_graphics_pipeline.hpp"
 #include "ae_frame_info.hpp"
 
 #include "game_components.hpp"

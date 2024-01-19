@@ -4,7 +4,7 @@
 
 // dependencies
 #include "ae_ecs_include.hpp"
-#include "ae_pipeline.hpp"
+#include "ae_graphics_pipeline.hpp"
 #include "ae_model.hpp"
 #include "ae_3d_material_layer_base.hpp"
 #include "game_components.hpp"

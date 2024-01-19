@@ -2,7 +2,7 @@
     \brief The script implementing the pipeline class.
     The pipeline class is implemented.
 */
-#include "ae_pipeline.hpp"
+#include "ae_graphics_pipeline.hpp"
 #include "ae_model.hpp"
 
 // std

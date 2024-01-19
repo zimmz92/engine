@@ -10,7 +10,7 @@
 #include "game_components.hpp"
 
 #include "ae_device.hpp"
-#include "ae_pipeline.hpp"
+#include "ae_graphics_pipeline.hpp"
 
 
 namespace ae {

@@ -3,7 +3,7 @@
 #pragma once
 
 // dependencies
-#include "ae_pipeline.hpp"
+#include "ae_graphics_pipeline.hpp"
 #include "ae_model.hpp"
 #include "ae_graphics_constants.hpp"
 #include "ae_image.hpp"
