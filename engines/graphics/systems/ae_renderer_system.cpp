@@ -107,11 +107,13 @@ namespace ae {
         m_computesDescriptorSets.reserve(MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             // Get the buffer information from the uboBuffers.
+            auto prevbufferInfo = m_computeBuffers[(i - 1) % MAX_FRAMES_IN_FLIGHT]->descriptorInfo();
             auto bufferInfo = m_computeBuffers[i]->descriptorInfo();
 
             // Initialize the descriptor set for the current frame.
             AeDescriptorWriter(collisionSetLayout, *m_globalPool)
-                    .writeBuffer(0, &bufferInfo)
+                    .writeBuffer(0, &prevbufferInfo)
+                    .writeBuffer(1, &bufferInfo)
                     .build(m_computesDescriptorSets[i]);
         }
 

@@ -124,6 +124,7 @@ namespace ae {
         vkResetFences(m_device.device(), 1, &m_computeInFlightFences[m_currentFrame]);
 
         // Create the info struct to submit the command buffer to the queue
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = t_computeBuffer;
         submitInfo.signalSemaphoreCount = 1;

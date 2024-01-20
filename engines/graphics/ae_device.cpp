@@ -464,7 +464,7 @@ namespace ae {
 		for (const auto &queueFamily : queueFamilies) {
 
             // Check if the current queue family has drawing support
-            if (queueFamily.queueCount > 0 && queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+            if (queueFamily.queueCount > 0 && (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)) {
                 indices.graphicsFamily = i;
                 indices.graphicsFamilyHasValue = true;
             }
@@ -477,13 +477,13 @@ namespace ae {
                 indices.presentFamilyHasValue = true;
             }
 
-            if (queueFamily.queueCount > 0 && queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT) {
+            if (queueFamily.queueCount > 0 && (queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT)) {
                 indices.computeFamily = i;
                 indices.graphicsFamilyHasValue = true;
             }
 
             // Once a queue family is found that supports drawing and presentation we no longer need to search.
-            if (indices.isComplete() && (indices.presentFamily == indices.graphicsFamily == indices.computeFamily)) {
+            if (indices.isComplete() && (indices.graphicsFamily == indices.presentFamily) && (indices.graphicsFamily == indices.computeFamily)) {
                 break;
             }
 
