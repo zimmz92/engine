@@ -103,6 +103,8 @@ namespace ae {
                     VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
         };
 
+        m_computeDescriptorWriter = new AeDescriptorWriter(collisionSetLayout, *m_globalPool);
+
         // Reserve space for compute descriptor sets for each frame.
         m_computesDescriptorSets.reserve(MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
@@ -111,10 +113,9 @@ namespace ae {
             auto bufferInfo = m_computeBuffers[i]->descriptorInfo();
 
             // Initialize the descriptor set for the current frame.
-            AeDescriptorWriter(collisionSetLayout, *m_globalPool)
-                    .writeBuffer(0, &prevbufferInfo)
-                    .writeBuffer(1, &bufferInfo)
-                    .build(m_computesDescriptorSets[i]);
+            m_computeDescriptorWriter->writeBuffer(0, &prevbufferInfo)
+                                      .writeBuffer(1, &bufferInfo)
+                                      .build(m_computesDescriptorSets[i]);
         }
 
         // Create a particle system using the compute pipeline
@@ -342,9 +343,6 @@ namespace ae {
         //==============================================================================================================
         // Setup child render systems
         //==============================================================================================================
-
-
-
 
 
         // Creates a buffer of entity model matrix and texture data for entities with 3D models that have a material.

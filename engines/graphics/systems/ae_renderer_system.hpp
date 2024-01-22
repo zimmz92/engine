@@ -117,13 +117,6 @@ namespace ae {
 
 
         //==============================================================================================================
-        // Particle System
-        //==============================================================================================================
-        AeParticleSystem* m_particleSystem;
-        std::vector<std::vector<VkDescriptorSet>> m_particleFrameDescriptorSets;
-
-
-        //==============================================================================================================
         // UBO
         //==============================================================================================================
         /// The UBO buffer objects for each frame in flight
@@ -158,6 +151,15 @@ namespace ae {
 
         /// The object buffers for each frame
         std::vector<std::unique_ptr<AeBuffer>> m_computeBuffers;
+
+        /// The texture descriptor writers.
+        AeDescriptorWriter* m_computeDescriptorWriter;
+
+        //==============================================================================================================
+        // Particle System
+        //==============================================================================================================
+        AeParticleSystem* m_particleSystem;
+        std::vector<std::vector<VkDescriptorSet>> m_particleFrameDescriptorSets;
 
 
         //==============================================================================================================
