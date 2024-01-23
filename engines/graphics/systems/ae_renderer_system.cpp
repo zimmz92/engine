@@ -451,7 +451,7 @@ namespace ae {
             m_particleSystem->bindPipeline(m_computeCommandBuffer);
             vkCmdBindDescriptorSets(m_computeCommandBuffer,
                                     VK_PIPELINE_BIND_POINT_COMPUTE,
-                                    m_particleSystem->getPipelineLayout(),
+                                    m_particleSystem->getComputePipelineLayout(),
                                     0, 2, m_particleFrameDescriptorSets[m_frameIndex].data(), 0, nullptr);
 
             vkCmdDispatch(m_computeCommandBuffer, MAX_PARTICLES / 256, 1, 1);

@@ -11,17 +11,6 @@
 #include <unordered_set>
 #include <vulkan/vulkan_core.h>
 
-/// The maximum number of allowed partiles.
-// TODO Remove since this is for testing compute shaders only
-static const std::size_t MAX_PARTICLES = 256;
-
-struct Particle {
-    glm::vec2 position;
-    glm::vec2 velocity;
-    glm::vec4 color;
-};
-
-
 /// The maximum number of frames allowed to be in the rendering queue at a given time.
 /// If MAX_TEXTURES is changed here it also needs to be changed in the shaders!
 // TODO Make the shaders automatically update their values if this value is updated.v

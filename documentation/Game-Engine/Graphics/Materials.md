@@ -74,7 +74,7 @@ ExampleMaterialLayerType m_simpleMaterial{m_device,
 A material layer has the following base properties:
 
 - Name (m_materialName) - "JON-DOE" is the default.
-- Pipeline Layout (m_pipelineLayout) - The layout of the pipeline this material utilizes.
+- Pipeline Layout (m_computePipelineLayout) - The layout of the pipeline this material utilizes.
 - Pipeline (m_pipeline) - The pipeline that implements this material.
 - Shader Stage Files (m_materialShaderFiles) - The shader files that define the material.
 - ID (m_materialID) - The ID assigned to the material.

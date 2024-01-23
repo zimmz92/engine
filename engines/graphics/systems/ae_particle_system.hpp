@@ -15,9 +15,33 @@
 
 namespace ae {
 
+    static const std::size_t MAX_PARTICLES = 256;
+
+    struct Particle {
+        glm::vec2 position;
+        glm::vec2 velocity;
+        glm::vec4 color;
+
+
+        static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions() {
+            std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions{};
+
+            attributeDescriptions[0].binding = 1;
+            attributeDescriptions[0].location = 0;
+            attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+            attributeDescriptions[0].offset = offsetof(Particle, position);
+
+            attributeDescriptions[1].binding = 1;
+            attributeDescriptions[1].location = 1;
+            attributeDescriptions[1].format = VK_FORMAT_R32G32B32A32_SFLOAT;
+            attributeDescriptions[1].offset = offsetof(Particle, color);
+
+            return attributeDescriptions;
+        }
+    };
+
     class AeParticleSystem {
     public:
-
 
         AeParticleSystem(AeDevice& t_aeDevice,
                          std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts,
@@ -25,9 +49,7 @@ namespace ae {
 
         ~AeParticleSystem();
 
-        AeComputePipeline* getPipeline(){return m_aePipeline.get();};
-
-        VkPipelineLayout& getPipelineLayout(){return m_pipelineLayout;};
+        VkPipelineLayout& getComputePipelineLayout(){return m_computePipelineLayout;};
 
         void bindPipeline(VkCommandBuffer& t_commandBuffer);
 
@@ -45,10 +67,10 @@ namespace ae {
         AeDevice& m_aeDevice;
 
         /// The layout of this render system's pipeline.
-        VkPipelineLayout m_pipelineLayout;
+        VkPipelineLayout m_computePipelineLayout;
 
         /// The pipeline created for this render system.
-        std::unique_ptr<AeComputePipeline> m_aePipeline;
+        std::unique_ptr<AeComputePipeline> m_aeComputePipeline;
 
         /// The object buffers for each frame
         std::vector<std::unique_ptr<AeBuffer>> m_computeBuffers;

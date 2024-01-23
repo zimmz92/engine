@@ -64,7 +64,7 @@ namespace ae {
 
     AeParticleSystem::~AeParticleSystem(){
 
-        vkDestroyPipelineLayout(m_aeDevice.device(), m_pipelineLayout, nullptr);
+        vkDestroyPipelineLayout(m_aeDevice.device(), m_computePipelineLayout, nullptr);
 
     };
 
@@ -80,7 +80,7 @@ namespace ae {
         pipelineLayoutInfo.pSetLayouts = t_descriptorSetLayouts.data();
 
         // Attempt to create the pipeline layout, if it cannot error out.
-        if (vkCreatePipelineLayout(m_aeDevice.device(), &pipelineLayoutInfo, nullptr, &m_pipelineLayout) != VK_SUCCESS) {
+        if (vkCreatePipelineLayout(m_aeDevice.device(), &pipelineLayoutInfo, nullptr, &m_computePipelineLayout) != VK_SUCCESS) {
             throw std::runtime_error("Failed to create the default compute pipeline layout!");
         }
 
@@ -92,19 +92,19 @@ namespace ae {
     void AeParticleSystem::createPipeline() {
 
         // Ensure the pipeline layout has already been created, cannot create a pipeline otherwise.
-        assert(m_pipelineLayout != nullptr && "Cannot create point light render system's pipeline before pipeline layout!");
+        assert(m_computePipelineLayout != nullptr && "Cannot create point light render system's pipeline before pipeline layout!");
 
         // Create the point light render system pipeline.
-        m_aePipeline = std::make_unique<AeComputePipeline>( m_aeDevice,
-                                                            m_pipelineLayout,
-                                                            "engines/graphics/shaders/particles.comp.spv");
+        m_aeComputePipeline = std::make_unique<AeComputePipeline>(m_aeDevice,
+                                                                  m_computePipelineLayout,
+                                                                  "engines/graphics/shaders/particles.comp.spv");
     };
 
 
 
 
     void AeParticleSystem::bindPipeline(VkCommandBuffer& t_commandBuffer){
-        m_aePipeline->bind(t_commandBuffer);
+        m_aeComputePipeline->bind(t_commandBuffer);
     };
 
 
