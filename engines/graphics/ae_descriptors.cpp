@@ -157,8 +157,7 @@ namespace ae {
 
 
     // Get a descriptor set from the pool.
-    bool AeDescriptorPool::allocateDescriptorSet(
-        const VkDescriptorSetLayout t_descriptorSetLayout, VkDescriptorSet& t_descriptor) const {
+    bool AeDescriptorPool::allocateDescriptorSet(VkDescriptorSetLayout t_descriptorSetLayout, VkDescriptorSet& t_descriptor) const {
         VkDescriptorSetAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
         allocInfo.descriptorPool = m_descriptorPool;
@@ -166,7 +165,7 @@ namespace ae {
         allocInfo.descriptorSetCount = 1;
 
         // TODO create a "DescriptorPoolManager" class that handles this case, and builds
-        // a new pool whenever an old pool fills up. But this is beyond our current scope
+        // a new pool whenever an old pool fills up. But this is beyond current scope
         // See https://vkguide.dev/docs/extra-chapter/abstracting_descriptors/
 
         // Attempt to allocate a descriptor set from the descriptor pool.

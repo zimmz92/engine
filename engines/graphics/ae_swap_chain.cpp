@@ -77,8 +77,7 @@ namespace ae {
             vkDestroySemaphore(m_device.device(), m_renderFinishedSemaphores[i], nullptr);
             vkDestroySemaphore(m_device.device(), m_imageAvailableSemaphores[i], nullptr);
             vkDestroySemaphore(m_device.device(), m_computeFinishedSemaphores[i], nullptr);
-            vkDestroyFence(m_device.device(), m_inFlightFences[i], nullptr);
-            vkDestroyFence(m_device.device(), m_imagesInFlightFences[i], nullptr);
+            vkDestroyFence(m_device.device(), m_commandBufferInFlightFences[i], nullptr);
             vkDestroyFence(m_device.device(), m_computeInFlightFences[i], nullptr);
         }
     }
@@ -90,7 +89,7 @@ namespace ae {
         vkWaitForFences(
             m_device.device(),
             1,
-            &m_inFlightFences[m_currentFrame],
+            &m_commandBufferInFlightFences[m_currentFrame],
             VK_TRUE,
             std::numeric_limits<uint64_t>::max());
 
@@ -131,7 +130,7 @@ namespace ae {
         submitInfo.pSignalSemaphores = &m_computeFinishedSemaphores[m_currentFrame];
 
         // Attempt to submit and execute the command buffer using the compute queue.
-        if (vkQueueSubmit(m_device.computeQueue(), 1, &submitInfo, nullptr) != VK_SUCCESS) {
+        if (vkQueueSubmit(m_device.computeQueue(), 1, &submitInfo, m_computeInFlightFences[m_currentFrame]) != VK_SUCCESS) {
             throw std::runtime_error("failed to submit compute command buffer!");
         }
 
@@ -139,10 +138,10 @@ namespace ae {
 
         // Set the fence tracking if the command buffers corresponding to the image have finished to the fence keeping
         // track of the frame command buffer status. This is useful when we have more images than frames.
-        m_imagesInFlightFences[*t_imageIndex] = m_inFlightFences[m_currentFrame];
+        m_imagesInFlightFences[*t_imageIndex] = m_commandBufferInFlightFences[m_currentFrame];
 
         // Reset the fences tracking the execution status of the current frame.
-        vkResetFences(m_device.device(), 1, &m_inFlightFences[m_currentFrame]);
+        vkResetFences(m_device.device(), 1, &m_commandBufferInFlightFences[m_currentFrame]);
 
 
 
@@ -170,7 +169,7 @@ namespace ae {
         submitInfo.pSignalSemaphores = signalSemaphores;
 
         // Attempt to submit and execute the command buffer using the device queue.
-        if (vkQueueSubmit(m_device.graphicsQueue(), 1, &submitInfo, m_inFlightFences[m_currentFrame]) != VK_SUCCESS) {
+        if (vkQueueSubmit(m_device.graphicsQueue(), 1, &submitInfo, m_commandBufferInFlightFences[m_currentFrame]) != VK_SUCCESS) {
             throw std::runtime_error("failed to submit draw command buffer!");
         }
 
@@ -474,10 +473,15 @@ namespace ae {
 
         // Make synchronization objects for each of the frames that may be being rendered.
         m_imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-        m_renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-        m_computeFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-        m_inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
+
+        // These will only serve as pointers to the m_commandBufferInFlightFences corresponding to an image. Therefor
+        // do not need to be "created" or "destroyed"
         m_imagesInFlightFences.resize(imageCount(), VK_NULL_HANDLE);
+
+        m_renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+        m_commandBufferInFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
+
+        m_computeFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
         m_computeInFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
 
         // Specify the semaphore properties. This is the same for all the frames currently.
@@ -497,8 +501,7 @@ namespace ae {
                 VK_SUCCESS ||
                 vkCreateSemaphore(m_device.device(), &semaphoreInfo, nullptr, &m_computeFinishedSemaphores[i]) !=
                 VK_SUCCESS ||
-                vkCreateFence(m_device.device(), &fenceInfo, nullptr, &m_inFlightFences[i]) != VK_SUCCESS ||
-                vkCreateFence(m_device.device(), &fenceInfo, nullptr, &m_imagesInFlightFences[i]) != VK_SUCCESS ||
+                vkCreateFence(m_device.device(), &fenceInfo, nullptr, &m_commandBufferInFlightFences[i]) != VK_SUCCESS ||
                 vkCreateFence(m_device.device(), &fenceInfo, nullptr, &m_computeInFlightFences[i]) != VK_SUCCESS){
                 throw std::runtime_error("failed to create synchronization objects for a frame!");
             }

@@ -412,7 +412,11 @@ namespace ae {
         delete m_textureDescriptorWriter;
         m_textureDescriptorWriter = nullptr;
 
+        delete m_particleSystem;
+        m_particleSystem = nullptr;
 
+        delete m_computeDescriptorWriter;
+        m_computeDescriptorWriter = nullptr;
 
     };
 

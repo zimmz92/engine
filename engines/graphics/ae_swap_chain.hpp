@@ -192,7 +192,7 @@ namespace ae {
         std::vector<VkSemaphore> m_computeFinishedSemaphores;
 
         /// Fence that tracks that the command buffer corresponding to a frame has finished execution.
-        std::vector<VkFence> m_inFlightFences;
+        std::vector<VkFence> m_commandBufferInFlightFences;
 
         /// Fence that tracks that the command buffers corresponding to an image have finished.
         std::vector<VkFence> m_imagesInFlightFences;
