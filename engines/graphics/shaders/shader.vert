@@ -23,6 +23,7 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
     vec4 ambientLightColor;
     PointLight pointLights[10]; // This, 10, could be passed in as a specialization constant
     int numLights;
+    float deltaTime;
 } ubo;
 
 //all object matrices

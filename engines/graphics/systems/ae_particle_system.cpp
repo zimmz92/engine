@@ -15,13 +15,21 @@ namespace ae {
 
     AeParticleSystem::AeParticleSystem(AeDevice& t_aeDevice,
                                        std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts,
-                                       std::vector<std::unique_ptr<AeBuffer>>& t_particleBuffers) : m_aeDevice{t_aeDevice}{
+                                       std::vector<std::unique_ptr<AeBuffer>>& t_particleBuffers,
+                                       VkRenderPass t_renderPass) : m_aeDevice{t_aeDevice}{
+
+        // Creates the compute pipeline layout accounting for the global layout and sets the m_pipelineLayout member variable.
+        createComputePipelineLayout(t_descriptorSetLayouts);
+
+        // Creates a compute pipeline for this render system and sets the m_aePipeline member variable.
+        createComputePipeline();
 
         // Creates the pipeline layout accounting for the global layout and sets the m_pipelineLayout member variable.
         createPipelineLayout(t_descriptorSetLayouts);
 
         // Creates a graphics pipeline for this render system and sets the m_aePipeline member variable.
-        createPipeline();
+        createPipeline(t_renderPass);
+
 
         // Initialize particles
         std::default_random_engine rndEngine((unsigned)time(nullptr));
@@ -65,13 +73,14 @@ namespace ae {
     AeParticleSystem::~AeParticleSystem(){
 
         vkDestroyPipelineLayout(m_aeDevice.device(), m_computePipelineLayout, nullptr);
+        vkDestroyPipelineLayout(m_aeDevice.device(),m_pipelineLayout, nullptr);
 
     };
 
 
 
     // Creates the pipeline layout for the point light render system.
-    void AeParticleSystem::createPipelineLayout(std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts) {
+    void AeParticleSystem::createComputePipelineLayout(std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts) {
 
         // Define the specific layout of the point light renderer.
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
@@ -89,7 +98,7 @@ namespace ae {
 
 
     // Creates the pipeline for the point light render system.
-    void AeParticleSystem::createPipeline() {
+    void AeParticleSystem::createComputePipeline() {
 
         // Ensure the pipeline layout has already been created, cannot create a pipeline otherwise.
         assert(m_computePipelineLayout != nullptr && "Cannot create point light render system's pipeline before pipeline layout!");
@@ -102,9 +111,80 @@ namespace ae {
 
 
 
-
-    void AeParticleSystem::bindPipeline(VkCommandBuffer& t_commandBuffer){
+    void AeParticleSystem::bindComputePipeline(VkCommandBuffer& t_commandBuffer){
         m_aeComputePipeline->bind(t_commandBuffer);
+    };
+
+    void AeParticleSystem::bindGraphicsPipeline(VkCommandBuffer &t_commandBuffer) {
+        m_aePipeline->bind(t_commandBuffer);
+    };
+
+    void AeParticleSystem::drawParticles(VkCommandBuffer &t_commandBuffer,
+                                         std::vector<VkDescriptorSet>& t_descriptorSets,
+                                         VkBuffer& t_computeBuffer){
+
+        bindGraphicsPipeline(t_commandBuffer);
+
+        // Bind the descriptor sets to the command buffer.
+        vkCmdBindDescriptorSets(
+                t_commandBuffer,
+                VK_PIPELINE_BIND_POINT_GRAPHICS,
+                m_pipelineLayout,
+                0,
+                static_cast<uint32_t>(t_descriptorSets.size()),
+                t_descriptorSets.data(),
+                0,
+                nullptr);
+
+        VkDeviceSize offsets[] = {0};
+        vkCmdBindVertexBuffers(t_commandBuffer, 0, 1, &t_computeBuffer, offsets);
+
+        vkCmdDraw(t_commandBuffer, MAX_PARTICLES, 1, 0, 0);
+    }
+
+
+
+    // Creates the pipeline layout for the point light render system.
+    void AeParticleSystem::createPipelineLayout(std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts) {
+
+        // Define the specific layout of the point light renderer.
+        VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
+        pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+        pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(t_descriptorSetLayouts.size());
+        pipelineLayoutInfo.pSetLayouts = t_descriptorSetLayouts.data();
+
+        // Attempt to create the pipeline layout, if it cannot error out.
+        if (vkCreatePipelineLayout(m_aeDevice.device(), &pipelineLayoutInfo, nullptr, &m_pipelineLayout) != VK_SUCCESS) {
+            throw std::runtime_error("Failed to create the point light render system's pipeline layout!");
+        }
+
+    };
+
+
+
+    // Creates the pipeline for the point light render system.
+    void AeParticleSystem::createPipeline(VkRenderPass t_renderPass) {
+
+        // Ensure the pipeline layout has already been created, cannot create a pipeline otherwise.
+        assert(m_pipelineLayout != nullptr && "Cannot create point light render system's pipeline before pipeline layout!");
+
+        // Define the pipeline to be created.
+        GraphicsPipelineConfigInfo pipelineConfig{};
+        AeGraphicsPipeline::defaultPipelineConfigInfo(pipelineConfig);
+        pipelineConfig.bindingDescriptions = Particle::getBindingDescriptions();
+        pipelineConfig.attributeDescriptions = Particle::getAttributeDescriptions();
+        pipelineConfig.renderPass = t_renderPass;
+        pipelineConfig.pipelineLayout = m_pipelineLayout;
+
+        GraphicsShaderFilesPaths shaderPaths{};
+        shaderPaths.vertFilepath = "engines/graphics/shaders/particles.vert.spv";
+        shaderPaths.fragFilepath = "engines/graphics/shaders/particles.frag.spv";
+
+        // Create the point light render system pipeline.
+        m_aePipeline = std::make_unique<AeGraphicsPipeline>(
+                m_aeDevice,
+                shaderPaths,
+                pipelineConfig);
     };
 
 

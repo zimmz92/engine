@@ -12,13 +12,15 @@ namespace ae {
     UpdateUboSystem::UpdateUboSystem(ae_ecs::AeECS& t_ecs,
                                      GameComponents& t_game_components,
                                      CameraUpdateSystem& t_cameraUpdateSystem,
-                                     CyclePointLightsSystem& t_cyclePointLightsSystem)
+                                     CyclePointLightsSystem& t_cyclePointLightsSystem,
+                                     TimingSystem& t_timingSystem)
                                                : m_worldPositionComponent{t_game_components.worldPositionComponent},
                                                m_cameraComponent{t_game_components.cameraComponent},
                                                m_pointLightComponent{t_game_components.pointLightComponent},
                                                m_uboDataFlagsComponent{t_game_components.uboDataFlagsComponent},
                                                m_cameraUpdateSystem{t_cameraUpdateSystem},
                                                m_cyclePointLightsSystem{t_cyclePointLightsSystem},
+                                               m_timingSystem{t_timingSystem},
                                                ae_ecs::AeSystem<UpdateUboSystem>(t_ecs) {
 
         // Register component dependencies
@@ -29,6 +31,7 @@ namespace ae {
 
 
         // Register system dependencies
+        this->dependsOnSystem(t_timingSystem.getSystemId());
         this->dependsOnSystem(t_cameraUpdateSystem.getSystemId());
         this->dependsOnSystem(t_cyclePointLightsSystem.getSystemId());
 
@@ -136,6 +139,9 @@ namespace ae {
         } else{
             m_ubo.numLights = m_numPointLights;
         };
+
+        // Update the time step information.
+        m_ubo.deltaTime = m_timingSystem.getDt();
     };
 
     // Clean up the system after execution. Currently not used.

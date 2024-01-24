@@ -33,7 +33,7 @@ namespace ae {
             playerInputSystem = new PlayerInputSystem(t_ecs, t_game_components, *timingSystem, t_window);
             cameraUpdateSystem = new CameraUpdateSystem(t_ecs, t_game_components, *playerInputSystem, t_renderer);
             cyclePointLightsSystem = new CyclePointLightsSystem(t_ecs, t_game_components, *timingSystem);
-            updateUboSystem = new UpdateUboSystem(t_ecs, t_game_components, *cameraUpdateSystem, *cyclePointLightsSystem);
+            updateUboSystem = new UpdateUboSystem(t_ecs, t_game_components, *cameraUpdateSystem, *cyclePointLightsSystem, *timingSystem);
             rendererSystem = new RendererStartPassSystem(t_ecs,
                                                          t_game_components,
                                                          *updateUboSystem,

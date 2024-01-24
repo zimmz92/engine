@@ -67,7 +67,7 @@ namespace ae {
 
         // Get the layout of the device and specify some general rendering options for all render systems.
         auto globalSetLayout = AeDescriptorSetLayout::Builder(m_aeDevice)
-                .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
+                .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS | VK_SHADER_STAGE_COMPUTE_BIT)
                 .build();
 
         // Reserve space for and then initialize the global descriptors for each frame.
@@ -121,7 +121,7 @@ namespace ae {
         // Create a particle system using the compute pipeline
         std::vector<VkDescriptorSetLayout> collisionDescriptorSetLayouts = {globalSetLayout->getDescriptorSetLayout(),
                                                                             collisionSetLayout->getDescriptorSetLayout()};
-        m_particleSystem = new AeParticleSystem(m_aeDevice,collisionDescriptorSetLayouts,m_computeBuffers);
+        m_particleSystem = new AeParticleSystem(m_aeDevice,collisionDescriptorSetLayouts,m_computeBuffers,m_renderer.getSwapChainRenderPass());
 
         m_particleFrameDescriptorSets.reserve(MAX_FRAMES_IN_FLIGHT);
         for(int i=0;i<MAX_FRAMES_IN_FLIGHT;i++){
@@ -448,13 +448,18 @@ namespace ae {
             updateParticleDescriptorSets();
 
             // Send commands to the GPU for compute
-            m_particleSystem->bindPipeline(m_computeCommandBuffer);
+            m_particleSystem->bindComputePipeline(m_computeCommandBuffer);
             vkCmdBindDescriptorSets(m_computeCommandBuffer,
                                     VK_PIPELINE_BIND_POINT_COMPUTE,
                                     m_particleSystem->getComputePipelineLayout(),
                                     0, 2, m_particleFrameDescriptorSets[m_frameIndex].data(), 0, nullptr);
 
             vkCmdDispatch(m_computeCommandBuffer, MAX_PARTICLES / 256, 1, 1);
+
+            VkBuffer tempt = m_computeBuffers[m_frameIndex]->getBuffer();
+            m_particleSystem->drawParticles(m_computeCommandBuffer,
+                                            m_particleFrameDescriptorSets[m_frameIndex],
+                                            tempt);
 
             // Update the texture descriptor data for the models that are being rendered.
             //updateDescriptorSets();

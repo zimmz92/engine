@@ -36,6 +36,7 @@ namespace ae {
         // Point light data.
         PointLight pointLights[MAX_LIGHTS];
         int numLights = 0;
+        float deltaTime = 0;
     };
 
 
@@ -51,7 +52,8 @@ namespace ae {
         UpdateUboSystem(ae_ecs::AeECS& t_ecs,
                         GameComponents& t_game_components,
                         CameraUpdateSystem& t_cameraUpdateSystem,
-                        CyclePointLightsSystem& t_cyclePointLightsSystem);
+                        CyclePointLightsSystem& t_cyclePointLightsSystem,
+                        TimingSystem& t_timingSystem);
 
         /// Destructor of the UpdateUboSystem
         ~UpdateUboSystem();
@@ -84,6 +86,8 @@ namespace ae {
 
 
         // Prerequisite systems for the PlayerInputSystem.
+        /// The TimingSystem this system requires to update how much time has passed in the ubo.
+        TimingSystem& m_timingSystem;
         /// The CameraUpdateSystem this system requires to operate prior to it's own operation.
         CameraUpdateSystem& m_cameraUpdateSystem;
         /// The CyclePointLightSystem this system requires to operate prior to it's own operation.
