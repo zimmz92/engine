@@ -456,10 +456,6 @@ namespace ae {
 
             vkCmdDispatch(m_computeCommandBuffer, MAX_PARTICLES / 256, 1, 1);
 
-            VkBuffer tempt = m_computeBuffers[m_frameIndex]->getBuffer();
-            m_particleSystem->drawParticles(m_computeCommandBuffer,
-                                            m_particleFrameDescriptorSets[m_frameIndex],
-                                            tempt);
 
             // Update the texture descriptor data for the models that are being rendered.
             //updateDescriptorSets();
@@ -504,6 +500,7 @@ namespace ae {
             // Start the render pass.
             m_renderer.beginSwapChainRenderPass(m_graphicsCommandBuffer);
 
+
             // Loop through each material and have them draw their entities.
             for(auto material : m_gameMaterials->m_materials){
 
@@ -515,6 +512,12 @@ namespace ae {
                 // Clean up the system after it executes.
                 material->cleanupSystem();
             }
+
+            // Draw particles
+            VkBuffer tempt = m_computeBuffers[m_frameIndex]->getBuffer();
+            m_particleSystem->drawParticles(m_graphicsCommandBuffer,
+                                            m_particleFrameDescriptorSets[m_frameIndex],
+                                            tempt);
 
             // Call subservient render systems. Order matters here to maintain object transparencies.
 //            m_simpleRenderSystem->executeSystem(m_graphicsCommandBuffer,
