@@ -50,7 +50,6 @@ namespace ae {
 
         AeParticleSystem(AeDevice& t_aeDevice,
                          std::vector<VkDescriptorSetLayout> t_computeDescriptorSetLayouts,
-                         VkDescriptorSetLayout t_descriptorSetLayouts,
                          std::vector<std::unique_ptr<AeBuffer>>& t_particleBuffers,
                          VkRenderPass t_renderPass);
 
@@ -61,8 +60,7 @@ namespace ae {
         void bindComputePipeline(VkCommandBuffer& t_commandBuffer);
 
         void drawParticles(VkCommandBuffer &t_commandBuffer,
-                           VkBuffer& t_computeBuffer,
-                           VkDescriptorSet t_globalDescriptorSet);
+                           VkBuffer& t_computeBuffer);
 
         void recordComputeCommandBuffer(VkCommandBuffer& t_commandBuffer, std::vector<VkDescriptorSet>& t_descriptorSets);
 
@@ -77,7 +75,7 @@ namespace ae {
         void createComputePipeline();
 
 
-        void createPipelineLayout(VkDescriptorSetLayout t_descriptorSetLayouts);
+        void createPipelineLayout();
 
         void createPipeline(VkRenderPass t_renderPass);
 

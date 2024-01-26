@@ -136,7 +136,6 @@ namespace ae {
 //                                                m_renderer.getSwapChainRenderPass());
         m_particleSystem = new AeParticleSystem(m_aeDevice,
                                                 collisionDescriptorSetLayouts,
-                                                globalSetLayout->getDescriptorSetLayout(),
                                                 m_computeBuffers,
                                                 m_renderer.getSwapChainRenderPass());
 
@@ -517,8 +516,7 @@ namespace ae {
 
             // Draw particles
             m_particleSystem->drawParticles(m_graphicsCommandBuffer,
-                                            m_computeBuffers[m_frameIndex]->getBufferReference(),
-                                            m_globalDescriptorSets[m_frameIndex]);
+                                            m_computeBuffers[m_frameIndex]->getBufferReference());
 
             m_pointLightRenderSystem->executeSystem(m_graphicsCommandBuffer, m_globalDescriptorSets[m_frameIndex]);
 

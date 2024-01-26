@@ -15,7 +15,6 @@ namespace ae {
 
     AeParticleSystem::AeParticleSystem(AeDevice& t_aeDevice,
                                        std::vector<VkDescriptorSetLayout> t_computeDescriptorSetLayouts,
-                                       VkDescriptorSetLayout t_descriptorSetLayouts,
                                        std::vector<std::unique_ptr<AeBuffer>>& t_particleBuffers,
                                        VkRenderPass t_renderPass) : m_aeDevice{t_aeDevice}{
 
@@ -26,7 +25,7 @@ namespace ae {
         createComputePipeline();
 
         // Creates the pipeline layout accounting for the global layout and sets the m_pipelineLayout member variable.
-        createPipelineLayout(t_descriptorSetLayouts);
+        createPipelineLayout();
 
         // Creates a graphics pipeline for this render system and sets the m_aePipeline member variable.
         createPipeline(t_renderPass);
@@ -138,42 +137,28 @@ namespace ae {
     };
 
     void AeParticleSystem::drawParticles(VkCommandBuffer &t_commandBuffer,
-                                         VkBuffer& t_computeBuffer,
-                                         VkDescriptorSet t_globalDescriptorSet){
+                                         VkBuffer& t_computeBuffer){
 
+        // Bind the graphics pipeline setup to draw the particles in the compute buffer.
         m_aePipeline->bind(t_commandBuffer);
 
-        // Bind the descriptor sets to the command buffer.
-        vkCmdBindDescriptorSets(
-                t_commandBuffer,
-                VK_PIPELINE_BIND_POINT_GRAPHICS,
-                m_pipelineLayout,
-                0,
-                1,
-                &t_globalDescriptorSet,
-                0,
-                nullptr);
-
+        // Bind the compute buffer with the updated particle positions to the pipeline.
         VkDeviceSize offsets[] = {0};
         vkCmdBindVertexBuffers(t_commandBuffer, 0, 1, &t_computeBuffer, offsets);
+
+        // Draw the particles.
         vkCmdDraw(t_commandBuffer, MAX_PARTICLES, 1, 0, 0);
 
-        //vkCmdDraw(t_commandBuffer, 6, 1, 0, 0);
     }
 
 
 
     // Creates the pipeline layout for the point light render system.
-    void AeParticleSystem::createPipelineLayout(VkDescriptorSetLayout t_descriptorSetLayouts) {
-
-        // Prepare the descriptor set layouts based on the global set layout for the device.
-        std::vector<VkDescriptorSetLayout> descriptorSetLayouts{ t_descriptorSetLayouts };
+    void AeParticleSystem::createPipelineLayout() {
 
         // Define the specific layout of the point light renderer.
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-        pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
-        pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
 
         // Attempt to create the pipeline layout, if it cannot error out.
         if (vkCreatePipelineLayout(m_aeDevice.device(), &pipelineLayoutInfo, nullptr, &m_pipelineLayout) != VK_SUCCESS) {
