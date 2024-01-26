@@ -202,8 +202,14 @@ namespace ae {
 		VkPhysicalDeviceFeatures deviceFeatures{};
         // TODO: Make this optional
 		deviceFeatures.samplerAnisotropy = VK_TRUE;
+
+        // Enable the ability to use draw indirect with multiplicity and use the "first instance" field as a
+        // specialization constant.
         deviceFeatures.multiDrawIndirect = VK_TRUE;
         deviceFeatures.drawIndirectFirstInstance = VK_TRUE;
+
+        // Enable the ability to use gl_PointSize in vertex shader.
+        deviceFeatures.fillModeNonSolid = VK_TRUE;
 
         // Create the device creation information.
 		VkDeviceCreateInfo createInfo{};

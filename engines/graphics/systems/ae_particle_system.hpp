@@ -17,7 +17,7 @@
 
 namespace ae {
 
-    static const std::size_t MAX_PARTICLES = 256;
+    static const std::size_t MAX_PARTICLES = 1024;
 
     struct Particle {
         glm::vec2 position;
@@ -49,7 +49,8 @@ namespace ae {
     public:
 
         AeParticleSystem(AeDevice& t_aeDevice,
-                         std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts,
+                         std::vector<VkDescriptorSetLayout> t_computeDescriptorSetLayouts,
+                         VkDescriptorSetLayout t_descriptorSetLayouts,
                          std::vector<std::unique_ptr<AeBuffer>>& t_particleBuffers,
                          VkRenderPass t_renderPass);
 
@@ -59,10 +60,9 @@ namespace ae {
 
         void bindComputePipeline(VkCommandBuffer& t_commandBuffer);
 
-        void bindGraphicsPipeline(VkCommandBuffer& t_commandBuffer);
-
         void drawParticles(VkCommandBuffer &t_commandBuffer,
-                           VkBuffer& t_computeBuffer);
+                           VkBuffer& t_computeBuffer,
+                           VkDescriptorSet t_globalDescriptorSet);
 
         void recordComputeCommandBuffer(VkCommandBuffer& t_commandBuffer, std::vector<VkDescriptorSet>& t_descriptorSets);
 
@@ -77,7 +77,7 @@ namespace ae {
         void createComputePipeline();
 
 
-        void createPipelineLayout(std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts);
+        void createPipelineLayout(VkDescriptorSetLayout t_descriptorSetLayouts);
 
         void createPipeline(VkRenderPass t_renderPass);
 

@@ -14,12 +14,13 @@
 namespace ae {
 
     AeParticleSystem::AeParticleSystem(AeDevice& t_aeDevice,
-                                       std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts,
+                                       std::vector<VkDescriptorSetLayout> t_computeDescriptorSetLayouts,
+                                       VkDescriptorSetLayout t_descriptorSetLayouts,
                                        std::vector<std::unique_ptr<AeBuffer>>& t_particleBuffers,
                                        VkRenderPass t_renderPass) : m_aeDevice{t_aeDevice}{
 
         // Creates the compute pipeline layout accounting for the global layout and sets the m_pipelineLayout member variable.
-        createComputePipelineLayout(t_descriptorSetLayouts);
+        createComputePipelineLayout(t_computeDescriptorSetLayouts);
 
         // Creates a compute pipeline for this render system and sets the m_aePipeline member variable.
         createComputePipeline();
@@ -43,7 +44,7 @@ namespace ae {
             float x = r * cos(theta) * 600 / 800;
             float y = r * sin(theta);
             particle.position = glm::vec2(x, y);
-            particle.velocity = glm::normalize(glm::vec2(x,y)) * 0.00025f;
+            particle.velocity = glm::normalize(glm::vec2(x,y)) * 0.5f;
             particle.color = glm::vec4(rndDist(rndEngine), rndDist(rndEngine), rndDist(rndEngine), 1.0f);
         }
 
@@ -136,31 +137,43 @@ namespace ae {
         }
     };
 
-    void AeParticleSystem::bindGraphicsPipeline(VkCommandBuffer &t_commandBuffer) {
-        m_aePipeline->bind(t_commandBuffer);
-    };
-
     void AeParticleSystem::drawParticles(VkCommandBuffer &t_commandBuffer,
-                                         VkBuffer& t_computeBuffer){
+                                         VkBuffer& t_computeBuffer,
+                                         VkDescriptorSet t_globalDescriptorSet){
 
-        bindGraphicsPipeline(t_commandBuffer);
+        m_aePipeline->bind(t_commandBuffer);
+
+        // Bind the descriptor sets to the command buffer.
+        vkCmdBindDescriptorSets(
+                t_commandBuffer,
+                VK_PIPELINE_BIND_POINT_GRAPHICS,
+                m_pipelineLayout,
+                0,
+                1,
+                &t_globalDescriptorSet,
+                0,
+                nullptr);
 
         VkDeviceSize offsets[] = {0};
         vkCmdBindVertexBuffers(t_commandBuffer, 0, 1, &t_computeBuffer, offsets);
-
         vkCmdDraw(t_commandBuffer, MAX_PARTICLES, 1, 0, 0);
+
+        //vkCmdDraw(t_commandBuffer, 6, 1, 0, 0);
     }
 
 
 
     // Creates the pipeline layout for the point light render system.
-    void AeParticleSystem::createPipelineLayout(std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts) {
+    void AeParticleSystem::createPipelineLayout(VkDescriptorSetLayout t_descriptorSetLayouts) {
+
+        // Prepare the descriptor set layouts based on the global set layout for the device.
+        std::vector<VkDescriptorSetLayout> descriptorSetLayouts{ t_descriptorSetLayouts };
 
         // Define the specific layout of the point light renderer.
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-        pipelineLayoutInfo.setLayoutCount = 0;
-        pipelineLayoutInfo.pSetLayouts = nullptr;
+        pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
+        pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
 
         // Attempt to create the pipeline layout, if it cannot error out.
         if (vkCreatePipelineLayout(m_aeDevice.device(), &pipelineLayoutInfo, nullptr, &m_pipelineLayout) != VK_SUCCESS) {
@@ -186,6 +199,7 @@ namespace ae {
         pipelineConfig.attributeDescriptions = Particle::getAttributeDescriptions();
         pipelineConfig.renderPass = t_renderPass;
         pipelineConfig.pipelineLayout = m_pipelineLayout;
+        pipelineConfig.rasterizationInfo.polygonMode = VK_POLYGON_MODE_POINT;
 
         GraphicsShaderFilesPaths shaderPaths{};
         shaderPaths.vertFilepath = "engines/graphics/shaders/particles.vert.spv";

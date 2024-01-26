@@ -130,7 +130,15 @@ namespace ae {
 
         // Create a particle system using the compute pipeline
         std::vector<VkDescriptorSetLayout> collisionDescriptorSetLayouts = {collisionSetLayout->getDescriptorSetLayout()};
-        m_particleSystem = new AeParticleSystem(m_aeDevice,collisionDescriptorSetLayouts,m_computeBuffers,m_renderer.getSwapChainRenderPass());
+//        m_particleSystem = new AeParticleSystem(m_aeDevice,
+//                                                collisionDescriptorSetLayouts,
+//                                                m_computeBuffers,
+//                                                m_renderer.getSwapChainRenderPass());
+        m_particleSystem = new AeParticleSystem(m_aeDevice,
+                                                collisionDescriptorSetLayouts,
+                                                globalSetLayout->getDescriptorSetLayout(),
+                                                m_computeBuffers,
+                                                m_renderer.getSwapChainRenderPass());
 
 
         //==============================================================================================================
@@ -509,7 +517,8 @@ namespace ae {
 
             // Draw particles
             m_particleSystem->drawParticles(m_graphicsCommandBuffer,
-                                            m_computeBuffers[m_frameIndex]->getBufferReference());
+                                            m_computeBuffers[m_frameIndex]->getBufferReference(),
+                                            m_globalDescriptorSets[m_frameIndex]);
 
             m_pointLightRenderSystem->executeSystem(m_graphicsCommandBuffer, m_globalDescriptorSets[m_frameIndex]);
 
