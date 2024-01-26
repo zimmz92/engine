@@ -62,8 +62,9 @@ namespace ae {
         void bindGraphicsPipeline(VkCommandBuffer& t_commandBuffer);
 
         void drawParticles(VkCommandBuffer &t_commandBuffer,
-                           std::vector<VkDescriptorSet>& t_descriptorSets,
                            VkBuffer& t_computeBuffer);
+
+        void recordComputeCommandBuffer(VkCommandBuffer& t_commandBuffer, std::vector<VkDescriptorSet>& t_descriptorSets);
 
     private:
 

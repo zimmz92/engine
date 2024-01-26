@@ -60,6 +60,7 @@ namespace ae {
         };
 
         stagingBuffer.writeToBuffer(particles.data());
+        //stagingBuffer.unmap();
 
         for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             // Copy data from the staging buffer (host) to the shader storage buffer (GPU)
@@ -115,26 +116,34 @@ namespace ae {
         m_aeComputePipeline->bind(t_commandBuffer);
     };
 
+    void AeParticleSystem::recordComputeCommandBuffer(VkCommandBuffer& t_commandBuffer, std::vector<VkDescriptorSet>& t_descriptorSets){
+
+        bindComputePipeline(t_commandBuffer);
+
+        vkCmdBindDescriptorSets(t_commandBuffer,
+                                VK_PIPELINE_BIND_POINT_COMPUTE,
+                                m_computePipelineLayout,
+                                0,
+                                static_cast<uint32_t>(t_descriptorSets.size()),
+                                t_descriptorSets.data(),
+                                0,
+                                nullptr);
+
+        vkCmdDispatch(t_commandBuffer, MAX_PARTICLES / 256, 1, 1);
+
+        if (vkEndCommandBuffer(t_commandBuffer) != VK_SUCCESS) {
+            throw std::runtime_error("failed to record compute command buffer!");
+        }
+    };
+
     void AeParticleSystem::bindGraphicsPipeline(VkCommandBuffer &t_commandBuffer) {
         m_aePipeline->bind(t_commandBuffer);
     };
 
     void AeParticleSystem::drawParticles(VkCommandBuffer &t_commandBuffer,
-                                         std::vector<VkDescriptorSet>& t_descriptorSets,
                                          VkBuffer& t_computeBuffer){
 
         bindGraphicsPipeline(t_commandBuffer);
-
-        // Bind the descriptor sets to the command buffer.
-        vkCmdBindDescriptorSets(
-                t_commandBuffer,
-                VK_PIPELINE_BIND_POINT_GRAPHICS,
-                m_pipelineLayout,
-                0,
-                static_cast<uint32_t>(t_descriptorSets.size()),
-                t_descriptorSets.data(),
-                0,
-                nullptr);
 
         VkDeviceSize offsets[] = {0};
         vkCmdBindVertexBuffers(t_commandBuffer, 0, 1, &t_computeBuffer, offsets);
@@ -150,8 +159,8 @@ namespace ae {
         // Define the specific layout of the point light renderer.
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-        pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(t_descriptorSetLayouts.size());
-        pipelineLayoutInfo.pSetLayouts = t_descriptorSetLayouts.data();
+        pipelineLayoutInfo.setLayoutCount = 0;
+        pipelineLayoutInfo.pSetLayouts = nullptr;
 
         // Attempt to create the pipeline layout, if it cannot error out.
         if (vkCreatePipelineLayout(m_aeDevice.device(), &pipelineLayoutInfo, nullptr, &m_pipelineLayout) != VK_SUCCESS) {
@@ -171,7 +180,9 @@ namespace ae {
         // Define the pipeline to be created.
         GraphicsPipelineConfigInfo pipelineConfig{};
         AeGraphicsPipeline::defaultPipelineConfigInfo(pipelineConfig);
+        pipelineConfig.bindingDescriptions.clear();
         pipelineConfig.bindingDescriptions = Particle::getBindingDescriptions();
+        pipelineConfig.attributeDescriptions.clear();
         pipelineConfig.attributeDescriptions = Particle::getAttributeDescriptions();
         pipelineConfig.renderPass = t_renderPass;
         pipelineConfig.pipelineLayout = m_pipelineLayout;

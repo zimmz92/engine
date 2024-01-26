@@ -156,9 +156,9 @@ namespace ae {
 
         // Stop allowing recording to the compute command buffer
         auto computeCommandBuffer = getCurrentComputeCommandBuffer();
-        if (vkEndCommandBuffer(computeCommandBuffer) != VK_SUCCESS) {
-            throw std::runtime_error("Failed to end recording to compute command buffer.");
-        }
+//        if (vkEndCommandBuffer(computeCommandBuffer) != VK_SUCCESS) {
+//            throw std::runtime_error("Failed to end recording to compute command buffer.");
+//        }
 
         // Submit the command buffer to the swap chain.
         auto result = m_aeSwapChain->submitCommandBuffers(&commandBuffer, &computeCommandBuffer, &m_currentImageIndex);

@@ -21,11 +21,11 @@ struct Particle {
     vec4 color;
 };
 
-layout(std140, set=1, binding = 0) readonly buffer ParticleSSBOIn {
+layout(std140, set=0, binding = 1) readonly buffer ParticleSSBOIn {
    Particle particlesIn[ ];
 };
 
-layout(std140, set=1, binding = 1) buffer ParticleSSBOOut {
+layout(std140, set=0, binding = 2) buffer ParticleSSBOOut {
    Particle particlesOut[ ];
 };
 

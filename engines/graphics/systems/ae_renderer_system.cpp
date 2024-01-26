@@ -87,8 +87,9 @@ namespace ae {
         // Collision Detection Descriptor Set Initialization
         //==============================================================================================================
         auto collisionSetLayout = AeDescriptorSetLayout::Builder(m_aeDevice)
-                .addBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_COMPUTE_BIT, 1)
+                .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_COMPUTE_BIT, 1)
                 .addBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_COMPUTE_BIT, 1)
+                .addBinding(2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_COMPUTE_BIT, 1)
                 .build();
 
         // Allocate memory for the compute buffers
@@ -103,32 +104,33 @@ namespace ae {
                     VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
         };
 
+
         m_computeDescriptorWriter = new AeDescriptorWriter(collisionSetLayout, *m_globalPool);
 
         // Reserve space for compute descriptor sets for each frame.
         m_computesDescriptorSets.reserve(MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             // Get the buffer information from the uboBuffers.
+            auto uboBufferInfo = m_uboBuffers[i]->descriptorInfo();
             auto prevbufferInfo = m_computeBuffers[(i - 1) % MAX_FRAMES_IN_FLIGHT]->descriptorInfo();
             auto bufferInfo = m_computeBuffers[i]->descriptorInfo();
 
             // Initialize the descriptor set for the current frame.
-            m_computeDescriptorWriter->writeBuffer(0, &prevbufferInfo)
-                                      .writeBuffer(1, &bufferInfo)
+            m_computeDescriptorWriter->writeBuffer(0, &uboBufferInfo)
+                                      .writeBuffer(1, &prevbufferInfo)
+                                      .writeBuffer(2, &bufferInfo)
                                       .build(m_computesDescriptorSets[i]);
         }
 
-        // Create a particle system using the compute pipeline
-        std::vector<VkDescriptorSetLayout> collisionDescriptorSetLayouts = {globalSetLayout->getDescriptorSetLayout(),
-                                                                            collisionSetLayout->getDescriptorSetLayout()};
-        m_particleSystem = new AeParticleSystem(m_aeDevice,collisionDescriptorSetLayouts,m_computeBuffers,m_renderer.getSwapChainRenderPass());
-
         m_particleFrameDescriptorSets.reserve(MAX_FRAMES_IN_FLIGHT);
         for(int i=0;i<MAX_FRAMES_IN_FLIGHT;i++){
-            m_particleFrameDescriptorSets.push_back({m_globalDescriptorSets[i],
-                                                     m_computesDescriptorSets[i]});
+            m_particleFrameDescriptorSets.push_back({m_computesDescriptorSets[i]});
 
         }
+
+        // Create a particle system using the compute pipeline
+        std::vector<VkDescriptorSetLayout> collisionDescriptorSetLayouts = {collisionSetLayout->getDescriptorSetLayout()};
+        m_particleSystem = new AeParticleSystem(m_aeDevice,collisionDescriptorSetLayouts,m_computeBuffers,m_renderer.getSwapChainRenderPass());
 
 
         //==============================================================================================================
@@ -368,20 +370,22 @@ namespace ae {
                                                       m_aeDevice,
                                                       m_renderer.getSwapChainRenderPass(),
                                                       descriptorSetLayoutsOLD);
-//
-//        m_pointLightRenderSystem = new PointLightRenderSystem(t_ecs,
-//                                                              t_game_components,
-//                                                              m_aeDevice,
-//                                                              m_renderer.getSwapChainRenderPass(),
-//                                                              globalSetLayout->getDescriptorSetLayout());
-//
-        m_uiRenderSystem = new UiRenderSystem(t_ecs,
-                                              t_game_components,
-                                              m_aeDevice,
-                                              m_renderer.getSwapChainRenderPass(),
-                                              globalSetLayout->getDescriptorSetLayout(),
-                                              textureSetLayout->getDescriptorSetLayout(),
-                                              object2DSetLayout->getDescriptorSetLayout());
+
+
+        m_pointLightRenderSystem = new PointLightRenderSystem(t_ecs,
+                                                              t_game_components,
+                                                              m_aeDevice,
+                                                              m_renderer.getSwapChainRenderPass(),
+                                                              globalSetLayout->getDescriptorSetLayout());
+
+
+//        m_uiRenderSystem = new UiRenderSystem(t_ecs,
+//                                              t_game_components,
+//                                              m_aeDevice,
+//                                              m_renderer.getSwapChainRenderPass(),
+//                                              globalSetLayout->getDescriptorSetLayout(),
+//                                              textureSetLayout->getDescriptorSetLayout(),
+//                                              object2DSetLayout->getDescriptorSetLayout());
 
 
         // Enable the system
@@ -394,11 +398,11 @@ namespace ae {
     // Destructor class of the RendererStartPassSystem
     RendererStartPassSystem::~RendererStartPassSystem(){
 
-        delete m_uiRenderSystem;
-        m_uiRenderSystem = nullptr;
+//        delete m_uiRenderSystem;
+//        m_uiRenderSystem = nullptr;
 
-        //delete m_pointLightRenderSystem;
-        //m_pointLightRenderSystem = nullptr;
+        delete m_pointLightRenderSystem;
+        m_pointLightRenderSystem = nullptr;
 
         delete m_simpleRenderSystem;
         m_simpleRenderSystem = nullptr;
@@ -435,8 +439,6 @@ namespace ae {
         // Unless the renderer is not ready to begin a new frame and returns a nullptr start rendering a new frame.
         if ((m_graphicsCommandBuffer = m_renderer.beginFrame())) {
 
-            m_computeCommandBuffer = m_renderer.getCurrentGraphicsCommandBuffer();
-
             // Get the frame index for the frame the render pass is starting for.
             m_frameIndex = m_renderer.getFrameIndex();
 
@@ -444,17 +446,9 @@ namespace ae {
             m_uboBuffers[m_frameIndex]->writeToBuffer(m_updateUboSystem.getUbo());
             m_uboBuffers[m_frameIndex]->flush();
 
-            // Update compute descriptor sets
-            updateParticleDescriptorSets();
-
-            // Send commands to the GPU for compute
-            m_particleSystem->bindComputePipeline(m_computeCommandBuffer);
-            vkCmdBindDescriptorSets(m_computeCommandBuffer,
-                                    VK_PIPELINE_BIND_POINT_COMPUTE,
-                                    m_particleSystem->getComputePipelineLayout(),
-                                    0, 2, m_particleFrameDescriptorSets[m_frameIndex].data(), 0, nullptr);
-
-            vkCmdDispatch(m_computeCommandBuffer, MAX_PARTICLES / 256, 1, 1);
+            // Run compute
+            m_computeCommandBuffer = m_renderer.getCurrentComputeCommandBuffer();
+            m_particleSystem->recordComputeCommandBuffer(m_computeCommandBuffer,m_particleFrameDescriptorSets[m_frameIndex]);
 
 
             // Update the texture descriptor data for the models that are being rendered.
@@ -514,10 +508,10 @@ namespace ae {
             }
 
             // Draw particles
-            VkBuffer tempt = m_computeBuffers[m_frameIndex]->getBuffer();
             m_particleSystem->drawParticles(m_graphicsCommandBuffer,
-                                            m_particleFrameDescriptorSets[m_frameIndex],
-                                            tempt);
+                                            m_computeBuffers[m_frameIndex]->getBufferReference());
+
+            m_pointLightRenderSystem->executeSystem(m_graphicsCommandBuffer, m_globalDescriptorSets[m_frameIndex]);
 
             // Call subservient render systems. Order matters here to maintain object transparencies.
 //            m_simpleRenderSystem->executeSystem(m_graphicsCommandBuffer,
@@ -696,37 +690,5 @@ namespace ae {
         m_textureDescriptorWriter->writeImage(0, imageInfos);
         m_textureDescriptorWriter->overwrite(m_textureDescriptorSets[m_frameIndex]);
     };
-
-    void RendererStartPassSystem::updateParticleDescriptorSets(){
-        std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
-
-        VkDescriptorBufferInfo storageBufferInfoLastFrame{};
-        storageBufferInfoLastFrame.buffer = m_computeBuffers[(m_frameIndex - 1) % MAX_FRAMES_IN_FLIGHT]->getBuffer();
-        storageBufferInfoLastFrame.offset = 0;
-        storageBufferInfoLastFrame.range = sizeof(Particle) * MAX_PARTICLES;
-
-        descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        descriptorWrites[0].dstSet = m_particleFrameDescriptorSets[m_frameIndex][1];
-        descriptorWrites[0].dstBinding = 0;
-        descriptorWrites[0].dstArrayElement = 0;
-        descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-        descriptorWrites[0].descriptorCount = 1;
-        descriptorWrites[0].pBufferInfo = &storageBufferInfoLastFrame;
-
-        VkDescriptorBufferInfo storageBufferInfoCurrentFrame{};
-        storageBufferInfoCurrentFrame.buffer = m_computeBuffers[m_frameIndex]->getBuffer();
-        storageBufferInfoCurrentFrame.offset = 0;
-        storageBufferInfoCurrentFrame.range = sizeof(Particle) * MAX_PARTICLES;
-
-        descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        descriptorWrites[1].dstSet = m_particleFrameDescriptorSets[m_frameIndex][1];
-        descriptorWrites[1].dstBinding = 1;
-        descriptorWrites[1].dstArrayElement = 0;
-        descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-        descriptorWrites[1].descriptorCount = 1;
-        descriptorWrites[1].pBufferInfo = &storageBufferInfoCurrentFrame;
-
-        vkUpdateDescriptorSets(m_aeDevice.device(), 2, descriptorWrites.data(), 0, nullptr);
-    }
 
 } // namespace ae

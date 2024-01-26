@@ -104,6 +104,10 @@ namespace ae {
         /// \return The buffer handle associated wth this buffer object.
         VkBuffer getBuffer() const { return m_buffer; }
 
+        /// Get the buffer reference.
+        /// \return The buffer handle associated wth this buffer object.
+        VkBuffer& getBufferReference() { return m_buffer; }
+
         /// Get the handle of the mapped memory for this buffer object.
         /// \return The handle to the device memory of this buffer.
         void *getMappedMemory() const { return m_mapped; }

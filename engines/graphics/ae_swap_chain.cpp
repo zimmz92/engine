@@ -108,22 +108,17 @@ namespace ae {
     // Function to submit command buffers to the swap chain
     VkResult AeSwapChain::submitCommandBuffers(const VkCommandBuffer* t_graphicsBuffer, const VkCommandBuffer* t_computeBuffer, const uint32_t* t_imageIndex) {
 
-        // Ensure that the previously submitted command buffers for the image have finished before submitting new ones.
-        if (m_imagesInFlightFences[*t_imageIndex] != VK_NULL_HANDLE) {
-            vkWaitForFences(m_device.device(), 1, &m_imagesInFlightFences[*t_imageIndex], VK_TRUE, UINT64_MAX);
-        }
-
         // Create blank info struct.
         VkSubmitInfo submitInfo = {};
-
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
 
         // Ensure that the compute queue has finished before submitting another. Once they are done reset the fence.
         vkWaitForFences(m_device.device(), 1, &m_computeInFlightFences[m_currentFrame], VK_TRUE, UINT64_MAX);
         vkResetFences(m_device.device(), 1, &m_computeInFlightFences[m_currentFrame]);
 
+
         // Create the info struct to submit the command buffer to the queue
-        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = t_computeBuffer;
         submitInfo.signalSemaphoreCount = 1;
@@ -136,14 +131,17 @@ namespace ae {
 
 
 
+        // Ensure that the previously submitted command buffers for the image have finished before submitting new ones.
+        if (m_imagesInFlightFences[*t_imageIndex] != VK_NULL_HANDLE) {
+            vkWaitForFences(m_device.device(), 1, &m_imagesInFlightFences[*t_imageIndex], VK_TRUE, UINT64_MAX);
+        }
+
         // Set the fence tracking if the command buffers corresponding to the image have finished to the fence keeping
         // track of the frame command buffer status. This is useful when we have more images than frames.
         m_imagesInFlightFences[*t_imageIndex] = m_commandBufferInFlightFences[m_currentFrame];
 
         // Reset the fences tracking the execution status of the current frame.
         vkResetFences(m_device.device(), 1, &m_commandBufferInFlightFences[m_currentFrame]);
-
-
 
         // Create the info struct to submit the command buffer to the queue
         submitInfo = {};
