@@ -60,7 +60,6 @@ namespace ae {
         };
 
         stagingBuffer.writeToBuffer(particles.data());
-        //stagingBuffer.unmap();
 
         for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             // Copy data from the staging buffer (host) to the shader storage buffer (GPU)
@@ -178,6 +177,7 @@ namespace ae {
         // Define the pipeline to be created.
         GraphicsPipelineConfigInfo pipelineConfig{};
         AeGraphicsPipeline::defaultPipelineConfigInfo(pipelineConfig);
+        AeGraphicsPipeline::enableAlphaBlending(pipelineConfig);
         pipelineConfig.bindingDescriptions.clear();
         pipelineConfig.bindingDescriptions = Particle::getBindingDescriptions();
         pipelineConfig.attributeDescriptions.clear();

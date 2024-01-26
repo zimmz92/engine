@@ -5,25 +5,15 @@ layout(location = 1) in vec4 inColor;
 
 layout(location = 0) out vec3 fragColor;
 
-struct PointLight{
-    vec4 position;
-    vec4 color;
-};
-
-layout(set = 0, binding = 0) uniform GlobalUbo {
-    mat4 projection;
-    mat4 view;
-    mat4 invView;
-    vec4 ambientLightColor;
-    PointLight pointLights[10]; // This, 10, could be passed in as a specialization constant
-    int numLights;
-    float deltaTime;
-} ubo;
-
 void main() {
 
+    // Specify the size of the width/height of each point primitive to be created.
     gl_PointSize = 8.0;
+
+    // Get the position of the point primitive from the compute shader.
     gl_Position = vec4(inPosition.xy, 0.0, 1.0);
+
+    // Get the color from the compute shader.
     fragColor = inColor.rgb;
 
 }
