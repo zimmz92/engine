@@ -5,7 +5,7 @@
 // dependencies
 #include "ae_ecs_include.hpp"
 #include "ae_graphics_pipeline.hpp"
-#include "ae_model.hpp"
+#include "ae_3d_model.hpp"
 #include "ae_3d_material_layer_base.hpp"
 #include "game_components.hpp"
 #include "pre_allocated_stack.hpp"
@@ -524,7 +524,7 @@ namespace ae {
             Ae3DMaterialLayerType<numVertTexts,numFragTexts,numTessTexts,numGeometryTexts>& m_material;
 
             /// A vector to track unique models, and a list of which entities use them.
-            std::map<std::shared_ptr<AeModel>,std::map<ecs_id,VkDrawIndexedIndirectCommand>> m_uniqueModelMap;
+            std::map<std::shared_ptr<Ae3DModel>,std::map<ecs_id,VkDrawIndexedIndirectCommand>> m_uniqueModelMap;
 
             /// Compiles the commands to be called by draw indexed indirect command for each frame.
             std::vector<VkDrawIndexedIndirectCommand> m_materialDrawIndexedCommands;

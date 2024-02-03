@@ -4,8 +4,8 @@ target_sources(mySrcFiles
         ae_device.hpp
         ae_2d_model.hpp
         ae_2d_model.cpp
-        ae_model.cpp
-        ae_model.hpp
+        ae_3d_model.cpp
+        ae_3d_model.hpp
         ae_graphics_pipeline.cpp
         ae_graphics_pipeline.hpp
         ae_compute_pipeline.hpp

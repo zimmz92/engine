@@ -3,7 +3,7 @@
     The pipeline class is implemented.
 */
 #include "ae_compute_pipeline.hpp"
-#include "ae_model.hpp"
+#include "ae_3d_model.hpp"
 
 // std
 #include <cassert>

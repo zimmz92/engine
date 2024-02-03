@@ -1,4 +1,4 @@
-#include "ae_model.hpp"
+#include "ae_3d_model.hpp"
 #include "ae_utils.hpp"
 
 // libs
@@ -17,8 +17,8 @@ namespace std {
     // Define a hash operator for the Vertex structure to allow for a Vertex structure to be used as the key in an
     // unordered map. This is used to determine if the vertex is unique or a repeat used to make another triangle.
 	template <>
-	struct hash<ae::AeModel::Vertex> {
-		size_t operator()(ae::AeModel::Vertex const& vertex) const {
+	struct hash<ae::Ae3DModel::Vertex> {
+		size_t operator()(ae::Ae3DModel::Vertex const& vertex) const {
 			size_t seed = 0;
 			ae::hashCombine(seed, vertex.position, vertex.color, vertex.normal, vertex.uv);
 			return seed;
@@ -29,7 +29,7 @@ namespace std {
 namespace ae {
 
     // Constructor, makes a model compatible with the device using a builder that loaded the model's object file.
-	AeModel::AeModel(AeDevice &t_device, const AeModel::Builder& t_builder) : m_aeDevice{ t_device } {
+	Ae3DModel::Ae3DModel(AeDevice &t_device, const Ae3DModel::Builder& t_builder) : m_aeDevice{t_device } {
 
         // TODO: Look into creating a memory allocator for vulkan: https://www.youtube.com/redirect?event=video_description&redir_token=QUFFLUhqbm9VSzZadjhDZF9pYnMxV2M4c09Cc25KTUNYQXxBQ3Jtc0ttQTFaTHpWNG1nb29jS3BDY2tSX1pUeUZ5R1RzRGF2ZVdkazA5NDRmUHo4S08wV0xXR0ZMRW55bnR6X0pJZ3REYmU2UlNNNVJWdW1oVnA4Um9aY0ZLZXU3U280QWdUWmY5czBpS3BkN3dHSHF6cGJZTQ&q=http%3A%2F%2Fkylehalladay.com%2Fblog%2Ftutorial%2F2017%2F12%2F13%2FCustom-Allocators-Vulkan.html&v=mnKp501RXDc
 		// Create the vertex buffer using the vertices in the specified builder.
@@ -42,24 +42,24 @@ namespace ae {
 
 
     // Destroy the model.
-	AeModel::~AeModel() {}
+	Ae3DModel::~Ae3DModel() {}
 
 
 
     // Create the model using the object file at the specified path.
-	std::unique_ptr<AeModel> AeModel::createModelFromFile(AeDevice& t_device, const std::string& t_filepath) {
+	std::unique_ptr<Ae3DModel> Ae3DModel::createModelFromFile(AeDevice& t_device, const std::string& t_filepath) {
         // Create a new builder helper class to load the object from the specified file.
 		Builder builder{};
 		builder.loadModel(t_filepath);
 
         // Create the model using the object that was loaded by the builder.
-		return std::make_unique<AeModel>(t_device, builder);
+		return std::make_unique<Ae3DModel>(t_device, builder);
 	}
 
 
 
     // Create the model's vertex buffer.
-	void AeModel::createVertexBuffers(const std::vector<Vertex> &t_vertices) {
+	void Ae3DModel::createVertexBuffers(const std::vector<Vertex> &t_vertices) {
 
         // Get the size of the vertex vector and ensure that we at least have one triangle.
 		m_vertexCount = static_cast<uint32_t>(t_vertices.size());
@@ -106,7 +106,7 @@ namespace ae {
 
 
     // Create the model's index buffer.
-	void AeModel::createIndexBuffers(const std::vector<uint32_t>& t_indices) {
+	void Ae3DModel::createIndexBuffers(const std::vector<uint32_t>& t_indices) {
 		m_indexCount = static_cast<uint32_t>(t_indices.size());
 		m_hasIndexBuffer = m_indexCount > 0;
 
@@ -141,7 +141,7 @@ namespace ae {
 
     // Bind the vertex and index buffers to the specified command buffer to they are available to the command buffer
     // when executing draw commands for this model.
-	void  AeModel::bind(VkCommandBuffer t_commandBuffer) {
+	void  Ae3DModel::bind(VkCommandBuffer t_commandBuffer) {
         // Create buffer and offset arrays to store the vertex buffer to make them compatible with the command buffer
         // bind command.
 		VkBuffer buffers[] = {m_vertexBuffer->getBuffer()};
@@ -158,7 +158,7 @@ namespace ae {
 
 
     // Submit the draw command for the model to the specified command buffer.
-	void  AeModel::draw(VkCommandBuffer t_commandBuffer,int t_objectBufferIndex) {
+	void  Ae3DModel::draw(VkCommandBuffer t_commandBuffer, int t_objectBufferIndex) {
 		if (m_hasIndexBuffer) {
             // Draw using the indexed vertex buffer if available.
 			vkCmdDrawIndexed(t_commandBuffer, m_indexCount, 1, 0, 0, t_objectBufferIndex);
@@ -173,7 +173,7 @@ namespace ae {
 
 
     // Define the vertex binding descriptions used to bind the vertex buffer type to the pipeline.
-	std::vector<VkVertexInputBindingDescription> AeModel::Vertex::getBindingDescriptions() {
+	std::vector<VkVertexInputBindingDescription> Ae3DModel::Vertex::getBindingDescriptions() {
 
 		std::vector<VkVertexInputBindingDescription> bindingDescriptions(1);
 
@@ -188,7 +188,7 @@ namespace ae {
 
 
     // Define the vertex attribute descriptions used to bind the vertex buffer type to the pipeline.
-	std::vector<VkVertexInputAttributeDescription> AeModel::Vertex::getAttributeDescriptions() {
+	std::vector<VkVertexInputAttributeDescription> Ae3DModel::Vertex::getAttributeDescriptions() {
 
 		std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
 
@@ -204,7 +204,7 @@ namespace ae {
 
 
     // Load the model's vertices and indices for the object at the specified file path.
-	void AeModel::Builder::loadModel(const std::string& t_filepath) {
+	void Ae3DModel::Builder::loadModel(const std::string& t_filepath) {
 
         // Declare variables to store the object data from the tiny object loader.
 		tinyobj::attrib_t attrib;

@@ -7,7 +7,7 @@
 #pragma once
 
 // dependencies
-#include "ae_model.hpp"
+#include "ae_3d_model.hpp"
 #include "ae_image.hpp"
 #include "ae_device.hpp"
 #include "ae_ecs_include.hpp"
@@ -78,7 +78,7 @@ namespace ae {
         AeSamplers& m_aeSamplers;
 
         /// The model in which will be used to create the entities.
-        std::shared_ptr<AeModel> m_aeModel = AeModel::createModelFromFile(m_aeDevice, "assets/models/leaf_enemy_w_tongue.obj");;
+        std::shared_ptr<Ae3DModel> m_aeModel = Ae3DModel::createModelFromFile(m_aeDevice, "assets/models/leaf_enemy_w_tongue.obj");;
 
         /// The texture which will be used with the model.
         std::shared_ptr<AeImage> m_aeImage = AeImage::createImageFromFile(m_aeDevice,

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ae_model.hpp"
+#include "ae_3d_model.hpp"
 
 // libs
 #include <glm/gtc/matrix_transform.hpp>

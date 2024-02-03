@@ -14,7 +14,7 @@
 #include <vector>
 
 namespace ae {
-	class AeModel {
+	class Ae3DModel {
 	public:
 		struct Vertex {
             /// The position of the vertex.
@@ -61,20 +61,20 @@ namespace ae {
         /// \param t_device The GPU the model buffers should be prepared for and maybe loaded onto.
         /// \param t_builder The builder that contains the model information that buffers should be created for ready
         /// for the specified device.
-		AeModel(AeDevice &t_device, const AeModel::Builder &t_builder);
+		Ae3DModel(AeDevice &t_device, const Ae3DModel::Builder &t_builder);
 
         /// Destroy the AeModel object.
-		~AeModel();
+		~Ae3DModel();
 
 		/// Do not allow this class to be copied (2 lines below)
-		AeModel(const AeModel&) = delete;
-		AeModel& operator=(const AeModel&) = delete;
+		Ae3DModel(const Ae3DModel&) = delete;
+		Ae3DModel& operator=(const Ae3DModel&) = delete;
 
         /// Creates an AeModel using the specified object data stored at the specified file path compatible with the
         /// specified GPU.
         /// \param t_device The GPU the created model will be compatible with and will have buffer created for.
         /// \param t_filepath The location of the file defining the model to be created.
-		static std::unique_ptr<AeModel> createModelFromFile(AeDevice& t_device, const std::string& t_filepath);
+		static std::unique_ptr<Ae3DModel> createModelFromFile(AeDevice& t_device, const std::string& t_filepath);
 
         /// Binds the model's vertex buffer, and if available index buffer, to the specified command buffer.
         /// \param t_commandBuffer The command buffer that this model's vertex and index buffer(s) shall be bound to.

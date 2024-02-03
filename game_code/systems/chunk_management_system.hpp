@@ -7,7 +7,7 @@
 #pragma once
 
 // dependencies
-#include "ae_model.hpp"
+#include "ae_3d_model.hpp"
 #include "ae_image.hpp"
 #include "ae_device.hpp"
 #include "ae_ecs_include.hpp"

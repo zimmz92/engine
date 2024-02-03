@@ -5,7 +5,7 @@
 #pragma once
 
 #include "ae_ecs_include.hpp"
-#include "ae_model.hpp"
+#include "ae_3d_model.hpp"
 #include "ae_image.hpp"
 
 namespace ae {
@@ -14,7 +14,7 @@ namespace ae {
     struct ModelComponentStruct {
 
         /// A pointer to the model used by a entity.
-        std::shared_ptr<AeModel> m_model{};
+        std::shared_ptr<Ae3DModel> m_model{};
 
         /// Model Matrix Index.
         uint32_t m_modelMatrixIndex = MAX_OBJECTS;

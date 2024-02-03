@@ -3,7 +3,7 @@
     The pipeline class is implemented.
 */
 #include "ae_graphics_pipeline.hpp"
-#include "ae_model.hpp"
+#include "ae_3d_model.hpp"
 
 // std
 #include <cassert>
@@ -349,8 +349,8 @@ namespace ae {
         t_configInfo.dynamicStateInfo.flags = 0;
 
         // Specify that this pipeline by default will be dealing with model vertex buffers.
-        t_configInfo.bindingDescriptions = AeModel::Vertex::getBindingDescriptions();
-        t_configInfo.attributeDescriptions = AeModel::Vertex::getAttributeDescriptions();
+        t_configInfo.bindingDescriptions = Ae3DModel::Vertex::getBindingDescriptions();
+        t_configInfo.attributeDescriptions = Ae3DModel::Vertex::getAttributeDescriptions();
     }
 
     void AeGraphicsPipeline::enableAlphaBlending(GraphicsPipelineConfigInfo& t_configInfo) {
