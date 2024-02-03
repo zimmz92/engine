@@ -385,6 +385,12 @@ namespace ae {
                                                               m_renderer.getSwapChainRenderPass(),
                                                               globalSetLayout->getDescriptorSetLayout());
 
+        m_aabbRenderSystem = new AabbRenderSystem(t_ecs,
+                                                  t_game_components,
+                                                  m_aeDevice,
+                                                  m_renderer.getSwapChainRenderPass(),
+                                                  globalSetLayout->getDescriptorSetLayout());
+
 
 //        m_uiRenderSystem = new UiRenderSystem(t_ecs,
 //                                              t_game_components,
@@ -407,6 +413,9 @@ namespace ae {
 
 //        delete m_uiRenderSystem;
 //        m_uiRenderSystem = nullptr;
+
+        delete m_aabbRenderSystem;
+        m_aabbRenderSystem = nullptr;
 
         delete m_pointLightRenderSystem;
         m_pointLightRenderSystem = nullptr;
@@ -517,6 +526,8 @@ namespace ae {
             // Draw particles
             m_particleSystem->drawParticles(m_graphicsCommandBuffer,
                                             m_computeBuffers[m_frameIndex]->getBufferReference());
+
+            m_aabbRenderSystem->executeSystem(m_graphicsCommandBuffer,m_globalDescriptorSets[m_frameIndex]);
 
             m_pointLightRenderSystem->executeSystem(m_graphicsCommandBuffer, m_globalDescriptorSets[m_frameIndex]);
 

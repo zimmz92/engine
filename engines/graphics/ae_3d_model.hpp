@@ -16,15 +16,17 @@
 namespace ae {
 	class Ae3DModel {
 	public:
+        struct ObbVertex{
+            /// The position of the obb vertex.
+            glm::vec3 position{};
 
-        /// A structure to hold the oriented bounding box of the model that will be used to calculate the AABB.
-        struct OBB{
-            float    minX = 0.0f;
-            float    minY = 0.0f;
-            float    minZ = 0.0f;
-            float    maxX = 0.0f;
-            float    maxY = 0.0f;
-            float    maxZ = 0.0f;
+            /// Get the binding descriptions for the model.
+            /// \return The model's vertex buffer binding description.
+            static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
+
+            /// Get the attribute descriptions for the model.
+            /// \return The model's vertex buffer binding attributes.
+            static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
         };
 
 		struct Vertex {
@@ -62,7 +64,7 @@ namespace ae {
 			std::vector<uint32_t> indices{};
 
             /// The OBB for the loaded model.
-            OBB obb{};
+            VkAabbPositionsKHR obb{};
 
             /// Loads a model from the file at the specified path and populates the Builder's struct it is being called
             /// for.
@@ -103,16 +105,32 @@ namespace ae {
         /// \param t_objectBufferIndex The index into the SSBO that stores the object's model matrix and texture index.
 		void draw(VkCommandBuffer t_commandBuffer,int t_objectBufferIndex = 0);
 
-        uint32_t getIndexCount() {return m_indexCount;};
+        uint32_t getIndexCount() const {return m_indexCount;};
+
+
+        /// Binds the model's vertex buffer, and if available index buffer, to the specified command buffer.
+        /// \param t_commandBuffer The command buffer that this model's vertex and index buffer(s) shall be bound to.
+        void bindAabb(VkCommandBuffer t_commandBuffer);
+
+        /// Will draw the model using the model's index buffer if available, otherwise will use the vertex buffer
+        /// information.
+        /// \param t_commandBuffer The command buffer that the model's buffers were bound to and will actually execute
+        /// the draw call.
+        void drawAabb(VkCommandBuffer t_commandBuffer);
 
 	private:
         /// Creates a vertex buffer from the provided vertices.
         /// \param t_vertices The vertices to create the vertex buffer using.
-		void createVertexBuffers(const std::vector<Vertex> &t_vertices);
+		void createVertexBuffer(const std::vector<Vertex> &t_vertices);
 
         /// Create a index buffer from the provided indices
         /// \param t_indicies The indices to create the index buffer using.
-		void createIndexBuffers(const std::vector<uint32_t>& t_indices);
+		void createIndexBuffer(const std::vector<uint32_t>& t_indices);
+
+
+        /// Creates a vertex buffer from the provided vertices.
+        /// \param t_vertices The vertices to create the vertex buffer using.
+        void createObbVertexBuffer(const VkAabbPositionsKHR &t_obb);
 
         /// The device the model is compatible with and buffers are created for submitting command to.
 		AeDevice &m_aeDevice;
@@ -129,7 +147,7 @@ namespace ae {
         /// The number of indices of the model.
 		uint32_t m_indexCount;
 
-        /// Oriented Bounding Box of this model.
-        OBB m_obb{};
+        /// The vertex buffer data for the model's OBB.
+        std::unique_ptr<AeBuffer> m_obbVertexBuffer;
 	};
 } // namespace ae

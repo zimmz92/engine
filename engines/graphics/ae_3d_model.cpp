@@ -33,13 +33,13 @@ namespace ae {
 
         // TODO: Look into creating a memory allocator for vulkan: https://www.youtube.com/redirect?event=video_description&redir_token=QUFFLUhqbm9VSzZadjhDZF9pYnMxV2M4c09Cc25KTUNYQXxBQ3Jtc0ttQTFaTHpWNG1nb29jS3BDY2tSX1pUeUZ5R1RzRGF2ZVdkazA5NDRmUHo4S08wV0xXR0ZMRW55bnR6X0pJZ3REYmU2UlNNNVJWdW1oVnA4Um9aY0ZLZXU3U280QWdUWmY5czBpS3BkN3dHSHF6cGJZTQ&q=http%3A%2F%2Fkylehalladay.com%2Fblog%2Ftutorial%2F2017%2F12%2F13%2FCustom-Allocators-Vulkan.html&v=mnKp501RXDc
 		// Create the vertex buffer using the vertices in the specified builder.
-        createVertexBuffers(t_builder.vertices);
+        createVertexBuffer(t_builder.vertices);
 
-        // Set the model's OBB
-        m_obb = t_builder.obb;
+        // Create a vertex buffer for the model's OBB.
+        createObbVertexBuffer(t_builder.obb);
 
         // Create the index buffer using the indices created in the specified builder.
-		createIndexBuffers(t_builder.indices);
+        createIndexBuffer(t_builder.indices);
 	}
 
 
@@ -62,7 +62,7 @@ namespace ae {
 
 
     // Create the model's vertex buffer.
-	void Ae3DModel::createVertexBuffers(const std::vector<Vertex> &t_vertices) {
+	void Ae3DModel::createVertexBuffer(const std::vector<Vertex> &t_vertices) {
 
         // Get the size of the vertex vector and ensure that we at least have one triangle.
 		m_vertexCount = static_cast<uint32_t>(t_vertices.size());
@@ -109,7 +109,7 @@ namespace ae {
 
 
     // Create the model's index buffer.
-	void Ae3DModel::createIndexBuffers(const std::vector<uint32_t>& t_indices) {
+	void Ae3DModel::createIndexBuffer(const std::vector<uint32_t>& t_indices) {
 		m_indexCount = static_cast<uint32_t>(t_indices.size());
 		m_hasIndexBuffer = m_indexCount > 0;
 
@@ -286,6 +286,10 @@ namespace ae {
 		}
 	}
 
+    //==================================================================================================================
+    // OBB Functions
+    //==================================================================================================================
+
     void Ae3DModel::Builder::adjustObbForVertex(glm::vec3 t_vertexPosition){
         if(t_vertexPosition.x < obb.minX){
             obb.minX = t_vertexPosition.x;
@@ -307,5 +311,141 @@ namespace ae {
             obb.maxZ = t_vertexPosition.z;
         }
     };
+
+    // Create the model's vertex buffer.
+    void Ae3DModel::createObbVertexBuffer(const VkAabbPositionsKHR &t_obb) {
+
+        std::vector<ObbVertex> vertices{24};
+
+        vertices[0].position = {t_obb.minX, t_obb.maxY, t_obb.minZ};
+        vertices[1].position = {t_obb.minX, t_obb.maxY, t_obb.maxZ};
+
+        vertices[2].position = {t_obb.minX, t_obb.maxY, t_obb.minZ};
+        vertices[3].position = {t_obb.maxX, t_obb.maxY, t_obb.minZ};
+
+        vertices[4].position = {t_obb.minX, t_obb.maxY, t_obb.minZ};
+        vertices[5].position = {t_obb.minX, t_obb.minY, t_obb.minZ};
+
+        vertices[6].position = {t_obb.maxX, t_obb.maxY, t_obb.maxZ};
+        vertices[7].position = {t_obb.minX, t_obb.maxY, t_obb.maxZ};
+
+        vertices[8].position = {t_obb.maxX, t_obb.maxY, t_obb.maxZ};
+        vertices[9].position = {t_obb.maxX, t_obb.maxY, t_obb.minZ};
+
+        vertices[10].position = {t_obb.maxX, t_obb.maxY, t_obb.maxZ};
+        vertices[11].position = {t_obb.maxX, t_obb.minY, t_obb.maxZ};
+
+        vertices[12].position = {t_obb.minX, t_obb.minY, t_obb.maxZ};
+        vertices[13].position = {t_obb.maxX, t_obb.minY, t_obb.maxZ};
+
+        vertices[14].position = {t_obb.minX, t_obb.minY, t_obb.maxZ};
+        vertices[15].position = {t_obb.minX, t_obb.minY, t_obb.minZ};
+
+        vertices[16].position = {t_obb.minX, t_obb.minY, t_obb.maxZ};
+        vertices[17].position = {t_obb.minX, t_obb.maxY, t_obb.maxZ};
+
+        vertices[18].position = {t_obb.maxX, t_obb.minY, t_obb.minZ};
+        vertices[19].position = {t_obb.maxX, t_obb.minY, t_obb.maxZ};
+
+        vertices[20].position = {t_obb.maxX, t_obb.minY, t_obb.minZ};
+        vertices[21].position = {t_obb.minX, t_obb.minY, t_obb.minZ};
+
+        vertices[22].position = {t_obb.maxX, t_obb.minY, t_obb.minZ};
+        vertices[23].position = {t_obb.maxX, t_obb.maxY, t_obb.minZ};
+
+//        vertices[0].position = {t_obb.minX, t_obb.minY, t_obb.minZ};
+//        vertices[1].position = {t_obb.minX, t_obb.minY, t_obb.maxZ};
+//        vertices[3].position = {t_obb.minX, t_obb.maxY, t_obb.maxZ};
+//        vertices[4].position = {t_obb.maxX, t_obb.minY, t_obb.minZ};
+//        vertices[5].position = {t_obb.maxX, t_obb.minY, t_obb.maxZ};
+//        vertices[6].position = {t_obb.maxX, t_obb.maxY, t_obb.minZ};
+//        vertices[7].position = {t_obb.maxX, t_obb.maxY, t_obb.maxZ};
+
+
+        // Get the size of the vertex vector and ensure that we at least have one triangle.
+        auto vertexCount = static_cast<uint32_t>(vertices.size());
+        assert(vertexCount >= 3 && "Vertex count must be at least 3");
+
+        // Get the required size of the buffer.
+        VkDeviceSize bufferSize = sizeof(vertices[0]) * vertexCount;
+
+        // Get the size of an individual vertex.
+        uint32_t vertexSize = sizeof(vertices[0]);
+
+        // Create a buffer to stage the model data from the host and it into the GPU.
+        // Want the host (CPU) to be able to access the GPU's buffer memory and keep the GPU buffer memory consistent
+        // with the host memory.
+        AeBuffer stagingBuffer{
+                m_aeDevice,
+                vertexSize,
+                vertexCount,
+                VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+        };
+
+        // Map the memory required for the staging buffer.
+        stagingBuffer.map();
+
+        // Write the vertex data to the staging buffer.
+        stagingBuffer.writeToBuffer((void*)vertices.data());
+
+        // Create a buffer only on the GPU that will store the vertex data for this model until it is no longer
+        // required.
+        m_obbVertexBuffer = std::make_unique<AeBuffer>(
+                m_aeDevice,
+                vertexSize,
+                vertexCount,
+                VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+        // Copy the data from the staging buffer (host synced to GPU) to the vertex buffer (only on GPU)
+        m_aeDevice.copyBuffer(stagingBuffer.getBuffer(), m_obbVertexBuffer->getBuffer(), bufferSize);
+
+        // Remember staging buffer will be cleaned up here now that we're moving out of the staging buffer's scope.
+    }
+
+
+
+    // Define the vertex binding descriptions used to bind the vertex buffer type to the pipeline.
+    std::vector<VkVertexInputBindingDescription> Ae3DModel::ObbVertex::getBindingDescriptions() {
+
+        std::vector<VkVertexInputBindingDescription> bindingDescriptions(1);
+
+        // Define the general structure of the vertex buffer for binding.
+        bindingDescriptions[0].binding = 0;
+        bindingDescriptions[0].stride = sizeof(ObbVertex);
+        bindingDescriptions[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+        return bindingDescriptions;
+    }
+
+
+
+    // Define the vertex attribute descriptions used to bind the vertex buffer type to the pipeline.
+    std::vector<VkVertexInputAttributeDescription> Ae3DModel::ObbVertex::getAttributeDescriptions() {
+
+        std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
+
+        // Describe the data composition of each vertex data set input.
+        attributeDescriptions.push_back({ 0, 0, VK_FORMAT_R32G32B32_SFLOAT , offsetof(ObbVertex, position)});
+
+        return attributeDescriptions;
+    }
+
+    // Bind the vertex and index buffers to the specified command buffer to they are available to the command buffer
+    // when executing draw commands for this model.
+    void  Ae3DModel::bindAabb(VkCommandBuffer t_commandBuffer) {
+        // Create buffer and offset arrays to store the vertex buffer to make them compatible with the command buffer
+        // bind command.
+        VkBuffer buffers[] = {m_obbVertexBuffer->getBuffer()};
+        VkDeviceSize offsets[] = {0};
+        vkCmdBindVertexBuffers(t_commandBuffer, 0, 1, buffers, offsets);
+    }
+
+    // Submit the draw command for the model to the specified command buffer.
+    void  Ae3DModel::drawAabb(VkCommandBuffer t_commandBuffer) {
+        // If just using a vertex buffer draw only using vertex buffer information.
+        vkCmdDraw(t_commandBuffer, 24, 1, 0, 0);
+    }
 
 } //namespace ae
