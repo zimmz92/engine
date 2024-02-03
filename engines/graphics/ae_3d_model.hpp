@@ -16,6 +16,17 @@
 namespace ae {
 	class Ae3DModel {
 	public:
+
+        /// A structure to hold the oriented bounding box of the model that will be used to calculate the AABB.
+        struct OBB{
+            float    minX = 0.0f;
+            float    minY = 0.0f;
+            float    minZ = 0.0f;
+            float    maxX = 0.0f;
+            float    maxY = 0.0f;
+            float    maxZ = 0.0f;
+        };
+
 		struct Vertex {
             /// The position of the vertex.
 			glm::vec3 position{};
@@ -50,10 +61,15 @@ namespace ae {
             /// Vector to store the index data until an index buffer is created for it.
 			std::vector<uint32_t> indices{};
 
+            /// The OBB for the loaded model.
+            OBB obb{};
+
             /// Loads a model from the file at the specified path and populates the Builder's struct it is being called
             /// for.
             /// \param t_filepath The path to the model file to be loaded.
 			void loadModel(const std::string& t_filepath);
+
+            void adjustObbForVertex(glm::vec3 t_vertexPosition);
 		};
 
         /// Construct a new AeModel and creates the model buffers ready for the specified device using the model built
@@ -112,5 +128,8 @@ namespace ae {
 		std::unique_ptr<AeBuffer> m_indexBuffer;
         /// The number of indices of the model.
 		uint32_t m_indexCount;
+
+        /// Oriented Bounding Box of this model.
+        OBB m_obb{};
 	};
 } // namespace ae

@@ -35,6 +35,9 @@ namespace ae {
 		// Create the vertex buffer using the vertices in the specified builder.
         createVertexBuffers(t_builder.vertices);
 
+        // Set the model's OBB
+        m_obb = t_builder.obb;
+
         // Create the index buffer using the indices created in the specified builder.
 		createIndexBuffers(t_builder.indices);
 	}
@@ -241,6 +244,8 @@ namespace ae {
 						attrib.vertices[3 * index.vertex_index + 2],
 					};
 
+                    adjustObbForVertex(vertex.position);
+
 					vertex.color = {
 						attrib.colors[3 * index.vertex_index + 0],
 						attrib.colors[3 * index.vertex_index + 1],
@@ -280,5 +285,27 @@ namespace ae {
 			}
 		}
 	}
+
+    void Ae3DModel::Builder::adjustObbForVertex(glm::vec3 t_vertexPosition){
+        if(t_vertexPosition.x < obb.minX){
+            obb.minX = t_vertexPosition.x;
+        }
+        if(t_vertexPosition.y < obb.minY){
+            obb.minY = t_vertexPosition.y;
+        }
+        if(t_vertexPosition.z < obb.minZ){
+            obb.minZ = t_vertexPosition.z;
+        }
+
+        if(t_vertexPosition.x > obb.maxX){
+            obb.maxX = t_vertexPosition.x;
+        }
+        if(t_vertexPosition.y > obb.maxY){
+            obb.maxY = t_vertexPosition.y;
+        }
+        if(t_vertexPosition.z > obb.maxZ){
+            obb.maxZ = t_vertexPosition.z;
+        }
+    };
 
 } //namespace ae
