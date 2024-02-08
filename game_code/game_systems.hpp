@@ -15,6 +15,7 @@
 #include "update_ubo_system.hpp"
 #include "systems/ae_renderer_system.hpp"
 #include "Test_entity-create-destroy_system.hpp"
+#include "test_rotate_object_system.hpp"
 
 namespace ae {
 
@@ -49,11 +50,14 @@ namespace ae {
                                                                   t_game_components,
                                                                   rendererSystem->getGameMaterials(),
                                                                   t_samplers);
+            testRotateObjectSystem = new TestRotateObjectSystem(t_ecs, t_game_components, *timingSystem);
         };
 
         /// Destructor for this struct.
         ~GameSystems(){
             // Delete systems in the reverse order of how they were declared.
+            delete testRotateObjectSystem;
+            testRotateObjectSystem = nullptr;
             delete createDestroyTestSystem;
             createDestroyTestSystem = nullptr;
 
@@ -98,5 +102,8 @@ namespace ae {
 
         ///
         CreateDestroyTestSystem* createDestroyTestSystem;
+
+        /// Rotates an object to test the AABB
+        TestRotateObjectSystem* testRotateObjectSystem;
     };
 }

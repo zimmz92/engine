@@ -15,6 +15,8 @@
 #include "world_voxel_component.hpp"
 #include "world_chunk_component.hpp"
 
+#include "test_rotate_object_component.hpp"
+
 namespace ae {
 
     /// A structure to declare the game components of this game.
@@ -34,5 +36,6 @@ namespace ae {
         Model2dComponent model2DComponent{ecs};
         WorldVoxelComponent worldVoxelComponent{ecs};
         WorldChunkComponent worldChunkComponent{ecs};
+        TestRotationComponent testRotationComponent{ecs};
     };
 }

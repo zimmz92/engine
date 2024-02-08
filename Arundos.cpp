@@ -144,6 +144,27 @@ namespace ae {
         vikingRoom.enableEntity();
 
 
+        // ECS version of the floor
+        auto vikingRoomRotate = GameObjectEntity(m_aeECS, m_gameComponents);
+        vikingRoomRotate.m_worldPosition = {-2.0f, 0.25f, 1.5f};
+        vikingRoomRotate.m_model.m_texture = aeImage;
+        vikingRoomRotate.m_model.m_sampler = m_aeSamplers.getDefaultSampler();
+        vikingRoomRotate.m_model.m_model = aeModel;
+        vikingRoomRotate.m_model.scale = {1.0f, 1.0f, 1.0f};
+        vikingRoomRotate.m_model.rotation = {0.25 * glm::two_pi<float>(), 0.75 * glm::two_pi<float>(),
+                                       0.5 * glm::two_pi<float>()};
+
+        auto rotationData = m_gameComponents.testRotationComponent.requiredByEntityReference(vikingRoomRotate.getEntityId());
+        rotationData.m_angularVelocity = {0.1, 0.1, 0.1};
+
+
+        auto &vikingRoomRotateProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntityReference(vikingRoomRotate.getEntityId());
+        vikingRoomRotateProperties.m_fragmentTextures[0].m_texture = aeImage;
+        vikingRoomRotateProperties.m_fragmentTextures[0].m_sampler = m_aeSamplers.getDefaultSampler();
+
+        vikingRoomRotate.enableEntity();
+
+
         //==============================================================================================================
         // Escher solid, first stellation of the rhombic dodecahedron
         //==============================================================================================================
