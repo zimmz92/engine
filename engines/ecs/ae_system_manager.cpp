@@ -151,7 +151,7 @@ namespace ae_ecs {
                         // Compare the signature of the system already in the ordered list to the dependencies of the system
                         // under evaluated for ordering. The system under evaluation needs to be placed in the list after
                         // all systems it requires to operate.
-                        if ((m_systemDependencySignatures[systemId].operator&=(listSystemSignature)).any()) {
+                        if ((listSystemSignature.operator&=(m_systemDependencySignatures[systemId])).any()) {
                             lastListSystemDependency = it;
                             dependentOnListSystem = true;
                         };
@@ -168,7 +168,7 @@ namespace ae_ecs {
                         // Compare the signature of the system under evaluation to the dependencies of the systems in the
                         // ordered list. The system under evaluation needs to be placed in the list before all systems it
                         // that require the current system in order to operate.
-                        if ((m_systemDependencySignatures[(*it)->m_systemId].operator&=(evalSystemSignature)).any()) {
+                        if ((evalSystemSignature.operator&=(m_systemDependencySignatures[(*it)->m_systemId])).any()) {
                             dependentOnCurrentSystem = true;
                             // Once we have hit the first system that depends on this system we have what is required.
                             break;
