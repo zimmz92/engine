@@ -52,7 +52,9 @@ namespace ae {
             auto entityModelData = m_modelComponent.getWriteableDataReference(entityId);
             auto entityAngularMomentum = m_testRotationComponent.getReadOnlyDataReference(entityId);
 
-            entityModelData.rotation += entityAngularMomentum.m_angularVelocity * m_timingSystem.getDt();
+//            entityModelData.rotation += entityAngularMomentum.m_angularVelocity * m_timingSystem.getDt();
+            glm::vec3 test = {0.1f, 0.1f, 0.1f};
+            entityModelData.rotation += test * m_timingSystem.getDt();
             for(int i = 0; i<3;i++){
                 if(entityModelData.rotation[i] > glm::two_pi<float>()){
                     entityModelData.rotation[i] = findMod(entityModelData.rotation[i], glm::two_pi<float>()) * glm::two_pi<float>();

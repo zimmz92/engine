@@ -155,7 +155,7 @@ namespace ae {
                                        0.5 * glm::two_pi<float>()};
 
         auto rotationData = m_gameComponents.testRotationComponent.requiredByEntityReference(vikingRoomRotate.getEntityId());
-        rotationData.m_angularVelocity = {0.1, 0.1, 0.1};
+        rotationData.m_angularVelocity = {0.1f, 0.1f, 0.1f};
 
 
         auto &vikingRoomRotateProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntityReference(vikingRoomRotate.getEntityId());
