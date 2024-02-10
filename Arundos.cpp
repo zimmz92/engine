@@ -154,8 +154,8 @@ namespace ae {
         vikingRoomRotate.m_model.rotation = {0.25 * glm::two_pi<float>(), 0.75 * glm::two_pi<float>(),
                                        0.5 * glm::two_pi<float>()};
 
-        auto rotationData = m_gameComponents.testRotationComponent.requiredByEntityReference(vikingRoomRotate.getEntityId());
-        rotationData.m_angularVelocity = {0.1f, 0.1f, 0.1f};
+        TestRotationComponentStruct& rotationData = m_gameComponents.testRotationComponent.requiredByEntityReference(vikingRoomRotate.getEntityId());
+        rotationData.m_angularVelocity = {0.0f, 1.0f, 0.0f};
 
 
         auto &vikingRoomRotateProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntityReference(vikingRoomRotate.getEntityId());

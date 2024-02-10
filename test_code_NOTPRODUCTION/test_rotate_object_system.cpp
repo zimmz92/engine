@@ -49,17 +49,17 @@ namespace ae {
         // Loop through the valid entities and update their world position to make them rotate.
         for (ecs_id entityId : validEntityIds){
 
-            auto entityModelData = m_modelComponent.getWriteableDataReference(entityId);
-            auto entityAngularMomentum = m_testRotationComponent.getReadOnlyDataReference(entityId);
+            ModelComponentStruct& entityModelData = m_modelComponent.getWriteableDataReference(entityId);
+            const TestRotationComponentStruct& entityAngularMomentum = m_testRotationComponent.getReadOnlyDataReference(entityId);
 
-//            entityModelData.rotation += entityAngularMomentum.m_angularVelocity * m_timingSystem.getDt();
-            glm::vec3 test = {0.1f, 0.1f, 0.1f};
-            entityModelData.rotation += test * m_timingSystem.getDt();
+            entityModelData.rotation += entityAngularMomentum.m_angularVelocity * m_timingSystem.getDt();
+//            glm::vec3 test = {0.1f, 0.1f, 0.1f};
+//            entityModelData.rotation += test * m_timingSystem.getDt();
             for(int i = 0; i<3;i++){
                 if(entityModelData.rotation[i] > glm::two_pi<float>()){
                     entityModelData.rotation[i] = findMod(entityModelData.rotation[i], glm::two_pi<float>()) * glm::two_pi<float>();
                 }
-                if(entityModelData.rotation[i] < 0){
+                if(entityModelData.rotation[i] < 0.0f){
                     entityModelData.rotation[i] = glm::two_pi<float>() - (findMod(entityModelData.rotation[i], glm::two_pi<float>()) * glm::two_pi<float>());
                 }
             }
