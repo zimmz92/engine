@@ -385,11 +385,11 @@ namespace ae {
                                                               m_renderer.getSwapChainRenderPass(),
                                                               globalSetLayout->getDescriptorSetLayout());
 
-        m_aabbRenderSystem = new AabbRenderSystem(t_ecs,
-                                                  t_game_components,
-                                                  m_aeDevice,
-                                                  m_renderer.getSwapChainRenderPass(),
-                                                  globalSetLayout->getDescriptorSetLayout());
+        m_aabbRenderSystem = new ObbRenderSystem(t_ecs,
+                                                 t_game_components,
+                                                 m_aeDevice,
+                                                 m_renderer.getSwapChainRenderPass(),
+                                                 globalSetLayout->getDescriptorSetLayout());
 
 
 //        m_uiRenderSystem = new UiRenderSystem(t_ecs,

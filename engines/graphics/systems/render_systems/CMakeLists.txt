@@ -10,6 +10,8 @@ target_sources(mySrcFiles
         ae_model_3d_buffer_system.cpp
         ae_aabb_render_system.hpp
         ae_aabb_render_system.cpp
+        ae_obb_render_system.hpp
+        ae_obb_render_system.cpp
     PUBLIC
 )
 
