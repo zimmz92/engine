@@ -146,7 +146,7 @@ namespace ae {
 
         // ECS version of the floor
         auto vikingRoomRotate = GameObjectEntity(m_aeECS, m_gameComponents);
-        vikingRoomRotate.m_worldPosition = {-4.0f, 0.25f, 1.5f};
+        vikingRoomRotate.m_worldPosition = {-6.0f, 0.25f, 1.5f};
         vikingRoomRotate.m_model.m_texture = aeImage;
         vikingRoomRotate.m_model.m_sampler = m_aeSamplers.getDefaultSampler();
         vikingRoomRotate.m_model.m_model = aeModel;
