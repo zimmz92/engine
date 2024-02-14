@@ -77,6 +77,8 @@ namespace ae {
             // Rotations correspond to Tait-bryan angles of Y(1), X(2), Z(3)
             // https://en.wikipedia.org/wiki/Euler_angles#Rotation_matrix
             alignas(16) glm::mat4 normalMatrix{ 1.0f };
+
+            alignas(16) float obb[6] = {1.0f};
         };
 
         /// Calculates the push constant data for a specified entity.
@@ -84,9 +86,12 @@ namespace ae {
         /// could be the world position plus an additional offset.
         /// \param t_rotation The rotation of the entity, typically the direction the entity is facing.
         /// \param t_scale The scaling for the entity's model.
-        static PushConstantData calculatePushConstantData(glm::vec3 t_translation, glm::vec3 t_rotation, glm::vec3 t_scale);
+        static PushConstantData calculatePushConstantData(glm::vec3 t_translation,
+                                                          glm::vec3 t_rotation,
+                                                          glm::vec3 t_scale,
+                                                          VkAabbPositionsKHR t_aabb);
 
-        /// The graphics device this render system will be using.
+            /// The graphics device this render system will be using.
         AeDevice& m_aeDevice;
 
         /// The layout of this render system's pipeline.

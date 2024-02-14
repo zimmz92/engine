@@ -83,7 +83,7 @@ namespace ae {
 
                 // Initialize the point light push constants.
                 PushConstantData push = calculatePushConstantData(entityWorldPosition, entityModelData.rotation,
-                                                                  entityModelData.scale);
+                                                                  entityModelData.scale, entityModelData.m_model->getAabb());
 
                 // Push the point light information to the buffer.
                 vkCmdPushConstants(
@@ -171,49 +171,52 @@ namespace ae {
     };
 
     // Calculates the push constant data for the specified entity
-    AabbRenderSystem::PushConstantData AabbRenderSystem::calculatePushConstantData(glm::vec3 translation, glm::vec3 rotation, glm::vec3 scale) {
+    AabbRenderSystem::PushConstantData AabbRenderSystem::calculatePushConstantData(glm::vec3 t_translation,
+                                                                                   glm::vec3 t_rotation,
+                                                                                   glm::vec3 t_scale,
+                                                                                   VkAabbPositionsKHR t_aabb) {
 
         // Calculate the components of the Tait-bryan angles matrix.
-        const float c3 = glm::cos(rotation.z);
-        const float s3 = glm::sin(rotation.z);
-        const float c2 = glm::cos(rotation.x);
-        const float s2 = glm::sin(rotation.x);
-        const float c1 = glm::cos(rotation.y);
-        const float s1 = glm::sin(rotation.y);
-        const glm::vec3 invScale = 1.0f / scale;
+        const float c3 = glm::cos(t_rotation.z);
+        const float s3 = glm::sin(t_rotation.z);
+        const float c2 = glm::cos(t_rotation.x);
+        const float s2 = glm::sin(t_rotation.x);
+        const float c1 = glm::cos(t_rotation.y);
+        const float s1 = glm::sin(t_rotation.y);
+        const glm::vec3 invScale = 1.0f / t_scale;
 
         // Matrix corresponds to Translate * Ry * Rx * Rz * Scale
         // Rotations correspond to Tait-bryan angles of Y(1), X(2), Z(3)
         // https://en.wikipedia.org/wiki/Euler_angles#Rotation_matrix
         glm::mat4 modelMatrix = {
                 {
-                        scale.x * (c1 * c3 + s1 * s2 * s3),
-                        scale.x * (c2 * s3),
-                        scale.x * (c1 * s2 * s3 - c3 * s1),
+                        t_scale.x * (c1 * c3 + s1 * s2 * s3),
+                        t_scale.x * (c2 * s3),
+                        t_scale.x * (c1 * s2 * s3 - c3 * s1),
                         0.0f,
                 },
                 {
-                        scale.y * (c3 * s1 * s2 - c1 * s3),
-                        scale.y * (c2 * c3),
-                        scale.y * (c1 * c3 * s2 + s1 * s3),
+                        t_scale.y * (c3 * s1 * s2 - c1 * s3),
+                        t_scale.y * (c2 * c3),
+                        t_scale.y * (c1 * c3 * s2 + s1 * s3),
                         0.0f,
                 },
                 {
-                        scale.z * (c2 * s1),
-                        scale.z * (-s2),
-                        scale.z * (c1 * c2),
+                        t_scale.z * (c2 * s1),
+                        t_scale.z * (-s2),
+                        t_scale.z * (c1 * c2),
                         0.0f,
                 },
                 {
-                        translation.x,
-                        translation.y,
-                        translation.z,
+                        t_translation.x,
+                        t_translation.y,
+                        t_translation.z,
                         1.0f
                 }};
 
         // Rotations correspond to Tait-bryan angles of Y(1), X(2), Z(3)
         // https://en.wikipedia.org/wiki/Euler_angles#Rotation_matrix
-        // Normal Matrix is calculated to facilitate non-uniform model scaling scale.x != scale.y =! scale.z
+        // Normal Matrix is calculated to facilitate non-uniform model scaling t_scale.x != t_scale.y =! t_scale.z
         // TODO benchmark if this is faster than just calculating the normal matrix in the shader when there are many objects.
         glm::mat3 normalMatrix = {
                 {
@@ -232,6 +235,42 @@ namespace ae {
                         invScale.z * (c1 * c2),
                 }};
 
-        return {modelMatrix, normalMatrix};
+        PushConstantData pushConstantData = {modelMatrix,
+                                             normalMatrix,
+                                             {t_translation.x,
+                                              t_translation.y,
+                                              t_translation.z,
+                                              t_translation.x,
+                                              t_translation.y,
+                                              t_translation.z}};
+
+        float aabbConversion[6] = {t_aabb.minX * t_scale.x,
+                                   t_aabb.minY * t_scale.y,
+                                   t_aabb.minZ * t_scale.z,
+                                   t_aabb.maxX * t_scale.x,
+                                   t_aabb.maxY * t_scale.y,
+                                   t_aabb.maxZ * t_scale.z};
+
+        glm::mat3 rotationMatrix = {
+                {c1*c3,
+                 c1*s3,
+                 -1*s1},
+                {s2*s1*c3-c2*c3,
+                 s2*s1*s3+c2*c3,
+                 s2*c1},
+                {c2*s1*c3+s2*s3,
+                 c2*s1*s3-s2*c3,
+                 c2*c1}};
+
+        for(uint_fast8_t i = 0; i<3; i++){
+            for(uint_fast8_t j = 0; j<3; j++){
+                float a = rotationMatrix[i][j] * aabbConversion[j];
+                float b = rotationMatrix[i][j] * aabbConversion[j+3];
+                pushConstantData.obb[i] += a < b ? a :b;
+                pushConstantData.obb[i+3] += a < b ? b : a;
+            }
+        }
+
+        return pushConstantData;
     };
 }

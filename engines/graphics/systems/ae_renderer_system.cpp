@@ -385,11 +385,17 @@ namespace ae {
                                                               m_renderer.getSwapChainRenderPass(),
                                                               globalSetLayout->getDescriptorSetLayout());
 
-        m_aabbRenderSystem = new ObbRenderSystem(t_ecs,
-                                                 t_game_components,
-                                                 m_aeDevice,
-                                                 m_renderer.getSwapChainRenderPass(),
-                                                 globalSetLayout->getDescriptorSetLayout());
+        m_obbRenderSystem = new ObbRenderSystem(t_ecs,
+                                                t_game_components,
+                                                m_aeDevice,
+                                                m_renderer.getSwapChainRenderPass(),
+                                                globalSetLayout->getDescriptorSetLayout());
+
+        m_aabbRenderSystem = new AabbRenderSystem(t_ecs,
+                                                t_game_components,
+                                                m_aeDevice,
+                                                m_renderer.getSwapChainRenderPass(),
+                                                globalSetLayout->getDescriptorSetLayout());
 
 
 //        m_uiRenderSystem = new UiRenderSystem(t_ecs,
@@ -416,6 +422,9 @@ namespace ae {
 
         delete m_aabbRenderSystem;
         m_aabbRenderSystem = nullptr;
+
+        delete m_obbRenderSystem;
+        m_obbRenderSystem = nullptr;
 
         delete m_pointLightRenderSystem;
         m_pointLightRenderSystem = nullptr;
@@ -527,7 +536,10 @@ namespace ae {
             m_particleSystem->drawParticles(m_graphicsCommandBuffer,
                                             m_computeBuffers[m_frameIndex]->getBufferReference());
 
-            m_aabbRenderSystem->executeSystem(m_graphicsCommandBuffer,m_globalDescriptorSets[m_frameIndex]);
+            //m_obbRenderSystem->executeSystem(m_graphicsCommandBuffer, m_globalDescriptorSets[m_frameIndex]);
+
+            m_aabbRenderSystem->executeSystem(m_graphicsCommandBuffer, m_globalDescriptorSets[m_frameIndex]);
+
 
             m_pointLightRenderSystem->executeSystem(m_graphicsCommandBuffer, m_globalDescriptorSets[m_frameIndex]);
 

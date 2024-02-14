@@ -160,8 +160,8 @@ namespace ae {
         pipelineConfig.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
 
         GraphicsShaderFilesPaths shaderPaths{};
-        shaderPaths.vertFilepath = "engines/graphics/shaders/aabb.vert.spv";
-        shaderPaths.fragFilepath = "engines/graphics/shaders/aabb.frag.spv";
+        shaderPaths.vertFilepath = "engines/graphics/shaders/obb.vert.spv";
+        shaderPaths.fragFilepath = "engines/graphics/shaders/obb.frag.spv";
 
         // Create the point light render system pipeline.
         m_aePipeline = std::make_unique<AeGraphicsPipeline>(

@@ -27,6 +27,7 @@
 #include "ae_ui_render_system.hpp"
 #include "ae_particle_system.hpp"
 #include "ae_obb_render_system.hpp"
+#include "ae_aabb_render_system.hpp"
 
 #include "pre_allocated_stack.hpp"
 
@@ -236,8 +237,10 @@ namespace ae {
         /// Pointer to the UI render system.
         UiRenderSystem* m_uiRenderSystem;
 
-        /// AABB Render System for debug
-        ObbRenderSystem* m_aabbRenderSystem;
+        /// OBB Render System for debug
+        ObbRenderSystem* m_obbRenderSystem;
 
+        /// AABB Render System for debug
+        AabbRenderSystem* m_aabbRenderSystem;
     };
 }
