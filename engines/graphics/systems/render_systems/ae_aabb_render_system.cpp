@@ -83,7 +83,8 @@ namespace ae {
 
                 // Initialize the point light push constants.
                 PushConstantData push = calculatePushConstantData(entityWorldPosition, entityModelData.rotation,
-                                                                  entityModelData.scale, entityModelData.m_model->getAabb());
+                                                                  entityModelData.scale,
+                                                                  entityModelData.m_model->getobb());
 
                 // Push the point light information to the buffer.
                 vkCmdPushConstants(
@@ -244,30 +245,58 @@ namespace ae {
                                               t_translation.y,
                                               t_translation.z}};
 
-        float aabbConversion[6] = {t_aabb.minX * t_scale.x,
-                                   t_aabb.minY * t_scale.y,
-                                   t_aabb.minZ * t_scale.z,
-                                   t_aabb.maxX * t_scale.x,
-                                   t_aabb.maxY * t_scale.y,
-                                   t_aabb.maxZ * t_scale.z};
+        float aabbConversion[6] = {t_aabb.minX,
+                                   t_aabb.minY,
+                                   t_aabb.minZ,
+                                   t_aabb.maxX,
+                                   t_aabb.maxY,
+                                   t_aabb.maxZ};
 
-        glm::mat3 rotationMatrix = {
-                {c1*c3,
-                 c1*s3,
-                 -1*s1},
-                {s2*s1*c3-c2*c3,
-                 s2*s1*s3+c2*c3,
-                 s2*c1},
-                {c2*s1*c3+s2*s3,
-                 c2*s1*s3-s2*c3,
-                 c2*c1}};
+//        const float c3 = glm::cos(t_rotation.z);
+//        const float s3 = glm::sin(t_rotation.z);
+//        const float c2 = glm::cos(t_rotation.x);
+//        const float s2 = glm::sin(t_rotation.x);
+//        const float c1 = glm::cos(t_rotation.y);
+//        const float s1 = glm::sin(t_rotation.y);
+
+//        glm::mat3 rotationMatrix = {
+//                {c3*c1,
+//                 s3*c1,
+//                 -1*s1},
+//                {c3*s1*s2-s3*c2,
+//                 s3*s1*s2+c3*c2,
+//                 c1*s2},
+//                {c3*s1*c2+s3*s2,
+//                 s3*s1*c2-c3*s2,
+//                 c1*c2}};
+
+//        glm::mat3 rotationMatrix = {
+//        {c3*c1, c3*s1*s2-s3*c2, c3*s1*c2+s3*s2},
+//        {s3*c1, s3*s1*s2+c3*c2, s3*s1*c2-c3*s2},
+//        {-1*s1, c1*s2, c1*c2}};
+
+        glm::mat3 rotationMatrix = {{
+            (c1 * c3 + s1 * s2 * s3),
+            (c2 * s3),
+            (c1 * s2 * s3 - c3 * s1)
+        },
+        {
+         (c3 * s1 * s2 - c1 * s3),
+         (c2 * c3),
+         (c1 * c3 * s2 + s1 * s3)
+        },
+        {
+         (c2 * s1),
+         (-s2),
+         (c1 * c2)
+        }};
 
         for(uint_fast8_t i = 0; i<3; i++){
             for(uint_fast8_t j = 0; j<3; j++){
-                float a = rotationMatrix[i][j] * aabbConversion[j];
-                float b = rotationMatrix[i][j] * aabbConversion[j+3];
-                pushConstantData.obb[i] += a < b ? a :b;
-                pushConstantData.obb[i+3] += a < b ? b : a;
+                float e = modelMatrix[j][i] * aabbConversion[j];
+                float f = modelMatrix[j][i] * aabbConversion[j+3];
+                pushConstantData.obb[i] += e < f ? e : f;
+                pushConstantData.obb[i+3] += e < f ? f : e;
             }
         }
 

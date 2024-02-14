@@ -118,7 +118,7 @@ namespace ae {
         /// the draw call.
         void drawAabb(VkCommandBuffer t_commandBuffer);
 
-        VkAabbPositionsKHR getAabb() {return m_aabb;};
+        VkAabbPositionsKHR getobb() {return m_obb;};
 
 	private:
         /// Creates a vertex buffer from the provided vertices.
@@ -153,6 +153,6 @@ namespace ae {
         std::unique_ptr<AeBuffer> m_obbVertexBuffer;
 
         /// The OBB of this model
-        VkAabbPositionsKHR m_aabb;
+        VkAabbPositionsKHR m_obb;
 	};
 } // namespace ae

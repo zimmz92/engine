@@ -146,7 +146,7 @@ namespace ae {
 
         // ECS version of the floor
         auto vikingRoomRotate = GameObjectEntity(m_aeECS, m_gameComponents);
-        vikingRoomRotate.m_worldPosition = {-2.0f, 0.25f, 1.5f};
+        vikingRoomRotate.m_worldPosition = {-4.0f, 0.25f, 1.5f};
         vikingRoomRotate.m_model.m_texture = aeImage;
         vikingRoomRotate.m_model.m_sampler = m_aeSamplers.getDefaultSampler();
         vikingRoomRotate.m_model.m_model = aeModel;
@@ -155,7 +155,7 @@ namespace ae {
                                        0.5 * glm::two_pi<float>()};
 
         TestRotationComponentStruct& rotationData = m_gameComponents.testRotationComponent.requiredByEntityReference(vikingRoomRotate.getEntityId());
-        rotationData.m_angularVelocity = {0.0f, 1.0f, 0.0f};
+        rotationData.m_angularVelocity = {1.0f, 1.0f,1.0f};
 
 
         auto &vikingRoomRotateProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntityReference(vikingRoomRotate.getEntityId());

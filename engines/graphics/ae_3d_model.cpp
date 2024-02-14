@@ -36,7 +36,7 @@ namespace ae {
         createVertexBuffer(t_builder.vertices);
 
         // Create a vertex buffer for the model's OBB.
-        m_aabb = t_builder.obb;
+        m_obb = t_builder.obb;
         createObbVertexBuffer(t_builder.obb);
 
         // Create the index buffer using the indices created in the specified builder.
