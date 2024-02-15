@@ -89,7 +89,7 @@ namespace ae {
         static PushConstantData calculatePushConstantData(glm::vec3 t_translation,
                                                           glm::vec3 t_rotation,
                                                           glm::vec3 t_scale,
-                                                          VkAabbPositionsKHR t_aabb);
+                                                          VkAabbPositionsKHR t_obb);
 
             /// The graphics device this render system will be using.
         AeDevice& m_aeDevice;

@@ -175,7 +175,7 @@ namespace ae {
     AabbRenderSystem::PushConstantData AabbRenderSystem::calculatePushConstantData(glm::vec3 t_translation,
                                                                                    glm::vec3 t_rotation,
                                                                                    glm::vec3 t_scale,
-                                                                                   VkAabbPositionsKHR t_aabb) {
+                                                                                   VkAabbPositionsKHR t_obb) {
 
         // Calculate the components of the Tait-bryan angles matrix.
         const float c3 = glm::cos(t_rotation.z);
@@ -245,12 +245,12 @@ namespace ae {
                                               t_translation.y,
                                               t_translation.z}};
 
-        float aabbConversion[6] = {t_aabb.minX,
-                                   t_aabb.minY,
-                                   t_aabb.minZ,
-                                   t_aabb.maxX,
-                                   t_aabb.maxY,
-                                   t_aabb.maxZ};
+        float aabbConversion[6] = {t_obb.minX,
+                                   t_obb.minY,
+                                   t_obb.minZ,
+                                   t_obb.maxX,
+                                   t_obb.maxY,
+                                   t_obb.maxZ};
 
 //        const float c3 = glm::cos(t_rotation.z);
 //        const float s3 = glm::sin(t_rotation.z);
