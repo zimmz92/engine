@@ -69,16 +69,14 @@ namespace ae {
 
         /// Defines the simple render system push constant data.
         struct PushConstantData {
-            // Matrix corresponds to WorldPosition * Ry * Rx * Rz * Scale
-            // Rotations correspond to Tait-bryan angles of Y(1), X(2), Z(3)
-            // https://en.wikipedia.org/wiki/Euler_angles#Rotation_matrix
-            alignas(16) glm::mat4 modelMatrix{ 1.0f };
-
-            // Rotations correspond to Tait-bryan angles of Y(1), X(2), Z(3)
-            // https://en.wikipedia.org/wiki/Euler_angles#Rotation_matrix
-            alignas(16) glm::mat4 normalMatrix{ 1.0f };
-
-            alignas(16) float obb[6] = {1.0f};
+            VkAabbPositionsKHR obb = {0.0f};
+            float spacer2[2] = {0.0f};
+            glm::vec3 translation{0.0f};
+            float spacer3 = 0.0f;
+            glm::vec3 rotation{0.0f};
+            float spacer4 = 0.0f;
+            glm::vec3 scale{0.0f};
+            float spacer5 = 0.0f;
         };
 
         /// Calculates the push constant data for a specified entity.

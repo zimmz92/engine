@@ -17,9 +17,28 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
     float deltaTime;
 } ubo;
 
+struct VkAabbPositionsKHR{
+    float    minX;
+    float    minY;
+    float    minZ;
+    float    maxX;
+    float    maxY;
+    float    maxZ;
+};
+
 layout(push_constant) uniform Push {
-    mat4 modelMatrix;
-    mat4 normalMatrix;
+    VkAabbPositionsKHR obb;
+    float spacer2[2];
+
+    vec3 translation;
+    float spacer3;
+
+    vec3 rotation;
+    float spacer4;
+
+    vec3 scale;
+    float spacer5;
+
 } push;
 
 void main() {

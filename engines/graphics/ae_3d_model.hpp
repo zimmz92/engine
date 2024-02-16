@@ -17,7 +17,7 @@ namespace ae {
 	class Ae3DModel {
 	public:
         struct ObbVertex{
-            /// The position of the obb vertex.
+            /// The position of the aabb vertex.
             glm::vec3 position{};
 
             /// Get the binding descriptions for the model.

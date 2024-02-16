@@ -536,7 +536,7 @@ namespace ae {
             m_particleSystem->drawParticles(m_graphicsCommandBuffer,
                                             m_computeBuffers[m_frameIndex]->getBufferReference());
 
-            //m_obbRenderSystem->executeSystem(m_graphicsCommandBuffer, m_globalDescriptorSets[m_frameIndex]);
+            m_obbRenderSystem->executeSystem(m_graphicsCommandBuffer, m_globalDescriptorSets[m_frameIndex]);
 
             m_aabbRenderSystem->executeSystem(m_graphicsCommandBuffer, m_globalDescriptorSets[m_frameIndex]);
 

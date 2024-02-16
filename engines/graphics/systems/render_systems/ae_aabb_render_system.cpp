@@ -236,28 +236,19 @@ namespace ae {
                         invScale.z * (c1 * c2),
                 }};
 
-        PushConstantData pushConstantData = {modelMatrix,
-                                             normalMatrix,
-                                             {t_translation.x,
-                                              t_translation.y,
-                                              t_translation.z,
-                                              t_translation.x,
-                                              t_translation.y,
-                                              t_translation.z}};
-
-        float aabbConversion[6] = {t_obb.minX,
-                                   t_obb.minY,
-                                   t_obb.minZ,
-                                   t_obb.maxX,
-                                   t_obb.maxY,
-                                   t_obb.maxZ};
-
-//        const float c3 = glm::cos(t_rotation.z);
-//        const float s3 = glm::sin(t_rotation.z);
-//        const float c2 = glm::cos(t_rotation.x);
-//        const float s2 = glm::sin(t_rotation.x);
-//        const float c1 = glm::cos(t_rotation.y);
-//        const float s1 = glm::sin(t_rotation.y);
+        PushConstantData pushConstantData = {t_obb,
+                                             {0.0f,0.0f},
+                                             t_translation,
+                                             0.0f,
+                                             t_rotation,
+                                             0.0f,
+                                             t_scale};
+//        float aabbConversion[6] = {t_obb.minX,
+//                                   t_obb.minY,
+//                                   t_obb.minZ,
+//                                   t_obb.maxX,
+//                                   t_obb.maxY,
+//                                   t_obb.maxZ};
 
 //        glm::mat3 rotationMatrix = {
 //                {c3*c1,
@@ -275,30 +266,30 @@ namespace ae {
 //        {s3*c1, s3*s1*s2+c3*c2, s3*s1*c2-c3*s2},
 //        {-1*s1, c1*s2, c1*c2}};
 
-        glm::mat3 rotationMatrix = {{
-            (c1 * c3 + s1 * s2 * s3),
-            (c2 * s3),
-            (c1 * s2 * s3 - c3 * s1)
-        },
-        {
-         (c3 * s1 * s2 - c1 * s3),
-         (c2 * c3),
-         (c1 * c3 * s2 + s1 * s3)
-        },
-        {
-         (c2 * s1),
-         (-s2),
-         (c1 * c2)
-        }};
-
-        for(uint_fast8_t i = 0; i<3; i++){
-            for(uint_fast8_t j = 0; j<3; j++){
-                float e = modelMatrix[j][i] * aabbConversion[j];
-                float f = modelMatrix[j][i] * aabbConversion[j+3];
-                pushConstantData.obb[i] += e < f ? e : f;
-                pushConstantData.obb[i+3] += e < f ? f : e;
-            }
-        }
+//        glm::mat3 rotationMatrix = {{
+//            (c1 * c3 + s1 * s2 * s3),
+//            (c2 * s3),
+//            (c1 * s2 * s3 - c3 * s1)
+//        },
+//        {
+//         (c3 * s1 * s2 - c1 * s3),
+//         (c2 * c3),
+//         (c1 * c3 * s2 + s1 * s3)
+//        },
+//        {
+//         (c2 * s1),
+//         (-s2),
+//         (c1 * c2)
+//        }};
+//
+//        for(uint_fast8_t i = 0; i<3; i++){
+//            for(uint_fast8_t j = 0; j<3; j++){
+//                float e = modelMatrix[j][i] * aabbConversion[j];
+//                float f = modelMatrix[j][i] * aabbConversion[j+3];
+//                pushConstantData.aabb[i] += e < f ? e : f;
+//                pushConstantData.aabb[i + 3] += e < f ? f : e;
+//            }
+//        }
 
         return pushConstantData;
     };
