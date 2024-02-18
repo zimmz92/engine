@@ -1,4 +1,7 @@
 #include "Arundos.hpp"
+#include "easylogging++.h"
+
+INITIALIZE_EASYLOGGINGPP
 
 // Test ECS
 #ifdef DECS_DEBUG
@@ -13,6 +16,7 @@
 
 int main() {
 
+    LOG(INFO) << "My first info log using default logger";
 
 #ifdef DECS_DEBUG
     test_ecs();
