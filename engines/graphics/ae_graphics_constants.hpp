@@ -32,6 +32,9 @@ static const std::size_t MAX_2D_MATERIAL_TEXTURES = 10;
 /// The maximum number of objects that are allowed to be rendered at a given time.
 static const std::size_t MAX_OBJECTS = 16384;
 
+/// The maximum number of models that are allowed to be loaded at a given time.
+static const std::size_t MAX_MODELS = 1024;
+
 namespace ae {
 
     /// A defined type for the material ID. uint32_t used here to be compatible with shader integer input.
@@ -56,6 +59,24 @@ namespace ae {
 
         /// The index of the 3D objects textures for a given material.
         alignas(32) uint32_t textureIndex[MAX_3D_MATERIALS][MAX_3D_MATERIAL_TEXTURES]{};
+
+        /// The index of the OBB for the 3D object's model.
+        alignas(32) uint32_t modelObbIndex;
+
+        /// The AABB of this 3D object.
+        VkAabbPositionsKHR aabb = {0.0f};
+
+        /// Spacer to ensure that the SSBO data array alignment requirements are satisfied.
+        float spacer1[2] = {0.0f};
+    };
+
+    /// A structure to store all the OBB data for the 3D models.
+    struct Model3DObbData{
+        /// The OBB of a 3D model.
+        VkAabbPositionsKHR obb = {0.0f};
+
+        /// Spacer to ensure that the SSBO data array alignment requirements are satisfied.
+        float spacer1[2] = {0.0f};
     };
 
 
