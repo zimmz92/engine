@@ -27,14 +27,26 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
 
 layout(set = 1, binding = 0) uniform sampler2D texSampler[8];
 
+struct VkAabbPositionsKHR{
+    float    minX;
+    float    minY;
+    float    minZ;
+    float    maxX;
+    float    maxY;
+    float    maxZ;
+};
+
 //all object matrices
 struct ObjectData{
 	mat4 modelMatrix;
 	mat4 normalMatrix;
 	uint textureIndex[20][10];
+    VkAabbPositionsKHR aabb;
+    uint modelObbIndex;
+    float spacer1[1];
 };
 
-layout(set = 2, binding = 0) readonly buffer ObjectBuffer{
+layout(std430, set = 2, binding = 0) readonly buffer ObjectBuffer{
 	ObjectData objects[];
 } objectBuffer;
 

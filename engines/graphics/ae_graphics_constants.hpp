@@ -51,23 +51,23 @@ namespace ae {
         /// Matrix corresponds to WorldPosition * Ry * Rx * Rz * Scale
         /// Rotations correspond to Tait-bryan angles of Y(1), X(2), Z(3)
         /// https://en.wikipedia.org/wiki/Euler_angles#Rotation_matrix
-        alignas(16) glm::mat4 modelMatrix{ 1.0f };
+        glm::mat4 modelMatrix{ 1.0f };
 
         /// Rotations correspond to Tait-bryan angles of Y(1), X(2), Z(3)
         /// https://en.wikipedia.org/wiki/Euler_angles#Rotation_matrix
-        alignas(16) glm::mat4 normalMatrix{ 1.0f };
+        glm::mat4 normalMatrix{ 1.0f };
 
         /// The index of the 3D objects textures for a given material.
-        alignas(32) uint32_t textureIndex[MAX_3D_MATERIALS][MAX_3D_MATERIAL_TEXTURES]{};
-
-        /// The index of the OBB for the 3D object's model.
-        alignas(32) uint32_t modelObbIndex;
+        alignas(16) uint32_t textureIndex[MAX_3D_MATERIALS][MAX_3D_MATERIAL_TEXTURES]{};
 
         /// The AABB of this 3D object.
         VkAabbPositionsKHR aabb = {0.0f};
 
+        /// The index of the OBB for the 3D object's model.
+        uint32_t modelObbIndex = 0;
+
         /// Spacer to ensure that the SSBO data array alignment requirements are satisfied.
-        float spacer1[2] = {0.0f};
+        float spacer1[1] = {0.0f};
     };
 
     /// A structure to store all the OBB data for the 3D models.
