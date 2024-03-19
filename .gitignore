@@ -1,6 +1,7 @@
 ﻿/cmake-build-debug
-/engines/graphics/shaders/frag.spv
-/engines/graphics/shaders/vert.spv
-/engines/graphics/shaders/point_light_frag.spv
-/engines/graphics/shaders/point_light_vert.spv
+/engine/graphics/shaders/frag.spv
+/engine/graphics/shaders/vert.spv
+/engine/graphics/shaders/point_light_frag.spv
+/engine/graphics/shaders/point_light_vert.spv
+/engines/graphics/shaders/*.spv
 /.idea

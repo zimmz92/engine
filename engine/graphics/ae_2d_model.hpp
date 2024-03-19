@@ -3,7 +3,7 @@
 /// Defines the model for 2-D game objects such as user interface elements or billboards.
 #pragma once
 
-#include "ae_graphics_constants.hpp"
+#include "ae_engine_constants.hpp"
 
 #include "ae_device.hpp"
 #include "ae_buffer.hpp"

@@ -12,6 +12,7 @@
 #include "ae_device.hpp"
 #include "ae_window.hpp"
 #include "ae_renderer.hpp"
+#include "ae_resource_manager.hpp"
 
 #include "ae_ecs_include.hpp"
 #include "ae_de_stack_allocator.hpp"

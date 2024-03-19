@@ -34,7 +34,7 @@ set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
 # Compile Shaders
-set(SHADER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/engines/graphics/shaders)
+set(SHADER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/engine/graphics/shaders)
 set(SHADER_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/engines/graphics/shaders)
 file(GLOB SHADERS ${SHADER_DIR}/*.vert ${SHADER_DIR}/*.frag ${SHADER_DIR}/*.comp ${SHADER_DIR}/*.geom ${SHADER_DIR}/*.tesc ${SHADER_DIR}/*.tese ${SHADER_DIR}/*.mesh ${SHADER_DIR}/*.task ${SHADER_DIR}/*.rgen ${SHADER_DIR}/*.rchit ${SHADER_DIR}/*.rmiss)
 
@@ -64,16 +64,20 @@ add_subdirectory(Libraries/glm)
 # Add source to this project's executable.
 add_library(mySrcFiles "")
 
-add_subdirectory(engines/memory)
+add_subdirectory(engine)
 
-add_subdirectory(engines/graphics)
-add_subdirectory(engines/graphics/systems)
-add_subdirectory(engines/graphics/systems/render_systems)
+add_subdirectory(engine/resource_manager)
 
-add_subdirectory(engines/ecs)
-add_subdirectory(engines/ecs/test_code)
+add_subdirectory(engine/memory)
 
-add_subdirectory(engines/library)
+add_subdirectory(engine/graphics)
+add_subdirectory(engine/graphics/systems)
+add_subdirectory(engine/graphics/systems/render_systems)
+
+add_subdirectory(engine/ecs)
+add_subdirectory(engine/ecs/test_code)
+
+add_subdirectory(engine/library)
 
 add_subdirectory(game_code)
 add_subdirectory(game_code/entities)

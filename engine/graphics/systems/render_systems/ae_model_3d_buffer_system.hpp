@@ -5,7 +5,7 @@
 #pragma once
 
 #include "ae_ecs_include.hpp"
-#include "ae_graphics_constants.hpp"
+#include "ae_engine_constants.hpp"
 
 #include "game_components.hpp"
 #include "pre_allocated_stack.hpp"
