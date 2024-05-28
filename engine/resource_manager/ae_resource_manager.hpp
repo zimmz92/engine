@@ -6,6 +6,8 @@
 
 // dependencies
 #include "ae_3d_model.hpp"
+#include "ae_de_stack_allocator.hpp"
+#include "ae_free_linked_list_allocator.hpp"
 
 // libraries
 
@@ -24,7 +26,10 @@ namespace ae {
         ~ResourceManager();
 
         /// Loads the model (file/path/filename.obj) at the specified location.
-        std::shared_ptr<Ae3DModel> load3DModel(const std::string& t_filepath);
+        std::shared_ptr<Ae3DModel> use3DModel(const std::string& t_filepath);
+
+        void unuse3DModel(const std::shared_ptr<Ae3DModel>& t_model);
+
 
     private:
 
@@ -34,6 +39,19 @@ namespace ae {
         /// Keeps track of the currently loaded models.
         std::unordered_map<std::string, std::shared_ptr<Ae3DModel>> m_loadedModels;
 
+        /// Keeps track of the number of users of a loaded model
+        std::unordered_map<std::shared_ptr<Ae3DModel>, uint32_t> m_modelReferences;
+
+        /// Primary Stack Allocator for the game
+        //std::size_t m_deStackAllocationSize = 4000000000;
+        //void* m_deStackAllocation = malloc(m_deStackAllocationSize);
+        //ae_memory::AeDeStackAllocator m_deStackAllocator{m_deStackAllocationSize,m_deStackAllocation};
+
+        /// Primary Free List Allocator for the game
+        //std::size_t m_freeLinkedListAllocationSize = 1000000;
+        //void* m_freeLinkedListAllocation = malloc(m_freeLinkedListAllocationSize);
+        //ae_memory::AeFreeLinkedListAllocator m_freeLinkedListAllocator{m_freeLinkedListAllocationSize,m_freeLinkedListAllocation};
+
     protected:
 
     };
@@ -42,17 +60,23 @@ namespace ae {
 
 
 // Notes:
-// There are two ways that currently seem viable to do this. The first is to make this a system itself and have it run
-// evey frame, the second is to make it a parent class that creates systems for the various different tasks that it may
-// be required to do.
-
+// The resource manager will be in charge of managing memory in general, this is both GPU memory and RAM. As a result it
+// will be what is called to create an object. This will require a re-factoring of the ECS to request memory from the
+// resource manager, however this will allow for easier visualization of memory usage across the engine.
+//
+// The architecture of the resource manager is that it is a parent class that will contain one or more systems that will
+// ensure memory resources are distributed as needed.
+//
 // For models, I plan on changing the way importing a model works. Instead of calling the function in the model
 // class to import the model the request will be made to this resource manager. The resource manager will then be able
 // to decide when the best time to load that resource is... eventually at least. I think this means that the second
 // option is better, the one where this is a parent class that may have sub-systems that are run evey frame.
-
+//
 // A change to the model_3d_buffer_system, or perhaps a new system, must be made to ensure that all entities that may
 // collide are within the SSBO, not just the ones that can be rendered.
 
-// Perhaps an additional level of hierarchy is required for management of the GPU resources, perhaps in reality this is
-// that manager.
+// Need an index into the OBB SSBO for each model which associates an object with its model OBB.
+// Think it might be time for some sort of resource manager... allows for model OBB SSBO to be handled by the resource manager.
+//      - Resource manager knows where all models are and which are available/ need to be initialized.
+//      - When a model is loaded the OBB is initialized and placed into the OBB SSBO and the index is stored in the model object.
+//      - Do the same thing with Images.
