@@ -29,7 +29,7 @@ namespace std {
 namespace ae {
 
     // Constructor, makes a model compatible with the device using a builder that loaded the model's object file.
-	Ae3DModel::Ae3DModel(AeDevice &t_device, const Ae3DModel::Builder& t_builder) : m_aeDevice{t_device } {
+	Ae3DModel::Ae3DModel(AeDevice &t_device, const Ae3DModel::Builder& t_builder, const ssbo_idx t_idxObbSsbo) : m_aeDevice{t_device } {
 
         // TODO: Look into creating a memory allocator for vulkan: https://www.youtube.com/redirect?event=video_description&redir_token=QUFFLUhqbm9VSzZadjhDZF9pYnMxV2M4c09Cc25KTUNYQXxBQ3Jtc0ttQTFaTHpWNG1nb29jS3BDY2tSX1pUeUZ5R1RzRGF2ZVdkazA5NDRmUHo4S08wV0xXR0ZMRW55bnR6X0pJZ3REYmU2UlNNNVJWdW1oVnA4Um9aY0ZLZXU3U280QWdUWmY5czBpS3BkN3dHSHF6cGJZTQ&q=http%3A%2F%2Fkylehalladay.com%2Fblog%2Ftutorial%2F2017%2F12%2F13%2FCustom-Allocators-Vulkan.html&v=mnKp501RXDc
 		// Create the vertex buffer using the vertices in the specified builder.
@@ -37,6 +37,7 @@ namespace ae {
 
         // Create a vertex buffer for the model's OBB.
         m_obb = t_builder.obb;
+        m_idxObbSsbo = t_idxObbSsbo;
         createObbVertexBuffer(t_builder.obb);
 
         // Create the index buffer using the indices created in the specified builder.
@@ -57,7 +58,7 @@ namespace ae {
 		builder.loadModel(t_filepath);
 
         // Create the model using the object that was loaded by the builder.
-		return std::make_unique<Ae3DModel>(t_device, builder);
+		return std::make_unique<Ae3DModel>(t_device, builder, 0);
 	}
 
 

@@ -79,7 +79,7 @@ namespace ae {
         /// \param t_device The GPU the model buffers should be prepared for and maybe loaded onto.
         /// \param t_builder The builder that contains the model information that buffers should be created for ready
         /// for the specified device.
-		Ae3DModel(AeDevice &t_device, const Ae3DModel::Builder &t_builder);
+		Ae3DModel(AeDevice &t_device, const Ae3DModel::Builder &t_builder, const ssbo_idx t_idxObbSsbo);
 
         /// Destroy the AeModel object.
 		~Ae3DModel();
@@ -154,5 +154,9 @@ namespace ae {
 
         /// The OBB of this model
         VkAabbPositionsKHR m_obb;
+
+        /// The index of the model in the OBB SSBO
+        ssbo_idx m_idxObbSsbo;
+
 	};
 } // namespace ae

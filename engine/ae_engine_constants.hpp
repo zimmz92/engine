@@ -40,6 +40,9 @@ namespace ae {
     /// A defined type for the material ID. uint32_t used here to be compatible with shader integer input.
     using material_id = std::uint32_t;
 
+    /// A defined type for SSBO indicies.
+    using ssbo_idx = std::uint32_t;
+
     /// Making the draw indirect command size a constant to reduce unnecessary calls to get the size of the command.
     static constexpr uint32_t DRAW_INDEXED_INDIRECT_COMMAND_SIZE = sizeof(VkDrawIndexedIndirectCommand);
 
