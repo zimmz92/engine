@@ -37,22 +37,17 @@ namespace ae {
         /// The device the resource manager interacts with.
         AeDevice& m_aeDevice;
 
-        // TODO: Using the shared pointer method gives me no control to load or unload modes as desired.
-
         /// Keeps track of the currently loaded 3D models.
         std::unordered_map<std::string, std::shared_ptr<Ae3DModel>> m_loadedModels;
-
-        /// Keeps track of the number of users of a loaded 3D model.
-        std::unordered_map<std::shared_ptr<Ae3DModel>, uint32_t> m_3DModelReferences;
 
         //==============================================================================================================
         // Oriented Bounding Box (OBB) Shader Storage Buffer Object (SSBO)
         //==============================================================================================================
-        /// Maps entities to their model matrix/texture data in the 3D SSBO.
-        std::map<ecs_id, uint32_t> m_object3DBufferEntityMap= std::map<ecs_id, uint32_t>{};
 
         /// A stack to track the available data positions in the SSBO.
-        PreAllocatedStack<uint64_t,MAX_OBJECTS> m_object3DBufferDataIndexStack{};
+        PreAllocatedStack<ssbo_idx,MAX_MODELS> m_object3DBufferDataIndexStack{};
+
+        void unloadModel(std::shared_ptr<Ae3DModel> t_model);
 
         /// Primary Stack Allocator for the game
         //std::size_t m_deStackAllocationSize = 4000000000;

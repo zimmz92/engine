@@ -79,7 +79,15 @@ namespace ae {
         /// \param t_device The GPU the model buffers should be prepared for and maybe loaded onto.
         /// \param t_builder The builder that contains the model information that buffers should be created for ready
         /// for the specified device.
-		Ae3DModel(AeDevice &t_device, const Ae3DModel::Builder &t_builder, const ssbo_idx t_idxObbSsbo);
+        /// \param t_idxObbSsbo The OBB SSBO index where the model's OBB data will be located in the SSBO.
+		Ae3DModel(AeDevice &t_device, const Ae3DModel::Builder &t_builder, ssbo_idx t_idxObbSsbo);
+
+        /// Construct a new AeModel and creates the model buffers ready for the specified device using the model built
+        /// by the supplied builder.
+        /// \param t_device The GPU the model buffers should be prepared for and maybe loaded onto.
+        /// \param t_filepath The location of the file defining the model to be created.
+        /// \param t_idxObbSsbo The OBB SSBO index where the model's OBB data will be located in the SSBO.
+        Ae3DModel(AeDevice &t_device, const std::string& t_filepath, ssbo_idx t_idxObbSsbo);
 
         /// Destroy the AeModel object.
 		~Ae3DModel();
@@ -93,6 +101,13 @@ namespace ae {
         /// \param t_device The GPU the created model will be compatible with and will have buffer created for.
         /// \param t_filepath The location of the file defining the model to be created.
 		static std::unique_ptr<Ae3DModel> createModelFromFile(AeDevice& t_device, const std::string& t_filepath);
+
+        /// Creates an AeModel using the specified object data stored at the specified file path compatible with the
+        /// specified GPU.
+        /// \param t_device The GPU the created model will be compatible with and will have buffer created for.
+        /// \param t_filepath The location of the file defining the model to be created.
+        /// \param t_idxObbSsbo The OBB SSBO index where the model's OBB data will be located in the SSBO.
+        static std::unique_ptr<Ae3DModel> createModelFromFile(AeDevice& t_device, const std::string& t_filepath, ssbo_idx t_idxObbSsbo);
 
         /// Binds the model's vertex buffer, and if available index buffer, to the specified command buffer.
         /// \param t_commandBuffer The command buffer that this model's vertex and index buffer(s) shall be bound to.
@@ -119,6 +134,13 @@ namespace ae {
         void drawAabb(VkCommandBuffer t_commandBuffer);
 
         VkAabbPositionsKHR getobb() {return m_obb;};
+
+        uint32_t getNumUsers() {return m_numUsers;};
+
+        void incrementNumUsers(){m_numUsers = m_numUsers + 1;};
+
+        void decrementNumUsers(){m_numUsers = m_numUsers -1;};
+
 
 	private:
         /// Creates a vertex buffer from the provided vertices.
@@ -157,6 +179,9 @@ namespace ae {
 
         /// The index of the model in the OBB SSBO
         ssbo_idx m_idxObbSsbo;
+
+        /// The number of entities using this model
+        uint32_t m_numUsers = 0;
 
 	};
 } // namespace ae

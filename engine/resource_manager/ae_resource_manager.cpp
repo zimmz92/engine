@@ -23,26 +23,48 @@ namespace ae {
         auto loadedModelIterator = m_loadedModels.find(t_filepath);
 
         if(loadedModelIterator==m_loadedModels.end()){
-            // If the model is not already loaded. create a new model and track its usage.
-            std::shared_ptr<Ae3DModel> loadedModel = Ae3DModel::createModelFromFile(m_aeDevice,t_filepath);
+            // If the model is not already loaded create a new model and track its usage.
+            // TODO: Using the shared pointer method gives me no control to load or unload modes as desired.
+            std::shared_ptr<Ae3DModel> loadedModel = Ae3DModel::createModelFromFile(m_aeDevice,t_filepath,m_object3DBufferDataIndexStack.pop());
             m_loadedModels[t_filepath] = loadedModel;
-            m_3DModelReferences[loadedModel] = 1;
+            loadedModel->incrementNumUsers();
             return loadedModel;
         } else{
             // Otherwise return the location of the loaded model and track the additional reference.
-            m_3DModelReferences[loadedModelIterator->second] += 1;
+            loadedModelIterator->second->incrementNumUsers();
             return loadedModelIterator->second;
         }
     };
 
     void ResourceManager::unuse3DModel(const std::shared_ptr<Ae3DModel>& t_model){
-        if(m_3DModelReferences[t_model] >= 1){
-            m_3DModelReferences[t_model] -= 1;
+        if(t_model->getNumUsers() >= 1){
+            t_model->decrementNumUsers();
+            if(t_model->getNumUsers() == 0){
+                unloadModel(t_model);
+            }
         }
         else{
-            throw std::runtime_error("Too many models have been returned! Returning this model would decrement the "
-                                     "count to less than zero!");
+            throw std::runtime_error("Decrementing number of model users would result in less than 0!!");
         }
     };
 
+    void ResourceManager::unloadModel(std::shared_ptr<Ae3DModel> t_model){
+
+        bool model_found = false;
+        std::string model_path;
+
+        // Traverse the map
+        for (auto& it : m_loadedModels) {
+            // If mapped value is K,
+            // then print the key value
+            if (it.second == t_model) {
+                model_path = it.first;
+            }
+        }
+        if(model_found){
+            m_loadedModels.erase(model_path);
+        } else{
+            throw std::runtime_error("Can not find model to be removed in map of loaded models!!");
+        }
+    };
 } //namespace ae

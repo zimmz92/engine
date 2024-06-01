@@ -44,6 +44,26 @@ namespace ae {
         createIndexBuffer(t_builder.indices);
 	}
 
+    // Constructor, makes a model compatible with the device using a builder that loaded the model's object file.
+    Ae3DModel::Ae3DModel(AeDevice &t_device, const std::string& t_filepath, const ssbo_idx t_idxObbSsbo) : m_aeDevice{t_device } {
+
+        // TODO: Look into creating a memory allocator for vulkan: https://www.youtube.com/redirect?event=video_description&redir_token=QUFFLUhqbm9VSzZadjhDZF9pYnMxV2M4c09Cc25KTUNYQXxBQ3Jtc0ttQTFaTHpWNG1nb29jS3BDY2tSX1pUeUZ5R1RzRGF2ZVdkazA5NDRmUHo4S08wV0xXR0ZMRW55bnR6X0pJZ3REYmU2UlNNNVJWdW1oVnA4Um9aY0ZLZXU3U280QWdUWmY5czBpS3BkN3dHSHF6cGJZTQ&q=http%3A%2F%2Fkylehalladay.com%2Fblog%2Ftutorial%2F2017%2F12%2F13%2FCustom-Allocators-Vulkan.html&v=mnKp501RXDc
+        // Create a new builder helper class to load the object from the specified file.
+        Builder builder{};
+        builder.loadModel(t_filepath);
+
+        // Create the vertex buffer using the vertices in the specified builder.
+        createVertexBuffer(builder.vertices);
+
+        // Create a vertex buffer for the model's OBB.
+        m_obb = builder.obb;
+        m_idxObbSsbo = t_idxObbSsbo;
+        createObbVertexBuffer(builder.obb);
+
+        // Create the index buffer using the indices created in the specified builder.
+        createIndexBuffer(builder.indices);
+    }
+
 
 
     // Destroy the model.
@@ -60,6 +80,16 @@ namespace ae {
         // Create the model using the object that was loaded by the builder.
 		return std::make_unique<Ae3DModel>(t_device, builder, 0);
 	}
+
+    // Create the model using the object file at the specified path.
+    std::unique_ptr<Ae3DModel> Ae3DModel::createModelFromFile(AeDevice& t_device, const std::string& t_filepath, const ssbo_idx t_idxObbSsbo) {
+        // Create a new builder helper class to load the object from the specified file.
+        Builder builder{};
+        builder.loadModel(t_filepath);
+
+        // Create the model using the object that was loaded by the builder.
+        return std::make_unique<Ae3DModel>(t_device, builder, t_idxObbSsbo);
+    }
 
 
 
