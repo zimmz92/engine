@@ -11,14 +11,14 @@
 
 namespace ae {
 
-    ResourceManager::ResourceManager(ae::AeDevice &t_aeDevice):m_aeDevice{t_aeDevice} {
+    AeResourceManager::AeResourceManager(ae::AeDevice &t_aeDevice): m_aeDevice{t_aeDevice} {
     };
 
-    ResourceManager::~ResourceManager() {
+    AeResourceManager::~AeResourceManager() {
 
     };
 
-    std::shared_ptr<Ae3DModel> ResourceManager::use3DModel(const std::string &t_filepath) {
+    std::shared_ptr<Ae3DModel> AeResourceManager::use3DModel(const std::string &t_filepath) {
         // Check if the model is already loaded.
         auto loadedModelIterator = m_loadedModels.find(t_filepath);
 
@@ -36,7 +36,7 @@ namespace ae {
         }
     };
 
-    void ResourceManager::unuse3DModel(const std::shared_ptr<Ae3DModel>& t_model){
+    void AeResourceManager::unuse3DModel(const std::shared_ptr<Ae3DModel>& t_model){
         if(t_model->getNumUsers() >= 1){
             t_model->decrementNumUsers();
             if(t_model->getNumUsers() == 0){
@@ -48,7 +48,7 @@ namespace ae {
         }
     };
 
-    void ResourceManager::unloadModel(std::shared_ptr<Ae3DModel> t_model){
+    void AeResourceManager::unloadModel(std::shared_ptr<Ae3DModel> t_model){
 
         bool model_found = false;
         std::string model_path;

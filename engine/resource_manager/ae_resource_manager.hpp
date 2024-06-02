@@ -1,5 +1,5 @@
 /// \file resource_manager.hpp
-/// The ResourceManager class is defined. The ResourceManager class ensures that general use assets such as models,
+/// The AeResourceManager class is defined. The AeResourceManager class ensures that general use assets such as models,
 /// images, and audio are created and destroyed as needed and are organize as required to be compatible with aspects
 /// of he engine.
 #pragma once
@@ -18,13 +18,13 @@
 
 namespace ae {
 
-    class ResourceManager {
+    class AeResourceManager {
     public:
         /// Is responsible for handling the creation and destruction of general use assets and keeping them organized.
         /// Examples of these types of assets include models, images, and audio.
-        ResourceManager(AeDevice& t_aeDevice);
+        AeResourceManager(AeDevice& t_aeDevice);
 
-        ~ResourceManager();
+        ~AeResourceManager();
 
         /// Loads the model (file/path/filename.obj) at the specified location.
         std::shared_ptr<Ae3DModel> use3DModel(const std::string& t_filepath);

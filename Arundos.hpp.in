@@ -76,6 +76,9 @@ namespace ae {
         /// Declare the ECS of the game.
         ae_ecs::AeECS m_aeECS{m_deStackAllocator,m_freeLinkedListAllocator};
 
+        /// The resource manager for the game.
+        AeResourceManager m_aeResourceManager{m_aeDevice};
+
         /// Declare the game components, the "C" in ECS.
         GameComponents m_gameComponents{m_aeECS};
 
