@@ -141,6 +141,8 @@ namespace ae {
 
         void decrementNumUsers(){m_numUsers = m_numUsers -1;};
 
+        ssbo_idx getIdxObbSsbo(){return m_idxObbSsbo;};
+
 
 	private:
         /// Creates a vertex buffer from the provided vertices.

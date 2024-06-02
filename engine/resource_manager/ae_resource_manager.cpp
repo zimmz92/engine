@@ -12,6 +12,8 @@
 namespace ae {
 
     AeResourceManager::AeResourceManager(ae::AeDevice &t_aeDevice): m_aeDevice{t_aeDevice} {
+
+        // Create the OBB SSBO
     };
 
     AeResourceManager::~AeResourceManager() {
@@ -25,7 +27,7 @@ namespace ae {
         if(loadedModelIterator==m_loadedModels.end()){
             // If the model is not already loaded create a new model and track its usage.
             // TODO: Using the shared pointer method gives me no control to load or unload modes as desired.
-            std::shared_ptr<Ae3DModel> loadedModel = Ae3DModel::createModelFromFile(m_aeDevice,t_filepath,m_object3DBufferDataIndexStack.pop());
+            std::shared_ptr<Ae3DModel> loadedModel = Ae3DModel::createModelFromFile(m_aeDevice, t_filepath, m_3DObbSsboIndexStack.pop());
             m_loadedModels[t_filepath] = loadedModel;
             loadedModel->incrementNumUsers();
             return loadedModel;
@@ -53,15 +55,16 @@ namespace ae {
         bool model_found = false;
         std::string model_path;
 
-        // Traverse the map
+        // See if the model is in the map.
         for (auto& it : m_loadedModels) {
-            // If mapped value is K,
-            // then print the key value
+            // If the model is in the map then get the path that represents that model.
             if (it.second == t_model) {
                 model_path = it.first;
+                model_found = true;
             }
         }
         if(model_found){
+            m_3DObbSsboIndexStack.push(t_model->getIdxObbSsbo());
             m_loadedModels.erase(model_path);
         } else{
             throw std::runtime_error("Can not find model to be removed in map of loaded models!!");

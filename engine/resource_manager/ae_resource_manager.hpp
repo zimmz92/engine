@@ -41,11 +41,18 @@ namespace ae {
         std::unordered_map<std::string, std::shared_ptr<Ae3DModel>> m_loadedModels;
 
         //==============================================================================================================
-        // Oriented Bounding Box (OBB) Shader Storage Buffer Object (SSBO)
+        // 3D Oriented Bounding Box (OBB) Shader Storage Buffer Object (SSBO)
         //==============================================================================================================
+        /// The object descriptor sets used for storing the model matrices and texture indexes.
+        std::vector<VkDescriptorSet> m_3DObbSsboDescriptorSets;
+
+        /// The object buffers for each frame
+        std::vector<std::unique_ptr<AeBuffer>> m_3DObbSsboBuffers;
 
         /// A stack to track the available data positions in the SSBO.
-        PreAllocatedStack<ssbo_idx,MAX_MODELS> m_object3DBufferDataIndexStack{};
+        PreAllocatedStack<ssbo_idx,MAX_MODELS> m_3DObbSsboIndexStack{};
+
+
 
         void unloadModel(std::shared_ptr<Ae3DModel> t_model);
 
