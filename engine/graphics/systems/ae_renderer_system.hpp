@@ -146,22 +146,40 @@ namespace ae {
         std::map<std::shared_ptr<AeImage>,ImageBufferInfo> m_imageBufferEntityMaterialMap{};
 
         //==============================================================================================================
-        // Compute Stage
+        // Compute+Render: Particles
         //==============================================================================================================
         /// The compute descriptor set.
-        std::vector<VkDescriptorSet> m_computesDescriptorSets;
+        std::vector<VkDescriptorSet> m_particleDescriptorSets;
 
         /// The object buffers for each frame
-        std::vector<std::unique_ptr<AeBuffer>> m_computeBuffers;
+        std::vector<std::unique_ptr<AeBuffer>> m_particleBuffers;
 
         /// The texture descriptor writers.
-        AeDescriptorWriter* m_computeDescriptorWriter;
+        AeDescriptorWriter* m_particleDescriptorWriter;
+
+        /// The particle system that sets up the displayed particles.
+        AeParticleSystem* m_particleSystem;
+
+        /// The group of descriptor sets that the particle system will need each frame to update the particles.
+        std::vector<std::vector<VkDescriptorSet>> m_particleFrameDescriptorSets;
 
         //==============================================================================================================
-        // Particle System
+        // Compute+Render: Collision (OBB/AABB compute)
         //==============================================================================================================
-        AeParticleSystem* m_particleSystem;
-        std::vector<std::vector<VkDescriptorSet>> m_particleFrameDescriptorSets;
+        /// The compute descriptor set.
+        std::vector<VkDescriptorSet> m_collisionDescriptorSets;
+
+        /// The object buffers for each frame
+        std::vector<std::unique_ptr<AeBuffer>> m_collisionBuffers;
+
+        /// The texture descriptor writers.
+        AeDescriptorWriter* m_collisionDescriptorWriter;
+
+        /// The particle system that sets up the displayed particles.
+        AeParticleSystem* m_collisionSystem;
+
+        /// The group of descriptor sets that the particle system will need each frame to update the particles.
+        std::vector<std::vector<VkDescriptorSet>> m_collisionFrameDescriptorSets;
 
 
         //==============================================================================================================

@@ -86,17 +86,17 @@ namespace ae {
         //==============================================================================================================
         // Collision Detection Descriptor Set Initialization
         //==============================================================================================================
-        auto collisionSetLayout = AeDescriptorSetLayout::Builder(m_aeDevice)
+        auto particleSetLayout = AeDescriptorSetLayout::Builder(m_aeDevice)
                 .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_COMPUTE_BIT, 1)
                 .addBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_COMPUTE_BIT, 1)
                 .addBinding(2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_COMPUTE_BIT, 1)
                 .build();
 
         // Allocate memory for the compute buffers
-        m_computeBuffers.reserve(MAX_FRAMES_IN_FLIGHT);
+        m_particleBuffers.reserve(MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             // Create a new buffer and push it to the back of the vector of uboBuffers.
-            m_computeBuffers.push_back(std::make_unique<AeBuffer>(
+            m_particleBuffers.push_back(std::make_unique<AeBuffer>(
                     m_aeDevice,
                     sizeof(Particle),
                     MAX_PARTICLES,
@@ -105,38 +105,39 @@ namespace ae {
         };
 
 
-        m_computeDescriptorWriter = new AeDescriptorWriter(collisionSetLayout, *m_globalPool);
+        m_particleDescriptorWriter = new AeDescriptorWriter(particleSetLayout, *m_globalPool);
 
         // Reserve space for compute descriptor sets for each frame.
-        m_computesDescriptorSets.reserve(MAX_FRAMES_IN_FLIGHT);
+        m_particleDescriptorSets.reserve(MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             // Get the buffer information from the uboBuffers.
             auto uboBufferInfo = m_uboBuffers[i]->descriptorInfo();
-            auto prevbufferInfo = m_computeBuffers[(i - 1) % MAX_FRAMES_IN_FLIGHT]->descriptorInfo();
-            auto bufferInfo = m_computeBuffers[i]->descriptorInfo();
+            auto prevbufferInfo = m_particleBuffers[(i - 1) % MAX_FRAMES_IN_FLIGHT]->descriptorInfo();
+            auto bufferInfo = m_particleBuffers[i]->descriptorInfo();
 
             // Initialize the descriptor set for the current frame.
-            m_computeDescriptorWriter->writeBuffer(0, &uboBufferInfo)
+            m_particleDescriptorWriter->writeBuffer(0, &uboBufferInfo)
                                       .writeBuffer(1, &prevbufferInfo)
                                       .writeBuffer(2, &bufferInfo)
-                                      .build(m_computesDescriptorSets[i]);
+                                      .build(m_particleDescriptorSets[i]);
         }
 
+        // Pack the descriptor sets used by the particle system into a vector.
         m_particleFrameDescriptorSets.reserve(MAX_FRAMES_IN_FLIGHT);
         for(int i=0;i<MAX_FRAMES_IN_FLIGHT;i++){
-            m_particleFrameDescriptorSets.push_back({m_computesDescriptorSets[i]});
+            m_particleFrameDescriptorSets.push_back({m_particleDescriptorSets[i]});
 
         }
 
         // Create a particle system using the compute pipeline
-        std::vector<VkDescriptorSetLayout> collisionDescriptorSetLayouts = {collisionSetLayout->getDescriptorSetLayout()};
+        std::vector<VkDescriptorSetLayout> collisionDescriptorSetLayouts = {particleSetLayout->getDescriptorSetLayout()};
 //        m_particleSystem = new AeParticleSystem(m_aeDevice,
 //                                                collisionDescriptorSetLayouts,
-//                                                m_computeBuffers,
+//                                                m_particleBuffers,
 //                                                m_renderer.getSwapChainRenderPass());
         m_particleSystem = new AeParticleSystem(m_aeDevice,
                                                 collisionDescriptorSetLayouts,
-                                                m_computeBuffers,
+                                                m_particleBuffers,
                                                 m_renderer.getSwapChainRenderPass());
 
 
@@ -444,8 +445,8 @@ namespace ae {
         delete m_particleSystem;
         m_particleSystem = nullptr;
 
-        delete m_computeDescriptorWriter;
-        m_computeDescriptorWriter = nullptr;
+        delete m_particleDescriptorWriter;
+        m_particleDescriptorWriter = nullptr;
 
     };
 
@@ -534,7 +535,7 @@ namespace ae {
 
             // Draw particles
             m_particleSystem->drawParticles(m_graphicsCommandBuffer,
-                                            m_computeBuffers[m_frameIndex]->getBufferReference());
+                                            m_particleBuffers[m_frameIndex]->getBufferReference());
 
             m_obbRenderSystem->executeSystem(m_graphicsCommandBuffer, m_globalDescriptorSets[m_frameIndex]);
 
