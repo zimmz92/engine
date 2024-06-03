@@ -36,7 +36,7 @@ namespace ae {
         std::uniform_real_distribution<float> rndDist(0.0f, 1.0f);
 
         // Initial particle positions on a circle
-        std::vector<Particle> particles(MAX_PARTICLES);
+        std::vector<Particle> particles(NUM_PARTICLES);
         for (auto& particle : particles) {
             float r = 0.25f * sqrt(rndDist(rndEngine));
             float theta = rndDist(rndEngine) * 2 * 3.14159265358979323846;
@@ -47,10 +47,10 @@ namespace ae {
             particle.color = glm::vec4(rndDist(rndEngine), rndDist(rndEngine), rndDist(rndEngine), 1.0f);
         }
 
-        VkDeviceSize bufferSize = sizeof(Particle) * MAX_PARTICLES;
+        VkDeviceSize bufferSize = sizeof(Particle) * NUM_PARTICLES;
         AeBuffer stagingBuffer = AeBuffer(m_aeDevice,
                                           sizeof(Particle),
-                                          MAX_PARTICLES,
+                                          NUM_PARTICLES,
                                           VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                                           VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
@@ -128,7 +128,7 @@ namespace ae {
                                 0,
                                 nullptr);
 
-        vkCmdDispatch(t_commandBuffer, MAX_PARTICLES / 256, 1, 1);
+        vkCmdDispatch(t_commandBuffer, NUM_PARTICLES / 256, 1, 1);
 
         if (vkEndCommandBuffer(t_commandBuffer) != VK_SUCCESS) {
             throw std::runtime_error("failed to record compute command buffer!");
@@ -146,7 +146,7 @@ namespace ae {
         vkCmdBindVertexBuffers(t_commandBuffer, 0, 1, &t_computeBuffer, offsets);
 
         // Draw the particles.
-        vkCmdDraw(t_commandBuffer, MAX_PARTICLES, 1, 0, 0);
+        vkCmdDraw(t_commandBuffer, NUM_PARTICLES, 1, 0, 0);
 
     }
 

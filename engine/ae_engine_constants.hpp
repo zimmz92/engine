@@ -35,6 +35,9 @@ static const std::size_t MAX_OBJECTS = 16384;
 /// The maximum number of models that are allowed to be loaded at a given time.
 static const std::size_t MAX_MODELS = 1024;
 
+/// The maximum number of allowed gpu particles at a single time
+static const std::size_t MAX_PARTICLES = 1024;
+
 namespace ae {
 
     /// A defined type for the material ID. uint32_t used here to be compatible with shader integer input.

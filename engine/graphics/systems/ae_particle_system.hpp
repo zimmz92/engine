@@ -17,7 +17,7 @@
 
 namespace ae {
 
-    static const std::size_t MAX_PARTICLES = 1024;
+    static const std::size_t NUM_PARTICLES = 1024;
 
     struct Particle {
         glm::vec2 position;

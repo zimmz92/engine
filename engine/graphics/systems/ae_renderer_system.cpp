@@ -84,7 +84,7 @@ namespace ae {
 
 
         //==============================================================================================================
-        // Collision Detection Descriptor Set Initialization
+        // Particle Descriptor Set Initialization
         //==============================================================================================================
         auto particleSetLayout = AeDescriptorSetLayout::Builder(m_aeDevice)
                 .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_COMPUTE_BIT, 1)
@@ -99,7 +99,7 @@ namespace ae {
             m_particleBuffers.push_back(std::make_unique<AeBuffer>(
                     m_aeDevice,
                     sizeof(Particle),
-                    MAX_PARTICLES,
+                    NUM_PARTICLES,
                     VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
                     VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
         };
