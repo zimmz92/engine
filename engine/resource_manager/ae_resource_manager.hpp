@@ -29,8 +29,11 @@ namespace ae {
         /// Loads the model (file/path/filename.obj) at the specified location.
         std::shared_ptr<Ae3DModel> use3DModel(const std::string& t_filepath);
 
+        /// Informs the resource manager that the model is no longer being utilized by a user.
         void unuse3DModel(const std::shared_ptr<Ae3DModel>& t_model);
 
+        /// Get the array with the model OBBs.
+        VkAabbPositionsKHR* getObbArray() { return obbArray;}
 
     private:
 
@@ -41,13 +44,10 @@ namespace ae {
         std::unordered_map<std::string, std::shared_ptr<Ae3DModel>> m_loadedModels;
 
         //==============================================================================================================
-        // 3D Oriented Bounding Box (OBB) Shader Storage Buffer Object (SSBO)
+        // 3D Oriented Bounding Box (OBB) Array to be used for Shader Storage Buffer Object (SSBO)
         //==============================================================================================================
-        /// The object descriptor sets used for storing the model matrices and texture indexes.
-        std::vector<VkDescriptorSet> m_3DObbSsboDescriptorSets;
-
-        /// The object buffers for each frame
-        std::vector<std::unique_ptr<AeBuffer>> m_3DObbSsboBuffers;
+        /// An for the 3D Oriented Bounding Box (OBB) for the Shader Storage Buffer Object (SSBO)
+        VkAabbPositionsKHR obbArray[MAX_MODELS] = {0,0,0,0,0,0};
 
         /// A stack to track the available data positions in the SSBO.
         PreAllocatedStack<ssbo_idx,MAX_MODELS> m_3DObbSsboIndexStack{};

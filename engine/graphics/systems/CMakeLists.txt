@@ -4,6 +4,8 @@ target_sources(mySrcFiles
         ae_renderer_system.cpp
         ae_particle_system.hpp
         ae_particle_system.cpp
+        ae_collision_system.hpp
+        ae_collision_system.cpp
     PUBLIC
 )
 

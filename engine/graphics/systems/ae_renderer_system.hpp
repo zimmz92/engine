@@ -28,6 +28,7 @@
 #include "ae_particle_system.hpp"
 #include "ae_obb_render_system.hpp"
 #include "ae_aabb_render_system.hpp"
+#include "ae_collision_system.hpp"
 
 #include "pre_allocated_stack.hpp"
 
@@ -146,7 +147,7 @@ namespace ae {
         std::map<std::shared_ptr<AeImage>,ImageBufferInfo> m_imageBufferEntityMaterialMap{};
 
         //==============================================================================================================
-        // Compute+Render: Particles
+        // Particles: Compute+Render
         //==============================================================================================================
         /// The compute descriptor set.
         std::vector<VkDescriptorSet> m_particleDescriptorSets;
@@ -164,7 +165,7 @@ namespace ae {
         std::vector<std::vector<VkDescriptorSet>> m_particleFrameDescriptorSets;
 
         //==============================================================================================================
-        // Compute+Render: Collision (OBB/AABB compute)
+        // Collision (OBB/AABB compute): Compute + Render(Debug)
         //==============================================================================================================
         /// The compute descriptor set.
         std::vector<VkDescriptorSet> m_collisionDescriptorSets;
@@ -176,7 +177,7 @@ namespace ae {
         AeDescriptorWriter* m_collisionDescriptorWriter;
 
         /// The particle system that sets up the displayed particles.
-        AeParticleSystem* m_collisionSystem;
+        AeCollisionSystem* m_collisionSystem;
 
         /// The group of descriptor sets that the particle system will need each frame to update the particles.
         std::vector<std::vector<VkDescriptorSet>> m_collisionFrameDescriptorSets;

@@ -28,6 +28,7 @@ namespace ae {
             // If the model is not already loaded create a new model and track its usage.
             // TODO: Using the shared pointer method gives me no control to load or unload modes as desired.
             std::shared_ptr<Ae3DModel> loadedModel = Ae3DModel::createModelFromFile(m_aeDevice, t_filepath, m_3DObbSsboIndexStack.pop());
+            obbArray[loadedModel->getIdxObbSsbo()] = loadedModel->getobb();
             m_loadedModels[t_filepath] = loadedModel;
             loadedModel->incrementNumUsers();
             return loadedModel;
