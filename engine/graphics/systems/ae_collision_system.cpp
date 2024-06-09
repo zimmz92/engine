@@ -25,10 +25,10 @@ namespace ae {
         createComputePipeline();
 
         // Creates the pipeline layout accounting for the global layout and sets the m_pipelineLayout member variable.
-        createPipelineLayout();
+        //createPipelineLayout();
 
         // Creates a graphics pipeline for this render system and sets the m_aePipeline member variable.
-        createPipeline(t_renderPass);
+        //createPipeline(t_renderPass);
     };
 
 
@@ -69,7 +69,7 @@ namespace ae {
         // Create the collision compute system pipeline.
         m_aeComputePipeline = std::make_unique<AeComputePipeline>(m_aeDevice,
                                                                   m_computePipelineLayout,
-                                                                  "engines/graphics/shaders/particles.comp.spv");
+                                                                  "engines/graphics/shaders/collision.comp.spv");
     };
 
 
@@ -91,7 +91,8 @@ namespace ae {
                                 0,
                                 nullptr);
 
-        vkCmdDispatch(t_commandBuffer, NUM_PARTICLES / 256, 1, 1);
+        // TODO: Set group count appropriately based on number of entities.
+        vkCmdDispatch(t_commandBuffer, 1, 1, 1);
 
         if (vkEndCommandBuffer(t_commandBuffer) != VK_SUCCESS) {
             throw std::runtime_error("failed to record compute command buffer!");
@@ -109,7 +110,8 @@ namespace ae {
         vkCmdBindVertexBuffers(t_commandBuffer, 0, 1, &t_computeBuffer, offsets);
 
         // Draw the particles.
-        vkCmdDraw(t_commandBuffer, NUM_PARTICLES, 1, 0, 0);
+        // TODO: Set number of draws appropriately based on number of entities.
+        vkCmdDraw(t_commandBuffer, 1, 1, 0, 0);
 
     }
 
@@ -124,7 +126,7 @@ namespace ae {
         vkCmdBindVertexBuffers(t_commandBuffer, 0, 1, &t_computeBuffer, offsets);
 
         // Draw the particles.
-        vkCmdDraw(t_commandBuffer, NUM_PARTICLES, 1, 0, 0);
+        vkCmdDraw(t_commandBuffer, 1, 1, 0, 0);
 
     }
 
@@ -156,17 +158,17 @@ namespace ae {
         GraphicsPipelineConfigInfo pipelineConfig{};
         AeGraphicsPipeline::defaultPipelineConfigInfo(pipelineConfig);
         AeGraphicsPipeline::enableAlphaBlending(pipelineConfig);
-        pipelineConfig.bindingDescriptions.clear();
-        pipelineConfig.bindingDescriptions = Particle::getBindingDescriptions();
-        pipelineConfig.attributeDescriptions.clear();
-        pipelineConfig.attributeDescriptions = Particle::getAttributeDescriptions();
+        //pipelineConfig.bindingDescriptions.clear();
+        //pipelineConfig.bindingDescriptions = Particle::getBindingDescriptions();
+        //pipelineConfig.attributeDescriptions.clear();
+        //pipelineConfig.attributeDescriptions = Particle::getAttributeDescriptions();
         pipelineConfig.renderPass = t_renderPass;
         pipelineConfig.pipelineLayout = m_pipelineLayout;
         pipelineConfig.rasterizationInfo.polygonMode = VK_POLYGON_MODE_POINT;
 
         GraphicsShaderFilesPaths shaderPaths{};
-        shaderPaths.vertFilepath = "engines/graphics/shaders/particles.vert.spv";
-        shaderPaths.fragFilepath = "engines/graphics/shaders/particles.frag.spv";
+        shaderPaths.vertFilepath = "engines/graphics/shaders/collision.vert.spv";
+        shaderPaths.fragFilepath = "engines/graphics/shaders/collision.frag.spv";
 
         // Create the point light render system pipeline.
         m_aePipeline = std::make_unique<AeGraphicsPipeline>(
