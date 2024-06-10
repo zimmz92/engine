@@ -7,6 +7,7 @@
 #include "ae_ecs_include.hpp"
 #include "game_components.hpp"
 #include "ae_samplers.hpp"
+#include "ae_resource_manager.hpp"
 
 #include "camera_update_system.hpp"
 #include "player_input_system.hpp"
@@ -28,7 +29,8 @@ namespace ae {
                     GLFWwindow* t_window,
                     AeDevice& t_device,
                     AeRenderer& t_renderer,
-                    AeSamplers& t_samplers) {
+                    AeSamplers& t_samplers,
+                    AeResourceManager& t_aeResourceManager) {
 
             timingSystem = new TimingSystem(t_ecs);
             playerInputSystem = new PlayerInputSystem(t_ecs, t_game_components, *timingSystem, t_window);
@@ -41,7 +43,8 @@ namespace ae {
                                                          *timingSystem,
                                                          t_renderer,
                                                          t_device,
-                                                         t_samplers);
+                                                         t_samplers,
+                                                         t_aeResourceManager);
 
 
             createDestroyTestSystem = new CreateDestroyTestSystem(t_window,

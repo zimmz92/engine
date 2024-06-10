@@ -130,9 +130,9 @@ namespace ae {
 
         vkCmdDispatch(t_commandBuffer, NUM_PARTICLES / 256, 1, 1);
 
-        if (vkEndCommandBuffer(t_commandBuffer) != VK_SUCCESS) {
-            throw std::runtime_error("failed to record compute command buffer!");
-        }
+//        if (vkEndCommandBuffer(t_commandBuffer) != VK_SUCCESS) {
+//            throw std::runtime_error("failed to record compute command buffer!");
+//        }
     };
 
     void AeParticleSystem::drawParticles(VkCommandBuffer &t_commandBuffer,

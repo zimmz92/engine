@@ -18,6 +18,7 @@
 #include "ae_descriptors.hpp"
 #include "ae_image.hpp"
 #include "ae_samplers.hpp"
+#include "ae_resource_manager.hpp"
 
 #include "game_materials.hpp"
 #include "ae_model_3d_buffer_system.hpp"
@@ -54,7 +55,8 @@ namespace ae {
                                 TimingSystem& t_timingSystem,
                                 AeRenderer& t_renderer,
                                 AeDevice& t_aeDevice,
-                                AeSamplers& t_aeSamplers);
+                                AeSamplers& t_aeSamplers,
+                                AeResourceManager& t_aeResourceManager);
 
         /// Destructor of the RendererStartPassSystem
         ~RendererStartPassSystem();
@@ -92,6 +94,9 @@ namespace ae {
 
         /// Reference to the game graphics device
         AeDevice& m_aeDevice;
+
+        /// Reference to the resource manager for the game.
+        AeResourceManager& m_aeResourceManager;
 
         /// The frame index for the current render pass.
         int m_frameIndex;
@@ -260,6 +265,6 @@ namespace ae {
         ObbRenderSystem* m_obbRenderSystem;
 
         /// AABB Render System for debug
-        AabbRenderSystem* m_aabbRenderSystem;
+        //AabbRenderSystem* m_aabbRenderSystem;
     };
 }

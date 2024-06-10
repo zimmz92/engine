@@ -28,7 +28,7 @@ namespace ae {
             // If the model is not already loaded create a new model and track its usage.
             // TODO: Using the shared pointer method gives me no control to load or unload modes as desired.
             std::shared_ptr<Ae3DModel> loadedModel = Ae3DModel::createModelFromFile(m_aeDevice, t_filepath, m_3DObbSsboIndexStack.pop());
-            obbArray[loadedModel->getIdxObbSsbo()] = loadedModel->getobb();
+            m_obbArray[loadedModel->getIdxObbSsbo()] = loadedModel->getobb();
             m_loadedModels[t_filepath] = loadedModel;
             loadedModel->incrementNumUsers();
             return loadedModel;
@@ -50,6 +50,13 @@ namespace ae {
             throw std::runtime_error("Decrementing number of model users would result in less than 0!!");
         }
     };
+
+    // Write the currently loaded model's OBBs into the specified SBBO buffer.
+    void AeResourceManager::updateObbSsbo(std::unique_ptr<AeBuffer>& t_obbSsboBuffer){
+        // Write the object buffer data to the descriptor set.
+        t_obbSsboBuffer->writeToBuffer(m_obbArray);
+        t_obbSsboBuffer->flush();
+    }
 
     void AeResourceManager::unloadModel(std::shared_ptr<Ae3DModel> t_model){
 

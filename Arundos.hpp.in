@@ -88,7 +88,8 @@ namespace ae {
                                   m_aeWindow.getGLFWwindow(),
                                   m_aeDevice,
                                   m_aeRenderer,
-                                  m_aeSamplers};
+                                  m_aeSamplers,
+                                  m_aeResourceManager};
 
         GameMaterials& m_gameMaterials = m_gameSystems.rendererSystem->getGameMaterials();
 

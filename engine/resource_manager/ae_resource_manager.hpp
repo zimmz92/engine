@@ -33,7 +33,11 @@ namespace ae {
         void unuse3DModel(const std::shared_ptr<Ae3DModel>& t_model);
 
         /// Get the array with the model OBBs.
-        VkAabbPositionsKHR* getObbArray() { return obbArray;}
+        VkAabbPositionsKHR* getObbArray() { return m_obbArray;}
+
+        /// Writes the OBBs of the currently loaded models into the specified SSBO
+        void updateObbSsbo(std::unique_ptr<AeBuffer>& t_obbSsboBuffer);
+
 
     private:
 
@@ -47,11 +51,10 @@ namespace ae {
         // 3D Oriented Bounding Box (OBB) Array to be used for Shader Storage Buffer Object (SSBO)
         //==============================================================================================================
         /// An for the 3D Oriented Bounding Box (OBB) for the Shader Storage Buffer Object (SSBO)
-        VkAabbPositionsKHR obbArray[MAX_MODELS] = {0,0,0,0,0,0};
+        VkAabbPositionsKHR m_obbArray[MAX_MODELS] = {0, 0, 0, 0, 0, 0};
 
         /// A stack to track the available data positions in the SSBO.
         PreAllocatedStack<ssbo_idx,MAX_MODELS> m_3DObbSsboIndexStack{};
-
 
 
         void unloadModel(std::shared_ptr<Ae3DModel> t_model);

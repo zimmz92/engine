@@ -10,7 +10,7 @@ struct VkAabbPositionsKHR{
 };
 
 //all object matrices
-struct ObjectData{
+struct EntityData{
 	mat4 modelMatrix;
 	mat4 normalMatrix;
 	uint textureIndex[20][10];
@@ -19,31 +19,24 @@ struct ObjectData{
     float spacer1[1];
 };
 
-layout(std430, set = 0, binding = 0) readonly buffer ObjectBuffer{
+layout(std430, set = 0, binding = 0) readonly buffer ObbBuffer{
 	VkAabbPositionsKHR modelOBB[];
 } objectBuffer;
 
-layout(std430, set = 1, binding = 0) readonly buffer ObjectBuffer{
-	ObjectData objects[];
-} objectBuffer;
+layout(std430, set = 1, binding = 0) readonly buffer EntityBuffer{
+	EntityData entities[];
+} entityBuffer;
+
+layout(push_constant) uniform Push {
+    uint numEntities;
+} push;
 
 // Define the number invocations of this compute shader in the current work group.
 layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
 
 void main()
 {
-    uint index = gl_GlobalInvocationID.x;
-
-    Particle particleIn = particlesIn[index];
-
-    particlesOut[index].position = particleIn.position + particleIn.velocity.xy * ubo.deltaTime;
-    particlesOut[index].velocity = particleIn.velocity;
-
-    // Flip movement at window border
-    if ((particlesOut[index].position.x <= -1.0) || (particlesOut[index].position.x >= 1.0)) {
-        particlesOut[index].velocity.x = -particlesOut[index].velocity.x;
-    }
-    if ((particlesOut[index].position.y <= -1.0) || (particlesOut[index].position.y >= 1.0)) {
-        particlesOut[index].velocity.y = -particlesOut[index].velocity.y;
+    if(gl_GlobalInvocationID.x < push.numEntities){
+        uint index = gl_GlobalInvocationID.x;
     }
 }

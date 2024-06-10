@@ -15,13 +15,15 @@ namespace ae {
                                                      TimingSystem& t_timingSystem,
                                                      AeRenderer& t_renderer,
                                                      AeDevice& t_aeDevice,
-                                                     AeSamplers& t_aeSamplers) :
+                                                     AeSamplers& t_aeSamplers,
+                                                     AeResourceManager& t_aeResourceManager) :
                                                      m_updateUboSystem{t_updateUboSystem},
                                                      m_timingSystem{t_timingSystem},
                                                      m_renderer{t_renderer},
                                                      m_aeDevice{t_aeDevice},
                                                      m_aeSamplers{t_aeSamplers},
                                                      m_gameComponents{t_game_components},
+                                                     m_aeResourceManager{t_aeResourceManager},
                                                      ae_ecs::AeSystem<RendererStartPassSystem>(t_ecs)  {
 
         // Register component dependencies
@@ -216,8 +218,8 @@ namespace ae {
         // Need a storage buffer for the model OBBs and a storage buffer for the 3D objects that use them to calculate
         // their AABB.
         auto collisionSetLayout = AeDescriptorSetLayout::Builder(m_aeDevice)
+                .addBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_COMPUTE_BIT, 1)
                 .addBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_COMPUTE_BIT, 1)
-                .addBinding(2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_COMPUTE_BIT, 1)
                 .build();
 
         // Allocate memory for the OBB compute buffers
@@ -230,6 +232,11 @@ namespace ae {
                     MAX_MODELS,
                     VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
                     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT));
+
+            // Attempt to map memory for the collision buffer.
+            if ( m_collisionBuffers.back()->map() != VK_SUCCESS) {
+                throw std::runtime_error("Failed to map the ubo buffer to memory!");
+            };
         };
 
 
@@ -258,10 +265,11 @@ namespace ae {
         // Create a collision compute system using the compute pipeline
         std::vector<VkDescriptorSetLayout> collisionDescriptorSetLayouts = {collisionSetLayout->getDescriptorSetLayout()};
 
-        m_collisionSystem = new AeCollisionSystem(m_aeDevice,
-                                                  collisionDescriptorSetLayouts,
-                                                  m_collisionBuffers,
-                                                  m_renderer.getSwapChainRenderPass());
+        m_collisionSystem = new AeCollisionSystem(t_ecs,
+                                                  t_game_components,
+                                                  m_aeDevice,
+                                                  m_renderer.getSwapChainRenderPass(),
+                                                  collisionDescriptorSetLayouts);
 
 
         //==============================================================================================================
@@ -448,11 +456,11 @@ namespace ae {
                                                 m_renderer.getSwapChainRenderPass(),
                                                 globalSetLayout->getDescriptorSetLayout());
 
-        m_aabbRenderSystem = new AabbRenderSystem(t_ecs,
-                                                t_game_components,
-                                                m_aeDevice,
-                                                m_renderer.getSwapChainRenderPass(),
-                                                globalSetLayout->getDescriptorSetLayout());
+//        m_aabbRenderSystem = new AabbRenderSystem(t_ecs,
+//                                                t_game_components,
+//                                                m_aeDevice,
+//                                                m_renderer.getSwapChainRenderPass(),
+//                                                globalSetLayout->getDescriptorSetLayout());
 
 
 //        m_uiRenderSystem = new UiRenderSystem(t_ecs,
@@ -477,8 +485,8 @@ namespace ae {
 //        delete m_uiRenderSystem;
 //        m_uiRenderSystem = nullptr;
 
-        delete m_aabbRenderSystem;
-        m_aabbRenderSystem = nullptr;
+//        delete m_aabbRenderSystem;
+//        m_aabbRenderSystem = nullptr;
 
         delete m_obbRenderSystem;
         m_obbRenderSystem = nullptr;
@@ -494,6 +502,12 @@ namespace ae {
 
         delete m_model3DBufferSystem;
         m_model3DBufferSystem = nullptr;
+
+        delete m_collisionSystem;
+        m_collisionSystem = nullptr;
+
+        delete m_collisionDescriptorWriter;
+        m_collisionDescriptorWriter = nullptr;
 
         delete m_textureDescriptorWriter;
         m_textureDescriptorWriter = nullptr;
@@ -567,10 +581,17 @@ namespace ae {
             m_object3DBuffersIndirect[m_frameIndex]->writeToBuffer(m_object3DBufferData.data());
             m_object3DBuffersIndirect[m_frameIndex]->flush();
 
+            // Update model OBB data before running computer
+            m_aeResourceManager.updateObbSsbo(m_collisionBuffers[m_frameIndex]);
+
             // Run compute
             m_computeCommandBuffer = m_renderer.getCurrentComputeCommandBuffer();
             m_particleSystem->recordComputeCommandBuffer(m_computeCommandBuffer,m_particleFrameDescriptorSets[m_frameIndex]);
             m_collisionSystem->recordComputeCommandBuffer(m_computeCommandBuffer,m_collisionFrameDescriptorSets[m_frameIndex]);
+
+            if (vkEndCommandBuffer(m_computeCommandBuffer) != VK_SUCCESS) {
+                throw std::runtime_error("failed to record compute command buffer!");
+            }
 
             // Start the render pass.
             m_renderer.beginSwapChainRenderPass(m_graphicsCommandBuffer);
@@ -594,7 +615,7 @@ namespace ae {
 
             m_obbRenderSystem->executeSystem(m_graphicsCommandBuffer, m_globalDescriptorSets[m_frameIndex]);
 
-            m_aabbRenderSystem->executeSystem(m_graphicsCommandBuffer, m_globalDescriptorSets[m_frameIndex]);
+            //m_aabbRenderSystem->executeSystem(m_graphicsCommandBuffer, m_globalDescriptorSets[m_frameIndex]);
 
 
             m_pointLightRenderSystem->executeSystem(m_graphicsCommandBuffer, m_globalDescriptorSets[m_frameIndex]);

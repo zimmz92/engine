@@ -13,10 +13,24 @@
 
 namespace ae {
 
-    AeCollisionSystem::AeCollisionSystem(AeDevice& t_aeDevice,
-                                       std::vector<VkDescriptorSetLayout> t_computeDescriptorSetLayouts,
-                                       std::vector<std::unique_ptr<AeBuffer>>& t_particleBuffers,
-                                       VkRenderPass t_renderPass) : m_aeDevice{t_aeDevice}{
+    AeCollisionSystem::AeCollisionSystem(ae_ecs::AeECS& t_ecs,
+                                         GameComponents& t_game_components,
+                                         AeDevice& t_aeDevice,
+                                         VkRenderPass t_renderPass,
+                                         std::vector<VkDescriptorSetLayout> t_computeDescriptorSetLayouts)
+            : m_worldPositionComponent{t_game_components.worldPositionComponent},
+              m_modelComponent{t_game_components.modelComponent},
+              m_aeDevice{t_aeDevice},
+              ae_ecs::AeSystem<AeCollisionSystem>(t_ecs) {
+
+        // Register component dependencies
+        m_worldPositionComponent.requiredBySystem(this->getSystemId());
+        m_modelComponent.requiredBySystem(this->getSystemId());
+
+        // Register system dependencies
+        // This is a child system and dependencies, as well as execution, will be handled by the parent system,
+        // RendererSystem.
+        this->isChildSystem = true;
 
         // Creates the compute pipeline layout accounting for the global layout and sets the m_pipelineLayout member variable.
         createComputePipelineLayout(t_computeDescriptorSetLayouts);
@@ -29,6 +43,9 @@ namespace ae {
 
         // Creates a graphics pipeline for this render system and sets the m_aePipeline member variable.
         //createPipeline(t_renderPass);
+
+        // Enable the system so it will run.
+        this->enableSystem();
     };
 
 
@@ -36,7 +53,7 @@ namespace ae {
     AeCollisionSystem::~AeCollisionSystem(){
 
         vkDestroyPipelineLayout(m_aeDevice.device(), m_computePipelineLayout, nullptr);
-        vkDestroyPipelineLayout(m_aeDevice.device(),m_pipelineLayout, nullptr);
+        //vkDestroyPipelineLayout(m_aeDevice.device(),m_pipelineLayout, nullptr);
 
     };
 
@@ -45,11 +62,19 @@ namespace ae {
     // Creates the pipeline layout for the collision compute system.
     void AeCollisionSystem::createComputePipelineLayout(std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts) {
 
+        // Define the push constant information for this pipeline.
+        VkPushConstantRange pushConstantRange{};
+        pushConstantRange.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
+        pushConstantRange.offset = 0;
+        pushConstantRange.size = sizeof(uint32_t);
+
         // Define the specific layout of the collision compute.
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
         pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(t_descriptorSetLayouts.size());
         pipelineLayoutInfo.pSetLayouts = t_descriptorSetLayouts.data();
+        pipelineLayoutInfo.pushConstantRangeCount = 1;
+        pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
 
         // Attempt to create the pipeline layout, if it cannot error out.
         if (vkCreatePipelineLayout(m_aeDevice.device(), &pipelineLayoutInfo, nullptr, &m_computePipelineLayout) != VK_SUCCESS) {
@@ -64,7 +89,7 @@ namespace ae {
     void AeCollisionSystem::createComputePipeline() {
 
         // Ensure the pipeline layout has already been created, cannot create a pipeline otherwise.
-        assert(m_computePipelineLayout != nullptr && "Cannot create point light render system's pipeline before pipeline layout!");
+        assert(m_computePipelineLayout != nullptr && "Cannot create collision compute pipeline before pipeline layout!");
 
         // Create the collision compute system pipeline.
         m_aeComputePipeline = std::make_unique<AeComputePipeline>(m_aeDevice,
@@ -80,6 +105,10 @@ namespace ae {
 
     void AeCollisionSystem::recordComputeCommandBuffer(VkCommandBuffer& t_commandBuffer, std::vector<VkDescriptorSet>& t_descriptorSets){
 
+        // Get the entities that use the components this system depends on.
+        std::vector<ecs_id> validEntityIds = m_systemManager.getEnabledSystemsEntities(this->getSystemId());
+        uint32_t numModels = validEntityIds.size();
+
         bindComputePipeline(t_commandBuffer);
 
         vkCmdBindDescriptorSets(t_commandBuffer,
@@ -91,12 +120,20 @@ namespace ae {
                                 0,
                                 nullptr);
 
-        // TODO: Set group count appropriately based on number of entities.
-        vkCmdDispatch(t_commandBuffer, 1, 1, 1);
+        // Push the point light information to the buffer.
+        vkCmdPushConstants(
+                t_commandBuffer,
+                m_computePipelineLayout,
+                VK_SHADER_STAGE_COMPUTE_BIT,
+                0,
+                sizeof(uint32_t),
+                &numModels);
 
-        if (vkEndCommandBuffer(t_commandBuffer) != VK_SUCCESS) {
-            throw std::runtime_error("failed to record compute command buffer!");
-        }
+        vkCmdDispatch(t_commandBuffer, (uint32_t)std::ceil(numModels/256), 1, 1);
+
+//        if (vkEndCommandBuffer(t_commandBuffer) != VK_SUCCESS) {
+//            throw std::runtime_error("failed to record compute command buffer!");
+//        }
     };
 
     void AeCollisionSystem::drawAABBs(VkCommandBuffer &t_commandBuffer,
@@ -134,6 +171,12 @@ namespace ae {
 
     // Creates the pipeline layout for the point light render system.
     void AeCollisionSystem::createPipelineLayout() {
+
+        // Define the push constant information for this pipeline.
+        VkPushConstantRange pushConstantRange{};
+        pushConstantRange.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
+        pushConstantRange.offset = 0;
+        pushConstantRange.size = sizeof(uint32_t);
 
         // Define the specific layout of the point light renderer.
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
@@ -176,7 +219,5 @@ namespace ae {
                 shaderPaths,
                 pipelineConfig);
     };
-
-
 
 } //namespace ae
