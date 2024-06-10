@@ -187,6 +187,9 @@ namespace ae {
         /// The group of descriptor sets that the particle system will need each frame to update the particles.
         std::vector<std::vector<VkDescriptorSet>> m_collisionFrameDescriptorSets;
 
+        /// The group of descriptor sets that the particle system will need each frame to update the particles.
+        std::vector<std::vector<VkDescriptorSet>> m_obbAabbFrameDescriptorSets;
+
 
         //==============================================================================================================
         // 3D Object Buffer

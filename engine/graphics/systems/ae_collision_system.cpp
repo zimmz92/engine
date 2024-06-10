@@ -17,7 +17,8 @@ namespace ae {
                                          GameComponents& t_game_components,
                                          AeDevice& t_aeDevice,
                                          VkRenderPass t_renderPass,
-                                         std::vector<VkDescriptorSetLayout> t_computeDescriptorSetLayouts)
+                                         std::vector<VkDescriptorSetLayout> t_computeDescriptorSetLayouts,
+                                         std::vector<VkDescriptorSetLayout> t_aabbDescriptorSetLayouts)
             : m_worldPositionComponent{t_game_components.worldPositionComponent},
               m_modelComponent{t_game_components.modelComponent},
               m_aeDevice{t_aeDevice},
@@ -39,10 +40,10 @@ namespace ae {
         createComputePipeline();
 
         // Creates the pipeline layout accounting for the global layout and sets the m_pipelineLayout member variable.
-        //createPipelineLayout();
+        createPipelineLayout(t_aabbDescriptorSetLayouts);
 
         // Creates a graphics pipeline for this render system and sets the m_aePipeline member variable.
-        //createPipeline(t_renderPass);
+        createPipeline(t_renderPass);
 
         // Enable the system so it will run.
         this->enableSystem();
@@ -53,7 +54,7 @@ namespace ae {
     AeCollisionSystem::~AeCollisionSystem(){
 
         vkDestroyPipelineLayout(m_aeDevice.device(), m_computePipelineLayout, nullptr);
-        //vkDestroyPipelineLayout(m_aeDevice.device(),m_pipelineLayout, nullptr);
+        vkDestroyPipelineLayout(m_aeDevice.device(),m_pipelineLayout, nullptr);
 
     };
 
@@ -137,18 +138,30 @@ namespace ae {
     };
 
     void AeCollisionSystem::drawAABBs(VkCommandBuffer &t_commandBuffer,
-                                         VkBuffer& t_computeBuffer){
+                                      std::vector<VkDescriptorSet>& t_descriptorSets){
+        // Tell the pipeline what the current command buffer being worked on is.
+        m_aePipeline->bind(t_commandBuffer);
+
+        // Bind the descriptor sets to the command buffer.
+        vkCmdBindDescriptorSets(t_commandBuffer,
+                                VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                m_pipelineLayout,
+                                0,
+                                static_cast<uint32_t>(t_descriptorSets.size()),
+                                t_descriptorSets.data(),
+                                0,
+                                nullptr);
+
+
+        std::vector<ecs_id> validEntityIds = m_systemManager.getEnabledSystemsEntities(this->getSystemId());
+        uint32_t numModels = validEntityIds.size();
 
         // Bind the graphics pipeline setup to draw the particles in the compute buffer.
         m_aePipeline->bind(t_commandBuffer);
 
-        // Bind the compute buffer with the updated particle positions to the pipeline.
-        VkDeviceSize offsets[] = {0};
-        vkCmdBindVertexBuffers(t_commandBuffer, 0, 1, &t_computeBuffer, offsets);
-
         // Draw the particles.
         // TODO: Set number of draws appropriately based on number of entities.
-        vkCmdDraw(t_commandBuffer, 1, 1, 0, 0);
+        vkCmdDraw(t_commandBuffer, 24, numModels, 0, 0);
 
     }
 
@@ -170,17 +183,13 @@ namespace ae {
 
 
     // Creates the pipeline layout for the point light render system.
-    void AeCollisionSystem::createPipelineLayout() {
+    void AeCollisionSystem::createPipelineLayout(std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts) {
 
-        // Define the push constant information for this pipeline.
-        VkPushConstantRange pushConstantRange{};
-        pushConstantRange.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
-        pushConstantRange.offset = 0;
-        pushConstantRange.size = sizeof(uint32_t);
-
-        // Define the specific layout of the point light renderer.
+        // Define the specific layout of the collision compute.
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+        pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(t_descriptorSetLayouts.size());
+        pipelineLayoutInfo.pSetLayouts = t_descriptorSetLayouts.data();
 
         // Attempt to create the pipeline layout, if it cannot error out.
         if (vkCreatePipelineLayout(m_aeDevice.device(), &pipelineLayoutInfo, nullptr, &m_pipelineLayout) != VK_SUCCESS) {
@@ -201,10 +210,12 @@ namespace ae {
         GraphicsPipelineConfigInfo pipelineConfig{};
         AeGraphicsPipeline::defaultPipelineConfigInfo(pipelineConfig);
         AeGraphicsPipeline::enableAlphaBlending(pipelineConfig);
-        //pipelineConfig.bindingDescriptions.clear();
-        //pipelineConfig.bindingDescriptions = Particle::getBindingDescriptions();
-        //pipelineConfig.attributeDescriptions.clear();
-        //pipelineConfig.attributeDescriptions = Particle::getAttributeDescriptions();
+
+        pipelineConfig.bindingDescriptions.clear();
+        pipelineConfig.bindingDescriptions = Ae3DModel::ObbVertex::getBindingDescriptions();
+        pipelineConfig.attributeDescriptions.clear();
+        pipelineConfig.attributeDescriptions = Ae3DModel::ObbVertex::getAttributeDescriptions();
+
         pipelineConfig.renderPass = t_renderPass;
         pipelineConfig.pipelineLayout = m_pipelineLayout;
         pipelineConfig.rasterizationInfo.polygonMode = VK_POLYGON_MODE_POINT;

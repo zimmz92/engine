@@ -21,9 +21,9 @@ struct EntityData{
 
 layout(std430, set = 0, binding = 0) readonly buffer ObbBuffer{
 	VkAabbPositionsKHR modelOBB[];
-} objectBuffer;
+} obbBuffer;
 
-layout(std430, set = 1, binding = 0) readonly buffer EntityBuffer{
+layout(std430, set = 0, binding = 1) buffer EntityBuffer{
 	EntityData entities[];
 } entityBuffer;
 
@@ -37,6 +37,44 @@ layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
 void main()
 {
     if(gl_GlobalInvocationID.x < push.numEntities){
-        uint index = gl_GlobalInvocationID.x;
+        vec4 positionWorld = entityBuffer.entities[gl_GlobalInvocationID.x].modelMatrix * vec4(0.0, 0.0, 0.0, 1.0);
+        mat3 rotationMatrix = {{0, 0, 0}, {0, 0, 0}, { 0, 0, 0 }};
+
+        for(uint i = 0; i<3; i++){
+            for(uint j = 0; j<3; j++){
+                   rotationMatrix[i][j] = sqrt(entityBuffer.entities[gl_GlobalInvocationID.x].modelMatrix[i][j] * entityBuffer.entities[gl_GlobalInvocationID.x].normalMatrix[i][j]);
+            }
+        }
+
+        float aabb[6] = {positionWorld.x,
+                         positionWorld.y,
+                         positionWorld.z,
+                         positionWorld.x,
+                         positionWorld.y,
+                         positionWorld.z};
+
+       uint obbIndex = entityBuffer.entities[gl_GlobalInvocationID.x].modelObbIndex;
+       float obb[6] = {obbBuffer.modelOBB[obbIndex].minX,
+                       obbBuffer.modelOBB[obbIndex].minY,
+                       obbBuffer.modelOBB[obbIndex].minZ,
+                       obbBuffer.modelOBB[obbIndex].maxX,
+                       obbBuffer.modelOBB[obbIndex].maxY,
+                       obbBuffer.modelOBB[obbIndex].maxZ};
+
+        for(uint i = 0; i<3; i++){
+            for(uint j = 0; j<3; j++){
+                float e = rotationMatrix[j][i] * obb[j];
+                float f = rotationMatrix[j][i] * obb[j+3];
+                aabb[i] += e < f ? e : f;
+                aabb[i + 3] += e < f ? f : e;
+            }
+        }
+
+        entityBuffer.entities[gl_GlobalInvocationID.x].aabb.minX = aabb[0];
+        entityBuffer.entities[gl_GlobalInvocationID.x].aabb.minY = aabb[1];
+        entityBuffer.entities[gl_GlobalInvocationID.x].aabb.minZ = aabb[2];
+        entityBuffer.entities[gl_GlobalInvocationID.x].aabb.maxX = aabb[3];
+        entityBuffer.entities[gl_GlobalInvocationID.x].aabb.maxY = aabb[4];
+        entityBuffer.entities[gl_GlobalInvocationID.x].aabb.maxZ = aabb[5];
     }
 }

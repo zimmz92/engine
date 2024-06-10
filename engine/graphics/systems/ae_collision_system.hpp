@@ -26,7 +26,8 @@ namespace ae {
                           GameComponents& t_game_components,
                           AeDevice& t_aeDevice,
                           VkRenderPass t_renderPass,
-                          std::vector<VkDescriptorSetLayout> t_computeDescriptorSetLayouts);
+                          std::vector<VkDescriptorSetLayout> t_computeDescriptorSetLayouts,
+                          std::vector<VkDescriptorSetLayout> t_aabbDescriptorSetLayouts);
 
         ~AeCollisionSystem();
 
@@ -35,7 +36,7 @@ namespace ae {
         void bindComputePipeline(VkCommandBuffer& t_commandBuffer);
 
         void drawAABBs(VkCommandBuffer &t_commandBuffer,
-                           VkBuffer& t_computeBuffer);
+                       std::vector<VkDescriptorSet>& t_descriptorSets);
 
         void drawOBBs(VkCommandBuffer &t_commandBuffer,
                       VkBuffer& t_computeBuffer);
@@ -80,7 +81,7 @@ namespace ae {
         void createComputePipeline();
 
 
-        void createPipelineLayout();
+        void createPipelineLayout(std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts);
 
         void createPipeline(VkRenderPass t_renderPass);
 

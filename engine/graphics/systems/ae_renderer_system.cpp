@@ -218,8 +218,8 @@ namespace ae {
         // Need a storage buffer for the model OBBs and a storage buffer for the 3D objects that use them to calculate
         // their AABB.
         auto collisionSetLayout = AeDescriptorSetLayout::Builder(m_aeDevice)
-                .addBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_COMPUTE_BIT, 1)
-                .addBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_COMPUTE_BIT, 1)
+                .addBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_COMPUTE_BIT | VK_SHADER_STAGE_VERTEX_BIT, 1)
+                .addBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_COMPUTE_BIT | VK_SHADER_STAGE_VERTEX_BIT, 1)
                 .build();
 
         // Allocate memory for the OBB compute buffers
@@ -262,14 +262,25 @@ namespace ae {
             m_collisionFrameDescriptorSets.push_back({m_collisionDescriptorSets[i]});
         }
 
+        m_obbAabbFrameDescriptorSets.reserve(MAX_FRAMES_IN_FLIGHT);
+        for(int i=0;i<MAX_FRAMES_IN_FLIGHT;i++){
+            m_obbAabbFrameDescriptorSets.push_back({m_globalDescriptorSets[i],
+                                                      m_collisionDescriptorSets[i]});
+        }
+
         // Create a collision compute system using the compute pipeline
         std::vector<VkDescriptorSetLayout> collisionDescriptorSetLayouts = {collisionSetLayout->getDescriptorSetLayout()};
+
+        // Create a aabb render system
+        std::vector<VkDescriptorSetLayout> aabbSetLayouts = {globalSetLayout->getDescriptorSetLayout(),
+                                                             collisionSetLayout->getDescriptorSetLayout()};
 
         m_collisionSystem = new AeCollisionSystem(t_ecs,
                                                   t_game_components,
                                                   m_aeDevice,
                                                   m_renderer.getSwapChainRenderPass(),
-                                                  collisionDescriptorSetLayouts);
+                                                  collisionDescriptorSetLayouts,
+                                                  aabbSetLayouts);
 
 
         //==============================================================================================================
@@ -404,9 +415,9 @@ namespace ae {
         m_frameDescriptorSetsOLD.reserve(MAX_FRAMES_IN_FLIGHT);
         for(int i=0;i<MAX_FRAMES_IN_FLIGHT;i++){
             m_frameDescriptorSets.push_back({m_globalDescriptorSets[i],
-                                        m_textureDescriptorSets[i],
-                                        m_object3DDescriptorSetsIndirect[i],
-                                        m_drawIndirectDescriptorSets[i]});
+                                             m_textureDescriptorSets[i],
+                                             m_object3DDescriptorSetsIndirect[i],
+                                             m_drawIndirectDescriptorSets[i]});
 
             m_frameDescriptorSetsOLD.push_back({m_globalDescriptorSets[i],
                                                 m_textureDescriptorSets[i],
@@ -616,6 +627,8 @@ namespace ae {
             m_obbRenderSystem->executeSystem(m_graphicsCommandBuffer, m_globalDescriptorSets[m_frameIndex]);
 
             //m_aabbRenderSystem->executeSystem(m_graphicsCommandBuffer, m_globalDescriptorSets[m_frameIndex]);
+
+            m_collisionSystem->drawAABBs(m_graphicsCommandBuffer,m_obbAabbFrameDescriptorSets[m_frameIndex]);
 
 
             m_pointLightRenderSystem->executeSystem(m_graphicsCommandBuffer, m_globalDescriptorSets[m_frameIndex]);
