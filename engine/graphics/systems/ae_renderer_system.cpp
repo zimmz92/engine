@@ -143,62 +143,6 @@ namespace ae {
 
 
         //==============================================================================================================
-        // Collision Descriptor Set Initialization
-        //==============================================================================================================
-        auto collisionSetLayout = AeDescriptorSetLayout::Builder(m_aeDevice)
-                .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_COMPUTE_BIT, 1)
-                .addBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_COMPUTE_BIT, 1)
-                .addBinding(2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_COMPUTE_BIT, 1)
-                .build();
-
-        // Allocate memory for the compute buffers
-        m_collisionBuffers.reserve(MAX_FRAMES_IN_FLIGHT);
-        for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-            // Create a new buffer and push it to the back of the vector of collision buffers.
-            m_collisionBuffers.push_back(std::make_unique<AeBuffer>(
-                    m_aeDevice,
-                    sizeof(VkAabbPositionsKHR),
-                    MAX_MODELS,
-                    VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-                    VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
-        };
-
-
-        m_collisionDescriptorWriter = new AeDescriptorWriter(collisionSetLayout, *m_globalPool);
-
-        // Reserve space for compute descriptor sets for each frame.
-        m_collisionDescriptorSets.reserve(MAX_FRAMES_IN_FLIGHT);
-        for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-            // Get the buffer information from the uboBuffers.
-            auto uboBufferInfo = m_uboBuffers[i]->descriptorInfo();
-            auto prevbufferInfo = m_collisionBuffers[(i - 1) % MAX_FRAMES_IN_FLIGHT]->descriptorInfo();
-            auto bufferInfo = m_collisionBuffers[i]->descriptorInfo();
-
-            // Initialize the descriptor set for the current frame.
-            m_collisionDescriptorWriter->writeBuffer(0, &uboBufferInfo)
-                    .writeBuffer(1, &prevbufferInfo)
-                    .writeBuffer(2, &bufferInfo)
-                    .build(m_collisionDescriptorSets[i]);
-        }
-
-        // Pack the descriptor sets used by the particle system into a vector.
-        m_collisionFrameDescriptorSets.reserve(MAX_FRAMES_IN_FLIGHT);
-        for(int i=0;i<MAX_FRAMES_IN_FLIGHT;i++){
-            m_collisionFrameDescriptorSets.push_back({m_collisionDescriptorSets[i]});
-
-        }
-
-        // Create a collision compute system using the compute pipeline
-        std::vector<VkDescriptorSetLayout> collisionDescriptorSetLayouts = {collisionSetLayout->getDescriptorSetLayout()};
-
-        m_collisionSystem = new AeCollisionSystem(m_aeDevice,
-                                                collisionDescriptorSetLayouts,
-                                                m_collisionBuffers,
-                                                m_renderer.getSwapChainRenderPass());
-
-
-
-        //==============================================================================================================
         // Texture Descriptor Set Initialization
         //==============================================================================================================
         // Define the descriptor set for the texture.
@@ -264,6 +208,61 @@ namespace ae {
                     .writeBuffer(0, &bufferInfo)
                     .build(m_object3DDescriptorSets[i]);
         }
+
+
+        //==============================================================================================================
+        // 3D Collision Descriptor Set Initialization
+        //==============================================================================================================
+        // Need a storage buffer for the model OBBs and a storage buffer for the 3D objects that use them to calculate
+        // their AABB.
+        auto collisionSetLayout = AeDescriptorSetLayout::Builder(m_aeDevice)
+                .addBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_COMPUTE_BIT, 1)
+                .addBinding(2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_COMPUTE_BIT, 1)
+                .build();
+
+        // Allocate memory for the OBB compute buffers
+        m_collisionBuffers.reserve(MAX_FRAMES_IN_FLIGHT);
+        for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            // Create a new buffer and push it to the back of the vector of collision buffers.
+            m_collisionBuffers.push_back(std::make_unique<AeBuffer>(
+                    m_aeDevice,
+                    sizeof(VkAabbPositionsKHR),
+                    MAX_MODELS,
+                    VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
+                    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT));
+        };
+
+
+        m_collisionDescriptorWriter = new AeDescriptorWriter(collisionSetLayout, *m_globalPool);
+
+        // Reserve space for compute descriptor sets for each frame.
+        m_collisionDescriptorSets.reserve(MAX_FRAMES_IN_FLIGHT);
+        for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            // Get the buffer information for the OBB SSBO
+            auto obb3dBufferInfo = m_collisionBuffers[i]->descriptorInfo();
+            // Get the buffer information for the entities
+            auto entity3dBufferInfo = m_object3DBuffers[i]->descriptorInfo();
+
+            // Initialize the descriptor set for the current frame.
+            m_collisionDescriptorWriter->writeBuffer(0, &obb3dBufferInfo)
+                    .writeBuffer(1, &entity3dBufferInfo)
+                    .build(m_collisionDescriptorSets[i]);
+        }
+
+        // Pack the descriptor sets used by the particle system into a vector.
+        m_collisionFrameDescriptorSets.reserve(MAX_FRAMES_IN_FLIGHT);
+        for(int i=0;i<MAX_FRAMES_IN_FLIGHT;i++){
+            m_collisionFrameDescriptorSets.push_back({m_collisionDescriptorSets[i]});
+        }
+
+        // Create a collision compute system using the compute pipeline
+        std::vector<VkDescriptorSetLayout> collisionDescriptorSetLayouts = {collisionSetLayout->getDescriptorSetLayout()};
+
+        m_collisionSystem = new AeCollisionSystem(m_aeDevice,
+                                                  collisionDescriptorSetLayouts,
+                                                  m_collisionBuffers,
+                                                  m_renderer.getSwapChainRenderPass());
+
 
         //==============================================================================================================
         // Setup Object Shader Storage Buffer for 2D Objects (SSBO)
@@ -529,11 +528,6 @@ namespace ae {
             m_uboBuffers[m_frameIndex]->writeToBuffer(m_updateUboSystem.getUbo());
             m_uboBuffers[m_frameIndex]->flush();
 
-            // Run compute
-            m_computeCommandBuffer = m_renderer.getCurrentComputeCommandBuffer();
-            m_particleSystem->recordComputeCommandBuffer(m_computeCommandBuffer,m_particleFrameDescriptorSets[m_frameIndex]);
-
-
             // Update the texture descriptor data for the models that are being rendered.
             //updateDescriptorSets();
 
@@ -573,6 +567,10 @@ namespace ae {
             m_object3DBuffersIndirect[m_frameIndex]->writeToBuffer(m_object3DBufferData.data());
             m_object3DBuffersIndirect[m_frameIndex]->flush();
 
+            // Run compute
+            m_computeCommandBuffer = m_renderer.getCurrentComputeCommandBuffer();
+            m_particleSystem->recordComputeCommandBuffer(m_computeCommandBuffer,m_particleFrameDescriptorSets[m_frameIndex]);
+            m_collisionSystem->recordComputeCommandBuffer(m_computeCommandBuffer,m_collisionFrameDescriptorSets[m_frameIndex]);
 
             // Start the render pass.
             m_renderer.beginSwapChainRenderPass(m_graphicsCommandBuffer);

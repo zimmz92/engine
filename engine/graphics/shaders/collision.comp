@@ -1,33 +1,31 @@
 #version 460
 
-struct PointLight{
-    vec4 position;
-    vec4 color;
+struct VkAabbPositionsKHR{
+    float    minX;
+    float    minY;
+    float    minZ;
+    float    maxX;
+    float    maxY;
+    float    maxZ;
 };
 
-layout(set = 0, binding = 0) uniform GlobalUbo {
-    mat4 projection;
-    mat4 view;
-    mat4 invView;
-    vec4 ambientLightColor;
-    PointLight pointLights[10]; // This, 10, could be passed in as a specialization constant
-    int numLights;
-    float deltaTime;
-} ubo;
-
-struct Particle {
-    vec2 position;
-    vec2 velocity;
-    vec4 color;
+//all object matrices
+struct ObjectData{
+	mat4 modelMatrix;
+	mat4 normalMatrix;
+	uint textureIndex[20][10];
+    VkAabbPositionsKHR aabb;
+    uint modelObbIndex;
+    float spacer1[1];
 };
 
-layout(std140, set=0, binding = 1) readonly buffer ParticleSSBOIn {
-   Particle particlesIn[ ];
-};
+layout(std430, set = 0, binding = 0) readonly buffer ObjectBuffer{
+	VkAabbPositionsKHR modelOBB[];
+} objectBuffer;
 
-layout(std140, set=0, binding = 2) buffer ParticleSSBOOut {
-   Particle particlesOut[ ];
-};
+layout(std430, set = 1, binding = 0) readonly buffer ObjectBuffer{
+	ObjectData objects[];
+} objectBuffer;
 
 // Define the number invocations of this compute shader in the current work group.
 layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
