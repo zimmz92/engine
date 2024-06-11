@@ -94,6 +94,7 @@ namespace ae {
                 t_object3DBufferData[entitySSBOIndex] = calculateModelMatrixData(entityWorldPosition,
                                                                                  entityModelData.rotation,
                                                                                  entityModelData.scale);
+                t_object3DBufferData[entitySSBOIndex].modelObbIndex = entityModelData.m_model->getIdxObbSsbo();
             } else {
                 // If the insert failed then the entity must already be assigned a position in the buffer so the newly
                 // assigned position can be given back. This may seem silly but when there are many entities it is
@@ -104,6 +105,7 @@ namespace ae {
                 t_object3DBufferData[entityObjectBufferIterator.first->second] = calculateModelMatrixData(entityWorldPosition,
                                                                                                           entityModelData.rotation,
                                                                                                           entityModelData.scale);
+                t_object3DBufferData[entityObjectBufferIterator.first->second].modelObbIndex = entityModelData.m_model->getIdxObbSsbo();
             };
         };
 
