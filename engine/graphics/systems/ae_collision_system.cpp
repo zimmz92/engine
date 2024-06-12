@@ -40,10 +40,10 @@ namespace ae {
         createComputePipeline();
 
         // Creates the pipeline layout accounting for the global layout and sets the m_pipelineLayout member variable.
-        createPipelineLayout(t_aabbDescriptorSetLayouts);
+        createAabbPipelineLayout(t_aabbDescriptorSetLayouts);
 
         // Creates a graphics pipeline for this render system and sets the m_aePipeline member variable.
-        createPipeline(t_renderPass);
+        createAabbPipeline(t_renderPass);
 
         // Enable the system so it will run.
         this->enableSystem();
@@ -183,7 +183,7 @@ namespace ae {
 
 
     // Creates the pipeline layout for the point light render system.
-    void AeCollisionSystem::createPipelineLayout(std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts) {
+    void AeCollisionSystem::createAabbPipelineLayout(std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts) {
 
         // Define the specific layout of the collision compute.
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
@@ -201,7 +201,56 @@ namespace ae {
 
 
     // Creates the pipeline for the point light render system.
-    void AeCollisionSystem::createPipeline(VkRenderPass t_renderPass) {
+    void AeCollisionSystem::createAabbPipeline(VkRenderPass t_renderPass) {
+
+        // Ensure the pipeline layout has already been created, cannot create a pipeline otherwise.
+        assert(m_pipelineLayout != nullptr && "Cannot create point light render system's pipeline before pipeline layout!");
+
+        // Define the pipeline to be created.
+        GraphicsPipelineConfigInfo pipelineConfig{};
+        AeGraphicsPipeline::defaultPipelineConfigInfo(pipelineConfig);
+        AeGraphicsPipeline::enableAlphaBlending(pipelineConfig);
+
+        pipelineConfig.bindingDescriptions.clear();
+        pipelineConfig.bindingDescriptions = Ae3DModel::ObbVertex::getBindingDescriptions();
+        pipelineConfig.attributeDescriptions.clear();
+        pipelineConfig.attributeDescriptions = Ae3DModel::ObbVertex::getAttributeDescriptions();
+
+        pipelineConfig.renderPass = t_renderPass;
+        pipelineConfig.pipelineLayout = m_pipelineLayout;
+        pipelineConfig.rasterizationInfo.polygonMode = VK_POLYGON_MODE_POINT;
+
+        GraphicsShaderFilesPaths shaderPaths{};
+        shaderPaths.vertFilepath = "engines/graphics/shaders/collision.vert.spv";
+        shaderPaths.fragFilepath = "engines/graphics/shaders/collision.frag.spv";
+
+        // Create the point light render system pipeline.
+        m_aePipeline = std::make_unique<AeGraphicsPipeline>(
+                m_aeDevice,
+                shaderPaths,
+                pipelineConfig);
+    };
+
+    // Creates the pipeline layout for the point light render system.
+    void AeCollisionSystem::createObbPipelineLayout(std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts) {
+
+        // Define the specific layout of the collision compute.
+        VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
+        pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+        pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(t_descriptorSetLayouts.size());
+        pipelineLayoutInfo.pSetLayouts = t_descriptorSetLayouts.data();
+
+        // Attempt to create the pipeline layout, if it cannot error out.
+        if (vkCreatePipelineLayout(m_aeDevice.device(), &pipelineLayoutInfo, nullptr, &m_pipelineLayout) != VK_SUCCESS) {
+            throw std::runtime_error("Failed to create the point light render system's pipeline layout!");
+        }
+
+    };
+
+
+
+    // Creates the pipeline for the point light render system.
+    void AeCollisionSystem::createObbPipeline(VkRenderPass t_renderPass) {
 
         // Ensure the pipeline layout has already been created, cannot create a pipeline otherwise.
         assert(m_pipelineLayout != nullptr && "Cannot create point light render system's pipeline before pipeline layout!");
