@@ -130,7 +130,9 @@ namespace ae {
                 sizeof(uint32_t),
                 &numModels);
 
-        vkCmdDispatch(t_commandBuffer, (uint32_t)std::ceil(numModels/256), 1, 1);
+        uint32_t numWorkGroups = (uint32_t)std::ceil((float)numModels/256.0);
+
+        vkCmdDispatch(t_commandBuffer, numWorkGroups, 1, 1);
 
 //        if (vkEndCommandBuffer(t_commandBuffer) != VK_SUCCESS) {
 //            throw std::runtime_error("failed to record compute command buffer!");
@@ -218,7 +220,8 @@ namespace ae {
 
         pipelineConfig.renderPass = t_renderPass;
         pipelineConfig.pipelineLayout = m_pipelineLayout;
-        pipelineConfig.rasterizationInfo.polygonMode = VK_POLYGON_MODE_POINT;
+        pipelineConfig.rasterizationInfo.polygonMode = VK_POLYGON_MODE_LINE;
+        pipelineConfig.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
 
         GraphicsShaderFilesPaths shaderPaths{};
         shaderPaths.vertFilepath = "engines/graphics/shaders/collision.vert.spv";
