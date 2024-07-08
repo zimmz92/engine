@@ -70,11 +70,25 @@ void main()
             }
         }
 
-        entityBuffer.entities[gl_GlobalInvocationID.x].aabb.minX = aabb[0];
-        entityBuffer.entities[gl_GlobalInvocationID.x].aabb.minY = aabb[1];
-        entityBuffer.entities[gl_GlobalInvocationID.x].aabb.minZ = aabb[2];
-        entityBuffer.entities[gl_GlobalInvocationID.x].aabb.maxX = aabb[3];
-        entityBuffer.entities[gl_GlobalInvocationID.x].aabb.maxY = aabb[4];
-        entityBuffer.entities[gl_GlobalInvocationID.x].aabb.maxZ = aabb[5];
+        //entityBuffer.entities[gl_GlobalInvocationID.x].aabb.minX = aabb[0];
+        //entityBuffer.entities[gl_GlobalInvocationID.x].aabb.minY = aabb[1];
+        //entityBuffer.entities[gl_GlobalInvocationID.x].aabb.minZ = aabb[2];
+        //entityBuffer.entities[gl_GlobalInvocationID.x].aabb.maxX = aabb[3];
+        //entityBuffer.entities[gl_GlobalInvocationID.x].aabb.maxY = aabb[4];
+        //entityBuffer.entities[gl_GlobalInvocationID.x].aabb.maxZ = aabb[5];
+
+        entityBuffer.entities[gl_GlobalInvocationID.x].aabb.minX = obb[0];
+        entityBuffer.entities[gl_GlobalInvocationID.x].aabb.minY = obb[1];
+        entityBuffer.entities[gl_GlobalInvocationID.x].aabb.minZ = obb[2];
+        entityBuffer.entities[gl_GlobalInvocationID.x].aabb.maxX = obb[3];
+        entityBuffer.entities[gl_GlobalInvocationID.x].aabb.maxY = obb[4];
+        entityBuffer.entities[gl_GlobalInvocationID.x].aabb.maxZ = obb[5];
+
+        //entityBuffer.entities[gl_GlobalInvocationID.x].aabb.minX = 0;
+        //entityBuffer.entities[gl_GlobalInvocationID.x].aabb.minY = 0;
+        //entityBuffer.entities[gl_GlobalInvocationID.x].aabb.minZ = 0;
+        //entityBuffer.entities[gl_GlobalInvocationID.x].aabb.maxX = 2;
+        //entityBuffer.entities[gl_GlobalInvocationID.x].aabb.maxY = 2;
+        //entityBuffer.entities[gl_GlobalInvocationID.x].aabb.maxZ = 2;
     }
 }

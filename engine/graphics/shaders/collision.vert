@@ -86,4 +86,9 @@ void main()
     vec3 aabb_vertex_position = vec3(aabb[aabb_vertex_indices[0]],aabb[aabb_vertex_indices[1]],aabb[aabb_vertex_indices[2]]);
     vec4 positionWorld = vec4(aabb_vertex_position, 1.0);
     gl_Position = ubo.projection * ubo.view * positionWorld;
+
+    //uint[3] aabb_vertex_indices = AABB_VERTICES[gl_VertexIndex];
+    //vec3 aabb_vertex_position = vec3(aabb[aabb_vertex_indices[0]],aabb[aabb_vertex_indices[1]],aabb[aabb_vertex_indices[2]]);
+    //vec4 positionWorld = entityBuffer.entities[gl_InstanceIndex].modelMatrix * vec4(position, 1.0);
+    //gl_Position = ubo.projection * ubo.view * positionWorld;
 }

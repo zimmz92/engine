@@ -234,35 +234,35 @@ namespace ae {
         float cubeScaling = 0.25f;
         auto sphere_size_float = (double) sphere_size;
 
-        for (int x = 0; x < sphere_size; x++) {
-            for (int y = 0; y < sphere_size; y++) {
-                for (int z = 0; z < sphere_size; z++){
-                    if (sqrt(((double)x - sphere_size_float / 2.0f) *
-                    ((double)x - sphere_size_float / 2.0f) +
-                    ((double)y - sphere_size_float / 2.0f) *
-                    ((double)y - sphere_size_float / 2.0f) +
-                    ((double)z - sphere_size_float / 2.0f) *
-                    ((double)z - sphere_size_float / 2.0f)) <= (double)sphere_size_float / 2.0f) {
-                        auto cubeSolid = GameObjectEntity(m_aeECS, m_gameComponents);
-                        cubeSolid.m_worldPosition = {0.0f + (cubeScaling * 2 * (float) x),
-                                                       0.0f - (cubeScaling * 2 * (float) y),
-                                                       0.0f + (cubeScaling * 2 * (float) z)};
-                        cubeSolid.m_model.m_texture = aeImage;
-                        cubeSolid.m_model.m_sampler = m_aeSamplers.getDefaultSampler();
-                        cubeSolid.m_model.m_model = aeModel;
-                        cubeSolid.m_model.scale = {cubeScaling, cubeScaling, cubeScaling};
-                        cubeSolid.m_model.rotation = {0.0f, 0.0f, 0.0f};
-
-
-                        auto &cubeSolidProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntityReference(cubeSolid.getEntityId());
-                        //cubeSolidProperties.m_fragmentTextures[0].m_texture = aeImage;
-                        //cubeSolidProperties.m_fragmentTextures[0].m_sampler = m_aeSamplers.getDefaultSampler();
-
-                        cubeSolid.enableEntity();
-                    }
-            }
-        }
-    }
+//        for (int x = 0; x < sphere_size; x++) {
+//            for (int y = 0; y < sphere_size; y++) {
+//                for (int z = 0; z < sphere_size; z++){
+//                    if (sqrt(((double)x - sphere_size_float / 2.0f) *
+//                    ((double)x - sphere_size_float / 2.0f) +
+//                    ((double)y - sphere_size_float / 2.0f) *
+//                    ((double)y - sphere_size_float / 2.0f) +
+//                    ((double)z - sphere_size_float / 2.0f) *
+//                    ((double)z - sphere_size_float / 2.0f)) <= (double)sphere_size_float / 2.0f) {
+//                        auto cubeSolid = GameObjectEntity(m_aeECS, m_gameComponents);
+//                        cubeSolid.m_worldPosition = {0.0f + (cubeScaling * 2 * (float) x),
+//                                                       0.0f - (cubeScaling * 2 * (float) y),
+//                                                       0.0f + (cubeScaling * 2 * (float) z)};
+//                        cubeSolid.m_model.m_texture = aeImage;
+//                        cubeSolid.m_model.m_sampler = m_aeSamplers.getDefaultSampler();
+//                        cubeSolid.m_model.m_model = aeModel;
+//                        cubeSolid.m_model.scale = {cubeScaling, cubeScaling, cubeScaling};
+//                        cubeSolid.m_model.rotation = {0.0f, 0.0f, 0.0f};
+//
+//
+//                        auto &cubeSolidProperties = m_gameMaterials.m_simpleMaterial.m_materialComponent.requiredByEntityReference(cubeSolid.getEntityId());
+//                        //cubeSolidProperties.m_fragmentTextures[0].m_texture = aeImage;
+//                        //cubeSolidProperties.m_fragmentTextures[0].m_sampler = m_aeSamplers.getDefaultSampler();
+//
+//                        cubeSolid.enableEntity();
+//                    }
+//            }
+//        }
+//    }
 
 
         //==============================================================================================================

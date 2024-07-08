@@ -64,7 +64,8 @@ namespace ae {
         glm::mat4 normalMatrix{ 1.0f };
 
         /// The index of the 3D objects textures for a given material.
-        alignas(16) uint32_t textureIndex[MAX_3D_MATERIALS][MAX_3D_MATERIAL_TEXTURES]{};
+        //alignas(16) uint32_t textureIndex[MAX_3D_MATERIALS][MAX_3D_MATERIAL_TEXTURES]{};
+        uint32_t textureIndex[MAX_3D_MATERIALS][MAX_3D_MATERIAL_TEXTURES]{};
 
         /// The AABB of this 3D object.
         VkAabbPositionsKHR aabb = {0.0f};
