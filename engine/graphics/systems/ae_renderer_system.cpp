@@ -597,7 +597,7 @@ namespace ae {
 
             // Run compute
             m_computeCommandBuffer = m_renderer.getCurrentComputeCommandBuffer();
-            m_particleSystem->recordComputeCommandBuffer(m_computeCommandBuffer,m_particleFrameDescriptorSets[m_frameIndex]);
+            //m_particleSystem->recordComputeCommandBuffer(m_computeCommandBuffer,m_particleFrameDescriptorSets[m_frameIndex]);
             m_collisionSystem->recordComputeCommandBuffer(m_computeCommandBuffer,m_collisionFrameDescriptorSets[m_frameIndex]);
 
             if (vkEndCommandBuffer(m_computeCommandBuffer) != VK_SUCCESS) {
@@ -621,10 +621,10 @@ namespace ae {
             }
 
             // Draw particles
-            m_particleSystem->drawParticles(m_graphicsCommandBuffer,
-                                            m_particleBuffers[m_frameIndex]->getBufferReference());
+//            m_particleSystem->drawParticles(m_graphicsCommandBuffer,
+//                                            m_particleBuffers[m_frameIndex]->getBufferReference());
 
-            m_obbRenderSystem->executeSystem(m_graphicsCommandBuffer, m_globalDescriptorSets[m_frameIndex]);
+            //m_obbRenderSystem->executeSystem(m_graphicsCommandBuffer, m_globalDescriptorSets[m_frameIndex]);
 
             //m_aabbRenderSystem->executeSystem(m_graphicsCommandBuffer, m_globalDescriptorSets[m_frameIndex]);
 
