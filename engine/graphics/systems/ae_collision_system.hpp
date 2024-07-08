@@ -81,9 +81,13 @@ namespace ae {
         void createComputePipeline();
 
 
-        void createPipelineLayout(std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts);
+        void createAabbPipelineLayout(std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts);
 
-        void createPipeline(VkRenderPass t_renderPass);
+        void createAabbPipeline(VkRenderPass t_renderPass);
+
+        void createObbPipelineLayout(std::vector<VkDescriptorSetLayout>& t_descriptorSetLayouts);
+
+        void createObbPipeline(VkRenderPass t_renderPass);
 
         /// The graphics device this render system will be using.
         AeDevice& m_aeDevice;
