@@ -40,6 +40,12 @@ namespace ae {
         createComputePipeline();
 
         // Creates the pipeline layout accounting for the global layout and sets the m_pipelineLayout member variable.
+        createObbPipelineLayout(t_aabbDescriptorSetLayouts);
+
+        // Creates a graphics pipeline for this render system and sets the m_aePipeline member variable.
+        createObbPipeline(t_renderPass);
+
+        // Creates the pipeline layout accounting for the global layout and sets the m_pipelineLayout member variable.
         createAabbPipelineLayout(t_aabbDescriptorSetLayouts);
 
         // Creates a graphics pipeline for this render system and sets the m_aePipeline member variable.
@@ -54,7 +60,8 @@ namespace ae {
     AeCollisionSystem::~AeCollisionSystem(){
 
         vkDestroyPipelineLayout(m_aeDevice.device(), m_computePipelineLayout, nullptr);
-        vkDestroyPipelineLayout(m_aeDevice.device(),m_pipelineLayout, nullptr);
+        vkDestroyPipelineLayout(m_aeDevice.device(), m_aabbPipelineLayout, nullptr);
+        vkDestroyPipelineLayout(m_aeDevice.device(), m_obbPipelineLayout, nullptr);
 
     };
 
@@ -141,13 +148,14 @@ namespace ae {
 
     void AeCollisionSystem::drawAABBs(VkCommandBuffer &t_commandBuffer,
                                       std::vector<VkDescriptorSet>& t_descriptorSets){
+
         // Tell the pipeline what the current command buffer being worked on is.
-        m_aePipeline->bind(t_commandBuffer);
+        m_aabbPipeline->bind(t_commandBuffer);
 
         // Bind the descriptor sets to the command buffer.
         vkCmdBindDescriptorSets(t_commandBuffer,
                                 VK_PIPELINE_BIND_POINT_GRAPHICS,
-                                m_pipelineLayout,
+                                m_aabbPipelineLayout,
                                 0,
                                 static_cast<uint32_t>(t_descriptorSets.size()),
                                 t_descriptorSets.data(),
@@ -155,30 +163,38 @@ namespace ae {
                                 nullptr);
 
 
+        // Get the number of entities
         std::vector<ecs_id> validEntityIds = m_systemManager.getEnabledSystemsEntities(this->getSystemId());
         uint32_t numModels = validEntityIds.size();
 
-        // Bind the graphics pipeline setup to draw the particles in the compute buffer.
-        m_aePipeline->bind(t_commandBuffer);
-
-        // Draw the particles.
-        // TODO: Set number of draws appropriately based on number of entities.
+        // Draw he AABB for each entity.
         vkCmdDraw(t_commandBuffer, 24, numModels, 0, 0);
 
     }
 
     void AeCollisionSystem::drawOBBs(VkCommandBuffer &t_commandBuffer,
-                                          VkBuffer& t_computeBuffer){
+                                     std::vector<VkDescriptorSet>& t_descriptorSets){
 
-        // Bind the graphics pipeline setup to draw the particles in the compute buffer.
-        m_aePipeline->bind(t_commandBuffer);
+        // Tell the pipeline what the current command buffer being worked on is.
+        m_obbPipeline->bind(t_commandBuffer);
 
-        // Bind the compute buffer with the updated particle positions to the pipeline.
-        VkDeviceSize offsets[] = {0};
-        vkCmdBindVertexBuffers(t_commandBuffer, 0, 1, &t_computeBuffer, offsets);
+        // Bind the descriptor sets to the command buffer.
+        vkCmdBindDescriptorSets(t_commandBuffer,
+                                VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                m_obbPipelineLayout,
+                                0,
+                                static_cast<uint32_t>(t_descriptorSets.size()),
+                                t_descriptorSets.data(),
+                                0,
+                                nullptr);
 
-        // Draw the particles.
-        vkCmdDraw(t_commandBuffer, 1, 1, 0, 0);
+
+        // Get the number of entities
+        std::vector<ecs_id> validEntityIds = m_systemManager.getEnabledSystemsEntities(this->getSystemId());
+        uint32_t numModels = validEntityIds.size();
+
+        // Draw he AABB for each entity.
+        vkCmdDraw(t_commandBuffer, 24, numModels, 0, 0);
 
     }
 
@@ -194,7 +210,7 @@ namespace ae {
         pipelineLayoutInfo.pSetLayouts = t_descriptorSetLayouts.data();
 
         // Attempt to create the pipeline layout, if it cannot error out.
-        if (vkCreatePipelineLayout(m_aeDevice.device(), &pipelineLayoutInfo, nullptr, &m_pipelineLayout) != VK_SUCCESS) {
+        if (vkCreatePipelineLayout(m_aeDevice.device(), &pipelineLayoutInfo, nullptr, &m_aabbPipelineLayout) != VK_SUCCESS) {
             throw std::runtime_error("Failed to create the point light render system's pipeline layout!");
         }
 
@@ -206,7 +222,7 @@ namespace ae {
     void AeCollisionSystem::createAabbPipeline(VkRenderPass t_renderPass) {
 
         // Ensure the pipeline layout has already been created, cannot create a pipeline otherwise.
-        assert(m_pipelineLayout != nullptr && "Cannot create point light render system's pipeline before pipeline layout!");
+        assert(m_aabbPipelineLayout != nullptr && "Cannot create point light render system's pipeline before pipeline layout!");
 
         // Define the pipeline to be created.
         GraphicsPipelineConfigInfo pipelineConfig{};
@@ -214,20 +230,19 @@ namespace ae {
         AeGraphicsPipeline::enableAlphaBlending(pipelineConfig);
 
         pipelineConfig.bindingDescriptions.clear();
-        pipelineConfig.bindingDescriptions = Ae3DModel::ObbVertex::getBindingDescriptions();
         pipelineConfig.attributeDescriptions.clear();
-        pipelineConfig.attributeDescriptions = Ae3DModel::ObbVertex::getAttributeDescriptions();
 
         pipelineConfig.renderPass = t_renderPass;
-        pipelineConfig.pipelineLayout = m_pipelineLayout;
-        pipelineConfig.rasterizationInfo.polygonMode = VK_POLYGON_MODE_POINT;
+        pipelineConfig.pipelineLayout = m_aabbPipelineLayout;
+        pipelineConfig.rasterizationInfo.polygonMode = VK_POLYGON_MODE_LINE;
+        pipelineConfig.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
 
         GraphicsShaderFilesPaths shaderPaths{};
-        shaderPaths.vertFilepath = "engines/graphics/shaders/collision.vert.spv";
-        shaderPaths.fragFilepath = "engines/graphics/shaders/collision.frag.spv";
+        shaderPaths.vertFilepath = "engines/graphics/shaders/aabb.vert.spv";
+        shaderPaths.fragFilepath = "engines/graphics/shaders/aabb.frag.spv";
 
         // Create the point light render system pipeline.
-        m_aePipeline = std::make_unique<AeGraphicsPipeline>(
+        m_aabbPipeline = std::make_unique<AeGraphicsPipeline>(
                 m_aeDevice,
                 shaderPaths,
                 pipelineConfig);
@@ -243,7 +258,7 @@ namespace ae {
         pipelineLayoutInfo.pSetLayouts = t_descriptorSetLayouts.data();
 
         // Attempt to create the pipeline layout, if it cannot error out.
-        if (vkCreatePipelineLayout(m_aeDevice.device(), &pipelineLayoutInfo, nullptr, &m_pipelineLayout) != VK_SUCCESS) {
+        if (vkCreatePipelineLayout(m_aeDevice.device(), &pipelineLayoutInfo, nullptr, &m_obbPipelineLayout) != VK_SUCCESS) {
             throw std::runtime_error("Failed to create the point light render system's pipeline layout!");
         }
 
@@ -255,7 +270,7 @@ namespace ae {
     void AeCollisionSystem::createObbPipeline(VkRenderPass t_renderPass) {
 
         // Ensure the pipeline layout has already been created, cannot create a pipeline otherwise.
-        assert(m_pipelineLayout != nullptr && "Cannot create point light render system's pipeline before pipeline layout!");
+        assert(m_obbPipelineLayout != nullptr && "Cannot create point light render system's pipeline before pipeline layout!");
 
         // Define the pipeline to be created.
         GraphicsPipelineConfigInfo pipelineConfig{};
@@ -263,21 +278,19 @@ namespace ae {
         AeGraphicsPipeline::enableAlphaBlending(pipelineConfig);
 
         pipelineConfig.bindingDescriptions.clear();
-        pipelineConfig.bindingDescriptions = Ae3DModel::ObbVertex::getBindingDescriptions();
         pipelineConfig.attributeDescriptions.clear();
-        pipelineConfig.attributeDescriptions = Ae3DModel::ObbVertex::getAttributeDescriptions();
 
         pipelineConfig.renderPass = t_renderPass;
-        pipelineConfig.pipelineLayout = m_pipelineLayout;
+        pipelineConfig.pipelineLayout = m_obbPipelineLayout;
         pipelineConfig.rasterizationInfo.polygonMode = VK_POLYGON_MODE_LINE;
         pipelineConfig.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
 
         GraphicsShaderFilesPaths shaderPaths{};
-        shaderPaths.vertFilepath = "engines/graphics/shaders/collision.vert.spv";
-        shaderPaths.fragFilepath = "engines/graphics/shaders/collision.frag.spv";
+        shaderPaths.vertFilepath = "engines/graphics/shaders/obb.vert.spv";
+        shaderPaths.fragFilepath = "engines/graphics/shaders/obb.frag.spv";
 
         // Create the point light render system pipeline.
-        m_aePipeline = std::make_unique<AeGraphicsPipeline>(
+        m_obbPipeline = std::make_unique<AeGraphicsPipeline>(
                 m_aeDevice,
                 shaderPaths,
                 pipelineConfig);

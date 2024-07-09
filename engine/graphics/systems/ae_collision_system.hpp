@@ -39,7 +39,7 @@ namespace ae {
                        std::vector<VkDescriptorSet>& t_descriptorSets);
 
         void drawOBBs(VkCommandBuffer &t_commandBuffer,
-                      VkBuffer& t_computeBuffer);
+                      std::vector<VkDescriptorSet>& t_descriptorSets);
 
         void recordComputeCommandBuffer(VkCommandBuffer& t_commandBuffer, std::vector<VkDescriptorSet>& t_descriptorSets);
 
@@ -93,10 +93,16 @@ namespace ae {
         AeDevice& m_aeDevice;
 
         /// The layout of this render system's pipeline.
-        VkPipelineLayout m_pipelineLayout;
+        VkPipelineLayout m_aabbPipelineLayout;
 
         /// The pipeline created for this render system.
-        std::unique_ptr<AeGraphicsPipeline> m_aePipeline;
+        std::unique_ptr<AeGraphicsPipeline> m_aabbPipeline;
+
+        /// The layout of this render system's pipeline.
+        VkPipelineLayout m_obbPipelineLayout;
+
+        /// The pipeline created for this render system.
+        std::unique_ptr<AeGraphicsPipeline> m_obbPipeline;
 
         /// The layout of this render system's pipeline.
         VkPipelineLayout m_computePipelineLayout;
