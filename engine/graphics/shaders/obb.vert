@@ -1,6 +1,33 @@
-#version 450
+#version 460
 
-layout(location = 0) in vec3 position;
+// OBB (x,y,z)
+// 0 = minimum value, 1 = maximum value
+const uint OBB_VERTICES[24][3] = uint[24][3](
+  uint[3](0,4,2),
+  uint[3](0,4,5),
+  uint[3](0,4,2),
+  uint[3](3,4,2),
+  uint[3](0,4,2),
+  uint[3](0,1,2),
+  uint[3](3,4,5),
+  uint[3](0,4,5),
+  uint[3](3,4,5),
+  uint[3](3,4,2),
+  uint[3](3,4,5),
+  uint[3](3,1,5),
+  uint[3](0,1,5),
+  uint[3](3,1,5),
+  uint[3](0,1,5),
+  uint[3](0,1,2),
+  uint[3](0,1,5),
+  uint[3](0,4,5),
+  uint[3](3,1,2),
+  uint[3](3,1,5),
+  uint[3](3,1,2),
+  uint[3](0,1,2),
+  uint[3](3,1,2),
+  uint[3](3,4,2)
+);
 
 struct PointLight{
     vec4 position;
@@ -17,12 +44,48 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
     float deltaTime;
 } ubo;
 
-layout(push_constant) uniform Push {
-    mat4 modelMatrix;
-    mat4 normalMatrix;
-} push;
+struct VkAabbPositionsKHR{
+    float    minX;
+    float    minY;
+    float    minZ;
+    float    maxX;
+    float    maxY;
+    float    maxZ;
+};
 
-void main() {
-    vec4 positionWorld = push.modelMatrix * vec4(position, 1.0);
+//all object matrices
+struct EntityData{
+	mat4 modelMatrix;
+	mat4 normalMatrix;
+	uint textureIndex[20][10];
+    VkAabbPositionsKHR aabb;
+    uint modelObbIndex;
+    float spacer1[1];
+};
+
+layout(std430, set = 1, binding = 0) readonly buffer ObbBuffer{
+	VkAabbPositionsKHR modelOBB[];
+} obbBuffer;
+
+layout(std430, set = 1, binding = 1) readonly buffer EntityBuffer{
+	EntityData entities[];
+} entityBuffer;
+
+void main()
+{
+    //uint arrayIndex = gl_BaseInstance + gl_InstanceIndex;
+    uint arrayIndex = gl_InstanceIndex;
+
+    uint obbIndex = entityBuffer.entities[arrayIndex].modelObbIndex;
+    float obb[6] = {obbBuffer.modelOBB[obbIndex].minX,
+                    obbBuffer.modelOBB[obbIndex].minY,
+                    obbBuffer.modelOBB[obbIndex].minZ,
+                    obbBuffer.modelOBB[obbIndex].maxX,
+                    obbBuffer.modelOBB[obbIndex].maxY,
+                    obbBuffer.modelOBB[obbIndex].maxZ};
+
+    uint[3] obb_vertex_indices = OBB_VERTICES[gl_VertexIndex];
+    vec3 obb_vertex_position = vec3(obb[obb_vertex_indices[0]],obb[obb_vertex_indices[1]],obb[obb_vertex_indices[2]]);
+    vec4 positionWorld = entityBuffer.entities[arrayIndex].modelMatrix * vec4(obb_vertex_position, 1.0);
     gl_Position = ubo.projection * ubo.view * positionWorld;
 }

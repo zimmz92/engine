@@ -1,4 +1,4 @@
-#version 450
+#version 460
 
 layout(location = 0) out vec4 outColor;
 
@@ -16,11 +16,6 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
     int numLights;
     float deltaTime;
 } ubo;
-
-layout(push_constant) uniform Push {
-    mat4 modelMatrix;
-    mat4 normalMatrix;
-} push;
 
 void main() {
     outColor = vec4(0.0, 1.0, 0.0, 1.0);
