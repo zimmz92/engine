@@ -11,13 +11,9 @@
 #include <stdexcept>
 #include <climits>
 #include <random>
-#include "inttypes.h"
+#include <cinttypes>
 
 namespace ae {
-
-#define _0(x)	(x & 0x7FF)
-#define _1(x)	(x >> 11 & 0x7FF)
-#define _2(x)	(x >> 22 )
 
     void lsb_radix_sort(const std::uint32_t *t_arrayRef, std::uint32_t *t_sorted, const std::size_t t_arraySize){
 
