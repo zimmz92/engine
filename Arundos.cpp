@@ -10,6 +10,7 @@
 #include "point_light_entity.hpp"
 #include "two_d_entity.hpp"
 #include "ae_image.hpp"
+#include "radix_sort.hpp"
 
 // libraries
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -18,6 +19,8 @@ namespace ae {
 
     // The constructor of the Arundos application. Sets up the base application.
     Arundos::Arundos() {
+
+        test_radix_sort();
 
         // Load the default game objects into the scene.
         loadGameObjects();
