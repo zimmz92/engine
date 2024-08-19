@@ -1,0 +1,82 @@
+#version 460
+
+struct VkAabbPositionsKHR{
+    float    minX;
+    float    minY;
+    float    minZ;
+    float    maxX;
+    float    maxY;
+    float    maxZ;
+};
+
+//all object matrices
+struct EntityData{
+	mat4 modelMatrix;
+	mat4 normalMatrix;
+	uint textureIndex[20][10];
+    VkAabbPositionsKHR aabb;
+    uint modelObbIndex;
+    float spacer1[1];
+};
+
+layout(std430, set = 0, binding = 0) readonly buffer ObbBuffer{
+	VkAabbPositionsKHR modelOBB[];
+} obbBuffer;
+
+layout(std430, set = 0, binding = 1) buffer EntityBuffer{
+	EntityData entities[];
+} entityBuffer;
+
+layout(push_constant) uniform Push {
+    uint numEntities;
+} push;
+
+// Define the number invocations of this compute shader in the current work group.
+layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
+
+void main()
+{
+    if(gl_GlobalInvocationID.x < push.numEntities){
+        vec4 positionWorld = entityBuffer.entities[gl_GlobalInvocationID.x].modelMatrix * vec4(0.0, 0.0, 0.0, 1.0);
+        mat3 rotationMatrix = {{0, 0, 0}, {0, 0, 0}, { 0, 0, 0 }};
+        vec3 scale = {0,0,0};
+
+        for(uint i = 0; i<3; i++){
+            for(uint j = 0; j<3; j++){
+                   rotationMatrix[i][j] = sign(entityBuffer.entities[gl_GlobalInvocationID.x].modelMatrix[i][j])*sqrt(entityBuffer.entities[gl_GlobalInvocationID.x].modelMatrix[i][j] * entityBuffer.entities[gl_GlobalInvocationID.x].normalMatrix[i][j]);
+            }
+            scale[i] = entityBuffer.entities[gl_GlobalInvocationID.x].modelMatrix[i][0]/rotationMatrix[i][0];
+        }
+
+        float aabb[6] = {positionWorld.x,
+                         positionWorld.y,
+                         positionWorld.z,
+                         positionWorld.x,
+                         positionWorld.y,
+                         positionWorld.z};
+
+       uint obbIndex = entityBuffer.entities[gl_GlobalInvocationID.x].modelObbIndex;
+       float obb[6] = {obbBuffer.modelOBB[obbIndex].minX,
+                       obbBuffer.modelOBB[obbIndex].minY,
+                       obbBuffer.modelOBB[obbIndex].minZ,
+                       obbBuffer.modelOBB[obbIndex].maxX,
+                       obbBuffer.modelOBB[obbIndex].maxY,
+                       obbBuffer.modelOBB[obbIndex].maxZ};
+
+        for(uint i = 0; i<3; i++){
+            for(uint j = 0; j<3; j++){
+                float e = rotationMatrix[j][i] * obb[j];
+                float f = rotationMatrix[j][i] * obb[j+3];
+                aabb[i] += e < f ? e : f;
+                aabb[i + 3] += e < f ? f : e;
+            }
+        }
+
+        entityBuffer.entities[gl_GlobalInvocationID.x].aabb.minX = aabb[0]*scale.x;
+        entityBuffer.entities[gl_GlobalInvocationID.x].aabb.minY = aabb[1]*scale.y;
+        entityBuffer.entities[gl_GlobalInvocationID.x].aabb.minZ = aabb[2]*scale.z;
+        entityBuffer.entities[gl_GlobalInvocationID.x].aabb.maxX = aabb[3]*scale.x;
+        entityBuffer.entities[gl_GlobalInvocationID.x].aabb.maxY = aabb[4]*scale.y;
+        entityBuffer.entities[gl_GlobalInvocationID.x].aabb.maxZ = aabb[5]*scale.z;
+    }
+}

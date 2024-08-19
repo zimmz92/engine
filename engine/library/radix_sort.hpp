@@ -88,6 +88,81 @@ namespace ae {
 
     }
 
+    void parallel_lsb_radix_sort(const std::uint32_t *t_arrayRef, std::uint32_t *t_sorted, const std::size_t t_arraySize) {
+
+        const std::uint32_t t_numCores = 16;
+        const std::uint32_t radix_bits = 4;
+        const std::uint32_t radix_hist = 2 << radix_bits;
+        const std::uint32_t num_hists = 8;
+
+        // ensure array can be split into sections
+        if (t_arraySize % t_numCores) {
+            throw std::runtime_error(
+                    "parallel_lsb_radix_sort: Array size is not dividable my number of processors in parallel!");
+        }
+        const std::uint32_t range_size = t_arraySize / t_numCores;
+
+        std::uint32_t hist[t_numCores][num_hists][radix_hist] = {0};
+
+        // For loop emulating number of cores working on different portions of the dataset
+        for (int i = 0; i < t_numCores; i++) {
+
+            // For loop emulating number of cores reading same dataset but creating histograms for different "LSB" Histograms
+            for(int j = 0; j < num_hists; j++){
+                std::size_t start_idx = range_size * i;
+                std::size_t end_idx = range_size * (i+1);
+                for(std::size_t k = start_idx; k < end_idx; k++){
+                    hist[i][j][(t_arrayRef[k] >> (radix_bits * j)) & (radix_hist * (j != num_hists -1))]++;
+                }
+            }
+        }
+
+        // Calculate the cumulative sum across the bins
+        std::uint32_t h0_sum = 0, h1_sum = 0, h2_sum = 0;
+        std::uint32_t temp_sum = 0;
+        for (int i = 0; i < radix_hist; i++) {
+            temp_sum = h0[i] + h0_sum;
+            // I don't like -1 being used here, will lead to an overflow and most likely will cause issues.
+            h0[i] = h0_sum - 1;
+            h0_sum = temp_sum;
+
+            temp_sum = h1[i] + h1_sum;
+            h1[i] = h1_sum - 1;
+            h1_sum = temp_sum;
+
+            temp_sum = h2[i] + h2_sum;
+            h2[i] = h2_sum - 1;
+            h2_sum = temp_sum;
+        }
+
+        // Sort the array based the 11-LS bits.
+        for (int i = 0; i < t_arraySize; i++) {
+
+            std::uint32_t element = t_arrayRef[i];
+            std::uint32_t pos = element & 0x7FF;
+
+            t_sorted[++h0[pos]] = element;
+        }
+
+        std::uint32_t temp_sort[t_arraySize];
+        // Sort the array based the next 11-LS bits.
+        for (int i = 0; i < t_arraySize; i++) {
+            std::uint32_t element = t_sorted[i];
+            std::uint32_t pos = (element >> 11) & 0x7FF;
+
+            temp_sort[++h1[pos]] = element;
+        }
+
+        // Sort the array based the 11-MS bits.
+        for (int i = 0; i < t_arraySize; i++) {
+            std::uint32_t element = temp_sort[i];
+            std::uint32_t pos = element >> 22;
+
+            t_sorted[++h2[pos]] = element;
+        }
+
+    }
+
     void test_radix_sort(){
         std::size_t const num_random_values = 10;
         std::random_device random_device;
