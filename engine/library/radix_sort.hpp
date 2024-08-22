@@ -107,59 +107,59 @@ namespace ae {
 
         std::uint32_t hist[t_numCores][num_hists][radix_num_vals];
         std::uint32_t offset[t_numCores][num_hists][radix_num_vals];
-        for(std::uint32_t i=0;i<t_numCores;i++)
+        for(std::uint32_t cores=0;cores<t_numCores;cores++)
         {
-            for(std::uint32_t j=0;j<num_hists;j++)
+            for(std::uint32_t hist_num=0;hist_num<num_hists;hist_num++)
             {
                 for(std::uint32_t k=0;k<radix_num_vals;k++)
                 {
-                    hist[i][j][k] = 0;
-                    offset[i][j][k] = 0;
+                    hist[cores][hist_num][k] = 0;
+                    offset[cores][hist_num][k] = 0;
                 }
             }
         }
 
         // Create an array to hold the values from the previous round of sorting.
         std::uint32_t intermediate_sorted[t_arraySize];
-        for(std::uint32_t i=0;i<t_arraySize;i++)
+        for(std::uint32_t cores=0;cores<t_arraySize;cores++)
         {
-            intermediate_sorted[i] = t_arrayRef[i];
+            intermediate_sorted[cores] = t_arrayRef[cores];
         }
 
         // Repeat the algorithm for each of the histograms starting from LSB to MSB.
-        for(std::uint32_t j = 0; j < num_hists; j++){
+        for(std::uint32_t hist_num = 0; hist_num < num_hists; hist_num++){
 
-            std::uint32_t hist_shift = radix_bits * j;
+            std::uint32_t hist_shift = radix_bits * hist_num;
 
             // Emulate number of cores working on different portions of the dataset
-            for (std::uint32_t i = 0; i < t_numCores; i++) {
-                std::size_t start_idx = range_size * i;
-                std::size_t end_idx = range_size * (i + 1);
+            for (std::uint32_t cores = 0; cores < t_numCores; cores++) {
+                std::size_t start_idx = range_size * cores;
+                std::size_t end_idx = range_size * (cores + 1);
 
                 // Create histograms for different "LSB" Histograms, this is also done by different cores in parallel
                 for (std::size_t k = start_idx; k < end_idx; k++) {
                     // Add one to the portion of the histogram corresponding to the array value masked by the radix.
-                    hist[i][j][(t_arrayRef[k] >> hist_shift) & hist_mask]++;
+                    hist[cores][hist_num][(t_arrayRef[k] >> hist_shift) & hist_mask]++;
                 }
             }
 
             // Calculate the offset for each of the histogram values.
-            for (std::uint32_t i = 0; i < t_numCores; i++) {
+            for (std::uint32_t cores = 0; cores < t_numCores; cores++) {
                 for (std::size_t k = 0; k < radix_num_vals; k++) {
-                    offset[i][j][k] = 0;
+                    offset[cores][hist_num][k] = 0;
 
                     // Loop through values of all cores and sum all the counts for values less than the current value.
                     for(std::uint32_t lt_k = 0; lt_k<k; lt_k++){
                         for(int all_cores = 0; all_cores<t_numCores; all_cores++){
-                            offset[i][j][k] += hist[all_cores][j][lt_k];
+                            offset[cores][hist_num][k] += hist[all_cores][hist_num][lt_k];
                         }
                     }
 
                     // Loop through all values from cores that took ranges less than the range of the current core
-                    if(i>0)
+                    if(cores>0)
                     {
-                        for(std::uint32_t lt_i = 0; lt_i<i; lt_i++){
-                            offset[i][j][k] += hist[lt_i][j][k];
+                        for(std::uint32_t lt_i = 0; lt_i<cores; lt_i++){
+                            offset[cores][hist_num][k] += hist[lt_i][hist_num][k];
                         }
                     }
                 }
@@ -167,14 +167,14 @@ namespace ae {
         }
 
         // Sort based upon the created histograms
-        for(std::uint32_t j = 0; j < num_hists; j++)
+        for(std::uint32_t hist_num = 0; hist_num < num_hists; hist_num++)
         {
-            std::uint32_t hist_shift = (radix_bits * j);
+            std::uint32_t hist_shift = (radix_bits * hist_num);
 
             // Emulate number of cores working on different portions of the dataset
-            for (std::uint32_t i = 0; i < t_numCores; i++) {
-                std::size_t start_idx = range_size * i;
-                std::size_t end_idx = range_size * (i + 1);
+            for (std::uint32_t cores = 0; cores < t_numCores; cores++) {
+                std::size_t start_idx = range_size * cores;
+                std::size_t end_idx = range_size * (cores + 1);
 
                 // Create histograms for different "LSB" Histograms, this is also done by different cores in parallel
                 for (std::uint32_t k = start_idx; k < end_idx; k++) {
@@ -183,44 +183,44 @@ namespace ae {
                     std::size_t offset_index = (intermediate_sorted[k] >> hist_shift) & hist_mask;
 
                     // Put the value into its final place in the sort for the current portion of the sort.
-                    t_sorted[offset[i][j][offset_index]] = intermediate_sorted[k];
+                    t_sorted[offset[cores][hist_num][offset_index]] = intermediate_sorted[k];
 
                     // Increment the offset for the current value so if there are multiples of a specific value it gets
                     // placed after the current one in the range.
-                    offset[i][j][offset_index]++;
+                    offset[cores][hist_num][offset_index]++;
                 }
             }
 
-            if(j != num_hists-1)
-            {
+            //if(hist_num != num_hists-1)
+            //{
                 for(int i=0;i<t_arraySize;i++)
                 {
                     intermediate_sorted[i] = t_sorted[i];
                 }
-            }
+            //}
 
         }
         printf("Done Parallel Sorting.\n");
     }
 
     void test_radix_sort(){
-        std::size_t const num_random_values = 16;
-        std::random_device random_device;
-        std::mt19937 random_engine(random_device());
-        //std::uniform_int_distribution<uint32_t> uint32_distribution(0, UINT32_MAX);
-        std::uniform_int_distribution<uint32_t> uint32_distribution(0, 255);
+        // std::size_t const num_random_values = 16;
+        // std::random_device random_device;
+        // std::mt19937 random_engine(random_device());
+        // //std::uniform_int_distribution<uint32_t> uint32_distribution(0, UINT32_MAX);
+        // std::uniform_int_distribution<uint32_t> uint32_distribution(0, 255);
+        //
+        // std::uint32_t numbers[num_random_values] = {0};
+        //
+        // printf("Random Array Values:\n");
+        // for (size_t i = 0; i < num_random_values; ++i)
+        // {
+        //     numbers[i] = uint32_distribution(random_engine);
+        //     printf("%" PRIu32 "\n", numbers[i]);
+        // }
 
-        std::uint32_t numbers[num_random_values] = {0};
-
-        printf("Random Array Values:\n");
-        for (size_t i = 0; i < num_random_values; ++i)
-        {
-            numbers[i] = uint32_distribution(random_engine);
-            printf("%" PRIu32 "\n", numbers[i]);
-        }
-
-        // std::size_t const num_random_values = 8;
-        // std::uint32_t numbers[num_random_values] = {253,75,105,178,45,128,88,200};
+        std::size_t const num_random_values = 8;
+        std::uint32_t numbers[num_random_values] = {253,75,105,178,45,128,88,200};
 
         for (size_t i = 0; i < num_random_values; ++i)
         {
@@ -234,6 +234,14 @@ namespace ae {
         printf("Serial Sorted Array:\n");
         for(size_t i = 0; i < num_random_values; ++i){
             printf("%" PRIu32 "\n", sorted[i]);
+        }
+        printf("\n\n");
+
+
+        printf("Numbers:\n");
+        for (size_t i = 0; i < num_random_values; ++i)
+        {
+            printf("%" PRIu32 "\n", numbers[i]);
         }
         printf("\n\n");
 
